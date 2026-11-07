@@ -20,19 +20,19 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       }
       .community-rich-0 a:nth-of-type(1) {
         color: #004dcf;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-1 a:nth-of-type(1) {
         color: #004dcf;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-1 a:nth-of-type(2) {
         color: #004dcf;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-1 a:nth-of-type(3) {
         color: #004dcf;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .google-play-social-icons {
         width: 96px !important;
@@ -46,7 +46,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-spacer height="30px" />
       </mj-column>
     </mj-section>
-    <mj-wrapper padding="0px" background-color="#ffffff" border-radius="5px">
+    <mj-wrapper padding="0px" background-color="#ffffff" border-radius="5px 5px 0px 0px">
       <mj-section padding="0px">
         <mj-column padding="0px">
           <mj-image
@@ -125,7 +125,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           >
         </mj-column>
       </mj-section>
-      <mj-section padding="0px" background-color="#f0fcff">
+    </mj-wrapper>
+    <mj-wrapper padding="0px 5%" background-color="#ffffff" css-class="google-play-panel-container">
+      <mj-section padding="0px" background-color="#f0fcff" border-radius="5px 5px 0px 0px">
         <mj-column padding="0px">
           <mj-text padding="16px 20px" font-size="14px" line-height="22px" color="#3c4043"
             >Connect with us</mj-text
@@ -174,14 +176,16 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           <mj-image
             src="https://demo.react.email/static/google-play-footer.png"
             alt=""
-            width="540px"
+            width="520px"
             height="48px"
             align="left"
-            padding="0px"
+            padding="0px 0px 0px 20px"
           />
         </mj-column>
       </mj-section>
-      <mj-section padding="16px 40px 30px">
+    </mj-wrapper>
+    <mj-wrapper padding="0px" background-color="#ffffff" border-radius="0px 0px 5px 5px">
+      <mj-section padding="0px 40px 30px">
         <mj-column padding="0px">
           <mj-text padding="0px" font-size="12px" line-height="22px" color="#3c4043" align="center"
             >© 2022 Google LLC 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA</mj-text

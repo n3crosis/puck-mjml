@@ -4,6 +4,7 @@ import { ImageSourceField } from "./ImageSourceField";
 import { withFieldPermissions } from "./FieldPermissions";
 import type { Config, RichText, Slot } from "@puckeditor/core";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
+import { emailRichTextConfig } from "./EmailRichText";
 import { CodeArea } from "./CodeField";
 import { colorField } from "./ColorField";
 import { safeRichTextUrl } from "./richtext";
@@ -792,6 +793,7 @@ export function createEmailConfig(
         fields: {
           content: {
             type: "richtext",
+            ...emailRichTextConfig,
             contentEditable: true,
             visible: false,
             renderMenu: renderEmailRichTextMenu,
@@ -1130,6 +1132,7 @@ export function createEmailConfig(
               title: { type: "text", label: "Title" },
               content: {
                 type: "richtext",
+                ...emailRichTextConfig,
                 label: "Content",
                 contentEditable: true,
                 renderMenu: renderEmailRichTextMenu,

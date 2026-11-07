@@ -436,6 +436,7 @@ function NativeBlockView({
         >
           {a.src ? (
             <a
+              data-pm-mjml-image-width=""
               href={a.href || undefined}
               target={a.target}
               rel={a.rel}

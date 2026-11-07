@@ -6,7 +6,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     <mj-title>Netlify Welcome</mj-title>
     <mj-preview>Netlify Welcome</mj-preview>
     <mj-attributes>
-      <mj-all font-family="Arial,Helvetica,sans-serif" />
+      <mj-all
+        font-family="ui-sans-serif,system-ui,sans-serif,&#x27;Apple Color Emoji&#x27;,&#x27;Segoe UI Emoji&#x27;,&#x27;Segoe UI Symbol&#x27;,&#x27;Noto Color Emoji&#x27;"
+      />
       <mj-text padding="0px" />
     </mj-attributes>
     <mj-style inline="inline">

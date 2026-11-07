@@ -16,10 +16,21 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       a {
         color: inherit;
       }
-      .stack-heart {
+      .stack-heart > div {
+        display: inline-block;
+        max-width: min-content;
         border: 1px solid #d6d9dc;
         border-radius: 1px;
-        width: 30px;
+        padding: 4px 6px 3px;
+      }
+      .stack-tips ul {
+        margin: 0;
+      }
+      .stack-tips li p {
+        margin: 0 0 16px;
+      }
+      .stack-tips li:last-child p {
+        margin-bottom: 0;
       }
       .community-rich-0 a:nth-of-type(1) {
         color: #9199a1;
@@ -65,9 +76,14 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       </mj-column>
     </mj-section>
     <mj-section padding="0px" background-color="#2b2d6e" border-radius="6px 6px 0px 0px">
-      <mj-column padding="20px 30px 15px" width="50%">
+      <mj-column
+        padding="20px 30px 15px"
+        width="55%"
+        vertical-align="middle"
+        css-class="stack-hero-copy"
+      >
         <mj-text
-          padding="0px 0px 16px"
+          padding="18.09px 0px 18.09px"
           font-size="27px"
           line-height="27px"
           font-weight="700"
@@ -79,7 +95,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           >Tips and tricks for searching on Stack Overflow</mj-text
         >
       </mj-column>
-      <mj-column padding="30px 10px" width="50%">
+      <mj-column padding="30px 10px" width="45%" vertical-align="middle" css-class="stack-hero-art">
         <mj-image
           src="https://demo.react.email/static/stack-overflow-header.png"
           alt=""
@@ -92,7 +108,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     <mj-section padding="30px 30px 40px" background-color="#ffffff">
       <mj-column padding="0px">
         <mj-text
-          padding="0px 0px 15px"
+          padding="0px 0px 16px"
           font-size="21px"
           line-height="1"
           font-weight="700"
@@ -104,9 +120,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           >With more than 18 million questions, it's possible that someone has already provided a
           solution to the problem you're facing.</mj-text
         >
-        <mj-divider border-color="#eeeeee" border-width="1px" padding="30px 0px" />
+        <mj-divider border-color="#eaeaea" border-width="1px" padding="14px 0px 30px" />
         <mj-text
-          padding="0px 0px 15px"
+          padding="0px 0px 16px"
           font-size="21px"
           line-height="1"
           font-weight="700"
@@ -117,7 +133,12 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text padding="0px 0px 16px" font-size="15px" line-height="21px" color="#3c3f44"
           >Here are a few simple search tips to get you started:</mj-text
         >
-        <mj-text padding="0px 0px 16px" font-size="15px" line-height="21px" color="#3c3f44"
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="15px"
+          line-height="21px"
+          color="#3c3f44"
+          css-class="stack-tips"
           ><ul>
             <li><p>To find a specific phrase, enter it in quotes: &quot;local storage&quot;</p></li>
             <li>
@@ -137,7 +158,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           find the answer you need or feel confident that no one else has asked the question
           before.</mj-text
         >
-        <mj-divider border-color="#eeeeee" border-width="1px" padding="30px 0px" />
+        <mj-divider border-color="#eaeaea" border-width="1px" padding="14px 0px 30px" />
         <mj-text
           padding="0px 0px 16px"
           font-size="21px"
@@ -150,7 +171,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-button
           href="https://stackoverflow.blog/2019/10/22/"
           align="left"
-          padding="24px 0px 0px"
+          padding="8px 0px 0px"
           inner-padding="13px 17px"
           border-radius="4px"
           font-size="17px"
@@ -191,7 +212,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           10038</mj-text
         >
         <mj-text
-          padding="4px 6px 3px"
+          padding="0px"
           font-size="11px"
           line-height="1"
           font-family="Consolas,monospace"

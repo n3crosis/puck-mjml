@@ -183,13 +183,13 @@ describe.each([false, true])(
         display: "block",
         "padding-top": "4px",
         "font-size": "32px",
-        "line-height": "1.5",
+        "line-height": "24px",
         "font-style": "normal",
         "font-weight": "400",
       });
       expect(declarations($(".codepen-challenge-heading > div").attr("style"))).toMatchObject({
-        "font-size": "24px",
-        "line-height": "1.3",
+        "font-size": "32px",
+        "line-height": "normal",
         "font-weight": "400",
       });
     });

@@ -51,11 +51,8 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
           padding-right: 8px !important;
         }
         .bare-card-section > table > tbody > tr > td {
-          padding-left: 16px !important;
-          padding-right: 16px !important;
-        }
-        .bare-stack-gap {
-          padding-bottom: 32px !important;
+          padding-left: 24px !important;
+          padding-right: 24px !important;
         }
       }
     </mj-style>
@@ -70,6 +67,19 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         letter-spacing: inherit;
         color: inherit;
         text-transform: inherit;
+      }
+    </mj-style>
+    <mj-style inline="inline">
+      .bare-letter-copy > div {
+        max-width: 420px;
+      }
+    </mj-style>
+    <mj-style>
+      @media only screen and (max-width: 600px) {
+        .bare-card-section > table > tbody > tr > td {
+          padding-top: 48px !important;
+          padding-bottom: 48px !important;
+        }
       }
     </mj-style> </mj-head
   ><mj-body width="640px" background-color="#F3F4F6">
@@ -125,6 +135,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 24px"
+            css-class="bare-letter-copy"
             >This is the text-only layout: no hero image and no primary call-to-action. Use it for
             concise product notes, receipts, account updates, and other plain-language emails where
             the message should stay front and center.</mj-text
@@ -136,6 +147,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 24px"
+            css-class="bare-letter-copy"
             >Keep paragraphs short and focused so the content is easy to scan on mobile. If you need
             richer visuals or a conversion button, switch to another collage template.</mj-text
           ><mj-text
@@ -146,6 +158,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 24px"
+            css-class="bare-letter-copy"
             >Replace this placeholder copy by editing this template file directly.</mj-text
           ><mj-text
             font-size="16px"
@@ -155,7 +168,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 24px"
-            css-class="bare-account-link"
+            css-class="bare-account-link bare-letter-copy"
             ><a href="https://example.com/">Open your account</a></mj-text
           ><mj-spacer height="8px" /><mj-text
             font-size="13px"

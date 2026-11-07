@@ -49,11 +49,8 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
           padding-right: 8px !important;
         }
         .bare-card-section > table > tbody > tr > td {
-          padding-left: 16px !important;
-          padding-right: 16px !important;
-        }
-        .bare-stack-gap {
-          padding-bottom: 32px !important;
+          padding-left: 24px !important;
+          padding-right: 24px !important;
         }
       }
     </mj-style>
@@ -68,6 +65,14 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         letter-spacing: inherit;
         color: inherit;
         text-transform: inherit;
+      }
+    </mj-style>
+    <mj-style>
+      @media only screen and (max-width: 600px) {
+        .bare-card-section > table > tbody > tr > td {
+          padding-top: 48px !important;
+          padding-bottom: 48px !important;
+        }
       }
     </mj-style> </mj-head
   ><mj-body width="640px" background-color="#F3F4F6">
@@ -149,7 +154,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#FFFFFF"
             font-size="16px"
             font-weight="420"
-            line-height="24px"
+            line-height="1.2"
             letter-spacing="-0.048px"
             border-radius="8px"
             inner-padding="16px 28px"

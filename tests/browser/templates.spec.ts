@@ -13,11 +13,13 @@ import {
   declaredMjmlFonts,
   expectedCanvasFonts,
   fontFailures,
+  imageFailures,
   observeResources,
   waitForFontRegistrations,
   type DeclaredFont,
   type ExpectedCanvasFont,
 } from "./font-evidence";
+import { loadReactEmailReference, reactEmailReferenceUrl } from "./reference-document";
 
 const fixtures: { ref: string; templates: { file: string; content: string[] }[] } = JSON.parse(
   readFileSync(new URL("../../src/templates/upstream-content.json", import.meta.url), "utf8"),
@@ -65,12 +67,20 @@ async function measureVisuals(root: Locator) {
     const text = (node: Element) =>
       (node as HTMLElement).innerText?.replace(/\s+/g, " ").trim() ?? "";
     return {
+      document: { url: document.URL, baseURI: document.baseURI, origin: view.location.origin },
       viewport: view.innerWidth,
       ...rectangle(element),
       scrollWidth: element.scrollWidth,
       clientWidth: element.clientWidth,
       documentOverflow: document.documentElement.scrollWidth - view.innerWidth,
       text: text(element),
+      backgrounds: [element, ...Array.from(element.querySelectorAll("*"))]
+        .map((node) => ({
+          tagName: node.tagName,
+          backgroundImage: view.getComputedStyle(node).backgroundImage,
+          ...rectangle(node),
+        }))
+        .filter(({ backgroundImage }) => backgroundImage.includes("url(")),
       textBlocks: Array.from(element.querySelectorAll("p,h1,h2,h3,li,div"))
         .filter((node) => !node.querySelector("p,h1,h2,h3,li,div,table"))
         .filter((node) => text(node) && node.getBoundingClientRect().height > 1)
@@ -92,6 +102,7 @@ type Capture = {
   screenshot: string;
   resourceError: string | null;
   fonts: Awaited<ReturnType<typeof fontEvidence>>;
+  artworkTransport: ReturnType<typeof imageFailures>;
   resources: ReturnType<ReturnType<typeof observeResources>>;
   metrics: Awaited<ReturnType<typeof measureVisuals>>;
 };
@@ -166,7 +177,8 @@ async function captureCompleteEmail(
   const captures: Capture[] = [];
   try {
     await email.setViewportSize({ width: 800, height: 900 });
-    await email.setContent(html, { waitUntil: "load", timeout: 30_000 });
+    if (representation === "react-email") await loadReactEmailReference(email, html);
+    else await email.setContent(html, { waitUntil: "load", timeout: 30_000 });
     // Load each document once, then resize sequentially. MJML comes from the
     // actual demo preview; React Email is the verified, unmodified renderer output.
     for (const [mode, width] of [
@@ -178,12 +190,20 @@ async function captureCompleteEmail(
       const screenshot = `${representation}-${mode}-${width}px.png`;
       await email.screenshot({ path: testInfo.outputPath(screenshot), fullPage: true });
       const metrics = await measureVisuals(email.locator("body"));
+      if (representation === "react-email") {
+        expect(metrics.document).toEqual({
+          url: reactEmailReferenceUrl,
+          baseURI: reactEmailReferenceUrl,
+          origin: new URL(reactEmailReferenceUrl).origin,
+        });
+      }
       captures.push({
         representation,
         mode,
         screenshot,
         resourceError,
         fonts: await fontEvidence(email.locator("body"), resources()),
+        artworkTransport: imageFailures(resources()),
         resources: resources(),
         metrics,
       });
@@ -250,6 +270,7 @@ async function captureEditorCanvas(
       screenshot,
       resourceError,
       fonts: await fontEvidence(email, resources(), expected),
+      artworkTransport: imageFailures(resources()),
       resources: resources(),
       metrics,
     });
@@ -384,7 +405,7 @@ for (const fixture of fixtures.templates) {
             declaredMjmlFonts: fonts,
             editorResources: resources(),
             html: { original: "react-email.html", compiled: "mjml.html" },
-            note: "Original mobile overflow and resource failures are recorded as reference behavior, not repaired. Canvas captures use the live editable DOM with its existing gutter, at 800/390px iframe widths; only the outer editor height is extended. Pixel equality is not asserted. Canvas font CSS must register every declared family before fonts.ready is awaited; registered unused faces may remain unloaded. Resource events are collected before navigation, including the editor preview iframe; each capture contains a cumulative snapshot for its page.",
+            note: "Original HTML is fulfilled unchanged at an exact synthetic document URL on https://demo.react.email so relative assets retain their source origin. Original mobile overflow and resource failures are recorded as reference behavior, not repaired. Canvas captures use the live editable DOM with its existing gutter, at 800/390px iframe widths; only the outer editor height is extended. Pixel equality is not asserted. Canvas font CSS must register every declared family before fonts.ready is awaited; registered unused faces may remain unloaded. Resource events are collected before navigation, including the editor preview iframe; each capture contains a cumulative snapshot for its page. Image HTTP failures (including CSS backgrounds) are recorded separately from font and stylesheet failures, alongside computed background URLs and each document's baseURI.",
             contentComparison: compareContent(),
             captures,
           },

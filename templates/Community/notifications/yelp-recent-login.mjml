@@ -39,7 +39,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-image
           src="https://demo.react.email/static/yelp-logo.png"
           alt="Yelp logo"
-          width="120px"
+          width="80px"
+          height="40px"
           align="left"
           padding="0px"
         />

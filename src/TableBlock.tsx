@@ -1,5 +1,7 @@
 import type { ArrayField, ComponentConfig } from "@puckeditor/core";
+import type { CSSProperties } from "react";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
+import { emailRichTextConfig } from "./EmailRichText";
 import { sanitizeEmailRichText } from "./richtext";
 import { hasImportedRichTextWrapper, importedRichText } from "./imported-content";
 import { colorField } from "./ColorField";
@@ -19,6 +21,7 @@ const options = (values: string[]) =>
 const cellFields: ArrayField<TableCell[]>["arrayFields"] = {
   content: {
     type: "richtext",
+    ...emailRichTextConfig,
     label: "Cell text",
     contentEditable: true,
     visible: false,
@@ -159,6 +162,9 @@ export function TableBlock(
             ])
           : {}),
         backgroundColor: attrs["container-background-color"] as string | undefined,
+        // MJML places align on the containing td. Preserve that inheritance
+        // without overriding explicit authored cell alignment or th defaults.
+        textAlign: input.nativeAttributes ? (attrs.align as CSSProperties["textAlign"]) : undefined,
       }}
     >
       <table

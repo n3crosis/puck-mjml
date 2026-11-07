@@ -59,9 +59,6 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
           padding-left: 16px !important;
           padding-right: 16px !important;
         }
-        .bare-stack-gap {
-          padding-bottom: 32px !important;
-        }
       }
     </mj-style>
     <mj-style inline="inline">
@@ -75,6 +72,44 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         letter-spacing: inherit;
         color: inherit;
         text-transform: inherit;
+      }
+    </mj-style>
+    <mj-style inline="inline">
+      .bare-feature-icon-copy {
+        width: calc(100% - 80px) !important;
+        flex-basis: calc(100% - 80px) !important;
+      }
+    </mj-style>
+    <mj-style>
+      @media only screen and (max-width: 600px) {
+        .bare-hero > table > tbody > tr > td {
+          padding-top: 48px !important;
+        }
+        .bare-feature-card > table > tbody > tr > td {
+          padding-top: 24px !important;
+        }
+        .bare-feature-icon-slot {
+          width: 68px !important;
+          flex-basis: 68px !important;
+        }
+        .bare-feature-icon-copy {
+          width: calc(100% - 68px) !important;
+          flex-basis: calc(100% - 68px) !important;
+        }
+        .bare-feature-icon-slot > table > tbody > tr > td {
+          padding-right: 20px !important;
+        }
+        .bare-card-start > table > tbody > tr > td {
+          padding-top: 40px !important;
+        }
+        .bare-card-end > table > tbody > tr > td {
+          padding-bottom: 40px !important;
+        }
+        .bare-card-gap,
+        .bare-card-gap > div {
+          height: 8px !important;
+          line-height: 8px !important;
+        }
       }
     </mj-style> </mj-head
   ><mj-body width="640px" background-color="#F3F4F6">
@@ -110,7 +145,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         padding="80px 24px 64px"
         background-color="#F3F4F6"
         border-radius="10px"
-        css-class="bare-card-section"
+        css-class="bare-card-section bare-hero bare-card-end"
         ><mj-column width="100%" padding="0px"
           ><mj-text
             font-size="13px"
@@ -120,6 +155,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#7B7D81"
             align="center"
             padding="0px 0px 16px"
+            css-class="bare-heading-copy"
             >What's new from Barebones</mj-text
           ><mj-text
             font-size="40px"
@@ -129,7 +165,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#14171E"
             align="center"
             padding="0px 0px 16px"
-            css-class="reference-heading"
+            css-class="reference-heading bare-heading-copy"
             ><h1>Release Notes</h1></mj-text
           ><mj-text
             font-size="16px"
@@ -155,6 +191,10 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#14171E"
             align="left"
             padding="0px 0px 24px"
+            css-class="bare-feature-copy"
+            padding-top="16px"
+            padding-left="8px"
+            padding-right="8px"
             >Hello feature. Goodbye old feature.</mj-text
           ><mj-text
             font-size="16px"
@@ -164,6 +204,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 32px"
+            css-class="bare-feature-copy"
+            padding-left="8px"
+            padding-right="8px"
             >Ship updates in smaller, safer steps: clearer defaults, fewer clicks, and less context
             switching for your team.</mj-text
           ><mj-button
@@ -172,12 +215,14 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#FFFFFF"
             font-size="16px"
             font-weight="420"
-            line-height="24px"
+            line-height="1.2"
             letter-spacing="-0.048px"
             border-radius="8px"
             inner-padding="16px 28px"
             padding="0px 0px 0px"
             align="left"
+            padding-left="8px"
+            padding-right="8px"
             >Try it out</mj-button
           ><mj-spacer height="80px" /><mj-image
             src="https://demo.react.email/static/barebones/barebones-image.png"
@@ -193,6 +238,10 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#14171E"
             align="left"
             padding="0px 0px 24px"
+            css-class="bare-feature-copy"
+            padding-top="16px"
+            padding-left="8px"
+            padding-right="8px"
             >Hello feature. Goodbye old feature.</mj-text
           ><mj-text
             font-size="16px"
@@ -202,6 +251,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 32px"
+            css-class="bare-feature-copy"
+            padding-left="8px"
+            padding-right="8px"
             >Ship updates in smaller, safer steps: clearer defaults, fewer clicks, and less context
             switching for your team.</mj-text
           ><mj-button
@@ -210,23 +262,26 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#FFFFFF"
             font-size="16px"
             font-weight="420"
-            line-height="24px"
+            line-height="1.2"
             letter-spacing="-0.048px"
             border-radius="8px"
             inner-padding="16px 28px"
             padding="0px 0px 0px"
             align="left"
+            padding-left="8px"
+            padding-right="8px"
             >Try it out</mj-button
           ></mj-column
         ></mj-section
       >
       <mj-section padding="0px"
-        ><mj-column width="100%" padding="0px"><mj-spacer height="24px" /></mj-column></mj-section
+        ><mj-column width="100%" padding="0px"
+          ><mj-spacer height="24px" css-class="bare-card-gap" /></mj-column></mj-section
       ><mj-section
         padding="56px 32px 0px"
         background-color="#F3F4F6"
         border-radius="10px 10px 0px 0px"
-        css-class="bare-card-section"
+        css-class="bare-card-section bare-card-start"
         ><mj-column width="100%" padding="0px"
           ><mj-text
             font-size="32px"
@@ -247,14 +302,14 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         border-radius="0px"
         css-class="bare-card-section"
         ><mj-group width="100%"
-          ><mj-column width="12%" padding="0px 8px 0px 0px"
+          ><mj-column width="80px" padding="0px 32px 0px 0px" css-class="bare-feature-icon-slot"
             ><mj-image
               src="https://demo.react.email/static/barebones/barebones-image-3.png"
               alt=""
               width="48px"
               padding="0px 0px 0px"
               border-radius="0px" /></mj-column
-          ><mj-column width="88%" padding="0px 0px 36px"
+          ><mj-column width="448px" padding="0px 0px 36px" css-class="bare-feature-icon-copy"
             ><mj-text
               font-size="16px"
               font-weight="420"
@@ -291,16 +346,16 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         padding="0px 32px 56px"
         background-color="#F3F4F6"
         border-radius="0px 0px 10px 10px"
-        css-class="bare-card-section"
+        css-class="bare-card-section bare-card-end"
         ><mj-group width="100%"
-          ><mj-column width="12%" padding="0px 8px 0px 0px"
+          ><mj-column width="80px" padding="0px 32px 0px 0px" css-class="bare-feature-icon-slot"
             ><mj-image
               src="https://demo.react.email/static/barebones/barebones-image-3.png"
               alt=""
               width="48px"
               padding="0px 0px 0px"
               border-radius="0px" /></mj-column
-          ><mj-column width="88%" padding="0px 0px 0px"
+          ><mj-column width="448px" padding="0px 0px 0px" css-class="bare-feature-icon-copy"
             ><mj-text
               font-size="16px"
               font-weight="420"
@@ -334,12 +389,13 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         ></mj-section
       >
       <mj-section padding="0px"
-        ><mj-column width="100%" padding="0px"><mj-spacer height="24px" /></mj-column></mj-section
+        ><mj-column width="100%" padding="0px"
+          ><mj-spacer height="24px" css-class="bare-card-gap" /></mj-column></mj-section
       ><mj-section
         padding="32px 24px 64px"
         background-color="#F3F4F6"
         border-radius="10px"
-        css-class="bare-card-section"
+        css-class="bare-card-section bare-feature-card bare-card-end"
         ><mj-column width="100%" padding="0px"
           ><mj-image
             src="https://demo.react.email/static/barebones/barebones-image.png"
@@ -355,6 +411,10 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#14171E"
             align="left"
             padding="0px 0px 24px"
+            css-class="bare-feature-copy"
+            padding-top="16px"
+            padding-left="8px"
+            padding-right="8px"
             >Hello feature. Goodbye old feature.</mj-text
           ><mj-text
             font-size="16px"
@@ -364,6 +424,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 32px"
+            css-class="bare-feature-copy"
+            padding-left="8px"
+            padding-right="8px"
             >Ship updates in smaller, safer steps: clearer defaults, fewer clicks, and less context
             switching for your team.</mj-text
           ><mj-button
@@ -372,23 +435,26 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#FFFFFF"
             font-size="16px"
             font-weight="420"
-            line-height="24px"
+            line-height="1.2"
             letter-spacing="-0.048px"
             border-radius="8px"
             inner-padding="16px 28px"
             padding="0px 0px 0px"
             align="left"
+            padding-left="8px"
+            padding-right="8px"
             >Try it out</mj-button
           ></mj-column
         ></mj-section
       >
       <mj-section padding="0px"
-        ><mj-column width="100%" padding="0px"><mj-spacer height="24px" /></mj-column></mj-section
+        ><mj-column width="100%" padding="0px"
+          ><mj-spacer height="24px" css-class="bare-card-gap" /></mj-column></mj-section
       ><mj-section
         padding="56px 24px 0px"
         background-color="#F3F4F6"
         border-radius="10px 10px 0px 0px"
-        css-class="bare-card-section"
+        css-class="bare-card-section bare-card-start"
         ><mj-column
           width="56px"
           padding="12px"
@@ -425,7 +491,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         padding="0px 24px 56px"
         background-color="#F3F4F6"
         border-radius="0px 0px 10px 10px"
-        css-class="bare-card-section"
+        css-class="bare-card-section bare-card-end"
         ><mj-column width="100%" padding="0px"
           ><mj-button
             href="https://example.com/"
@@ -433,7 +499,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#FFFFFF"
             font-size="16px"
             font-weight="420"
-            line-height="24px"
+            line-height="1.2"
             letter-spacing="-0.048px"
             border-radius="8px"
             inner-padding="16px 28px"
@@ -444,7 +510,8 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         ></mj-section
       >
       <mj-section padding="0px"
-        ><mj-column width="100%" padding="0px"><mj-spacer height="24px" /></mj-column
+        ><mj-column width="100%" padding="0px"
+          ><mj-spacer height="24px" css-class="bare-card-gap" /></mj-column
       ></mj-section>
       <mj-section padding="40px 24px"
         ><mj-column width="100%" padding="0px"

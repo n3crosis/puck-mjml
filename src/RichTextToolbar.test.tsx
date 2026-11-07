@@ -6,7 +6,7 @@ import { Editor } from "@tiptap/core";
 import { Document } from "@tiptap/extension-document";
 import { Paragraph } from "@tiptap/extension-paragraph";
 import { Text } from "@tiptap/extension-text";
-import { Link } from "@tiptap/extension-link";
+import { EmailLink as Link } from "./EmailRichText";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
 
 vi.mock("@puckeditor/core", () => {
@@ -76,6 +76,54 @@ function renderMenu(menu: typeof renderEmailRichTextMenu, editor: Editor) {
 }
 
 describe("rich text link control", () => {
+  it.each([
+    ["sidebar", renderEmailRichTextMenu],
+    ["inline", renderEmailInlineMenu],
+  ] as const)(
+    "adds a destination to just one anchor label through the %s control",
+    async (_name, menu) => {
+      const editor = new Editor({
+        extensions: [Document, Paragraph, Text, Link],
+        content: "<p><a>First label</a><a>Second label</a></p>",
+      });
+      cleanups.push(() => editor.destroy());
+      editor.commands.setTextSelection(3);
+      const container = renderMenu(menu, editor);
+      await act(async () =>
+        container.querySelector<HTMLButtonElement>('button[aria-label="Edit link"]')!.click(),
+      );
+      const input = container.querySelector<HTMLInputElement>(".pm-richtext-link input")!;
+      expect(input.value).toBe("");
+      await act(async () => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+          input,
+          "javascript:alert(1)",
+        );
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+      await act(async () =>
+        input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })),
+      );
+      expect(container.querySelector('[role="alert"]')).not.toBeNull();
+      expect(editor.getHTML()).toBe("<p><a>First label</a><a>Second label</a></p>");
+      await act(async () => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+          input,
+          "https://example.com/label",
+        );
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+      await act(async () =>
+        input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })),
+      );
+      expect(editor.getHTML()).toContain(
+        'href="https://example.com/label">First label</a><a>Second label</a>',
+      );
+      expect(editor.view.dom.querySelectorAll("a a")).toHaveLength(0);
+      expect(editor.getHTML()).not.toContain("anchorBoundary");
+    },
+  );
+
   it.each([
     ["sidebar", renderEmailRichTextMenu],
     ["inline", renderEmailInlineMenu],

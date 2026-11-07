@@ -76,14 +76,16 @@ export function observeResources(page: Page, fonts: DeclaredFont[]) {
     error: string | null;
     elapsedMs: number;
   }[] = [];
-  const fontAndStylesheetResponses: {
+  type ResourceResponse = {
     url: string;
     resourceType: string;
     declaredFontStylesheet: boolean;
     status: number;
     ok: boolean;
     elapsedMs: number;
-  }[] = [];
+  };
+  const fontAndStylesheetResponses: ResourceResponse[] = [];
+  const imageResponses: ResourceResponse[] = [];
   const elapsedMs = () => Date.now() - started;
   const isFontStylesheet = (request: Request): boolean => {
     for (let current: Request | null = request; current; current = current.redirectedFrom()) {
@@ -113,22 +115,36 @@ export function observeResources(page: Page, fonts: DeclaredFont[]) {
   page.on("response", (response) => {
     const request = response.request();
     const declaredFontStylesheet = isFontStylesheet(request);
-    if (!["font", "stylesheet"].includes(request.resourceType()) && !declaredFontStylesheet) return;
-    fontAndStylesheetResponses.push({
+    const resourceType = request.resourceType();
+    const evidence = {
       url: response.url(),
-      resourceType: request.resourceType(),
+      resourceType,
       declaredFontStylesheet,
       status: response.status(),
       ok: response.ok(),
       elapsedMs: elapsedMs(),
-    });
+    };
+    if (["font", "stylesheet"].includes(resourceType) || declaredFontStylesheet) {
+      fontAndStylesheetResponses.push(evidence);
+    }
+    // CSS background images do not appear in the document's <img> collection.
+    // Keep their HTTP status evidence separate from font/stylesheet failures.
+    if (resourceType === "image") imageResponses.push(evidence);
   });
   return () => ({
     observedThroughMs: elapsedMs(),
     warnings: [...warnings],
     failedRequests: [...failedRequests],
     fontAndStylesheetResponses: [...fontAndStylesheetResponses],
+    imageResponses: [...imageResponses],
   });
+}
+
+export function imageFailures(resources: ReturnType<ReturnType<typeof observeResources>>) {
+  return {
+    failedRequests: resources.failedRequests.filter(({ resourceType }) => resourceType === "image"),
+    httpErrors: resources.imageResponses.filter(({ status }) => status >= 400),
+  };
 }
 
 /** Preserve transport failures separately from absent registrations or failed faces. */

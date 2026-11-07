@@ -6,8 +6,10 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     <mj-title>Your Year with Papermark</mj-title>
     <mj-preview>See your stats from 2024</mj-preview>
     <mj-attributes>
-      <mj-all font-family="Arial,Helvetica,sans-serif" />
-      <mj-text padding="0px" />
+      <mj-all
+        font-family="ui-sans-serif,system-ui,sans-serif,&#x27;Apple Color Emoji&#x27;,&#x27;Segoe UI Emoji&#x27;,&#x27;Segoe UI Symbol&#x27;,&#x27;Noto Color Emoji&#x27;"
+      />
+      <mj-text padding="0px" color="#101828" />
     </mj-attributes>
     <mj-style inline="inline">
       /* Style both opaque surfaces; solid colors remain fallbacks for email clients. */
@@ -88,8 +90,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         color: #ffffff;
       }
       .community-rich-4 a:nth-of-type(1) {
-        color: #111827;
-        text-decoration: underline;
+        color: #101828;
+        text-decoration: none;
       }
     </mj-style>
     <mj-style inline="inline">
@@ -112,25 +114,25 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="16px 0px 32px"
           font-size="24px"
-          line-height="1.5"
+          line-height="32px"
           font-weight="700"
           align="center"
-          letter-spacing="-1px"
+          letter-spacing="-1.2px"
           >Papermark</mj-text
         >
         <mj-text
           padding="0px 0px 16px"
           font-size="14px"
-          line-height="1.5"
+          line-height="20px"
           align="center"
-          letter-spacing="1px"
+          letter-spacing="0.7px"
           text-transform="uppercase"
           >2024 in review</mj-text
         >
         <mj-text
-          padding="16px 0px"
+          padding="0px 0px 16px"
           font-size="36px"
-          line-height="1.3"
+          line-height="45px"
           font-weight="500"
           align="center"
           css-class="reference-heading"
@@ -147,7 +149,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           inner-padding="16px 48px"
           border-radius="999px"
           font-size="14px"
-          background-color="#111827"
+          line-height="20px"
+          background-color="#101828"
           color="#ffffff"
           font-weight="700"
           >Share your stats</mj-button
@@ -165,7 +168,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           <mj-text
             padding="0px"
             font-size="30px"
-            line-height="1.3"
+            line-height="36px"
             font-weight="500"
             color="#a63b00"
             align="center"
@@ -177,14 +180,14 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
             font-size="72px"
             line-height="1"
             font-weight="700"
-            color="#111827"
+            color="#101828"
             align="center"
             >1234</mj-text
           >
           <mj-text
             padding="0px 0px 16px"
             font-size="30px"
-            line-height="1.5"
+            line-height="36px"
             font-weight="500"
             align="center"
             >minutes on your documents</mj-text
@@ -196,10 +199,10 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           <mj-text
             padding="20px 0px 0px"
             font-size="12px"
-            line-height="1.3"
+            line-height="16px"
             font-weight="500"
             align="center"
-            letter-spacing="1px"
+            letter-spacing="0.6px"
             text-transform="uppercase"
             css-class="reference-heading"
             ><h1>Your activity</h1></mj-text
@@ -207,72 +210,74 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         </mj-column>
       </mj-section>
       <mj-section padding="20px 32px 32px">
-        <mj-column padding="0px" width="33.333%">
-          <mj-text
-            padding="0px 0px 16px"
-            font-size="14px"
-            line-height="1.5"
-            color="#a63b00"
-            font-weight="500"
-            align="center"
-            >You uploaded</mj-text
-          >
-          <mj-text
-            padding="4px 0px"
-            font-size="36px"
-            line-height="1.5"
-            font-weight="700"
-            align="center"
-            >25</mj-text
-          >
-          <mj-text padding="0px 0px 16px" font-size="24px" line-height="1.5" align="center"
-            >documents</mj-text
-          >
-        </mj-column>
-        <mj-column padding="0px" width="33.333%">
-          <mj-text
-            padding="0px 0px 16px"
-            font-size="14px"
-            line-height="1.5"
-            color="#a63b00"
-            font-weight="500"
-            align="center"
-            >You shared</mj-text
-          >
-          <mj-text
-            padding="4px 0px"
-            font-size="36px"
-            line-height="1.5"
-            font-weight="700"
-            align="center"
-            >50</mj-text
-          >
-          <mj-text padding="0px 0px 16px" font-size="24px" line-height="1.5" align="center"
-            >links</mj-text
-          >
-        </mj-column>
-        <mj-column padding="0px" width="33.333%">
-          <mj-text
-            padding="0px 0px 16px"
-            font-size="14px"
-            line-height="1.5"
-            color="#a63b00"
-            font-weight="500"
-            align="center"
-            >You received</mj-text
-          >
-          <mj-text
-            padding="4px 0px"
-            font-size="36px"
-            line-height="1.5"
-            font-weight="700"
-            align="center"
-            >500</mj-text
-          >
-          <mj-text padding="0px 0px 16px" font-size="24px" line-height="1.5" align="center"
-            >views</mj-text
-          >
-        </mj-column>
+        <mj-group width="100%" css-class="paper-activity-stats">
+          <mj-column padding="0px" width="33.333%">
+            <mj-text
+              padding="0px 0px 16px"
+              font-size="14px"
+              line-height="20px"
+              color="#a63b00"
+              font-weight="500"
+              align="center"
+              >You uploaded</mj-text
+            >
+            <mj-text
+              padding="4px 0px"
+              font-size="36px"
+              line-height="40px"
+              font-weight="700"
+              align="center"
+              >25</mj-text
+            >
+            <mj-text padding="12px 0px 16px" font-size="24px" line-height="32px" align="center"
+              >documents</mj-text
+            >
+          </mj-column>
+          <mj-column padding="0px" width="33.333%">
+            <mj-text
+              padding="0px 0px 16px"
+              font-size="14px"
+              line-height="20px"
+              color="#a63b00"
+              font-weight="500"
+              align="center"
+              >You shared</mj-text
+            >
+            <mj-text
+              padding="4px 0px"
+              font-size="36px"
+              line-height="40px"
+              font-weight="700"
+              align="center"
+              >50</mj-text
+            >
+            <mj-text padding="12px 0px 16px" font-size="24px" line-height="32px" align="center"
+              >links</mj-text
+            >
+          </mj-column>
+          <mj-column padding="0px" width="33.333%">
+            <mj-text
+              padding="0px 0px 16px"
+              font-size="14px"
+              line-height="20px"
+              color="#a63b00"
+              font-weight="500"
+              align="center"
+              >You received</mj-text
+            >
+            <mj-text
+              padding="4px 0px"
+              font-size="36px"
+              line-height="40px"
+              font-weight="700"
+              align="center"
+              >500</mj-text
+            >
+            <mj-text padding="12px 0px 16px" font-size="24px" line-height="32px" align="center"
+              >views</mj-text
+            >
+          </mj-column>
+        </mj-group>
       </mj-section>
     </mj-wrapper>
     <mj-section padding="0px">
@@ -290,7 +295,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="0px"
           font-size="30px"
-          line-height="1.3"
+          line-height="36px"
           font-weight="500"
           color="#1f2937"
           align="center"
@@ -300,16 +305,16 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="16px 0px"
           font-size="24px"
-          line-height="1"
+          line-height="24px"
           font-weight="700"
-          color="#111827"
+          color="#101828"
           align="center"
           >&quot;Q4 Financial Report&quot;</mj-text
         >
         <mj-text
           padding="0px 0px 16px"
           font-size="48px"
-          line-height="1.5"
+          line-height="48px"
           font-weight="500"
           align="center"
           >150 views</mj-text
@@ -334,7 +339,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="0px"
           font-size="30px"
-          line-height="1.3"
+          line-height="36px"
           font-weight="500"
           color="#9c7b4a"
           align="center"
@@ -344,7 +349,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="16px 0px"
           font-size="48px"
-          line-height="1"
+          line-height="48px"
           font-weight="700"
           align="center"
           >September</mj-text
@@ -352,7 +357,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="0px 0px 16px"
           font-size="30px"
-          line-height="1.5"
+          line-height="36px"
           font-weight="500"
           align="center"
           >with 200 views</mj-text
@@ -364,10 +369,10 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="20px 0px 0px"
           font-size="12px"
-          line-height="1.3"
+          line-height="16px"
           font-weight="500"
           align="center"
-          letter-spacing="1px"
+          letter-spacing="0.6px"
           text-transform="uppercase"
           css-class="reference-heading"
           ><h1>You're in the top</h1></mj-text
@@ -383,7 +388,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="0px 0px 16px"
           font-size="20px"
-          line-height="1.5"
+          line-height="28px"
           font-weight="500"
           align="center"
           >of sharers on Papermark</mj-text
@@ -408,7 +413,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="0px"
           font-size="30px"
-          line-height="1.3"
+          line-height="36px"
           font-weight="500"
           color="#065f46"
           align="center"
@@ -418,7 +423,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="16px 0px"
           font-size="14px"
-          line-height="1.5"
+          line-height="20px"
           align="center"
           css-class="community-rich-0"
           ><em>United States</em> <em>United Kingdom</em> <em>Germany</em> <em>Japan</em>
@@ -446,7 +451,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           inner-padding="16px 48px"
           border-radius="999px"
           font-size="14px"
-          background-color="#111827"
+          line-height="20px"
+          background-color="#101828"
           color="#ffffff"
           font-weight="700"
           >Share your stats</mj-button
@@ -454,7 +460,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="0px 0px 16px"
           font-size="14px"
-          line-height="1.5"
+          line-height="20px"
           align="center"
           font-weight="700"
           css-class="community-rich-4"

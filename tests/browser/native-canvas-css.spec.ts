@@ -1,5 +1,14 @@
 import { expect, test } from "@playwright/test";
 
+test.beforeEach(async ({ page }) => {
+  await page.route("https://example.com/image.svg", (route) =>
+    route.fulfill({
+      contentType: "image/svg+xml",
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="560" height="280"><rect width="560" height="280" fill="#123456"/></svg>',
+    }),
+  );
+});
+
 for (const width of [390, 600, 601, 800]) {
   test(`native padding targets match compiled cells at ${width}px without leaking`, async ({
     page,
@@ -64,7 +73,9 @@ for (const width of [390, 600, 601, 800]) {
   });
 }
 
-test("padding CSS updates and undo apply to the real editable canvas", async ({ page }) => {
+test("padding CSS updates and undo/redo restore source and viewport in the real editable canvas", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1600, height: 1000 });
   await page.goto("/");
   const css =
@@ -79,9 +90,23 @@ test("padding CSS updates and undo apply to the real editable canvas", async ({ 
   await expect(page.getByRole("combobox", { name: "Email template" })).toHaveValue("imported");
   const frame = page.frameLocator("#preview-frame");
   const target = frame.locator('.inset[data-pm-mjml-padding="self"]');
+  const viewportWidth = () =>
+    frame.locator("html").evaluate((element) => element.ownerDocument.defaultView!.innerWidth);
+  const exportedSource = async () => {
+    await page.getByRole("button", { name: "Export email", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Export email", exact: true });
+    await dialog.getByRole("button", { name: "MJML", exact: true }).click();
+    const source = await dialog.getByRole("textbox", { name: "MJML source" }).inputValue();
+    await dialog.getByRole("button", { name: "Close export" }).click();
+    return source;
+  };
   await expect(target).toBeVisible();
+  await expect.poll(viewportWidth).toBe(800);
   await expect(target).toHaveCSS("padding-left", "40px");
+  const originalSource = await exportedSource();
+  expect(originalSource).toContain(css);
   await page.getByRole("button", { name: "Switch to Mobile viewport" }).click();
+  await expect.poll(viewportWidth).toBe(390);
   await expect(target).toHaveCSS("padding-left", "24px");
   const field = page.locator('[data-property-name="headStyles"]:visible');
   await field.getByRole("button", { name: /^CSS 1 \(head\)/ }).click();
@@ -89,10 +114,93 @@ test("padding CSS updates and undo apply to the real editable canvas", async ({ 
   await editor.fill(css.replaceAll("24px", "18px"));
   await expect(target).toHaveCSS("padding-left", "18px");
   await expect(target).toHaveCSS("padding-right", "18px");
+  const editedSource = await exportedSource();
+  expect(editedSource).toContain(css.replaceAll("24px", "18px"));
   await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();
   await page.getByRole("button", { name: /^undo$/i }).click();
+  // Puck history restores UI as well as data. The initial snapshot used
+  // Desktop, so 40px here is correct even though the CSS reverted to 24px.
+  await expect.poll(viewportWidth).toBe(800);
+  await expect(page.getByRole("button", { name: "Switch to Desktop viewport" })).toBeDisabled();
+  expect(await exportedSource()).toBe(originalSource);
+  await expect(target).toHaveCSS("padding-left", "40px");
+  await expect(target).toHaveCSS("padding-right", "40px");
+  await page.getByRole("button", { name: "Switch to Mobile viewport" }).click();
+  await expect.poll(viewportWidth).toBe(390);
   await expect(target).toHaveCSS("padding-left", "24px");
   await expect(target).toHaveCSS("padding-right", "24px");
+  await expect(page.getByRole("button", { name: /^redo$/i })).toBeEnabled();
+  await page.getByRole("button", { name: /^redo$/i }).click();
+  await expect.poll(viewportWidth).toBe(390);
+  expect(await exportedSource()).toBe(editedSource);
+  await expect(target).toHaveCSS("padding-left", "18px");
+  await expect(target).toHaveCSS("padding-right", "18px");
   await page.getByRole("button", { name: "Switch to Desktop viewport" }).click();
+  await expect.poll(viewportWidth).toBe(800);
   await expect(target).toHaveCSS("padding-left", "40px");
+  await expect(target).toHaveCSS("padding-right", "40px");
 });
+
+for (const width of [390, 600, 601, 800]) {
+  test(`marked image sizing matches compiled responsive tables at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/tests/browser/fixtures/native-canvas-css.html");
+    await expect(page.getByLabel("Compilation status")).toHaveText("ready");
+    const canvas = page.getByRole("region", { name: "Styled canvas" }),
+      other = page.getByRole("region", { name: "Other canvas" });
+    const compiled = page.frameLocator("#compiled");
+    for (const root of [canvas, other, compiled]) {
+      await expect
+        .poll(() =>
+          root
+            .locator("img")
+            .evaluateAll((images) =>
+              images.every(
+                (image) =>
+                  (image as HTMLImageElement).complete &&
+                  (image as HTMLImageElement).naturalWidth > 0,
+              ),
+            ),
+        )
+        .toBe(true);
+    }
+    for (const [name, desktop] of [
+      ["cart-image", 177],
+      ["feature-image", 280],
+    ] as const) {
+      const image = canvas.locator(`.${name} img`);
+      const reference = compiled.locator(`.${name} img`);
+      const actualWidth = await reference.evaluate(
+        (element) => element.getBoundingClientRect().width,
+      );
+      await expect
+        .poll(() => image.evaluate((element) => element.getBoundingClientRect().width))
+        .toBeCloseTo(actualWidth, 1);
+      if (width === 390) expect(actualWidth).toBe(342);
+      if (width === 800) expect(actualWidth).toBe(desktop);
+      // Original specificity beats the later, lower-specificity `:where(a)` rule.
+      await expect(canvas.locator(`.${name} [data-pm-mjml-image-width]`)).toHaveCSS(
+        "width",
+        `${actualWidth}px`,
+      );
+      if (width === 390 || width === 800)
+        await expect(other.locator(`.${name} img`)).toHaveCSS("width", `${desktop}px`);
+    }
+    await expect(canvas.locator(".no-rule img")).toHaveCSS("width", "100px");
+    await expect(page.locator(".host-image")).toHaveCSS("width", "40px");
+    await expect(canvas.locator(".cart-image .pm-native-table")).not.toHaveAttribute(
+      "data-pm-mjml-image-width",
+    );
+    const authoredWidth = await compiled
+      .locator(".cart-image table")
+      .last()
+      .evaluate((element) => element.getBoundingClientRect().width);
+    await expect
+      .poll(() =>
+        canvas
+          .locator(".cart-image .pm-native-table")
+          .evaluate((element) => element.getBoundingClientRect().width),
+      )
+      .toBeCloseTo(authoredWidth, 1);
+  });
+}

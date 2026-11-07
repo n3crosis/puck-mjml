@@ -5,6 +5,7 @@ import {
   declaredMjmlFonts,
   expectedCanvasFonts,
   fontFailures,
+  imageFailures,
   missingFontRegistrations,
   observeResources,
   waitForFontRegistrations,
@@ -87,6 +88,7 @@ describe("browser font-readiness evidence", () => {
       observedThroughMs: 0,
       warnings: [],
       failedRequests: [],
+      imageResponses: [],
       fontAndStylesheetResponses: [
         {
           url: declared[1].stylesheetUrl,
@@ -174,5 +176,84 @@ describe("browser font-readiness evidence", () => {
     });
     expect(result.warnings).toHaveLength(1);
     expect(snapshot().warnings).toHaveLength(2);
+  });
+
+  it("records CSS background image HTTP responses separately from font and stylesheet responses", () => {
+    const page = new EventEmitter();
+    const snapshot = observeResources(page as unknown as Page, declared);
+    for (const [url, resourceType, status] of [
+      ["https://demo.react.email/static/raycast-bg.png", "image", 200],
+      ["https://demo.react.email/static/missing-bg.png", "image", 404],
+      ["https://demo.react.email/static/redirect.png", "image", 302],
+      [declared[0].stylesheetUrl, "fetch", 503],
+      ["https://fonts.example/inter.woff2", "font", 404],
+    ] as const) {
+      page.emit("response", {
+        url: () => url,
+        request: () => ({
+          resourceType: () => resourceType,
+          url: () => url,
+          redirectedFrom: () => null,
+        }),
+        status: () => status,
+        ok: () => status === 200,
+      });
+    }
+    const result = snapshot();
+    expect(result.imageResponses.map(({ status }) => status)).toEqual([200, 404, 302]);
+    expect(result.imageResponses[0]).toMatchObject({
+      url: "https://demo.react.email/static/raycast-bg.png",
+      resourceType: "image",
+      status: 200,
+      ok: true,
+      declaredFontStylesheet: false,
+    });
+    expect(result.fontAndStylesheetResponses.map(({ status }) => status)).toEqual([503, 404]);
+    expect(imageFailures(result).httpErrors.map(({ url }) => url)).toEqual([
+      "https://demo.react.email/static/missing-bg.png",
+    ]);
+    expect(
+      fontFailures(expected, [], result).stylesheetTransport.httpErrors.map(({ url }) => url),
+    ).toEqual([declared[0].stylesheetUrl]);
+    page.emit("response", {
+      url: () => "https://demo.react.email/static/later.png",
+      request: () => ({
+        resourceType: () => "image",
+        url: () => "https://demo.react.email/static/later.png",
+        redirectedFrom: () => null,
+      }),
+      status: () => 500,
+      ok: () => false,
+    });
+    expect(result.imageResponses).toHaveLength(3);
+    expect(snapshot().imageResponses).toHaveLength(4);
+  });
+
+  it("does not mix failed image requests with font or stylesheet transport failures", () => {
+    const page = new EventEmitter();
+    const snapshot = observeResources(page as unknown as Page, declared);
+    for (const [url, resourceType] of [
+      ["https://demo.react.email/static/raycast-bg.png", "image"],
+      ["https://fonts.example/inter.woff2", "font"],
+      [declared[0].stylesheetUrl, "fetch"],
+    ]) {
+      page.emit("requestfailed", {
+        url: () => url,
+        resourceType: () => resourceType,
+        redirectedFrom: () => null,
+        failure: () => ({ errorText: "net::ERR_FAILED" }),
+      });
+    }
+    const result = snapshot();
+    expect(imageFailures(result)).toMatchObject({
+      failedRequests: [{ url: "https://demo.react.email/static/raycast-bg.png" }],
+      httpErrors: [],
+    });
+    expect(
+      fontFailures(expected, [], result).stylesheetTransport.failedRequests.map(({ url }) => url),
+    ).toEqual([declared[0].stylesheetUrl]);
+    expect(
+      result.failedRequests.filter(({ resourceType }) => resourceType === "font"),
+    ).toHaveLength(1);
   });
 });

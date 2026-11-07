@@ -9,7 +9,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-all
         font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Roboto,Oxygen,Ubuntu,Cantarell,&#x27;Fira Sans&#x27;,&#x27;Droid Sans&#x27;,&#x27;Helvetica Neue&#x27;,sans-serif"
       />
-      <mj-text padding="0px" />
+      <mj-text padding="0px" color="#333333" />
     </mj-attributes>
     <mj-style>
       p {
@@ -20,10 +20,12 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       }
       .community-rich-0 a:nth-of-type(1) {
         color: #2754c5;
+        font-size: 14px;
         text-decoration: underline;
       }
       .community-rich-0 a:nth-of-type(2) {
         color: #2754c5;
+        font-size: 14px;
         text-decoration: underline;
       }
     </mj-style>
@@ -41,78 +43,85 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       }
     </mj-style>
   </mj-head>
-  <mj-body width="560px" background-color="#eeeeee">
-    <mj-section padding="20px" background-color="#252f3d">
-      <mj-column padding="0px">
-        <mj-image
-          src="https://demo.react.email/static/aws-logo.png"
-          alt="AWS&#x27;s Logo"
-          width="75px"
-          height="45px"
-          align="center"
-          padding="0px"
-        />
-      </mj-column>
-    </mj-section>
-    <mj-section padding="25px 35px" background-color="#ffffff">
-      <mj-column padding="0px">
-        <mj-text
-          padding="0px 0px 15px"
-          font-size="20px"
-          line-height="1.3"
-          font-weight="700"
-          color="#333333"
-          css-class="reference-heading"
-          ><h1>Verify your email address</h1></mj-text
-        >
-        <mj-text padding="9px 0px 14px" font-size="14px" line-height="24px" color="#333333"
-          >Thanks for starting the new AWS account creation process. We want to make sure it's
-          really you. Please enter the following verification code when prompted. If you don't want
-          to create an account, you can ignore this message.</mj-text
-        >
-        <mj-text padding="0px" font-size="14px" line-height="1.5" font-weight="700" align="center"
-          >Verification code</mj-text
-        >
-        <mj-text
-          padding="10px 0px"
-          font-size="36px"
-          line-height="1.5"
-          font-weight="700"
-          align="center"
-          >596853</mj-text
-        >
-        <mj-text padding="0px" font-size="14px" line-height="1.5" align="center"
-          >(This code is valid for 10 minutes)</mj-text
-        >
-      </mj-column>
-    </mj-section>
-    <mj-section padding="0px" background-color="#ffffff">
-      <mj-column padding="0px">
-        <mj-divider border-color="#eeeeee" border-width="1px" padding="0px" />
-      </mj-column>
-    </mj-section>
-    <mj-section padding="25px 35px" background-color="#ffffff">
-      <mj-column padding="0px">
-        <mj-text padding="0px" font-size="14px" line-height="1.5" color="#333333"
-          >Amazon Web Services will never email you and ask you to disclose or verify your password,
-          credit card, or banking account number.</mj-text
-        >
-      </mj-column>
-    </mj-section>
-    <mj-section padding="0px" background-color="#eeeeee">
-      <mj-column padding="0px">
-        <mj-text
-          padding="24px 20px"
-          font-size="12px"
-          line-height="1.5"
-          color="#333333"
-          css-class="community-rich-0"
-          >This message was produced and distributed by Amazon Web Services, Inc., 410 Terry Ave.
-          North, Seattle, WA 98109. © 2022, Amazon Web Services, Inc.. All rights reserved. AWS is a
-          registered trademark of <a href="https://amazon.com/">Amazon.com</a>, Inc. View our
-          <a href="https://amazon.com/">privacy policy</a>.</mj-text
-        >
-      </mj-column>
-    </mj-section>
+  <mj-body width="600px" background-color="#ffffff">
+    <mj-wrapper padding="20px" background-color="#eeeeee" css-class="aws-container">
+      <mj-section padding="20px" background-color="#252f3d">
+        <mj-column padding="0px">
+          <mj-image
+            src="https://demo.react.email/static/aws-logo.png"
+            alt="AWS&#x27;s Logo"
+            width="75px"
+            height="45px"
+            align="center"
+            padding="0px"
+          />
+        </mj-column>
+      </mj-section>
+      <mj-section padding="25px 35px" background-color="#ffffff">
+        <mj-column padding="0px">
+          <mj-text
+            padding="13.4px 0px 15px"
+            font-size="20px"
+            line-height="1.15"
+            font-weight="700"
+            color="#333333"
+            css-class="reference-heading"
+            ><h1>Verify your email address</h1></mj-text
+          >
+          <mj-text padding="9px 0px 14px" font-size="14px" line-height="24px" color="#333333"
+            >Thanks for starting the new AWS account creation process. We want to make sure it's
+            really you. Please enter the following verification code when prompted. If you don't
+            want to create an account, you can ignore this message.</mj-text
+          >
+          <mj-text
+            padding="0px"
+            font-size="14px"
+            line-height="24px"
+            font-weight="700"
+            align="center"
+            >Verification code</mj-text
+          >
+          <mj-text
+            padding="10px 0px"
+            font-size="36px"
+            line-height="24px"
+            font-weight="700"
+            align="center"
+            >596853</mj-text
+          >
+          <mj-text padding="0px" font-size="14px" line-height="24px" align="center"
+            >(This code is valid for 10 minutes)</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px" background-color="#ffffff">
+        <mj-column padding="0px">
+          <mj-divider border-color="#eaeaea" border-width="1px" padding="8px 0px" />
+        </mj-column>
+      </mj-section>
+      <mj-section padding="25px 35px" background-color="#ffffff">
+        <mj-column padding="0px">
+          <mj-text padding="0px" font-size="14px" line-height="24px" color="#333333"
+            >Amazon Web Services will never email you and ask you to disclose or verify your
+            password, credit card, or banking account number.</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px" background-color="#eeeeee">
+        <mj-column padding="0px">
+          <mj-text
+            padding="24px 20px"
+            font-size="12px"
+            line-height="24px"
+            color="#333333"
+            css-class="community-rich-0"
+            >This message was produced and distributed by Amazon Web Services, Inc., 410 Terry Ave.
+            North, Seattle, WA 98109. © 2022, Amazon Web Services, Inc.. All rights reserved. AWS is
+            a registered trademark of <a href="https://amazon.com/">Amazon.com</a>, Inc. View our
+            <a href="https://amazon.com/">privacy policy</a>.</mj-text
+          >
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
   </mj-body>
 </mjml>

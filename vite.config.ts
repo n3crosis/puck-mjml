@@ -31,7 +31,13 @@ export default defineConfig(({ command, mode }) => ({
               fileName: (format, entryName) => `${entryName}.${format === "es" ? "js" : "cjs"}`,
             },
             rollupOptions: {
-              external: ["react", "react-dom", "react/jsx-runtime", "@puckeditor/core"],
+              external: [
+                "react",
+                "react-dom",
+                "react/jsx-runtime",
+                "@puckeditor/core",
+                "@tiptap/extension-link",
+              ],
               output: { globals: { react: "React", "react-dom": "ReactDOM" } },
             },
             cssCodeSplit: false,

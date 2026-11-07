@@ -6,6 +6,8 @@ These 62 files are actual HTML produced by the official React Email renderer fro
 
 The originals use `VERCEL_URL=demo.react.email` and `TZ=UTC`, exactly as recorded. The HTML is stored byte-for-byte without reformatting or URL replacement. The fixtures use the published renderer/component versions identified by the pinned upstream manifests; they are newly rendered references, not historical screenshots of the hosted website.
 
+Browser captures fulfill these same bytes through an exact Playwright document route at `https://demo.react.email/__puck_mjml_reference__.html`; the document is intercepted, not fetched from the deployed app. This preserves the origin for relative artwork URLs without rewriting HTML or injecting a base tag. `comparison.json` records each document's URL/baseURI, computed background images, and image response/failure evidence separately from font evidence. Original resource failures remain visible as reference behavior rather than being repaired or attributed to the MJML port; existing compiled-email and canvas artwork/font checks remain in force.
+
 Run `node scripts/render-react-email-references/verify.mjs` from the repository root to verify the complete set and checksums without network access or renderer dependencies. See [regeneration instructions](../../../scripts/render-react-email-references/README.md) for the isolated, locked generator and hash-verified source fetch.
 
 Compare original output, compiled MJML output, and the actual editor canvas at the same desktop and mobile sizes. Screenshot generation and semantic checks alone do not establish visual equivalence; inspect any layout, typography, spacing, or artwork differences. Generation does not establish compatibility with every email client.

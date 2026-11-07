@@ -8,7 +8,7 @@ Every library and demo build emits `THIRD_PARTY_LICENSES.txt` (full license text
 
 The [build-time collector](scripts/third-party-notices.ts) derives separate inventories from the modules actually rendered by Vite, rather than assuming that `devDependencies` are absent from the demo. It includes dependency license files and retained inline legal notices, and fails when a newly bundled package has no verified license text. See the [audit sources and maintenance guide](docs/third-party/README.md) for the checked-in supplemental notices, provenance, reproducibility, and limits of upstream prebundled-code inspection.
 
-The library leaves React, React DOM, and the Puck JavaScript runtime to the host application; Puck CSS is bundled. The standalone demo bundles those runtimes, Tiptap/ProseMirror, drag-and-drop and accessibility dependencies. Each distribution has its own inventory. A package represented only by imported metadata can also appear; an inventory entry does not imply that its entire runtime is bundled.
+The library leaves React, React DOM, and the Puck JavaScript runtime to the host application; Puck CSS is bundled. Its runtime dependency `@tiptap/extension-link` is also external, sharing compatible Tiptap/ProseMirror peers with Puck rather than bundling a second editor runtime. The custom link extension preserves non-navigating email anchor labels while retaining Tiptap's link behavior. The standalone demo bundles those runtimes, Tiptap/ProseMirror, drag-and-drop and accessibility dependencies. Each distribution has its own inventory. A package represented only by imported metadata can also appear; an inventory entry does not imply that its entire runtime is bundled.
 
 ## React Email
 

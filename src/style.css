@@ -101,7 +101,7 @@
 }
 .pm-canvas {
   min-height: 100vh;
-  padding: 34px 16px;
+  padding: 34px 0;
 }
 .pm-email {
   margin: 0 auto;

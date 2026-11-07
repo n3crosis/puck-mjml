@@ -9,6 +9,19 @@ async function exportedMjml(page: Page) {
   return source;
 }
 
+async function selectCanvasViewport(page: Page, viewport: "Desktop" | "Mobile") {
+  const button = page.getByRole("button", { name: `Switch to ${viewport} viewport` });
+  if (await button.isEnabled()) await button.click();
+  await expect
+    .poll(() =>
+      page
+        .frameLocator("#preview-frame")
+        .locator("html")
+        .evaluate((element) => element.ownerDocument.defaultView!.innerWidth),
+    )
+    .toBe(viewport === "Mobile" ? 390 : 800);
+}
+
 for (const viewport of ["Desktop", "Mobile"] as const) {
   test(`Dropbox formatting spaces do not indent the ${viewport} canvas, including edit and undo`, async ({
     page,
@@ -18,9 +31,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     await page
       .getByRole("combobox", { name: "Email template" })
       .selectOption("community/reset-password/dropbox-reset-password");
-    if (viewport === "Mobile") {
-      await page.getByRole("button", { name: "Switch to Mobile viewport" }).click();
-    }
+    await selectCanvasViewport(page, viewport);
     const frame = page.frameLocator("#preview-frame");
     const paragraph = frame.locator(".pm-text").filter({ hasText: "Someone recently requested" });
     const deletion = frame.locator(".pm-text").filter({ hasText: "If you don't want" });
@@ -47,7 +58,21 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     await page.getByRole("button", { name: /^undo$/i }).click();
     await expect(paragraph).toHaveText(original);
     await expect.poll(() => exportedMjml(page)).toBe(initialSource);
+    // Puck undo restores the initial Desktop UI snapshot too. Re-select and
+    // measure the requested viewport before making labelled visual evidence.
+    await expect
+      .poll(() =>
+        frame.locator("html").evaluate((element) => element.ownerDocument.defaultView!.innerWidth),
+      )
+      .toBe(800);
+    await selectCanvasViewport(page, viewport);
+    expect(await paragraph.textContent()).toBe(original);
     expect(await paragraph.textContent()).not.toMatch(/[\r\n\t]| {2}/);
+    expect(await deletion.textContent()).toBe(
+      "If you don't want to change your password or didn't request this, just ignore and delete this message.",
+    );
+    expect(await deletion.textContent()).not.toMatch(/[\r\n\t]| {2}/);
+    expect(await exportedMjml(page)).toBe(initialSource);
 
     const path = testInfo.outputPath(`dropbox-canvas-${viewport.toLowerCase()}.png`);
     await page.screenshot({ path, fullPage: true });

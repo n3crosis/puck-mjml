@@ -1,7 +1,8 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reviews/airbnb-review.tsx
 Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
-Intentional readability improvement over upstream: horizontal gutters keep mobile copy off the screen edges. -->
+Intentional readability improvement over upstream: horizontal gutters keep mobile copy off the screen edges.
+The 628px outer canvas retains the original 580px desktop content width inside those 24px gutters. -->
 <mjml>
   <mj-head>
     <mj-title>Read Alex&#x27;s review</mj-title>
@@ -21,15 +22,15 @@ Intentional readability improvement over upstream: horizontal gutters keep mobil
       }
       .community-rich-0 a:nth-of-type(1) {
         color: #ff5a5f;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-1 a:nth-of-type(1) {
         color: #ff5a5f;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-2 a:nth-of-type(1) {
         color: #ff5a5f;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-3 a:nth-of-type(1) {
         color: #9ca299;
@@ -37,7 +38,7 @@ Intentional readability improvement over upstream: horizontal gutters keep mobil
       }
     </mj-style>
   </mj-head>
-  <mj-body width="580px" background-color="#ffffff">
+  <mj-body width="628px" background-color="#ffffff">
     <mj-section padding="20px 24px 48px" css-class="airbnb-content">
       <mj-column padding="0px">
         <mj-image

@@ -117,6 +117,9 @@
         .collage-feature-image-column > table > tbody > tr > td {
           padding: 0px 0px 24px !important;
         }
+        .collage-feature-copy-column > table > tbody > tr > td {
+          padding: 0px !important;
+        }
         .collage-feature-image table {
           width: 100% !important;
         }
@@ -142,7 +145,7 @@
     </mj-style>
   </mj-head>
   <mj-body width="608px" background-color="#FBFCFB">
-    <mj-section background-color="#FBFCFB" padding="0px" border-radius="0px">
+    <mj-section background-color="transparent" padding="0px" border-radius="0px">
       <mj-column>
         <mj-spacer height="64px" />
       </mj-column>
@@ -233,7 +236,7 @@
             font-size="15px"
             font-family="Inter, Arial, sans-serif"
             font-weight="500"
-            line-height="1.5"
+            line-height="18px"
             letter-spacing="-0.075px"
             inner-padding="14px 20px"
             border-radius="0px"
@@ -315,7 +318,12 @@
             css-class="collage-feature-image"
           />
         </mj-column>
-        <mj-column width="52%" padding="0px 0px 0px 16px" vertical-align="top">
+        <mj-column
+          width="52%"
+          padding="0px 0px 0px 16px"
+          vertical-align="top"
+          css-class="collage-feature-copy-column"
+        >
           <mj-text
             color="#103B05"
             font-size="15px"
@@ -380,7 +388,12 @@
             css-class="collage-feature-image"
           />
         </mj-column>
-        <mj-column width="52%" padding="0px 0px 0px 16px" vertical-align="top">
+        <mj-column
+          width="52%"
+          padding="0px 0px 0px 16px"
+          vertical-align="top"
+          css-class="collage-feature-copy-column"
+        >
           <mj-text
             color="#103B05"
             font-size="15px"
@@ -491,7 +504,7 @@
         css-class="collage-feature-highlight"
       >
         <mj-group width="100%">
-          <mj-column width="92%" padding="0px" vertical-align="top">
+          <mj-column width="92%" padding="0px" vertical-align="middle">
             <mj-text
               color="#103B05"
               font-size="20px"
@@ -547,7 +560,7 @@
         css-class="collage-feature-highlight"
       >
         <mj-group width="100%">
-          <mj-column width="92%" padding="0px" vertical-align="top">
+          <mj-column width="92%" padding="0px" vertical-align="middle">
             <mj-text
               color="#103B05"
               font-size="20px"
@@ -603,7 +616,7 @@
         css-class="collage-feature-highlight"
       >
         <mj-group width="100%">
-          <mj-column width="92%" padding="0px" vertical-align="top">
+          <mj-column width="92%" padding="0px" vertical-align="middle">
             <mj-text
               color="#103B05"
               font-size="20px"
@@ -765,7 +778,7 @@
         </mj-column>
       </mj-section>
     </mj-wrapper>
-    <mj-section background-color="#FBFCFB" padding="0px" border-radius="0px">
+    <mj-section background-color="transparent" padding="0px" border-radius="0px">
       <mj-column>
         <mj-spacer height="24px" />
       </mj-column>

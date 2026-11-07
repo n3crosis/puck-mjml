@@ -90,6 +90,10 @@
       .collage-confirm-narrow > div {
         max-width: 490px;
       }
+      .collage-confirm-rule p {
+        max-width: 490px;
+        margin-left: 0;
+      }
     </mj-style>
     <mj-style>
       @media only screen and (max-width: 600px) {
@@ -100,7 +104,13 @@
           padding: 32px 24px 0px !important;
         }
         .collage-confirm-total > table > tbody > tr > td {
-          padding: 12px 24px !important;
+          padding: 0px 24px 3px !important;
+        }
+        .collage-confirm-total-first > table > tbody > tr > td {
+          padding: 48px 24px 3px !important;
+        }
+        .collage-confirm-total-last > table > tbody > tr > td {
+          padding: 0px 24px 0px !important;
         }
         .collage-confirm-cta > table > tbody > tr > td {
           padding: 40px 24px 0px !important;
@@ -121,7 +131,7 @@
     </mj-style>
   </mj-head>
   <mj-body width="608px" background-color="#FBFCFB">
-    <mj-section background-color="#FBFCFB" padding="0px" border-radius="0px">
+    <mj-section background-color="transparent" padding="0px" border-radius="0px">
       <mj-column>
         <mj-spacer height="64px" />
       </mj-column>
@@ -136,7 +146,7 @@
       <mj-section
         background-color="#ffffff"
         padding="64px 40px 0px"
-        border-radius="0px"
+        border-radius="7px 7px 0px 0px"
         css-class="collage-confirm-logo"
       >
         <mj-column>
@@ -219,111 +229,119 @@
           </mj-text>
         </mj-column>
       </mj-section>
-      <mj-section background-color="#EDF0E9" padding="12px 40px" css-class="collage-confirm-total">
-        <mj-column width="50%" padding="0px" vertical-align="top">
-          <mj-text
-            color="#103B05"
-            font-size="14px"
-            font-family="Arial, Helvetica, sans-serif"
-            font-weight="400"
-            line-height="1.5"
-            letter-spacing="0px"
-            align="left"
-            padding="0px"
-            css-class="pm-email-text"
-          >
-            <p>Subtotal</p>
-          </mj-text>
-        </mj-column>
-        <mj-column width="50%" padding="0px" vertical-align="top">
-          <mj-text
-            color="#103B05"
-            font-size="14px"
-            font-family="Arial, Helvetica, sans-serif"
-            font-weight="400"
-            line-height="1.5"
-            letter-spacing="0px"
-            align="right"
-            padding="0px"
-            css-class="pm-email-text"
-          >
-            <p>$29.00</p>
-          </mj-text>
-        </mj-column>
+      <mj-section
+        background-color="#ffffff"
+        padding="48px 40px 3px"
+        css-class="collage-confirm-total collage-confirm-total-first"
+      >
+        <mj-group width="100%" background-color="#EDF0E9" css-class="collage-confirm-total-row">
+          <mj-column width="50%" padding="12px" vertical-align="top">
+            <mj-text
+              color="#103B05"
+              font-size="14px"
+              font-family="Arial, Helvetica, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              align="left"
+              padding="0px"
+              css-class="pm-email-text"
+            >
+              <p>Subtotal</p>
+            </mj-text>
+          </mj-column>
+          <mj-column width="50%" padding="12px" vertical-align="top">
+            <mj-text
+              color="#103B05"
+              font-size="14px"
+              font-family="Arial, Helvetica, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              align="right"
+              padding="0px"
+              css-class="pm-email-text"
+            >
+              <p>$29.00</p>
+            </mj-text>
+          </mj-column>
+        </mj-group>
       </mj-section>
-      <mj-section background-color="#ffffff" padding="0px" border-radius="0px">
-        <mj-column>
-          <mj-spacer height="3px" />
-        </mj-column>
+      <mj-section
+        background-color="#ffffff"
+        padding="0px 40px 3px"
+        css-class="collage-confirm-total"
+      >
+        <mj-group width="100%" background-color="#EDF0E9" css-class="collage-confirm-total-row">
+          <mj-column width="50%" padding="12px" vertical-align="top">
+            <mj-text
+              color="#103B05"
+              font-size="14px"
+              font-family="Arial, Helvetica, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              align="left"
+              padding="0px"
+              css-class="pm-email-text"
+            >
+              <p>Tax</p>
+            </mj-text>
+          </mj-column>
+          <mj-column width="50%" padding="12px" vertical-align="top">
+            <mj-text
+              color="#103B05"
+              font-size="14px"
+              font-family="Arial, Helvetica, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              align="right"
+              padding="0px"
+              css-class="pm-email-text"
+            >
+              <p>$0.00</p>
+            </mj-text>
+          </mj-column>
+        </mj-group>
       </mj-section>
-      <mj-section background-color="#EDF0E9" padding="12px 40px" css-class="collage-confirm-total">
-        <mj-column width="50%" padding="0px" vertical-align="top">
-          <mj-text
-            color="#103B05"
-            font-size="14px"
-            font-family="Arial, Helvetica, sans-serif"
-            font-weight="400"
-            line-height="1.5"
-            letter-spacing="0px"
-            align="left"
-            padding="0px"
-            css-class="pm-email-text"
-          >
-            <p>Tax</p>
-          </mj-text>
-        </mj-column>
-        <mj-column width="50%" padding="0px" vertical-align="top">
-          <mj-text
-            color="#103B05"
-            font-size="14px"
-            font-family="Arial, Helvetica, sans-serif"
-            font-weight="400"
-            line-height="1.5"
-            letter-spacing="0px"
-            align="right"
-            padding="0px"
-            css-class="pm-email-text"
-          >
-            <p>$0.00</p>
-          </mj-text>
-        </mj-column>
-      </mj-section>
-      <mj-section background-color="#ffffff" padding="0px" border-radius="0px">
-        <mj-column>
-          <mj-spacer height="3px" />
-        </mj-column>
-      </mj-section>
-      <mj-section background-color="#D3D9CB" padding="12px 40px" css-class="collage-confirm-total">
-        <mj-column width="50%" padding="0px" vertical-align="top">
-          <mj-text
-            color="#103B05"
-            font-size="14px"
-            font-family="Arial, Helvetica, sans-serif"
-            font-weight="400"
-            line-height="1.5"
-            letter-spacing="0px"
-            align="left"
-            padding="0px"
-            css-class="pm-email-text"
-          >
-            <p>Total</p>
-          </mj-text>
-        </mj-column>
-        <mj-column width="50%" padding="0px" vertical-align="top">
-          <mj-text
-            color="#103B05"
-            font-size="14px"
-            font-family="Arial, Helvetica, sans-serif"
-            font-weight="400"
-            line-height="1.5"
-            letter-spacing="0px"
-            align="right"
-            padding="0px"
-            css-class="pm-email-text"
-          >
-            <p>$29.00</p>
-          </mj-text>
-        </mj-column>
+      <mj-section
+        background-color="#ffffff"
+        padding="0px 40px 0px"
+        css-class="collage-confirm-total collage-confirm-total-last"
+      >
+        <mj-group width="100%" background-color="#D3D9CB" css-class="collage-confirm-total-row">
+          <mj-column width="50%" padding="12px" vertical-align="top">
+            <mj-text
+              color="#103B05"
+              font-size="14px"
+              font-family="Arial, Helvetica, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              align="left"
+              padding="0px"
+              css-class="pm-email-text"
+            >
+              <p>Total</p>
+            </mj-text>
+          </mj-column>
+          <mj-column width="50%" padding="12px" vertical-align="top">
+            <mj-text
+              color="#103B05"
+              font-size="14px"
+              font-family="Arial, Helvetica, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              align="right"
+              padding="0px"
+              css-class="pm-email-text"
+            >
+              <p>$29.00</p>
+            </mj-text>
+          </mj-column>
+        </mj-group>
       </mj-section>
       <mj-section
         background-color="#ffffff"
@@ -339,7 +357,7 @@
             font-size="15px"
             font-family="Arial, Helvetica, sans-serif"
             font-weight="500"
-            line-height="1.5"
+            line-height="18px"
             letter-spacing="-0.075px"
             inner-padding="14px 20px"
             border-radius="0px"
@@ -627,7 +645,7 @@
         </mj-column>
       </mj-section>
     </mj-wrapper>
-    <mj-section background-color="#FBFCFB" padding="0px" border-radius="0px">
+    <mj-section background-color="transparent" padding="0px" border-radius="0px">
       <mj-column>
         <mj-spacer height="24px" />
       </mj-column>

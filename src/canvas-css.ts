@@ -331,9 +331,29 @@ function nativePaddingAlias(selector: string, scoped: string, scope: string): st
   return `:is(${scoped}, ${target})${target}`;
 }
 
+/** The native image anchor corresponds to MJML's image sizing table. */
+function nativeImageWidthAlias(
+  selector: string,
+  scoped: string,
+  scope: string,
+): string | undefined {
+  const tokens = tokenizeSelector(selector);
+  if (
+    !tokens ||
+    tokens.compounds.length !== 2 ||
+    !/^\.[A-Za-z_][\w-]*$/.test(tokens.compounds[0]) ||
+    tokens.compounds[1].toLowerCase() !== "table" ||
+    tokens.combinators[0] !== " "
+  )
+    return undefined;
+  const target = `:where(.${scope} ${tokens.compounds[0]} [data-pm-mjml-image-width])`;
+  return `:is(${scoped}, ${target})${target}`;
+}
+
 function scopeRule(rule: Rule, state: ScopeState, label: string): void {
   const scoped: string[] = [];
   const aliases: string[] = [];
+  const imageAliases: string[] = [];
   for (const part of splitTopLevel(rule.selector, ",")) {
     const selector = scopeSelector(part.trim(), state.scope);
     if (selector === undefined) {
@@ -344,6 +364,8 @@ function scopeRule(rule: Rule, state: ScopeState, label: string): void {
       scoped.push(selector);
       const alias = nativePaddingAlias(part.trim(), selector, state.scope);
       if (alias) aliases.push(alias);
+      const imageAlias = nativeImageWidthAlias(part.trim(), selector, state.scope);
+      if (imageAlias) imageAliases.push(imageAlias);
     }
   }
   if (scoped.length) rule.selector = scoped.join(", ");
@@ -351,7 +373,7 @@ function scopeRule(rule: Rule, state: ScopeState, label: string): void {
   // Nested rules and resets have ordering/box semantics this bounded adapter
   // does not model. Keep them on the existing scoped stylesheet path only.
   if (
-    !aliases.length ||
+    (!aliases.length && !imageAliases.length) ||
     rule.nodes.some(
       (node) =>
         node.type === "rule" ||
@@ -363,8 +385,24 @@ function scopeRule(rule: Rule, state: ScopeState, label: string): void {
   const padding = rule.nodes.filter(
     (node) => node.type === "decl" && /^padding(?:-(?:top|right|bottom|left))?$/i.test(node.prop),
   );
-  if (padding.length) {
+  if (aliases.length && padding.length) {
     rule.cloneAfter({ selector: aliases.join(", "), nodes: padding.map((node) => node.clone()) });
+  }
+  // Only the known important responsive expansion overrides the native
+  // anchor's inline width without inventing stronger cascade precedence.
+  // Arbitrary widths also differ because the anchor retains max-width: 100%.
+  const imageWidth = rule.nodes.filter(
+    (node): node is Declaration => node.type === "decl" && node.prop.toLowerCase() === "width",
+  );
+  if (
+    imageAliases.length &&
+    imageWidth.length &&
+    imageWidth.every((node) => node.value.trim() === "100%" && node.important)
+  ) {
+    rule.cloneAfter({
+      selector: imageAliases.join(", "),
+      nodes: imageWidth.map((node) => node.clone()),
+    });
   }
 }
 

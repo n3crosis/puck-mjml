@@ -360,3 +360,119 @@ describe("canvas note reporting", () => {
     }
   });
 });
+
+describe("native MJML image sizing aliases", () => {
+  const rulesFor = (css: string) => {
+    const rules: Rule[] = [];
+    postcss.parse(scopeCss([stylesheet(css)]).css).walkRules((rule) => {
+      rules.push(rule);
+    });
+    return rules;
+  };
+  it("preserves original rules and specificity while copying only literal full width", () => {
+    const sheets = [
+      stylesheet(".image table { width:100% !important; height:20px; max-width:none; padding:0; }"),
+    ];
+    const before = JSON.stringify(sheets);
+    const rules: Rule[] = [];
+    postcss.parse(scopeCss(sheets).css).walkRules((rule) => {
+      rules.push(rule);
+    });
+    expect(JSON.stringify(sheets)).toBe(before);
+    expect(rules).toHaveLength(2);
+    expect(rules[0].selector).toBe(".pm-canvas-test .image table");
+    expect(rules[0].nodes).toHaveLength(4);
+    expect(rules[1].nodes.map((node) => node.toString())).toEqual(["width:100% !important"]);
+    expect(rules[1].selector).toBe(
+      ":is(.pm-canvas-test .image table, :where(.pm-canvas-test .image [data-pm-mjml-image-width])):where(.pm-canvas-test .image [data-pm-mjml-image-width])",
+    );
+  });
+  it("matches only marked image anchors beneath the class, preserving authored table matches", () => {
+    const [original, alias] = rulesFor(".image table { width:100% !important; }");
+    const $ = load(
+      `<div class="pm-canvas-test"><div class="image"><a id="direct" data-pm-mjml-image-width></a><div><a id="nested" data-pm-mjml-image-width></a></div><table id="authored"></table><a id="unmarked"></a></div><a id="other-class" data-pm-mjml-image-width></a></div><div class="pm-canvas-other image"><a id="other" data-pm-mjml-image-width></a></div><div class="image"><a id="host" data-pm-mjml-image-width></a></div>`,
+    );
+    expect(
+      $(alias.selector)
+        .toArray()
+        .map((element) => $(element).attr("id")),
+    ).toEqual(["direct", "nested"]);
+    expect($(original.selector).attr("id")).toBe("authored");
+  });
+  it.each(["media (max-width:600px)", "supports (display:flex)", "container (width < 600px)"])(
+    "preserves @%s and source ordering",
+    (group) => {
+      const rules = rulesFor(
+        `@${group} { .image table, .other TABLE { width:100% !important; } .image a { width:50% !important; } }`,
+      );
+      expect(rules).toHaveLength(3);
+      expect(rules[1].selector.match(/:is\(/g)).toHaveLength(2);
+      expect(rules[0].parent).toBe(rules[1].parent);
+      expect(rules[2].selector).toBe(".pm-canvas-test .image a");
+      expect(rules[1].parent?.toString()).toContain(`@${group}`);
+    },
+  );
+  it.each([
+    "table",
+    ".image > table",
+    ".image + table",
+    ".image ~ table",
+    ".image table td",
+    ".image table:first-child",
+    ".image:hover table",
+    ".image.more table",
+    ".image[title] table",
+    ".image:is(.x,.y) table",
+    "#image table",
+    "body .image table",
+    ".outer .image table",
+  ])("does not alias unsupported %s", (selector) => {
+    expect(scopeCss([stylesheet(`${selector} { width:100% !important; }`)]).css).not.toContain(
+      "data-pm-mjml-image-width",
+    );
+  });
+  it.each([
+    "width:90%;",
+    "max-width:100%;",
+    "width:calc(100%);",
+    "width:100% !important; width:auto;",
+    "width:100% !important; all:unset;",
+    "width:100% !important; & { width:50%; }",
+    "width:100% !important; @media (max-width:600px) { width:50%; }",
+  ])("does not reinterpret %s", (declarations) => {
+    expect(scopeCss([stylesheet(`.image table { ${declarations} }`)]).css).not.toContain(
+      "data-pm-mjml-image-width",
+    );
+  });
+  it("does not raise a non-important width above the native inline width", () => {
+    const source = ".image table { width:100%; }";
+    const result = scopeCss([stylesheet(source)]);
+    expect(result.css).toBe(".pm-canvas-test " + source);
+    expect(result.css).not.toContain("data-pm-mjml-image-width");
+    expect(result.css).not.toContain("!important");
+  });
+  it("keeps root sibling filters and each adapter's declaration subset", () => {
+    const result = scopeCss([
+      stylesheet(
+        "body + .image table, body ~ .host { width:100% !important; } .inset > table > tbody > tr > td, .image table { padding:24px; width:100% !important; }",
+      ),
+    ]);
+    expect(result.notes).toHaveLength(2);
+    expect(result.css).not.toContain(".host");
+    const rules: Rule[] = [];
+    postcss.parse(result.css).walkRules((rule) => {
+      rules.push(rule);
+    });
+    expect(rules).toHaveLength(3);
+    expect(
+      rules
+        .find((rule) => rule.selector.includes("data-pm-mjml-padding"))
+        ?.nodes.map((node) => node.toString()),
+    ).toEqual(["padding:24px"]);
+    expect(
+      rules
+        .find((rule) => rule.selector.includes("data-pm-mjml-image-width"))
+        ?.nodes.map((node) => node.toString()),
+    ).toEqual(["width:100% !important"]);
+  });
+});

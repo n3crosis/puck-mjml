@@ -215,3 +215,45 @@ describe("visual-only canvas padding targets", () => {
     expect(canvas(".column > div > div")).toHaveLength(0);
   });
 });
+
+describe("native image sizing targets", () => {
+  it("marks only existing image anchors without changing desktop width or serialization", async () => {
+    const { canvas, compiled, document } =
+      await render(`<mjml><mj-head><mj-style>@media(max-width:600px){.image table {width:100% !important;}}</mj-style></mj-head><mj-body width="640px"><mj-section padding="40px"><mj-column css-class="image" padding="0px">
+      <mj-image css-class="direct" src="https://example.com/image.png" width="280px" padding="0px" />
+      <mj-image src="https://example.com/second.png" width="177px" padding="0px" />
+      <mj-table><tr><td>Authored table</td></tr></mj-table>
+    </mj-column></mj-section></mj-body></mjml>`);
+    expect(canvas("[data-pm-mjml-image-width]")).toHaveLength(2);
+    expect(canvas(".direct > [data-pm-mjml-image-width]").prop("tagName")).toBe("A");
+    expect(style(canvas, ".direct > [data-pm-mjml-image-width]", "width")).toBe("280px");
+    expect(style(compiled, ".direct > table > tbody > tr > td", "width")).toBe("280px");
+    expect(canvas(".pm-native-table [data-pm-mjml-image-width]")).toHaveLength(0);
+    expect(canvas("[data-pm-mjml-image-width] > img")).toHaveLength(2);
+    expect(toMjml(document)).not.toContain("data-pm-mjml-image-width");
+    expect(toMjml(document)).not.toContain(":is(");
+  });
+  it("also marks visual-only images, not empty image placeholders", async () => {
+    const document = {
+      root: {
+        props: {
+          sections: [
+            block("Section1", "section", {
+              column: [
+                block("Image", "image", { src: "https://example.com/image.png", width: 177 }),
+                block("Image", "empty", { src: "" }),
+              ],
+            }),
+          ],
+        },
+      },
+      content: [],
+    };
+    const canvas = load(
+      renderToStaticMarkup(<Render config={createEmailConfig()} data={document as Data} />),
+    );
+    expect(canvas("[data-pm-mjml-image-width]")).toHaveLength(1);
+    expect(style(canvas, "[data-pm-mjml-image-width]", "width")).toBe("177px");
+    expect(canvas(".pm-image-empty [data-pm-mjml-image-width]")).toHaveLength(0);
+  });
+});

@@ -16,7 +16,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       a {
         color: inherit;
       }
-      .apple-invoice p {
+      .apple-invoice p:first-child {
         font-size: 10px;
         color: #666666;
         margin: 0;

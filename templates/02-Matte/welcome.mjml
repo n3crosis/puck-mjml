@@ -100,7 +100,7 @@
           padding: 40px 24px 56px !important;
         }
         .collage-week-heading > table > tbody > tr > td {
-          padding: 40px 24px 0px !important;
+          padding: 64px 24px 0px !important;
         }
         .collage-week-copy > table > tbody > tr > td {
           padding: 18px 24px 0px !important;
@@ -114,12 +114,15 @@
         .collage-tip-rule > table > tbody > tr > td {
           padding: 0px 24px !important;
         }
+        .collage-tip-rule-last > table > tbody > tr > td {
+          padding: 0px 24px 64px !important;
+        }
       }
     </mj-style>
   </mj-head>
   <mj-body width="608px" background-color="#FBFCFB">
     <mj-section
-      background-color="#FBFCFB"
+      background-color="transparent"
       padding="0px"
       border-radius="0px"
       css-class="collage-space"
@@ -199,7 +202,7 @@
             font-size="15px"
             font-family="Inter, Arial, sans-serif"
             font-weight="500"
-            line-height="1.5"
+            line-height="18px"
             letter-spacing="-0.075px"
             inner-padding="14px 20px"
             border-radius="0px"
@@ -281,7 +284,7 @@
       </mj-section>
       <mj-section background-color="#FBFCFB" padding="24px 40px" css-class="collage-tip-row">
         <mj-group width="100%">
-          <mj-column width="92%" padding="0px" vertical-align="top">
+          <mj-column width="92%" padding="0px" vertical-align="middle">
             <mj-text
               color="#103B05"
               font-size="20px"
@@ -335,7 +338,7 @@
       </mj-section>
       <mj-section background-color="#FBFCFB" padding="24px 40px" css-class="collage-tip-row">
         <mj-group width="100%">
-          <mj-column width="92%" padding="0px" vertical-align="top">
+          <mj-column width="92%" padding="0px" vertical-align="middle">
             <mj-text
               color="#103B05"
               font-size="20px"
@@ -387,7 +390,7 @@
       </mj-section>
       <mj-section background-color="#FBFCFB" padding="24px 40px" css-class="collage-tip-row">
         <mj-group width="100%">
-          <mj-column width="92%" padding="0px" vertical-align="top">
+          <mj-column width="92%" padding="0px" vertical-align="middle">
             <mj-text
               color="#103B05"
               font-size="20px"
@@ -432,9 +435,9 @@
       </mj-section>
       <mj-section
         background-color="#FBFCFB"
-        padding="0px 40px"
+        padding="0px 40px 80px"
         border-radius="0px"
-        css-class="collage-tip-rule"
+        css-class="collage-tip-rule collage-tip-rule-last"
       >
         <mj-column>
           <mj-divider border-color="#D8E1D4" border-width="1px" width="100%" padding="0px" />
@@ -553,7 +556,7 @@
       </mj-section>
     </mj-wrapper>
     <mj-section
-      background-color="#FBFCFB"
+      background-color="transparent"
       padding="0px"
       border-radius="0px"
       css-class="collage-space"

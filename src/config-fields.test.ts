@@ -41,23 +41,9 @@ describe("conditional editor fields", () => {
     expect(props.height).toBe(340);
   });
 
-  it.each([true, "true", false, "", undefined])(
-    "shows the Tailwind URL only when its runtime is enabled (%s)",
-    async (tailwind) => {
-      const root = createEmailConfig(undefined, true).root!;
-      const fields = root.fields!;
-      const props = {
-        ...root.defaultProps,
-        tailwind,
-        tailwindScriptUrl: "https://example.com/tailwind.js",
-      };
-      const resolved = await root.resolveFields!({ props }, context(fields));
-      expect(resolved.tailwindScriptUrl.visible).toBe(tailwind === true || tailwind === "true");
-      expect(resolved.bodyAttributes).toBe(fields.bodyAttributes);
-      expect(resolved.attributeDefaults).toBe(fields.attributeDefaults);
-      expect(resolved.rawHead).toBe(fields.rawHead);
-      expect(fields.tailwindScriptUrl.visible).toBeUndefined();
-      expect(props.tailwindScriptUrl).toBe("https://example.com/tailwind.js");
-    },
-  );
+  it("keeps runtime script authorization outside document fields", () => {
+    const root = createEmailConfig(undefined, true).root!;
+    expect(root.fields!.tailwind).toBeDefined();
+    expect(root.fields!.tailwindScriptUrl).toBeUndefined();
+  });
 });

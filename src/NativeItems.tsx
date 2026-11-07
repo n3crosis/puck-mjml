@@ -117,6 +117,7 @@ const socialKeys = [
 ];
 
 function Social({ props, attributes, scope }: ItemProps) {
+  const vertical = attributes.mode === "vertical";
   const inherited = pick(attributes, socialKeys);
   if (attributes["inner-padding"]) inherited.padding = attributes["inner-padding"];
   return (
@@ -127,8 +128,7 @@ function Social({ props, attributes, scope }: ItemProps) {
     >
       <div
         style={{
-          display: "inline-flex",
-          flexDirection: attributes.mode === "vertical" ? "column" : "row",
+          display: vertical ? "inline-table" : "inline-flex",
           flexWrap: "wrap",
           alignItems: "flex-start",
         }}
@@ -166,6 +166,13 @@ function Social({ props, attributes, scope }: ItemProps) {
             <span
               key="icon"
               style={{
+                display: vertical ? "table-cell" : undefined,
+                alignSelf:
+                  a["vertical-align"] === "top"
+                    ? "flex-start"
+                    : a["vertical-align"] === "bottom"
+                      ? "flex-end"
+                      : "center",
                 ...nativeStyle(a, [
                   "padding",
                   "padding-top",
@@ -212,6 +219,8 @@ function Social({ props, attributes, scope }: ItemProps) {
                 key="text"
                 className="pm-social-label"
                 style={{
+                  display: vertical ? "table-cell" : undefined,
+                  verticalAlign: "middle",
                   padding: a["text-padding"],
                   textAlign: a.align as CSSProperties["textAlign"],
                 }}
@@ -226,7 +235,7 @@ function Social({ props, attributes, scope }: ItemProps) {
               key={index}
               className={classes("pm-social-item", a["css-class"])}
               style={{
-                display: "inline-flex",
+                display: vertical ? "table-row" : "inline-flex",
                 alignItems: "center",
                 verticalAlign: a["vertical-align"] as CSSProperties["verticalAlign"],
               }}
@@ -359,6 +368,14 @@ function Accordion({ props, attributes, scope }: ItemProps) {
         }}
       >
         {items(props.items).map((item, index) => {
+          if (item.kind === "raw")
+            return (
+              <TrustedHtmlPreview
+                key={index}
+                html={typeof item.html === "string" ? item.html : ""}
+                label="Raw HTML"
+              />
+            );
           const resolved = element(
             "mj-accordion-element",
             item,
@@ -370,12 +387,6 @@ function Accordion({ props, attributes, scope }: ItemProps) {
           const open = expanded[index] !== false;
           const iconPrefix = open ? "icon-unwrapped" : "icon-wrapped";
           const inherited = pick(a, accordionKeys);
-          const titleProps = { mjClass: item.titleMjClass, mjmlAttributes: item.titleAttributes };
-          const textProps = { mjClass: item.textMjClass, mjmlAttributes: item.textAttributes };
-          const title =
-            element("mj-accordion-title", titleProps, resolved.scope, inherited)?.attributes ?? {};
-          const text =
-            element("mj-accordion-text", textProps, resolved.scope, inherited)?.attributes ?? {};
           // Native resolveFontFamily checks rawAttrs: only a direct local font
           // overrides the element/accordion context, not a class or tag default.
           const font = a["font-family"] || attributes["font-family"];
@@ -394,6 +405,125 @@ function Accordion({ props, attributes, scope }: ItemProps) {
             }
             return font;
           };
+          const ordered = Array.isArray(item.children);
+          const parts = ordered
+            ? items(item.children)
+            : [
+                {
+                  kind: "title",
+                  content: item.title,
+                  htmlContent: item.titleHtmlContent,
+                  mjClass: item.titleMjClass,
+                  mjmlAttributes: item.titleAttributes,
+                },
+                {
+                  kind: "text",
+                  content: item.content,
+                  htmlContent: item.htmlContent,
+                  mjClass: item.textMjClass,
+                  mjmlAttributes: item.textAttributes,
+                },
+              ];
+          const children = parts.map((part, partIndex) => {
+            if (part.kind === "raw")
+              return (
+                <TrustedHtmlPreview
+                  key={partIndex}
+                  html={typeof part.html === "string" ? part.html : ""}
+                  label="Raw HTML"
+                />
+              );
+            if (part.kind === "title") {
+              const title =
+                element("mj-accordion-title", part, resolved.scope, inherited)?.attributes ?? {};
+              const Heading = ordered ? "div" : "summary";
+              return (
+                <Heading
+                  key={partIndex}
+                  style={{
+                    padding: 0,
+                    fontWeight: "normal",
+                    listStyle: "none",
+                    borderBottom: title.border,
+                    backgroundColor: title["background-color"],
+                    display: "flex",
+                    flexDirection: title["icon-position"] === "left" ? "row-reverse" : "row",
+                    // MJML keeps the title cell centered; icon-align changes
+                    // only the icon cell's contents, not the title itself.
+                    alignItems: "center",
+                  }}
+                >
+                  <span
+                    className={title["css-class"]}
+                    style={{
+                      flex: 1,
+                      ...nativeBoxStyle(title),
+                      border: undefined,
+                      ...nativeStyle(title, typographyKeys),
+                      fontFamily: fontFor(title, part, "mj-accordion-title"),
+                    }}
+                  >
+                    {source(part, "htmlContent", true) ?? content(part.content)}
+                  </span>
+                  {title[`${iconPrefix}-url`] ? (
+                    <span
+                      style={{
+                        padding: "16px",
+                        backgroundColor: title["background-color"],
+                        flex: "none",
+                        alignSelf:
+                          title["icon-align"] === "top"
+                            ? "flex-start"
+                            : title["icon-align"] === "bottom"
+                              ? "flex-end"
+                              : "center",
+                      }}
+                    >
+                      <img
+                        src={title[`${iconPrefix}-url`]}
+                        alt={title[`${iconPrefix}-alt`] ?? ""}
+                        style={{
+                          display: "block",
+                          width: title["icon-width"],
+                          height: title["icon-height"],
+                        }}
+                      />
+                    </span>
+                  ) : null}
+                </Heading>
+              );
+            }
+            if (part.kind !== "text") return null;
+            const text =
+              element("mj-accordion-text", part, resolved.scope, inherited)?.attributes ?? {};
+            return (
+              <div
+                key={partIndex}
+                className={classes("pm-text", text["css-class"])}
+                style={{
+                  ...nativeBoxStyle(text),
+                  border: undefined,
+                  borderBottom: text.border,
+                  ...nativeStyle(text, typographyKeys),
+                  fontFamily: fontFor(text, part, "mj-accordion-text"),
+                }}
+              >
+                {source(part) ?? content(part.content)}
+              </div>
+            );
+          });
+          // Unusual native arrangements stay visible/editable without imposing
+          // HTML details' single-summary ordering on repeated/missing titles.
+          if (ordered)
+            return (
+              <div
+                key={index}
+                className={a["css-class"]}
+                style={{ backgroundColor: a["background-color"] ?? "transparent" }}
+              >
+                {children}
+              </div>
+            );
           return (
             <details
               key={index}
@@ -407,70 +537,7 @@ function Accordion({ props, attributes, scope }: ItemProps) {
               className={a["css-class"]}
               style={{ border: 0, backgroundColor: a["background-color"] ?? "transparent" }}
             >
-              <summary
-                style={{
-                  padding: 0,
-                  fontWeight: "normal",
-                  listStyle: "none",
-                  borderBottom: title.border,
-                  backgroundColor: title["background-color"],
-                  display: "flex",
-                  flexDirection: title["icon-position"] === "left" ? "row-reverse" : "row",
-                  // MJML keeps the title cell centered; icon-align changes
-                  // only the icon cell's contents, not the title itself.
-                  alignItems: "center",
-                }}
-              >
-                <span
-                  className={title["css-class"]}
-                  style={{
-                    flex: 1,
-                    ...nativeBoxStyle(title),
-                    border: undefined,
-                    ...nativeStyle(title, typographyKeys),
-                    fontFamily: fontFor(title, titleProps, "mj-accordion-title"),
-                  }}
-                >
-                  {source(item, "titleHtmlContent", true) ?? content(item.title)}
-                </span>
-                {title[`${iconPrefix}-url`] ? (
-                  <span
-                    style={{
-                      padding: "16px",
-                      backgroundColor: title["background-color"],
-                      flex: "none",
-                      alignSelf:
-                        title["icon-align"] === "top"
-                          ? "flex-start"
-                          : title["icon-align"] === "bottom"
-                            ? "flex-end"
-                            : "center",
-                    }}
-                  >
-                    <img
-                      src={title[`${iconPrefix}-url`]}
-                      alt={title[`${iconPrefix}-alt`] ?? ""}
-                      style={{
-                        display: "block",
-                        width: title["icon-width"],
-                        height: title["icon-height"],
-                      }}
-                    />
-                  </span>
-                ) : null}
-              </summary>
-              <div
-                className={classes("pm-text", text["css-class"])}
-                style={{
-                  ...nativeBoxStyle(text),
-                  border: undefined,
-                  borderBottom: text.border,
-                  ...nativeStyle(text, typographyKeys),
-                  fontFamily: fontFor(text, textProps, "mj-accordion-text"),
-                }}
-              >
-                {source(item) ?? content(item.content)}
-              </div>
+              {children}
             </details>
           );
         })}
@@ -545,7 +612,10 @@ function Carousel({ props, attributes, scope }: ItemProps) {
   return (
     <div className={classes("pm-carousel", attributes["css-class"])} style={outerStyle(attributes)}>
       {attributes.thumbnails !== "hidden" && images.length > 0 ? (
-        <div className="pm-carousel-thumbnails" style={{ display: "block", margin: 0 }}>
+        <div
+          className="pm-carousel-thumbnails"
+          style={{ display: "block", margin: 0, textAlign: "center", fontSize: 0 }}
+        >
           {images.map((item, index) => {
             const thumb = item.attributes;
             return (
@@ -565,7 +635,10 @@ function Carousel({ props, attributes, scope }: ItemProps) {
                   verticalAlign: "middle",
                   cursor: "pointer",
                   overflow: "hidden",
-                  width: attributes["tb-width"] ?? `min(${100 / images.length}%, 110px)`,
+                  // MJML 5.4.1 falls back to 110px even in narrow columns:
+                  // its thumbnail calculation reads an absent parentWidth context.
+                  width: attributes["tb-width"] ?? "110px",
+                  boxSizing: "content-box",
                   border: thumb["tb-border"],
                   borderColor:
                     hovered === index

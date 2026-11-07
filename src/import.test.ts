@@ -84,7 +84,7 @@ describe("fromMjml", () => {
     expect(columns.map((column) => column.props.width)).toEqual([60, 40]);
   });
 
-  it("converts pixel column widths to percentages and distributes missing widths", () => {
+  it("preserves pixel column widths and native missing-width inheritance", () => {
     const { document, warnings } = fromMjml(`<mjml><mj-body width="600px">
       <mj-section>
         <mj-column width="300px"><mj-text>A</mj-text></mj-column>
@@ -93,11 +93,22 @@ describe("fromMjml", () => {
     </mj-body></mjml>`);
     expect(warnings).toHaveLength(1);
     expect(warnings[0]).toContain("Pixel column width");
-    const columns = (document.root.props!.sections![0]!.props.columns as EmailBlock[]).map(
-      (column) => column.props.width,
+    const columns = document.root.props!.sections![0]!.props.columns as EmailBlock[];
+    expect(columns[0]!.props.mjmlAttributes).toContainEqual(
+      expect.objectContaining({
+        name: "width",
+        value: "300px",
+        source: "import",
+      }),
     );
-    expect(columns[0]).toBe(50);
-    expect(columns[1]).toBe(50);
+    expect(columns[1]!.props.mjmlAttributes).toContainEqual(
+      expect.objectContaining({
+        name: "width",
+        inherit: true,
+        source: "import",
+      }),
+    );
+    expect(toMjml(document)).toContain('width="300px"');
   });
 
   it("keeps unsupported attribute values through the native cascade", async () => {
@@ -108,17 +119,29 @@ describe("fromMjml", () => {
     </mj-body></mjml>`);
     expect(warnings).toEqual([]);
     const section = document.root.props!.sections![0]!;
-    expect(section.props.mjmlAttributes).toEqual([
-      { name: "background-url", value: "https://example.com/bg.jpg" },
-      { name: "background-repeat", value: "no-repeat" },
-    ]);
+    expect(section.props.mjmlAttributes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "background-url",
+          value: "https://example.com/bg.jpg",
+          source: "import",
+        }),
+        expect.objectContaining({
+          name: "background-repeat",
+          value: "no-repeat",
+          source: "import",
+        }),
+      ]),
+    );
     const text = (section.props.column as EmailBlock[])[0]!;
     expect(text.props.color).toBeUndefined();
     expect(text.props.fontSize).toBeUndefined();
-    expect(text.props.mjmlAttributes).toEqual([
-      { name: "color", value: "rgb(10, 20, 30)" },
-      { name: "font-size", value: "90px" },
-    ]);
+    expect(text.props.mjmlAttributes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "color", value: "rgb(10, 20, 30)", source: "import" }),
+        expect.objectContaining({ name: "font-size", value: "90px", source: "import" }),
+      ]),
+    );
     const result = await compileEmail(document);
     expect(result.errors).toEqual([]);
     expect(result.mjml).toContain('background-url="https://example.com/bg.jpg"');
@@ -150,7 +173,11 @@ describe("fromMjml", () => {
       { css: "@media (max-width: 480px) { .x { padding: 0 !important; } }", inline: "head" },
     ]);
     expect(settings.attributeDefaults).toEqual([
-      { name: "font-family", value: "Arial, sans-serif" },
+      expect.objectContaining({
+        name: "font-family",
+        value: "Arial, sans-serif",
+        source: "import",
+      }),
     ]);
     expect(settings.mjmlClasses).toEqual([
       {
@@ -234,9 +261,7 @@ describe("fromMjml", () => {
         <mj-carousel-image src="https://example.com/2.jpg" alt="Two" />
       </mj-carousel>
     </mj-column></mj-section></mj-body></mjml>`);
-    expect(warnings).toEqual([
-      'Social network "tiktok" is not supported; imported as a custom web icon.',
-    ]);
+    expect(warnings).toEqual([]);
     const content = document.root.props!.sections![0]!.props.column as EmailBlock[];
     const social = content[0]!;
     expect(social.props.iconSize).toBe(24);

@@ -16,7 +16,7 @@ bun install
 bun run dev
 ```
 
-Open the Vite URL. The demo starts with the Collage product update, adapted from React Email's Matte template. The template picker includes a blank email and the Matte and Protocol families. You can import a local `.mjml` file and download MJML or HTML. Drafts are not saved; example images and web fonts require network access.
+Open the Vite URL. The demo starts with the Collage product update, adapted from React Email's Matte template. The template picker includes a blank email and the Matte and Protocol families. You can import a local `.mjml` file and download MJML or HTML. Drafts are not saved. The demo warns before replacing edited content or leaving the page; download MJML to keep your work. Imported documents are checked before replacement and rejected if they need trusted HTML or cannot be safely exported. All import notes remain accessible. Example images and web fonts require network access.
 
 ## Use in a host app
 
@@ -31,6 +31,8 @@ For local package development and build outputs, see [Development](docs/DEVELOPM
 Import the bundled CSS once and pass a document and update callback:
 
 ```tsx
+"use client"; // Required when using a React Server Components framework.
+
 import { useState } from "react";
 import { EmailEditor, createEmptyDocument, type EmailDocument } from "puck-mjml";
 import "puck-mjml/style.css";
@@ -46,26 +48,29 @@ The host owns persistence. Replacing `value` with a different document resets un
 
 ### Editor props
 
-| Prop                  | Purpose                                                      |
-| --------------------- | ------------------------------------------------------------ |
-| `value`               | Current `EmailDocument` (required).                          |
-| `onChange(document)`  | Receives document edits (required).                          |
-| `onPublish(document)` | Optional host publishing callback; may return a promise.     |
-| `onUploadImage(file)` | Enables uploads; must resolve to a public HTTP(S) image URL. |
-| `headerTitle`         | Header branding; defaults to `"Puck MJML"`.                  |
-| `headerActions`       | Host controls beside preview and history controls.           |
-| `allowRawHtml`        | Enables trusted HTML and template source controls.           |
-| `className`           | Additional editor wrapper class.                             |
+| Prop                  | Purpose                                                                     |
+| --------------------- | --------------------------------------------------------------------------- |
+| `value`               | Current `EmailDocument` (required).                                         |
+| `onChange(document)`  | Receives document edits (required).                                         |
+| `onPublish(document)` | Optional host publishing callback; may return a promise.                    |
+| `onUploadImage(file)` | Enables uploads; must resolve to a public HTTP(S) image URL.                |
+| `headerTitle`         | Header branding; defaults to `"Puck MJML"`.                                 |
+| `headerActions`       | Host controls beside preview and history controls.                          |
+| `allowRawHtml`        | Enables trusted HTML and template source controls.                          |
+| `tailwindRuntime`     | Host opt-in: `true` for the pinned runtime or a trusted HTTP(S) script URL. |
+| `className`           | Additional editor wrapper class.                                            |
 
 ### Import and export
 
 ```ts
-import { compileEmail, fromMjml, toMjml } from "puck-mjml";
+import { compileEmail, fromMjml, toMjml } from "puck-mjml/core";
 
 const { document, warnings } = fromMjml(source);
 const mjml = toMjml(document);
 const { html, errors } = await compileEmail(document);
 ```
+
+`puck-mjml/core` contains conversion functions, document factories, and types without loading the editor, Puck runtime, or CSS. Use it in Node or React Server Components; the package root remains the browser editor API.
 
 `source` is an MJML string supplied by the host. Check import `warnings` for content the model cannot represent and compilation `errors` for MJML validation warnings. Export rejects invalid nesting, malformed settings, and invalid URLs. Import covers modeled standard components; arbitrary MJML is not guaranteed to round-trip without loss.
 
@@ -79,6 +84,8 @@ Trusted raw HTML and template attributes require `allowRawHtml` on the editor an
 - [Native attribute reference](docs/NATIVE_ATTRIBUTES.md): schemas, inheritance, precedence, templates, and examples.
 - [MJML compatibility](docs/MJML_COMPATIBILITY.md): supported components, canvas behavior, and limitations.
 - [Development](docs/DEVELOPMENT.md): checks, builds, source map, and compiler maintenance.
+
+See [the project review](docs/PROJECT_REVIEW.md) for findings, verification scope, and remaining limitations. See [deployment](docs/DEVELOPMENT.md#github-actions-and-pages) for the demo publishing workflow.
 
 ## License
 

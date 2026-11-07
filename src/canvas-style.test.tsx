@@ -133,40 +133,16 @@ describe("Tailwind canvas runtime", () => {
     content: [],
   });
 
-  it("injects the runtime config and script only when the document enables Tailwind", () => {
-    const off = render(documentWith({}));
-    expect(off).not.toContain("text/tailwindcss");
-    expect(off).not.toMatch(/<script[^>]*tailwind/i);
-
-    const on = render(documentWith({ tailwind: true }));
-    const canvas = parse(on);
-    const config = canvas.querySelector('style[type="text/tailwindcss"]')!;
-    expect(config.textContent).toContain('@import "tailwindcss/theme.css" layer(theme)');
-    expect(config.textContent).toContain('@import "tailwindcss/utilities.css" layer(utilities)');
-    // Preflight is excluded so the runtime does not reset canvas styles.
-    expect(config.textContent).not.toContain('@import "tailwindcss"');
-    const script = canvas.querySelector("script[src]")!;
-    expect(script.getAttribute("src")).toBeTruthy();
-  });
-
-  it("accepts the radio value and a validated custom script URL", () => {
-    const custom = render(
+  it("never serializes document-controlled scripts or executable runtime markup", () => {
+    const html = render(
       documentWith({
-        tailwind: "true",
-        tailwindScriptUrl: "https://cdn.example.net/tailwind.js",
+        tailwind: true,
+        tailwindScriptUrl: "https://attacker.example/script.js",
       }),
     );
-    const canvas = parse(custom);
-    expect(canvas.querySelector("script[src]")!.getAttribute("src")).toBe(
-      "https://cdn.example.net/tailwind.js",
-    );
-
-    const unsafe = render(
-      documentWith({ tailwind: "true", tailwindScriptUrl: "javascript:alert(1)" }),
-    );
-    const fallback = parse(unsafe).querySelector("script[src]")!.getAttribute("src")!;
-    expect(fallback).not.toContain("javascript:");
-    expect(fallback).toBeTruthy();
+    expect(html).not.toContain("attacker.example");
+    expect(html).not.toContain("text/tailwindcss");
+    expect(parse(html).querySelector("script")).toBeNull();
   });
 });
 

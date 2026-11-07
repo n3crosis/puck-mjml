@@ -40,9 +40,24 @@ function sanitizeBlock(block: EmailBlock): EmailBlock {
       mapShared(props.items, (item: unknown) => {
         if (!item || typeof item !== "object" || Array.isArray(item)) return item;
         const entry = item as Record<string, unknown>;
-        if (typeof entry.content !== "string") return item;
-        const content = sanitizeForEditor(entry.content);
-        return content === entry.content ? item : { ...entry, content };
+        const content =
+          typeof entry.content === "string" ? sanitizeForEditor(entry.content) : entry.content;
+        const children = Array.isArray(entry.children)
+          ? mapShared(entry.children, (child: unknown) => {
+              if (!child || typeof child !== "object" || Array.isArray(child)) return child;
+              const part = child as Record<string, unknown>;
+              if (part.kind !== "text" || typeof part.content !== "string") return child;
+              const content = sanitizeForEditor(part.content);
+              return content === part.content ? child : { ...part, content };
+            })
+          : entry.children;
+        return content === entry.content && children === entry.children
+          ? item
+          : {
+              ...entry,
+              ...(content !== entry.content ? { content } : {}),
+              ...(children !== entry.children ? { children } : {}),
+            };
       }),
     );
   }

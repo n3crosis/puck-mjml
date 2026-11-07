@@ -6,25 +6,25 @@ See the [editor guide](EDITOR_GUIDE.md) for usage and the [native attribute refe
 
 ## Component coverage
 
-| MJML component                                                                    | Editor support           | Notes                                                                                                            |
-| --------------------------------------------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `mjml`, `mj-head`, `mj-body`                                                      | Generated                | Root settings include language, direction, legacy Outlook web mode, title, preview, width, background, and font. |
-| `mj-title`, `mj-preview`, `mj-attributes`, `mj-all`, `mj-class`                   | Generated                | Global/component defaults and named classes, including nested per-component class defaults.                      |
-| `mj-section`, `mj-column`                                                         | Visual blocks            | Fixed or flexible columns; borders, radii, classes, percentage widths, and vertical alignment.                   |
-| `mj-text`, `mj-image`, `mj-button`, `mj-spacer`                                   | Visual blocks            | Rich text, typography, button inner padding/radius, and linked rounded images.                                   |
-| `mj-divider`                                                                      | Visual block             | Color, width, thickness, and padding.                                                                            |
-| `mj-social`, `mj-social-element`                                                  | Visual block             | Network presets, custom icon sources, labels/alt text, links, icon sizing/padding/radius.                        |
-| `mj-navbar`, `mj-navbar-link`                                                     | Visual block             | Labels, native base URL, and safe absolute or relative links through native controls.                            |
-| `mj-table`                                                                        | Visual block             | Arbitrary rich-text cells, header/body/footer rows, captions, spans, and native table styling.                   |
-| `mj-wrapper`                                                                      | Visual block             | Groups sections and heroes; background, padding, border, radius, and CSS classes.                                |
-| `mj-hero`                                                                         | Visual block             | Fluid or fixed height, optional background image, and supported content blocks.                                  |
-| `mj-accordion`, `mj-accordion-element`, `mj-accordion-title`, `mj-accordion-text` | Visual block             | Editable titles and sanitized rich text answers.                                                                 |
-| `mj-group`                                                                        | Visual block             | Groups flexible-section columns so they stay side by side on mobile.                                             |
-| `mj-carousel`, `mj-carousel-image`                                                | Visual block             | Editable images, links, alt text, alignment, and thumbnails.                                                     |
-| `mj-breakpoint`, `mj-font`, `mj-style`                                            | Root settings            | Native breakpoint width override, hosted CSS fonts, and head or inline custom CSS.                               |
-| `mj-raw`                                                                          | Host opt-in              | Trusted pre-doctype, head, body, wrapper, section, group, hero, column, social-list, and navigation-list HTML.   |
-| `mj-html-attributes`, `mj-selector`, `mj-html-attribute`                          | Root settings            | HTML/XML attributes and unrestricted selector length; active attributes require the trusted HTML opt-in.         |
-| `mj-include`, custom `.mjmlconfig` components                                     | Outside browser compiler | These require host-side compilation.                                                                             |
+| MJML component                                                                    | Editor support           | Notes                                                                                                                     |
+| --------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `mjml`, `mj-head`, `mj-body`                                                      | Generated                | Root settings include language, direction, legacy Outlook web mode, title, preview, width, background, and font.          |
+| `mj-title`, `mj-preview`, `mj-attributes`, `mj-all`, `mj-class`                   | Generated                | Global/component defaults and named classes, including nested per-component class defaults.                               |
+| `mj-section`, `mj-column`                                                         | Visual blocks            | Fixed or flexible columns; borders, radii, classes, percentage widths, and vertical alignment.                            |
+| `mj-text`, `mj-image`, `mj-button`, `mj-spacer`                                   | Visual blocks            | Rich text, typography, button inner padding/radius, and linked rounded images.                                            |
+| `mj-divider`                                                                      | Visual block             | Color, width, thickness, and padding.                                                                                     |
+| `mj-social`, `mj-social-element`                                                  | Visual block             | Network presets, custom icon sources, labels/alt text, links, icon sizing/padding/radius.                                 |
+| `mj-navbar`, `mj-navbar-link`                                                     | Visual block             | Labels, native base URL, and safe absolute or relative links through native controls.                                     |
+| `mj-table`                                                                        | Visual block             | Arbitrary rich-text cells, header/body/footer rows, captions, spans, and native table styling.                            |
+| `mj-wrapper`                                                                      | Visual block             | Groups sections and heroes; background, padding, border, radius, and CSS classes.                                         |
+| `mj-hero`                                                                         | Visual block             | Fluid or fixed height, optional background image, and supported content blocks.                                           |
+| `mj-accordion`, `mj-accordion-element`, `mj-accordion-title`, `mj-accordion-text` | Visual block             | Editable titles and sanitized rich text answers.                                                                          |
+| `mj-group`                                                                        | Visual block             | Groups flexible-section columns so they stay side by side on mobile.                                                      |
+| `mj-carousel`, `mj-carousel-image`                                                | Visual block             | Editable images, links, alt text, alignment, and thumbnails.                                                              |
+| `mj-breakpoint`, `mj-font`, `mj-style`                                            | Root settings            | Native breakpoint width override, hosted CSS fonts, and head or inline custom CSS.                                        |
+| `mj-raw`                                                                          | Host opt-in              | Trusted pre-doctype, head, body, wrapper, section, group, hero, column, social-list, navigation-list, and accordion HTML. |
+| `mj-html-attributes`, `mj-selector`, `mj-html-attribute`                          | Root settings            | HTML/XML attributes and unrestricted selector length; active attributes require the trusted HTML opt-in.                  |
+| `mj-include`, custom `.mjmlconfig` components                                     | Outside browser compiler | These require host-side compilation.                                                                                      |
 
 ## Canvas layout
 
@@ -44,7 +44,7 @@ Document custom CSS and web fonts apply to both the compiled email and the editi
 
 ## Tailwind utilities
 
-`root.props.tailwind` (boolean, or the sidebar radio's `"true"`) opts a document into Tailwind utility rendering while editing: the canvas loads the Tailwind v4 browser runtime (pinned to the installed `@tailwindcss/browser` version from jsDelivr; override with `root.props.tailwindScriptUrl` pointing at any HTTP(S) build you host) and compiles the utility classes found in `css-class` values live. Tailwind preflight is excluded so the runtime cannot reset canvas styles, and generated styles are removed when the canvas stops using Tailwind. This is an editing preview: the compiled email still needs the utility CSS itself. Because custom CSS is scoped onto the canvas, pasting a generated Tailwind build into Custom CSS renders the same classes on both the canvas and in the exported email.
+`root.props.tailwind` (boolean, or the sidebar radio's `"true"`) opts a document into Tailwind utility rendering while editing: the canvas loads the Tailwind v4 browser runtime (pinned to the installed `@tailwindcss/browser` version from jsDelivr; enabled by the host with `tailwindRuntime={true}`, or a trusted HTTP(S) script URL supplied through that editor prop) and compiles the utility classes found in `css-class` values live. Tailwind preflight is excluded so the runtime cannot reset canvas styles, and generated styles are removed when the canvas stops using Tailwind. This is an editing preview: the compiled email still needs the utility CSS itself. Because custom CSS is scoped onto the canvas, pasting a generated Tailwind build into Custom CSS renders the same classes on both the canvas and in the exported email.
 
 ## Attributes and trusted source
 
@@ -59,3 +59,17 @@ Trusted template expressions in native attributes are preserved with `template: 
 Remaining compatibility work includes canvas fidelity for specialized native behavior (including client-specific fallbacks such as Outlook/VML output, which depends on the compiled email and real client validation) and filesystem includes/custom components through a host compiler. The presence of each standard tag does not imply full value or rendering parity: untrusted inputs are still subject to URL/CSS validation, and the HTML editor is not a general-purpose MJML source editor. Raw HTML is intentionally passed through when the host enables it.
 
 Generated HTML selectors support child combinators and quoted attribute values. The installed MJML compiler matches selectors against HTML with entities still encoded: an exact selector for an href containing an ampersand may need `&amp;` in the selector value. Combining generated HTML attributes or inline CSS with XML-like template syntax can reparse that syntax; apply such templates after compilation when needed.
+
+### Tailwind trust and browser behavior
+
+Tailwind needs both the document toggle and the host's `EmailEditor` `tailwindRuntime` opt-in. The deprecated document `tailwindScriptUrl` is ignored: imported or persisted document data cannot select executable code. Each canvas uses a hidden compiler frame for lifecycle and stylesheet isolation. This is not a security sandbox for untrusted host code; a custom runtime URL must be code the host trusts. Tailwind remains a canvas aid, not an email CSS compiler. Include the actual utility CSS in exported `headStyles` when required.
+
+### Import safety and round trips
+
+Treat imports as a conversion with diagnostics, not a lossless source editor. Review all warnings and compare important output with the original MJML. Rich HTML outside supported rich-text markup may need trusted source mode. The public demo deliberately rejects documents needing trusted source before replacing the current email; it never enables trust based on file content. Hosts should validate export before committing an imported document and keep a copy of the original source.
+
+### Imported attribute provenance
+
+Imported native local attributes and root font rules retain static provenance and the original visual-control baseline. A preserved native value is suppressed only when its corresponding visual control changes. Explicit native edits remove that ownership, and undo restores the earlier data and behavior. This is not an on-change reconciliation pass that repeatedly rewrites the imported document.
+
+Ending-tag HTML is scanned with quote and comment awareness so ordinary HTML void tags do not consume later MJML components. Unsafe embedded MJML boundary literals are retained with explicit cannot-export warnings rather than silently deleted or reported as a successful round trip. Review these diagnostics before committing an import; the demo's export preflight rejects such documents without replacing the previous email.

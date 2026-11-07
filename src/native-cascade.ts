@@ -1,3 +1,4 @@
+import { resolveImportedAttributes } from "./import-inheritance";
 import { nativeCatalog, normalizeMjClass, readNativeAttributes } from "./native-attributes";
 import type { EmailSettings, ExportOptions, MjmlElementOptions } from "./types";
 
@@ -63,7 +64,11 @@ export function createNativeContext(
   const all = map<string>();
   const font = typeof source.fontFamily === "string" ? source.fontFamily.trim() : "";
   all["font-family"] = /^[\p{L}\p{N} ,'"_-]{1,160}$/u.test(font) ? font : "Arial, sans-serif";
-  const globalEdits = readNativeAttributes("*", source.attributeDefaults, options);
+  const globalEdits = readNativeAttributes(
+    "*",
+    resolveImportedAttributes(source, "attributeDefaults"),
+    options,
+  );
   mergeEdits(all, globalEdits);
 
   const components = map<Record<string, string>>();
@@ -89,6 +94,11 @@ export function createNativeContext(
       throw new Error("MJML class attributes cannot override the reserved name attribute");
     mergeEdits(definition.attributes, attributes);
     for (const child of records(entry.components, `MJML class ${name} component defaults`)) {
+      if (/\.|\[|\]/.test(name)) {
+        throw new Error(
+          `MJML class ${name} cannot have nested component defaults: the native compiler interprets dots and brackets as paths. Use a class name without these characters.`,
+        );
+      }
       const tag = componentTag(child.tag);
       // Native mj-class definitions merge by tag, replacing a repeated tag's complete map.
       const values = map<string>();
@@ -129,7 +139,8 @@ export function applyNativeAttributes(
     if (value !== undefined && value !== "") attributes[name] = value;
   }
   if (props.mjClass !== undefined) attributes["mj-class"] = normalizeMjClass(props.mjClass) ?? "";
-  const edits = readNativeAttributes(tag, props.mjmlAttributes, context);
+  const entries = resolveImportedAttributes(props);
+  const edits = readNativeAttributes(tag, entries, context);
   for (const [name, value] of Object.entries(edits)) {
     if (value === null) delete attributes[name];
     else attributes[name] = value;
@@ -139,7 +150,7 @@ export function applyNativeAttributes(
   // last local edit so final serialization bypasses value validation only for
   // explicitly trusted templates, never for unrelated generated attributes.
   const templates = new Set<string>();
-  for (const entry of props.mjmlAttributes ?? []) {
+  for (const entry of entries ?? []) {
     const name = entry.name.trim();
     if (!name) continue;
     if (Object.hasOwn(entry, "inherit") && entry.inherit === true) templates.delete(name);

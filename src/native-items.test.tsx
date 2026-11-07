@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { load } from "cheerio";
+import { NativeLayoutContext } from "./native-layout-context";
 import { NativeItems } from "./NativeItems";
 import { createCanvasScope, getCanvasElement } from "./native-canvas-context";
 import type { EmailSettings, MjmlAttribute } from "./types";
@@ -20,15 +21,20 @@ function render(
   name: keyof typeof tags,
   props: Record<string, unknown>,
   settings: EmailSettings = {},
+  width = 600,
 ) {
   const resolved = getCanvasElement(tags[name], props, createCanvasScope(settings));
   expect(resolved).toBeDefined();
-  return renderToStaticMarkup(<NativeItems name={name} props={props} {...resolved!} />);
+  return renderToStaticMarkup(
+    <NativeLayoutContext.Provider value={{ width }}>
+      <NativeItems name={name} props={props} {...resolved!} />
+    </NativeLayoutContext.Provider>,
+  );
 }
-async function compile(body: string, head = "") {
+async function compile(body: string, head = "", width = 600) {
   const { default: mjml } = await import("mjml-browser");
   const result = await mjml(
-    `<mjml><mj-head>${head}</mj-head><mj-body><mj-section><mj-column>${body}</mj-column></mj-section></mj-body></mjml>`,
+    `<mjml><mj-head>${head}</mj-head><mj-body width="${width}px"><mj-section><mj-column>${body}</mj-column></mj-section></mj-body></mjml>`,
     { validationLevel: "strict" },
   );
   expect(result.errors).toEqual([]);
@@ -110,7 +116,7 @@ describe("native nested-component canvas", () => {
     };
     const settings = { attributeDefaults: entries({ "font-size": "11px" }) };
     const canvas = render("Social", props, settings);
-    expect(canvas).toContain("flex-direction:column");
+    expect(canvas).toContain("display:inline-table");
     expect(canvas).toContain("font-size:23px");
     expect(canvas).toContain("color:#123456");
     expect(canvas).toContain("padding:9px");
@@ -181,6 +187,84 @@ describe("native nested-component canvas", () => {
       }),
     ).toContain('href="https://example.com/profile"');
   });
+
+  it.each(["top", "middle", "bottom"])(
+    "positions Social icons at the %s of tall labels",
+    async (alignment) => {
+      const canvas = load(
+        render("Social", {
+          links: [
+            {
+              name: "web",
+              label: "A tall label",
+              mjmlAttributes: entries({ "vertical-align": alignment, "line-height": "80px" }),
+            },
+          ],
+        }),
+      );
+      const iconCell = canvas(".pm-social-icon").parent();
+      expect(iconCell.css("align-self")).toBe(
+        alignment === "top" ? "flex-start" : alignment === "bottom" ? "flex-end" : "center",
+      );
+      const native = load(
+        await compile(
+          `<mj-social><mj-social-element name="web" vertical-align="${alignment}" line-height="80px">A tall label</mj-social-element></mj-social>`,
+        ),
+      );
+      expect(native("img").closest("table").parent().css("vertical-align")).toBe(alignment);
+    },
+  );
+
+  it("shares icon and label columns across vertical Social rows", () => {
+    const canvas = load(
+      render("Social", {
+        mjmlAttributes: entries({ mode: "vertical" }),
+        links: [
+          { name: "web", label: "First", mjmlAttributes: entries({ "icon-size": "20px" }) },
+          { name: "web", label: "Second", mjmlAttributes: entries({ "icon-size": "60px" }) },
+        ],
+      }),
+    );
+    expect(canvas(".pm-social-item").first().parent().css("display")).toBe("inline-table");
+    expect(canvas(".pm-social-item").first().css("display")).toBe("table-row");
+    expect(canvas(".pm-social-icon").first().parent().css("display")).toBe("table-cell");
+    expect(canvas(".pm-social-label").first().css("display")).toBe("table-cell");
+  });
+
+  it.each([180, 600])(
+    "matches fixed default Carousel thumbnails in a %spx container",
+    async (width) => {
+      const images = Array.from({ length: 3 }, (_, index) => ({
+        src: `https://example.com/${index}.png`,
+      }));
+      const canvas = load(
+        render(
+          "Carousel",
+          {
+            images,
+            thumbnails: "visible",
+            mjmlAttributes: entries({ align: "left", padding: "10px 20px" }),
+          },
+          {},
+          width,
+        ),
+      );
+      const native = load(
+        await compile(
+          `<mj-carousel align="left" padding="10px 20px">${images.map(({ src }) => `<mj-carousel-image src="${src}" />`).join("")}</mj-carousel>`,
+          "",
+          width,
+        ),
+      );
+      expect(canvas(".pm-carousel-thumbnails button").first().css("width")).toBe(
+        native(".mj-carousel-thumbnail").first().css("width"),
+      );
+      expect(canvas(".pm-carousel-thumbnails button").first().css("box-sizing")).toBe(
+        "content-box",
+      );
+      expect(canvas(".pm-carousel-thumbnails").css("text-align")).toBe("center");
+    },
+  );
 
   it("resolves Navbar child classes and literal native base-url concatenation", async () => {
     const canvas = render(
@@ -350,6 +434,35 @@ describe("native nested-component canvas", () => {
     for (const value of ["native.png", "thumb.png", "left.png", "border-radius:18px", "width:70px"])
       expect(native).toContain(value);
     expect(native).toMatch(/thumbnail-2:hover[^{}]+\.mj-carousel-image-2\s*\{\s*display: block/);
+  });
+
+  it("preserves ordered and raw Accordion content as safe editable previews", () => {
+    const canvas = render("Accordion", {
+      items: [
+        { kind: "raw", html: "<script>outer</script>" },
+        {
+          children: [
+            {
+              kind: "text",
+              content: <p>First answer</p>,
+              mjmlAttributes: entries({ color: "#123456" }),
+            },
+            { kind: "raw", html: "<script>inner</script>" },
+            { kind: "title", content: <strong>Later title</strong> },
+            { kind: "title", htmlContent: "<b>Repeated source title</b>" },
+          ],
+        },
+        { children: [] },
+      ],
+    });
+    expect(canvas).not.toContain("<script>");
+    expect(canvas).toContain("&lt;script&gt;outer&lt;/script&gt;");
+    expect(canvas).toContain("&lt;script&gt;inner&lt;/script&gt;");
+    expect(canvas).toContain("color:#123456");
+    expect(canvas.indexOf("First answer")).toBeLessThan(canvas.indexOf("&lt;script&gt;inner"));
+    expect(canvas.indexOf("&lt;script&gt;inner")).toBeLessThan(canvas.indexOf("Later title"));
+    expect(canvas.indexOf("Later title")).toBeLessThan(canvas.indexOf("Repeated source title"));
+    expect(canvas).not.toContain("<summary");
   });
 
   it("hides Carousel thumbnails when native attributes request it", () => {

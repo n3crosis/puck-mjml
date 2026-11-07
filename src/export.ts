@@ -131,9 +131,9 @@ function endingContent(
     : trustedEndingContent(tag, props.htmlContent, options);
 }
 
-function isRawItem(item: Record<string, unknown>, label: string): boolean {
+function isRawItem(item: Record<string, unknown>, label: string, kind = "link"): boolean {
   if (item.kind === "raw") return true;
-  if (item.kind === undefined || item.kind === "link") return false;
+  if (item.kind === undefined || item.kind === kind) return false;
   throw new Error(`${label} contains an unsupported item kind: ${String(item.kind)}`);
 }
 
@@ -204,10 +204,36 @@ function renderContent(block: EmailBlock, options: RenderOptions): string {
         "Accordion items",
       )
         .map((item) => {
+          if (isRawItem(item, "Accordion items", "element"))
+            return renderRaw(item.html, elementOptions, undefined, item);
           const contentOptions = childOptions("mj-accordion-element", item, elementOptions);
           const title = { mjClass: item.titleMjClass, mjmlAttributes: item.titleAttributes };
           const text = { mjClass: item.textMjClass, mjmlAttributes: item.textAttributes };
-          return `<mj-accordion-element${nativeAttributes("mj-accordion-element", item, getNativeBaseAttributes("mj-accordion-element", item, elementOptions), elementOptions)}><mj-accordion-title${nativeAttributes("mj-accordion-title", title, getNativeBaseAttributes("mj-accordion-title", title, contentOptions), contentOptions)}>${endingContent("mj-accordion-title", { htmlContent: item.titleHtmlContent }, () => escapeXml(item.title), options)}</mj-accordion-title><mj-accordion-text${nativeAttributes("mj-accordion-text", text, getNativeBaseAttributes("mj-accordion-text", text, contentOptions), contentOptions)}>${endingContent("mj-accordion-text", item, () => sanitizeEmailRichText(item.content), options)}</mj-accordion-text></mj-accordion-element>`;
+          const children =
+            item.children === undefined
+              ? [
+                  {
+                    kind: "title",
+                    content: item.title,
+                    htmlContent: item.titleHtmlContent,
+                    ...title,
+                  },
+                  { kind: "text", content: item.content, htmlContent: item.htmlContent, ...text },
+                ]
+              : records(item.children, "Accordion element children");
+          const markup = children
+            .map((child) => {
+              if (child.kind === "raw")
+                return renderRaw(child.html, contentOptions, undefined, child);
+              if (child.kind !== "title" && child.kind !== "text")
+                throw new Error(
+                  `Accordion element contains an unsupported child kind: ${String(child.kind)}`,
+                );
+              const tag = child.kind === "title" ? "mj-accordion-title" : "mj-accordion-text";
+              return `<${tag}${nativeAttributes(tag, child, getNativeBaseAttributes(tag, child, contentOptions), contentOptions)}>${endingContent(tag, child, () => (child.kind === "title" ? escapeXml(child.content) : sanitizeEmailRichText(child.content)), contentOptions)}</${tag}>`;
+            })
+            .join("");
+          return `<mj-accordion-element${nativeAttributes("mj-accordion-element", item, getNativeBaseAttributes("mj-accordion-element", item, elementOptions), elementOptions)}>${markup}</mj-accordion-element>`;
         })
         .join("")}</mj-accordion>`;
     }
@@ -361,7 +387,11 @@ export function toMjml(document: EmailDocument, options: ExportOptions = {}): st
     nativeContext,
     nativeEnabled: nativeContext.hasNativeDefinitions,
   };
-  const bodyOptions = { mjClass: settings.bodyMjClass, mjmlAttributes: settings.bodyAttributes };
+  const bodyOptions = {
+    ...settings,
+    mjClass: settings.bodyMjClass,
+    mjmlAttributes: settings.bodyAttributes,
+  };
   const rawFileStart = settings.rawFileStart
     ? renderRaw(settings.rawFileStart, renderOptions, "file-start")
     : "";

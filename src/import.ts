@@ -1,6 +1,9 @@
 import * as cheerio from "cheerio";
 import type { Element, Text } from "domhandler";
 import { normalizeMjClass, nativeCatalog, readNativeAttributes } from "./native-attributes";
+import { captureImportedAttributeBaselines } from "./import-inheritance";
+import { trustedEndingContent } from "./ending-content";
+import { getNativeBaseAttributes } from "./native-base";
 import { sanitizeEmailRichText } from "./richtext";
 import type {
   EmailBlock,
@@ -68,7 +71,9 @@ const multiplier =
   };
 const letterSpacing: Parser = (value) => {
   const match = /^(-?\d+(?:\.\d+)?)px$/.exec(value.trim());
-  return match ? Number.parseFloat(match[1]!) : INVALID;
+  if (!match) return INVALID;
+  const parsed = Number.parseFloat(match[1]!);
+  return parsed >= -10 && parsed <= 20 ? parsed : INVALID;
 };
 const enumValue =
   (...values: string[]): Parser =>
@@ -267,7 +272,15 @@ class Importer {
     const native: MjmlAttribute[] = [];
     for (const [name, rawValue] of Object.entries(element.attributes)) {
       const value = rawValue.trim();
-      if (!value) continue;
+      if (!value) {
+        if (name === "mj-class") props.mjClass = "";
+        else if (this.pushNative(tag, native, name, rawValue)) continue;
+        else if (this.knownAttribute(tag, name)) {
+          native.push({ name, value: rawValue, template: true, source: "import" });
+          this.warn(`Empty ${name} on ${tag} preserved; compiling it requires allowRawHtml: true.`);
+        } else this.warn(`Dropped unsupported attribute ${name}="${rawValue}" on ${tag}.`);
+        continue;
+      }
       if (name === "mj-class") {
         try {
           const normalized = normalizeMjClass(value);
@@ -277,7 +290,7 @@ class Importer {
         }
         continue;
       }
-      const visual = spec[name];
+      const visual = Object.hasOwn(spec, name) ? spec[name] : undefined;
       if (visual) {
         const parsed = visual[1](value);
         if (parsed !== INVALID) {
@@ -288,19 +301,34 @@ class Importer {
       if (this.pushNative(tag, native, name, rawValue)) continue;
       this.warn(`Dropped unsupported attribute ${name}="${rawValue}" on ${tag}.`);
     }
+    // Imported omissions mean native inheritance, not the editor's visual defaults.
+    for (const name of Object.keys(getNativeBaseAttributes(tag, props, { nativeEnabled: true }))) {
+      if (!Object.hasOwn(element.attributes, name))
+        native.push({ name, inherit: true, source: "import" });
+    }
+    if (
+      tag === "mj-social-element" &&
+      element.attributes.name &&
+      !native.some((entry) => entry.name === "name")
+    )
+      this.pushNative(tag, native, "name", element.attributes.name);
     if (native.length) props.mjmlAttributes = native;
     return props;
   }
 
-  private pushNative(tag: string, native: MjmlAttribute[], name: string, value: string): boolean {
-    const known =
+  knownAttribute(tag: string, name: string): boolean {
+    return (
       name === "css-class" ||
       (Object.hasOwn(nativeCatalog, tag) &&
-        Object.hasOwn(nativeCatalog[tag].allowedAttributes, name));
-    if (!known) return false;
+        Object.hasOwn(nativeCatalog[tag].allowedAttributes, name))
+    );
+  }
+
+  private pushNative(tag: string, native: MjmlAttribute[], name: string, value: string): boolean {
+    if (!this.knownAttribute(tag, name)) return false;
     try {
       readNativeAttributes(tag, [{ name, value }]);
-      native.push({ name, value });
+      native.push({ name, value, source: "import" });
       return true;
     } catch {
       return false;
@@ -329,13 +357,113 @@ const STRUCTURAL_TAGS = new Set([
 ]);
 
 function parseElements(source: string, importer: Importer): SourceElement[] {
-  const $ = cheerio.load(source, { xmlMode: true }, false);
+  // MJML ending tags contain HTML, not XML: an unclosed <br> or <img>
+  // must never consume the next MJML component. Keep their source opaque.
+  const endings = new Map<string, string>();
+  const tokenPrefix = `__puck_mjml_${source.length}_`;
+  let index = 0;
+  while (source.includes(`${tokenPrefix}${index}__`)) index += 1;
+  const endingTags = new Set([
+    "mj-text",
+    "mj-button",
+    "mj-table",
+    "mj-raw",
+    "mj-style",
+    "mj-title",
+    "mj-preview",
+    "mj-social-element",
+    "mj-navbar-link",
+    "mj-accordion-title",
+    "mj-accordion-text",
+    "mj-html-attribute",
+  ]);
+  let protectedSource = "";
+  let copied = 0;
+  let active: { tag: string; contentStart: number } | undefined;
+  // Scan complete markup tokens. Quotes and comments can contain strings that
+  // look like MJML closing tags, but those strings are not structural tokens.
+  for (let cursor = 0; cursor < source.length;) {
+    const start = source.indexOf("<", cursor);
+    if (start < 0) break;
+    if (source.startsWith("<!--", start)) {
+      const end = source.indexOf("-->", start + 4);
+      cursor = end < 0 ? source.length : end + 3;
+      continue;
+    }
+    if (source.startsWith("<![CDATA[", start)) {
+      const end = source.indexOf("]]>", start + 9);
+      cursor = end < 0 ? source.length : end + 3;
+      continue;
+    }
+    const match = /^<\s*(\/?)\s*([a-z][\w:-]*)(?=[\s/>])/i.exec(source.slice(start));
+    if (!match) {
+      cursor = start + 1;
+      continue;
+    }
+    let quote = "";
+    let end = start + match[0].length;
+    for (; end < source.length; end += 1) {
+      const character = source[end];
+      if (quote) {
+        if (character === quote) quote = "";
+      } else if (character === '"' || character === "'") quote = character;
+      else if (character === ">") break;
+    }
+    if (end === source.length) break;
+    cursor = end + 1;
+    const tag = match[2]!.toLowerCase();
+    if (active && match[1] && tag === active.tag) {
+      let token: string;
+      do token = `${tokenPrefix}${index++}__`;
+      while (source.includes(token));
+      endings.set(token, source.slice(active.contentStart, start));
+      protectedSource +=
+        source.slice(copied, active.contentStart) + token + source.slice(start, cursor);
+      copied = cursor;
+      active = undefined;
+    } else if (
+      !active &&
+      !match[1] &&
+      endingTags.has(tag) &&
+      !/\/\s*>$/.test(source.slice(start, cursor))
+    ) {
+      active = { tag, contentStart: cursor };
+    }
+  }
+  protectedSource += source.slice(copied);
+  const $ = cheerio.load(protectedSource, { xmlMode: true }, false);
   const build = (node: Element): SourceElement => {
     const wrapped = $(node);
     const children = wrapped.children().toArray();
     const tag = node.tagName.toLowerCase();
+    const sourceContent = children.length === 0 ? endings.get(wrapped.html() ?? "") : undefined;
+    if (sourceContent !== undefined) {
+      const html = cheerio.load(sourceContent, {}, false);
+      return {
+        tag,
+        attributes: { ...node.attribs },
+        // Only ending-label markup detection uses these children.
+        children: html
+          .root()
+          .children()
+          .toArray()
+          .map((child) => ({
+            tag: child.tagName,
+            attributes: { ...child.attribs },
+            children: [],
+            textContent: html(child).text(),
+            innerHtml: html(child).html() ?? "",
+          })),
+        textContent: html.root().text(),
+        innerHtml: sourceContent,
+      };
+    }
     if (STRUCTURAL_TAGS.has(tag)) {
       for (const child of wrapped.contents().toArray()) {
+        if (child.type === "comment")
+          importer.warn(
+            `Ignored a structural comment inside <${tag}>; wrap it in mj-raw to preserve it.`,
+          );
         if (child.type === "text" && (child as Text).data?.trim()) {
           importer.warn(`Ignored loose text next to <${tag}>.`);
           break;
@@ -391,7 +519,7 @@ function percentWidth(
   const pixels = pxNumber(1, 10000)(width);
   if (pixels !== INVALID) {
     importer.warn(
-      `Pixel column width ${width} converted to a percentage of the ${containerWidth}px email.`,
+      `Pixel column width ${width} preserved as a native attribute; the canvas uses the native layout.`,
     );
     return Math.round(((pixels as number) / containerWidth) * 10000) / 100;
   }
@@ -421,18 +549,20 @@ function parseHead(head: SourceElement, settings: Partial<EmailSettings>, import
     switch (element.tag) {
       case "mj-title":
         settings.subject = element.textContent.trim();
+        Object.assign(settings, preserveLabelHtml(element, importer, "subjectHtmlContent"));
         break;
       case "mj-preview":
         settings.previewText = element.textContent.trim();
+        Object.assign(settings, preserveLabelHtml(element, importer, "previewHtmlContent"));
         break;
       case "mj-breakpoint": {
         const width = element.attributes.width?.trim() ?? "";
         const pixels = /^(\d+(?:\.\d+)?)px$/.exec(width);
         if (pixels) {
           const value = Number.parseFloat(pixels[1]!);
-          if (value < 200 || value > 1000)
-            importer.warn(`Breakpoint ${width} clamped to the 200-1000px range.`);
-          settings.breakpoint = Math.max(200, Math.min(1000, Math.round(value)));
+          if (value < 200 || value > 1000 || !Number.isInteger(value))
+            settings.breakpointWidth = width;
+          else settings.breakpoint = value;
         } else if (width) {
           settings.breakpointWidth = width;
         }
@@ -489,10 +619,27 @@ function parseHead(head: SourceElement, settings: Partial<EmailSettings>, import
           }
         }
         break;
-      case "mj-raw":
-        settings.rawHead = (settings.rawHead ?? "") + element.innerHtml;
-        importer.warn("Head mj-raw kept; compiling it requires allowRawHtml: true.");
+      case "mj-raw": {
+        const fileStart = element.attributes.position?.trim() === "file-start";
+        const key = fileStart ? "rawFileStart" : "rawHead";
+        if (settings[key])
+          importer.warn(
+            "Multiple head mj-raw blocks were combined; their original positions relative to other head elements cannot be preserved.",
+          );
+        settings[key] = (settings[key] ?? "") + element.innerHtml;
+        for (const name of Object.keys(element.attributes)) {
+          if (name !== "position" || !fileStart)
+            importer.warn(
+              `Dropped ${name} on head mj-raw; the head raw-content model stores HTML only.`,
+            );
+        }
+        importer.warn(
+          fileStart
+            ? "Head file-start mj-raw kept; compiling it requires allowRawHtml: true."
+            : "Head mj-raw kept; compiling it requires allowRawHtml: true. Its original position relative to other head elements is not preserved.",
+        );
         break;
+      }
       default:
         importer.warn(`Ignored unsupported head element <${element.tag}>.`);
     }
@@ -506,7 +653,9 @@ function parseAttributeDefaults(
 ) {
   for (const element of attributesElement.children) {
     if (element.tag === "mj-all") {
-      const entries = nativeEntries("*", element, importer);
+      const entries = nativeEntries("*", element, importer).map((entry) =>
+        entry.name === "font-family" ? { ...entry, source: "import" as const } : entry,
+      );
       if (entries.length)
         settings.attributeDefaults = [...(settings.attributeDefaults ?? []), ...entries];
     } else if (element.tag === "mj-class") {
@@ -560,7 +709,23 @@ function nativeEntries(tag: string, element: SourceElement, importer: Importer):
   for (const [name, rawValue] of Object.entries(element.attributes)) {
     if (name === "name" && element.tag === "mj-class") continue;
     const value = rawValue.trim();
-    if (!value) continue;
+    if (!value) {
+      try {
+        readNativeAttributes(tag, [{ name, inherit: true }]);
+        try {
+          readNativeAttributes(tag, [{ name, value: rawValue }]);
+          entries.push({ name, value: rawValue });
+        } catch {
+          entries.push({ name, value: rawValue, template: true });
+          importer.warn(
+            `Empty ${name} in ${tag} defaults preserved; compiling it requires allowRawHtml: true.`,
+          );
+        }
+      } catch {
+        importer.warn(`Dropped unsupported empty ${name} in ${tag} defaults.`);
+      }
+      continue;
+    }
     try {
       readNativeAttributes(tag, [{ name, value }]);
       entries.push({ name, value });
@@ -601,7 +766,11 @@ function parseTopLevel(
     } else if (element.tag === "mj-raw") {
       blocks.push({
         type: "Raw",
-        props: { id: importer.id("raw"), html: element.innerHtml },
+        props: {
+          id: importer.id("raw"),
+          html: element.innerHtml,
+          ...importer.attributes("mj-raw", element, {}),
+        },
       });
       importer.warn(
         "Body mj-raw imported as a raw HTML block; compiling requires allowRawHtml: true.",
@@ -628,7 +797,14 @@ function parseWrapper(element: SourceElement, importer: Importer, bodyWidth: num
             : parseHero(child, importer),
         );
       } else if (child.tag === "mj-raw") {
-        sections.push({ type: "Raw", props: { id: importer.id("raw"), html: child.innerHtml } });
+        sections.push({
+          type: "Raw",
+          props: {
+            id: importer.id("raw"),
+            html: child.innerHtml,
+            ...importer.attributes("mj-raw", child, {}),
+          },
+        });
         importer.warn(
           "Body mj-raw imported as a raw HTML block; compiling requires allowRawHtml: true.",
         );
@@ -640,7 +816,7 @@ function parseWrapper(element: SourceElement, importer: Importer, bodyWidth: num
   collect(element);
   return {
     type: "Wrapper",
-    props: { id: importer.id("wrapper"), padding: "0px", ...props, sections },
+    props: { id: importer.id("wrapper"), ...props, sections },
   };
 }
 
@@ -664,7 +840,6 @@ function parseSection(element: SourceElement, importer: Importer, bodyWidth: num
       type: "Section1",
       props: {
         id: importer.id("section"),
-        padding: "0px",
         ...props,
         column: plainColumns[0]!.children
           .map((child) => parseContent(child, importer))
@@ -687,7 +862,14 @@ function parseSection(element: SourceElement, importer: Importer, bodyWidth: num
       columns.push(parseGroup(child, importer, widths[widthIndex]!, bodyWidth));
       widthIndex += 1;
     } else {
-      columns.push({ type: "Raw", props: { id: importer.id("raw"), html: child.innerHtml } });
+      columns.push({
+        type: "Raw",
+        props: {
+          id: importer.id("raw"),
+          html: child.innerHtml,
+          ...importer.attributes("mj-raw", child, {}),
+        },
+      });
       importer.warn(
         "Body mj-raw imported as a raw HTML block; compiling requires allowRawHtml: true.",
       );
@@ -695,18 +877,8 @@ function parseSection(element: SourceElement, importer: Importer, bodyWidth: num
   }
   return {
     type: "Section",
-    props: { id: importer.id("section"), padding: "0px", ...props, columns },
+    props: { id: importer.id("section"), ...props, columns },
   };
-}
-
-/** Column widths are always represented as visual percentages; drop native px copies. */
-function preferVisualWidth(props: Record<string, unknown>) {
-  const native = props.mjmlAttributes as MjmlAttribute[] | undefined;
-  if (!Array.isArray(native)) return;
-  const filtered = native.filter((entry) => entry.name !== "width");
-  if (filtered.length === native.length) return;
-  if (filtered.length) props.mjmlAttributes = filtered;
-  else delete props.mjmlAttributes;
 }
 
 function parseColumn(
@@ -715,7 +887,6 @@ function parseColumn(
   fallbackWidth: number,
 ): EmailBlock {
   const props = importer.attributes("mj-column", element, COLUMN_ATTRS);
-  preferVisualWidth(props);
   const content = element.children
     .map((child) => parseContent(child, importer))
     .filter((block): block is EmailBlock => Boolean(block));
@@ -738,23 +909,26 @@ function parseGroup(
   bodyWidth: number,
 ): EmailBlock {
   const props = importer.attributes("mj-group", element, GROUP_ATTRS);
-  preferVisualWidth(props);
   const children = element.children.filter((child) => child.tag === "mj-column");
   for (const child of element.children) {
-    if (child.tag !== "mj-column") {
+    if (child.tag !== "mj-column" && child.tag !== "mj-raw") {
       importer.warn(`Ignored unsupported element <${child.tag}> inside mj-group.`);
     }
   }
   const widths = columnWidths(children, bodyWidth, importer);
-  return {
-    type: "Group",
-    props: {
-      id: importer.id("group"),
-      width: fallbackWidth,
-      ...props,
-      columns: children.map((child, index) => parseColumn(child, importer, widths[index]!)),
-    },
+  const blockProps = {
+    id: importer.id("group"),
+    width: fallbackWidth,
+    ...props,
+    columns: element.children.flatMap((child) => {
+      if (child.tag === "mj-column")
+        return [parseColumn(child, importer, widths[children.indexOf(child)]!)];
+      if (child.tag === "mj-raw") return [parseRaw(child, importer)];
+      return [];
+    }),
   };
+  dropShadowedDefaults(GROUP_ATTRS, props, blockProps);
+  return { type: "Group", props: blockProps };
 }
 
 function parseHero(element: SourceElement, importer: Importer): EmailBlock {
@@ -783,6 +957,51 @@ const CONTENT_TAGS = new Set([
   "mj-raw",
 ]);
 
+function warnTrustedSource(element: SourceElement, importer: Importer) {
+  try {
+    trustedEndingContent(element.tag, element.innerHtml, { allowRawHtml: true });
+  } catch {
+    importer.warn(
+      `${element.tag} source contains an unsafe MJML boundary or control character; it was retained for review but cannot be exported unchanged, even with allowRawHtml.`,
+    );
+  }
+}
+
+/** Keep ending-tag markup that cannot be represented by a plain label. */
+function preserveLabelHtml(
+  element: SourceElement,
+  importer: Importer,
+  property = "htmlContent",
+): Record<string, unknown> {
+  if (!element.children.length && !element.innerHtml.includes("<!--")) return {};
+  importer.warn(`${element.tag} HTML content preserved; compiling it requires allowRawHtml: true.`);
+  warnTrustedSource(element, importer);
+  return { [property]: element.innerHtml };
+}
+
+function preserveRichHtml(element: SourceElement, importer: Importer): Record<string, unknown> {
+  const normalize = (html: string) => cheerio.load(html, {}, false).html()?.trim();
+  if (normalize(element.innerHtml) === normalize(sanitizeEmailRichText(element.innerHtml)))
+    return {};
+  importer.warn(
+    `${element.tag} HTML outside the rich-text model preserved; compiling it requires allowRawHtml: true.`,
+  );
+  warnTrustedSource(element, importer);
+  return { htmlContent: element.innerHtml };
+}
+
+function parseRaw(element: SourceElement, importer: Importer): EmailBlock {
+  importer.warn("Body mj-raw imported as a raw HTML block; compiling requires allowRawHtml: true.");
+  return {
+    type: "Raw",
+    props: {
+      id: importer.id("raw"),
+      html: element.innerHtml,
+      ...importer.attributes("mj-raw", element, {}),
+    },
+  };
+}
+
 function parseContent(element: SourceElement, importer: Importer): EmailBlock | undefined {
   if (!CONTENT_TAGS.has(element.tag)) {
     importer.warn(`Ignored unsupported element <${element.tag}> inside a column.`);
@@ -801,6 +1020,7 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
       const blockProps = {
         id: importer.id("text"),
         content: sanitizedRichText(element.innerHtml),
+        ...preserveRichHtml(element, importer),
         fontSize: 16,
         align: "left",
         padding: "10px",
@@ -823,9 +1043,7 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
     }
     case "mj-button": {
       const props = importer.attributes("mj-button", element, BUTTON_ATTRS);
-      if (element.children.length) {
-        importer.warn("Button HTML content was simplified to its text.");
-      }
+      const html = preserveLabelHtml(element, importer);
       const blockProps = {
         id: importer.id("button"),
         fontSize: 13,
@@ -833,6 +1051,7 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
         padding: "10px",
         ...props,
         label: element.textContent.trim(),
+        ...html,
       };
       dropShadowedDefaults(BUTTON_ATTRS, props, blockProps);
       return { type: "Button", props: blockProps };
@@ -859,12 +1078,20 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
       const props = importer.attributes("mj-social", element, SOCIAL_ATTRS);
       const links: Record<string, unknown>[] = [];
       for (const child of element.children) {
+        if (child.tag === "mj-raw") {
+          const raw = parseRaw(child, importer);
+          links.push({ kind: "raw", ...raw.props });
+          continue;
+        }
         if (child.tag !== "mj-social-element") {
           importer.warn(`Ignored unsupported element <${child.tag}> inside mj-social.`);
           continue;
         }
         const link = importer.attributes("mj-social-element", child, SOCIAL_ELEMENT_ATTRS);
-        if (link.name === undefined) {
+        const nativeName = (link.mjmlAttributes as MjmlAttribute[] | undefined)?.some(
+          (entry) => entry.name === "name" && "value" in entry,
+        );
+        if (link.name === undefined && !nativeName) {
           link.name = "web";
           importer.warn(
             `Social network "${child.attributes.name ?? ""}" is not supported; imported as a custom web icon.`,
@@ -880,7 +1107,9 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
             `Social icon for "${child.attributes.name}" has no image URL and may render blank.`,
           );
         }
+        if (link.name === undefined) link.name = "web";
         link.label = child.textContent.trim();
+        Object.assign(link, preserveLabelHtml(child, importer));
         links.push(link);
       }
       const blockProps = {
@@ -900,24 +1129,35 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
       const props = importer.attributes("mj-navbar", element, NAVBAR_ATTRS);
       const links: Record<string, unknown>[] = [];
       for (const child of element.children) {
+        if (child.tag === "mj-raw") {
+          const raw = parseRaw(child, importer);
+          links.push({ kind: "raw", ...raw.props });
+          continue;
+        }
         if (child.tag !== "mj-navbar-link") {
           importer.warn(`Ignored unsupported element <${child.tag}> inside mj-navbar.`);
           continue;
         }
         const link = importer.attributes("mj-navbar-link", child, NAVBAR_LINK_ATTRS);
         link.label = child.textContent.trim();
+        Object.assign(link, preserveLabelHtml(child, importer));
         links.push(link);
       }
       return {
         type: "Navbar",
-        props: { id: importer.id("navbar"), align: "center", ...props, links },
+        props: { id: importer.id("navbar"), ...props, links },
       };
     }
     case "mj-table":
       return parseTable(element, importer);
     case "mj-accordion": {
+      const props = importer.attributes("mj-accordion", element, {});
       const items: Record<string, unknown>[] = [];
       for (const child of element.children) {
+        if (child.tag === "mj-raw") {
+          items.push({ kind: "raw", ...parseRaw(child, importer).props });
+          continue;
+        }
         if (child.tag !== "mj-accordion-element") {
           importer.warn(`Ignored unsupported element <${child.tag}> inside mj-accordion.`);
           continue;
@@ -925,13 +1165,44 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
         const elementProps = importer.attributes("mj-accordion-element", child, {});
         const title = child.children.find((part) => part.tag === "mj-accordion-title");
         const text = child.children.find((part) => part.tag === "mj-accordion-text");
+        const standardPair =
+          child.children.length === 2 && child.children[0] === title && child.children[1] === text;
+        if (!standardPair) {
+          const children: Record<string, unknown>[] = [];
+          for (const part of child.children) {
+            if (part.tag === "mj-raw")
+              children.push({ kind: "raw", ...parseRaw(part, importer).props });
+            else if (part.tag === "mj-accordion-title" || part.tag === "mj-accordion-text") {
+              const isTitle = part.tag === "mj-accordion-title";
+              children.push({
+                kind: isTitle ? "title" : "text",
+                content: isTitle ? part.textContent.trim() : sanitizedRichText(part.innerHtml),
+                ...importer.attributes(part.tag, part, {}),
+                ...(isTitle ? preserveLabelHtml(part, importer) : preserveRichHtml(part, importer)),
+              });
+            } else
+              importer.warn(
+                `Ignored unsupported element <${part.tag}> inside mj-accordion-element.`,
+              );
+          }
+          items.push({ ...elementProps, children });
+          continue;
+        }
+        const titleProps = title ? importer.attributes("mj-accordion-title", title, {}) : {};
+        const textProps = text ? importer.attributes("mj-accordion-text", text, {}) : {};
         items.push({
           title: title?.textContent.trim() ?? "",
+          ...(titleProps.mjClass !== undefined ? { titleMjClass: titleProps.mjClass } : {}),
+          ...(titleProps.mjmlAttributes ? { titleAttributes: titleProps.mjmlAttributes } : {}),
+          ...(textProps.mjClass !== undefined ? { textMjClass: textProps.mjClass } : {}),
+          ...(textProps.mjmlAttributes ? { textAttributes: textProps.mjmlAttributes } : {}),
+          ...(title ? preserveLabelHtml(title, importer, "titleHtmlContent") : {}),
           content: sanitizedRichText(text?.innerHtml ?? "<p></p>"),
+          ...(text ? preserveRichHtml(text, importer) : {}),
           ...elementProps,
         });
       }
-      return { type: "Accordion", props: { id: importer.id("accordion"), items } };
+      return { type: "Accordion", props: { id: importer.id("accordion"), ...props, items } };
     }
     case "mj-carousel": {
       const props = importer.attributes("mj-carousel", element, CAROUSEL_ATTRS);
@@ -947,18 +1218,13 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
         type: "Carousel",
         props: {
           id: importer.id("carousel"),
-          align: "center",
-          thumbnails: "visible",
           ...props,
           images,
         },
       };
     }
     case "mj-raw":
-      importer.warn(
-        "Column mj-raw imported as a raw HTML block; compiling requires allowRawHtml: true.",
-      );
-      return { type: "Raw", props: { id: importer.id("raw"), html: element.innerHtml } };
+      return parseRaw(element, importer);
     default:
       return undefined;
   }
@@ -967,6 +1233,7 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
 function parseTable(element: SourceElement, importer: Importer): EmailBlock {
   const props = importer.attributes("mj-table", element, TABLE_ATTRS);
   const $ = cheerio.load(`<table>${element.innerHtml}</table>`, {}, false);
+  let cellLoss = false;
   const cell = (node: Element, header: boolean): Record<string, unknown> => {
     const wrapped = $(node);
     const style = (wrapped.attr("style") ?? "")
@@ -988,6 +1255,11 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
     };
     const scope = wrapped.attr("scope");
     if (tableCell.header && scope) tableCell.scope = scope;
+    if (
+      (scope && (!tableCell.header || !["row", "col", "rowgroup", "colgroup"].includes(scope))) ||
+      (header && node.tagName.toLowerCase() !== "th")
+    )
+      cellLoss = true;
     const colspan = wrapped.attr("colspan");
     if (colspan && /^\d+$/.test(colspan)) tableCell.colSpan = Number.parseInt(colspan, 10);
     const rowspan = wrapped.attr("rowspan");
@@ -1015,12 +1287,26 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
             ? spacing(value) !== INVALID
             : borderStyle(value) !== INVALID;
       if (valid) tableCell[propName] = value;
+      else cellLoss = true;
     }
+    if (
+      (align && tableCell.align === undefined) ||
+      (verticalAlign && tableCell.verticalAlign === undefined) ||
+      (width && tableCell.width === undefined)
+    )
+      cellLoss = true;
+    if (
+      (colspan &&
+        (!Number.isInteger(Number(colspan)) || Number(colspan) < 1 || Number(colspan) > 1000)) ||
+      (rowspan &&
+        (!Number.isInteger(Number(rowspan)) || Number(rowspan) < 0 || Number(rowspan) > 65534))
+    )
+      cellLoss = true;
     return tableCell;
   };
   const rows = (group: cheerio.Cheerio<Element>, header: boolean) =>
     group
-      .find("tr")
+      .children("tr")
       .toArray()
       .map((row) => ({
         cells: $(row)
@@ -1028,10 +1314,12 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
           .toArray()
           .map((node) => cell(node, header)),
       }));
-  const headerRows = rows($("thead"), true);
-  const bodyRows = rows($("tbody"), false);
-  const footerRows = rows($("tfoot"), false);
-  const loose = $("table > tr")
+  const rootTable = $("table").first();
+  const headerRows = rows(rootTable.children("thead"), true);
+  const bodyRows = rows(rootTable.children("tbody"), false);
+  const footerRows = rows(rootTable.children("tfoot"), false);
+  const loose = rootTable
+    .children("tr")
     .toArray()
     .map((row) => ({
       cells: $(row)
@@ -1039,12 +1327,55 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
         .toArray()
         .map((node) => cell(node, false)),
     }));
-  const caption = $("caption").first().text().trim();
+  const caption = rootTable.children("caption").first().text().trim();
+  const supportedStyles = new Set([
+    "text-align",
+    "vertical-align",
+    "width",
+    "padding",
+    "background-color",
+    "color",
+    "border",
+  ]);
+  const trusted =
+    cellLoss ||
+    element.innerHtml.includes("<!--") ||
+    ["thead", "tbody", "tfoot", "caption"].some((tag) => rootTable.children(tag).length > 1) ||
+    rootTable.children("caption").children().length > 0 ||
+    rootTable
+      .find("*")
+      .toArray()
+      .some((node) => {
+        const tag = node.tagName.toLowerCase();
+        if (["table", "col", "colgroup"].includes(tag)) return true;
+        if (["thead", "tbody", "tfoot", "tr", "caption"].includes(tag))
+          return Object.keys(node.attribs).length > 0;
+        if (tag !== "th" && tag !== "td") return false;
+        if (
+          Object.keys(node.attribs).some(
+            (name) => !["style", "scope", "colspan", "rowspan"].includes(name),
+          )
+        )
+          return true;
+        const styles = (node.attribs.style ?? "").split(";").filter((part) => part.trim());
+        if (styles.some((part) => !supportedStyles.has(part.split(":")[0]!.trim().toLowerCase())))
+          return true;
+        const content = $(node).html() ?? "";
+        return (
+          cheerio.load(content, {}, false).html() !==
+          cheerio.load(sanitizeEmailRichText(content), {}, false).html()
+        );
+      });
+  if (trusted)
+    importer.warn(
+      "mj-table HTML outside the editable table model preserved; compiling it requires allowRawHtml: true.",
+    );
   return {
     type: "Table",
     props: {
       id: importer.id("table"),
       ...(caption ? { caption } : {}),
+      ...(trusted ? { htmlContent: element.innerHtml } : {}),
       ...props,
       headerRows,
       bodyRows: [...bodyRows, ...loose],
@@ -1078,6 +1409,12 @@ export function fromMjml(source: string): ImportedEmail {
   for (const element of mjml.children) {
     if (element.tag === "mj-raw" && element.attributes.position?.trim() === "file-start") {
       settings.rawFileStart = (settings.rawFileStart ?? "") + element.innerHtml;
+      for (const name of Object.keys(element.attributes)) {
+        if (name !== "position")
+          importer.warn(
+            `Dropped ${name} on file-start mj-raw; the file-start model stores HTML only.`,
+          );
+      }
       importer.warn("File-start mj-raw kept; compiling it requires allowRawHtml: true.");
     } else if (element.tag !== "mj-head" && element.tag !== "mj-body") {
       importer.warn(`Ignored unsupported element <${element.tag}> next to mj-head and mj-body.`);
@@ -1086,6 +1423,11 @@ export function fromMjml(source: string): ImportedEmail {
   const body = mjml.children.find((element) => element.tag === "mj-body");
   if (!body) throw new Error("MJML source must contain an <mj-body> element.");
   Object.assign(settings, parseBody(body, importer));
+  if (!settings.attributeDefaults?.some((entry) => entry.name === "font-family"))
+    settings.attributeDefaults = [
+      { name: "font-family", inherit: true, source: "import" },
+      ...(settings.attributeDefaults ?? []),
+    ];
   const document: EmailDocument = {
     root: {
       props: {
@@ -1094,9 +1436,6 @@ export function fromMjml(source: string): ImportedEmail {
         lang: "und",
         dir: "auto",
         owa: "none",
-        width: 600,
-        backgroundColor: "#f5f5f5",
-        fontFamily: "Arial, sans-serif",
         breakpoint: 480,
         fontImports: [],
         headStyles: [],
@@ -1105,7 +1444,7 @@ export function fromMjml(source: string): ImportedEmail {
         rawFileStart: "",
         bodyAttributes: [],
         bodyMjClass: "",
-        attributeDefaults: [],
+        attributeDefaults: [{ name: "font-family", inherit: true, source: "import" }],
         componentDefaults: [],
         mjmlClasses: [],
         ...settings,
@@ -1114,5 +1453,6 @@ export function fromMjml(source: string): ImportedEmail {
     },
     content: [],
   };
+  captureImportedAttributeBaselines(document);
   return { document, warnings: importer.warnings };
 }

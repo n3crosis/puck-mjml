@@ -3,6 +3,7 @@ import { createUsePuck, renderContext, type Data } from "@puckeditor/core";
 import type { EmailBlock } from "./types";
 import type { NativeCanvasAttributes } from "./native-canvas-context";
 
+const LayoutRootContext = createContext<Record<string, unknown> | undefined>(undefined);
 const LayoutDataContext = createContext(new Map<string, EmailBlock>());
 const usePuckData = createUsePuck();
 
@@ -24,7 +25,11 @@ function LayoutData({ data, children }: { data: Data; children: ReactNode }) {
     visit(data);
     return result;
   }, [data]);
-  return <LayoutDataContext.Provider value={blocks}>{children}</LayoutDataContext.Provider>;
+  return (
+    <LayoutRootContext.Provider value={data.root.props}>
+      <LayoutDataContext.Provider value={blocks}>{children}</LayoutDataContext.Provider>
+    </LayoutRootContext.Provider>
+  );
 }
 
 function EditingLayoutData({ children }: { children: ReactNode }) {
@@ -40,6 +45,14 @@ export function NativeLayoutData({ editing, children }: { editing: boolean; chil
   ) : (
     <LayoutData data={data}>{children}</LayoutData>
   );
+}
+
+export function useLayoutRootProps() {
+  return useContext(LayoutRootContext);
+}
+export function useLayoutBlockProps(id: unknown) {
+  const blocks = useContext(LayoutDataContext);
+  return typeof id === "string" ? blocks.get(id)?.props : undefined;
 }
 
 export function useLayoutChildren(id: unknown, key: string): EmailBlock[] {

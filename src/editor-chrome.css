@@ -24,7 +24,7 @@
   --puck-outline-space-indent: 12px;
   --puck-iconbutton-space: 5px;
 }
-.pm-editor :where([class*="_PuckHeader-title_"]) h1 {
+.pm-editor :where([class*="_PuckHeader-title_"]) :is(h1, h2) {
   font-size: 15px;
   letter-spacing: -0.02em;
 }

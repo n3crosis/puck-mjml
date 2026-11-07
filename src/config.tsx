@@ -1,5 +1,5 @@
-import type { ChangeEvent, ReactNode } from "react";
-import { useState } from "react";
+import type { ReactNode } from "react";
+import { ImageSourceField } from "./ImageSourceField";
 import type { Config, RichText, Slot } from "@puckeditor/core";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
 import { CodeArea } from "./CodeField";
@@ -9,65 +9,9 @@ import { tableConfig } from "./TableBlock";
 import type { TableProps } from "./table";
 import { EmailCanvas } from "./EmailCanvas";
 import { ImplicitColumnWidth } from "./native-layout-context";
-import { tailwindEnabled } from "./canvas-tailwind";
 import { TrustedHtmlPreview, withNativeFields } from "./NativeFields";
 import { withNativeCanvas } from "./NativeCanvas";
 import type { EmailSettings } from "./types";
-
-type ImageFieldProps = {
-  value: unknown;
-  onChange: (value: string) => void;
-  upload?: (file: File) => Promise<string>;
-};
-
-function ImageSourceField({ value, onChange, upload }: ImageFieldProps) {
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !upload) return;
-    setBusy(true);
-    setError("");
-    try {
-      const url = await upload(file);
-      const parsed = new URL(url);
-      if (
-        !["http:", "https:"].includes(parsed.protocol) ||
-        !parsed.hostname ||
-        parsed.username ||
-        parsed.password
-      ) {
-        throw new Error("Upload must return a public HTTP or HTTPS URL");
-      }
-      onChange(parsed.href);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Upload failed");
-    } finally {
-      setBusy(false);
-      event.target.value = "";
-    }
-  };
-  return (
-    <div className="pm-field">
-      <label>
-        Image URL
-        <input
-          type="url"
-          value={String(value ?? "")}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder="https://example.com/image.png"
-        />
-      </label>
-      {upload && (
-        <label className="pm-upload">
-          {busy ? "Uploading…" : "Upload image"}
-          <input type="file" accept="image/*" disabled={busy} onChange={handleFile} />
-        </label>
-      )}
-      {error && <small role="alert">{error}</small>}
-    </div>
-  );
-}
 
 const alignment = {
   type: "select" as const,
@@ -380,10 +324,6 @@ export function createEmailConfig(
             { label: "Enabled", value: "true" },
           ],
         },
-        tailwindScriptUrl: {
-          type: "text",
-          label: "Tailwind script URL (blank = built-in)",
-        },
         owa: {
           type: "select",
           label: "Legacy Outlook web layout",
@@ -450,13 +390,6 @@ export function createEmailConfig(
         rawFileStart: "",
         sections: [],
       },
-      resolveFields: ({ props }, { fields }) => ({
-        ...fields,
-        tailwindScriptUrl: {
-          ...fields.tailwindScriptUrl!,
-          visible: tailwindEnabled(props?.tailwind),
-        },
-      }),
       render: ({
         width,
         breakpoint,
@@ -910,8 +843,15 @@ export function createEmailConfig(
           src: {
             type: "custom",
             label: "Image",
-            render: ({ value, onChange }) => (
-              <ImageSourceField value={value} onChange={onChange} upload={onUploadImage} />
+            render: ({ id, value, onChange, readOnly }) => (
+              <ImageSourceField
+                key={id}
+                id={id}
+                value={value}
+                onChange={onChange}
+                readOnly={readOnly}
+                upload={onUploadImage}
+              />
             ),
           },
           alt: { type: "text", label: "Alternative text" },

@@ -570,3 +570,42 @@ describe("trusted template attribute cascade", () => {
     );
   });
 });
+
+describe("nested class path compatibility", () => {
+  it.each(["theme.red", "theme[red]", "theme]red"])(
+    "diagnoses nested defaults whose name %s is interpreted as a native path",
+    (name) => {
+      expect(() =>
+        createNativeContext({
+          mjmlClasses: [
+            {
+              name,
+              attributes: [],
+              components: [{ tag: "mj-text", attributes: entries({ color: "red" }) }],
+            },
+          ],
+        }),
+      ).toThrow(/native compiler interprets dots and brackets as paths/);
+      const context = createNativeContext({
+        mjmlClasses: [{ name, attributes: entries({ color: "red" }) }],
+      });
+      expect(applyNativeAttributes("mj-text", { mjClass: name }, {}, context).effective.color).toBe(
+        "red",
+      );
+    },
+  );
+  it("retains supported punctuation for nested defaults", () => {
+    const context = createNativeContext({
+      mjmlClasses: [
+        {
+          name: "theme:red",
+          attributes: [],
+          components: [{ tag: "mj-text", attributes: entries({ color: "red" }) }],
+        },
+      ],
+    });
+    expect(applyNativeAttributes("mj-text", {}, {}, context, "theme:red").effective.color).toBe(
+      "red",
+    );
+  });
+});

@@ -1,4 +1,4 @@
-import { useMemo, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { createRoot } from "react-dom/client";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/csr/CaretDown";
 import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/csr/DownloadSimple";
@@ -8,11 +8,12 @@ import {
   compileEmail,
   createExampleDocument,
   emailTemplates,
-  fromMjml,
+  toMjml,
   type EmailDocument,
   type EmailTemplateDefinition,
 } from "../src";
 import "./style.css";
+import { reviewImport, hasUnsavedChanges } from "./import-review";
 
 const DEFAULT_TEMPLATE_ID = "02-matte/product-update";
 
@@ -30,6 +31,23 @@ function App() {
   const [value, setValue] = useState<EmailDocument>(() => createExampleDocument());
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
+  const [importWarnings, setImportWarnings] = useState<string[]>([]);
+  const [baseline, setBaseline] = useState(() => JSON.stringify(value));
+  const dirty = hasUnsavedChanges(value, baseline);
+  const importRequest = useRef(0);
+  const dirtyRef = useRef(dirty);
+  dirtyRef.current = dirty;
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+  const canReplace = () =>
+    !dirtyRef.current || window.confirm("Discard your unsaved edits and replace this email?");
 
   const groups = useMemo(() => {
     const grouped = new Map<string, EmailTemplateDefinition[]>();
@@ -43,9 +61,13 @@ function App() {
 
   const loadTemplate = (id: string) => {
     const template = emailTemplates.find((entry) => entry.id === id);
-    if (!template) return;
+    if (!template || !canReplace()) return;
+    importRequest.current += 1;
+    const next = template.create();
     setTemplateId(id);
-    setValue(template.create());
+    setValue(next);
+    setBaseline(JSON.stringify(next));
+    setImportWarnings([]);
     setStatus("");
   };
 
@@ -53,10 +75,15 @@ function App() {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    const request = ++importRequest.current;
     try {
       const source = await file.text();
-      const { document, warnings } = fromMjml(source);
+      if (request !== importRequest.current) return;
+      const { document, warnings } = reviewImport(source);
+      if (!canReplace()) return;
       setValue(document);
+      setBaseline(JSON.stringify(document));
+      setImportWarnings(warnings);
       setTemplateId("imported");
       setStatus(
         warnings.length
@@ -64,7 +91,10 @@ function App() {
           : "",
       );
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Import failed");
+      if (request === importRequest.current)
+        setStatus(
+          `Import not loaded. Your previous email is unchanged. ${error instanceof Error ? error.message : "Import failed"}`,
+        );
     }
   };
 
@@ -72,17 +102,17 @@ function App() {
     setBusy(true);
     setStatus("");
     try {
+      if (kind === "mjml") {
+        download("email.mjml", toMjml(value), "application/xml");
+        return;
+      }
       const result = await compileEmail(value);
       if (result.errors.length) {
         setStatus(
           `MJML reported ${result.errors.length} warning${result.errors.length === 1 ? "" : "s"}. Check the preview for details.`,
         );
       }
-      download(
-        `email.${kind}`,
-        kind === "mjml" ? result.mjml : result.html,
-        kind === "mjml" ? "application/xml" : "text/html",
-      );
+      download(`email.${kind}`, result.html, "text/html");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Export failed");
     } finally {
@@ -92,6 +122,20 @@ function App() {
 
   return (
     <div className="demo-app">
+      <div className="demo-notice">
+        Demo only: drafts are not saved. Download MJML before leaving.{" "}
+        {dirty ? "You have unsaved edits." : ""}
+      </div>
+      {importWarnings.length > 0 && (
+        <details className="demo-status">
+          <summary>All import notes ({importWarnings.length})</summary>
+          <ul>
+            {importWarnings.map((warning, index) => (
+              <li key={index}>{warning}</li>
+            ))}
+          </ul>
+        </details>
+      )}
       {status && (
         <div className="demo-status" role="status">
           {status}

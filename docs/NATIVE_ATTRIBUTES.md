@@ -162,3 +162,17 @@ Class names are applied in order. MJML's precedence is component defaults, globa
 - Section3 also accepts `middleMjClass`/`middleAttributes`.
 
 Native attributes on Raw blocks do not bypass the existing `allowRawHtml` opt-in.
+
+## Ordered accordion children and trusted raw entries
+
+Ordinary Accordion items keep the familiar `title`, `content`, `titleHtmlContent`, `htmlContent`, `titleMjClass`, `titleAttributes`, `textMjClass`, and `textAttributes` fields. Existing documents need no migration.
+
+An Accordion `items` entry may instead be `{ kind: "raw", html, mjClass?, mjmlAttributes? }`. Ordinary elements may explicitly use `kind: "element"` and provide an ordered `children` array. Each child is either:
+
+- `{ kind: "title", content, htmlContent?, mjClass?, mjmlAttributes? }`
+- `{ kind: "text", content, htmlContent?, mjClass?, mjmlAttributes? }`
+- `{ kind: "raw", html, mjClass?, mjmlAttributes? }`
+
+Omitting `children` uses the familiar named title/answer pair. An empty array emits no authored children (the native compiler may supply defaults). Ordered arrays preserve repeated, omitted, and reordered title/text entries and raw interleaving. Import uses this shape only when the source needs it. The optional ordered-children controls replace the named pair fields, and unusual canvas arrangements stay expanded rather than implying exact native accordion behavior.
+
+Raw entries require the editor's trusted HTML mode and `{ allowRawHtml: true }` for export. HTML source and template attributes retain the same trust requirements as other components.

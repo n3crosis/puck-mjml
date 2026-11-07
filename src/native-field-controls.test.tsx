@@ -80,6 +80,23 @@ async function changeValue(row: number, value: string) {
 }
 
 describe("compact native attribute controls", () => {
+  it("transfers imported rules to user ownership on native edits and restores metadata on undo", async () => {
+    const imported: MjmlAttribute = {
+      name: "width",
+      value: "600px",
+      source: "import",
+      importBaseline: { native: "original", controls: {} },
+    };
+    await mount([imported]);
+    await changeValue(0, "700px");
+    expect(entries()[0]).toEqual({ name: "width", value: "700px" });
+    await edit(() => api!.history.back());
+    expect(entries()[0]).toEqual(imported);
+    await edit(() => api!.history.forward());
+    await changeValue(0, "600px");
+    expect(entries()[0]).toEqual({ name: "width", value: "600px" });
+  });
+
   it("edits colors with a picker and text, supports undo, and preserves template colors", async () => {
     await mount([
       { name: "background-color", value: "#123456" },

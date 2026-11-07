@@ -4,6 +4,8 @@ import { createRoot, type Root } from "react-dom/client";
 import { createUsePuck, type PuckApi } from "@puckeditor/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Editor } from "@tiptap/core";
+import { fromMjml } from "./import";
+import { toMjml } from "./export";
 import { EmailEditor } from "./EmailEditor";
 import type { EmailDocument } from "./types";
 
@@ -24,66 +26,72 @@ function CaptureApi() {
   return null;
 }
 afterEach(async () => {
-  await act(async () => root?.unmount());
-  container?.remove();
-  root = undefined;
-  container = undefined;
-  api = undefined;
-  vi.unstubAllGlobals();
-});
-function Host() {
-  const [document, setDocument] = useState<EmailDocument>({
-    root: {
-      props: {
-        previewText: "Hello world",
-        lang: "en",
-        backgroundColor: "#123456",
-        headStyles: [{ css: ".card{color:red}", inline: "head" }],
-        sections: [
-          {
-            type: "Section1",
-            props: {
-              id: "section",
-              column: [
-                {
-                  type: "Table",
-                  props: {
-                    id: "table",
-                    headerRows: [],
-                    bodyRows: [{ cells: [{ content: "<p>Hello world</p>" }] }],
-                    footerRows: [],
+  try {
+    await act(async () => root?.unmount());
+  } finally {
+    container?.remove();
+    root = undefined;
+    container = undefined;
+    api = undefined;
+    value = undefined;
+    vi.unstubAllGlobals();
+  }
+}, 15_000);
+function Host({ initial }: { initial?: EmailDocument }) {
+  const [document, setDocument] = useState<EmailDocument>(
+    initial ?? {
+      root: {
+        props: {
+          previewText: "Hello world",
+          lang: "en",
+          backgroundColor: "#123456",
+          headStyles: [{ css: ".card{color:red}", inline: "head" }],
+          sections: [
+            {
+              type: "Section1",
+              props: {
+                id: "section",
+                column: [
+                  {
+                    type: "Table",
+                    props: {
+                      id: "table",
+                      headerRows: [],
+                      bodyRows: [{ cells: [{ content: "<p>Hello world</p>" }] }],
+                      footerRows: [],
+                    },
                   },
-                },
-                {
-                  type: "Accordion",
-                  props: {
-                    id: "accordion",
-                    items: [{ title: "Question", content: "<p>Hello world</p>" }],
+                  {
+                    type: "Accordion",
+                    props: {
+                      id: "accordion",
+                      items: [{ title: "Question", content: "<p>Hello world</p>" }],
+                    },
                   },
-                },
-                {
-                  type: "Button",
-                  props: { id: "button", label: "Hello world", href: "https://example.com" },
-                },
-                {
-                  type: "Text",
-                  props: {
-                    id: "text",
-                    content: "<p>Hello world</p>",
-                    fontFamily: "Arial",
-                    padding: "10px",
-                    mjmlAttributes: [{ name: "font-family", value: "Arial" }],
+                  {
+                    type: "Button",
+                    props: { id: "button", label: "Hello world", href: "https://example.com" },
                   },
-                },
-              ],
+                  {
+                    type: "Text",
+                    props: {
+                      id: "text",
+                      content: "<p>Hello world</p>",
+                      fontFamily: "Arial",
+                      padding: "10px",
+                      mjmlAttributes: [{ name: "font-family", value: "Arial" }],
+                    },
+                  },
+                ],
+              },
             },
-          },
-        ],
-        bodyAttributes: [{ name: "width", value: "600px" }],
+          ],
+          bodyAttributes: [{ name: "width", value: "600px" }],
+        },
       },
+      content: [],
     },
-    content: [],
-  });
+  );
   value = document;
   return (
     <EmailEditor
@@ -94,12 +102,12 @@ function Host() {
     />
   );
 }
-async function mount() {
+async function mount(initial?: EmailDocument) {
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
   await act(async () => {
-    root!.render(<Host />);
+    root!.render(<Host initial={initial} />);
   });
 }
 const field = (name: string) =>
@@ -120,7 +128,10 @@ async function insert(element: HTMLInputElement, text: string) {
   return position + text.length;
 }
 
-describe("controlled EmailEditor typing", () => {
+// The delayed-echo case intentionally waits through nine 375ms debounce windows.
+// Leave bounded headroom for the full editor/iframe under parallel CI load;
+// the default 5s timeout can interrupt React act and contaminate following cases.
+describe("controlled EmailEditor typing", { timeout: 20_000 }, () => {
   it.each(["text", "table", "accordion"])(
     "keeps the %s inline editor and selection through typing echoes",
     async (id) => {
@@ -252,5 +263,128 @@ describe("controlled EmailEditor typing", () => {
       expect(input.selectionEnd).toBe(caret);
       expect(value!.root.props!.previewText).toBe(input.value);
     }
+  });
+  it("makes the workspace inert during preview and restores keyboard focus on Escape", async () => {
+    await mount();
+    const opener = container!.querySelector<HTMLButtonElement>('[aria-label="Preview email"]')!;
+    opener.focus();
+    await act(async () => opener.click());
+    const dialog = container!.querySelector<HTMLElement>('[role="dialog"]')!;
+    expect(dialog).not.toBeNull();
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(
+      container!.querySelector('[aria-label="Preview email"]')!.closest("[inert]"),
+    ).not.toBeNull();
+    await act(async () =>
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      ),
+    );
+    expect(container!.querySelector('[role="dialog"]')).toBeNull();
+    const restored = container!.querySelector('[aria-label="Preview email"]')!;
+    expect(restored.closest("[inert]")).toBeNull();
+    expect(document.activeElement).toBe(restored);
+  });
+  it("edits imported root width and font without leaving stale native omissions", async () => {
+    const imported = fromMjml(
+      '<mjml><mj-body><mj-section><mj-column><mj-text css-class="root-font">Root font</mj-text></mj-column></mj-section></mj-body></mjml>',
+    );
+    await mount(imported.document);
+    for (const [name, next] of [
+      ["width", "420"],
+      ["fontFamily", "Georgia"],
+    ]) {
+      const input = field(name);
+      input.focus();
+      await act(async () => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+          input,
+          next,
+        );
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        await new Promise((resolve) => setTimeout(resolve, 400));
+      });
+      expect(field(name)).toBe(input);
+      expect(document.activeElement).toBe(input);
+    }
+    const canvas = container!.querySelector("iframe")!.contentDocument!;
+    expect(canvas.querySelector<HTMLElement>(".pm-email")!.style.maxWidth).toBe("420px");
+    expect(canvas.querySelector<HTMLElement>(".root-font")!.style.fontFamily).toBe("Georgia");
+    expect(toMjml(value!)).toContain('width="420px"');
+    expect(toMjml(value!)).toContain('font-family="Georgia"');
+  });
+
+  it("edits imported inherited styles in the canvas, export and undo without remounting", async () => {
+    const imported = fromMjml(
+      '<mjml><mj-head><mj-attributes><mj-text font-size="30px" color="#ff0000" /></mj-attributes></mj-head><mj-body><mj-section><mj-column><mj-text css-class="imported-text">Imported text</mj-text></mj-column></mj-section></mj-body></mjml>',
+    );
+    await mount(imported.document);
+    const findText = (node: unknown): string | undefined => {
+      if (!node || typeof node !== "object") return;
+      const record = node as { type?: string; props?: { id?: string } };
+      if (record.type === "Text") return record.props!.id;
+      for (const child of Object.values(node)) {
+        const id = findText(child);
+        if (id) return id;
+      }
+    };
+    const id = findText(imported.document)!;
+    await act(async () =>
+      api!.dispatch({ type: "setUi", ui: { itemSelector: api!.getSelectorForId(id) } }),
+    );
+    const canvas = () => container!.querySelector("iframe")!.contentDocument!;
+    const text = () => canvas().querySelector<HTMLElement>(".imported-text")!;
+    expect(text().style.fontSize).toBe("30px");
+    const change = async (name: string, next: string) => {
+      const input = field(name);
+      input.focus();
+      await act(async () => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+          input,
+          next,
+        );
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        await new Promise((resolve) => setTimeout(resolve, 400));
+      });
+      expect(field(name)).toBe(input);
+      expect(document.activeElement).toBe(input);
+    };
+    await change("fontSize", "42");
+    expect(text().style.fontSize).toBe("42px");
+    expect(toMjml(value!)).toContain('font-size="42px"');
+    await change("color", "#123456");
+    expect(text().style.fontSize).toBe("42px");
+    expect(toMjml(value!)).toContain('color="#123456"');
+    await act(async () => api!.history.back());
+    expect(text().style.fontSize).toBe("42px");
+    await act(async () => api!.history.back());
+    expect(text().style.fontSize).toBe("30px");
+    await act(async () => api!.history.forward());
+    expect(text().style.fontSize).toBe("42px");
+    const current = api!.getItemById(id)!;
+    const selector = api!.getSelectorForId(id)!;
+    await act(async () =>
+      api!.dispatch({
+        type: "replace",
+        destinationIndex: selector.index,
+        destinationZone: selector.zone,
+        data: {
+          ...current,
+          props: {
+            ...current.props,
+            mjmlAttributes: [
+              ...(current.props.mjmlAttributes ?? []).filter(
+                (entry: { name: string }) => entry.name !== "font-size",
+              ),
+              { name: "font-size", value: "55px" },
+            ],
+          },
+        },
+        recordHistory: true,
+      }),
+    );
+    await change("fontSize", "20");
+    expect(text().style.fontSize).toBe("55px");
+    expect(toMjml(value!)).toContain('font-size="55px"');
   });
 });

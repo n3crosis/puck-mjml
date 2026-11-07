@@ -10,6 +10,7 @@ import type { Config } from "@puckeditor/core";
 import { nativeComponentTags } from "./NativeFields";
 import { TableBlock } from "./TableBlock";
 import type { TableProps } from "./table";
+import { resolveImportedAttributes } from "./import-inheritance";
 import { NativeItems } from "./NativeItems";
 import {
   NativeLayoutContext,
@@ -21,6 +22,8 @@ import {
   layoutPaddingWidth,
   layoutWidth,
   useLayoutChildren,
+  useLayoutRootProps,
+  useLayoutBlockProps,
 } from "./native-layout-context";
 import {
   NativeCanvasContext,
@@ -35,6 +38,40 @@ import {
 } from "./native-canvas-context";
 
 type Props = Record<string, unknown>;
+// Puck supplies visual defaultProps to renderers, while its document retains
+// omitted controls. Resolve import baselines against that raw source first.
+function canvasProps(props: Props, source: Props | undefined): Props {
+  if (!source) return props;
+  const next = { ...props };
+  for (const key of ["mjmlAttributes", "bodyAttributes", "attributeDefaults"]) {
+    if (!Array.isArray(source[key])) continue;
+    try {
+      next[key] = resolveImportedAttributes(source, key)?.map((entry) => {
+        if (!entry || typeof entry !== "object" || !entry.importBaseline) return entry;
+        const { importBaseline: _baseline, ...resolved } = entry;
+        return resolved;
+      });
+    } catch {
+      // Keep malformed/in-progress host data on the usual native fallback path.
+      next[key] = source[key];
+    }
+  }
+  for (const key of ["links", "items", "images", "children"]) {
+    const rendered = props[key];
+    const raw = source[key];
+    if (Array.isArray(rendered) && Array.isArray(raw))
+      next[key] = rendered.map((item, index) =>
+        item && typeof item === "object" && raw[index] && typeof raw[index] === "object"
+          ? canvasProps(item, raw[index])
+          : item,
+      );
+  }
+  return next;
+}
+function NativeRootView({ root: Root, props }: { root: ComponentType<Props>; props: Props }) {
+  const source = useLayoutRootProps();
+  return <Root {...canvasProps(props, source)} />;
+}
 const WrapperContentContext = createContext(false);
 const classes = (name: string, attributes: NativeCanvasAttributes) =>
   [name, attributes["css-class"]].filter(Boolean).join(" ");
@@ -483,6 +520,8 @@ function NativeBlock({
   fallback: ComponentType<Props>;
 }) {
   const parent = useNativeCanvasScope();
+  const source = useLayoutBlockProps(props.id);
+  props = canvasProps(props, source);
   const layout = useContext(NativeLayoutContext);
   const childBlocks = useLayoutChildren(props.id, "columns");
   const fallback = () => {
@@ -543,7 +582,9 @@ function NativeBlock({
       (props[key] as Props[]).some(
         (item) =>
           item &&
-          (hasNativeCanvasOptions(item, parent) ||
+          (item.kind === "raw" ||
+            Array.isArray(item.children) ||
+            hasNativeCanvasOptions(item, parent) ||
             item.titleMjClass !== undefined ||
             item.textMjClass !== undefined ||
             [item.titleAttributes, item.textAttributes].some(
@@ -552,7 +593,10 @@ function NativeBlock({
       ),
   );
   if (
-    (!hasNativeCanvasOptions(props, parent) && !hasImplicitAttributes && !hasNestedAttributes) ||
+    (name !== "Image" &&
+      !hasNativeCanvasOptions(props, parent) &&
+      !hasImplicitAttributes &&
+      !hasNestedAttributes) ||
     name === "Raw" ||
     props.htmlContent !== undefined
   )
@@ -574,7 +618,7 @@ export function withNativeCanvas(config: Config): Config {
           ...config.root,
           render: (props: Parameters<typeof Root>[0]) => (
             <NativeLayoutData editing={Boolean(props.puck?.isEditing)}>
-              <Root {...props} children={props.children as ReactNode} />
+              <NativeRootView root={Root as ComponentType<Props>} props={props as Props} />
             </NativeLayoutData>
           ),
         }

@@ -18,25 +18,25 @@ bun run dev
 | `bun run build:demo` | Build the standalone demo into `demo-dist/`.                              |
 | `bun run catalog`    | Regenerate the native attribute catalog from the installed MJML compiler. |
 
-`node_modules/`, `dist/`, and `demo-dist/` are ignored by Git. Library output includes ESM (`dist/index.js`), CommonJS (`dist/index.cjs`), declarations (`dist/index.d.ts`), and `dist/style.css`. The package includes the built library, documentation, license, and third-party notices; build before packaging.
+`node_modules/`, `dist/`, and `demo-dist/` are ignored by Git. Library output includes ESM (`dist/index.js`), CommonJS (`dist/index.cjs`), declarations (`dist/index.d.ts`), conversion-only `dist/core.js` / `dist/core.cjs` / `dist/core.d.ts`, and `dist/style.css`. The package includes the built library, documentation, license, and third-party notices; build before packaging.
 
 To try the package in another local project, run `bun run build` and `bun pm pack` here, then install the resulting tarball in the host application. The host must also supply the peer dependencies listed in `package.json`.
 
 ## Source map
 
-| Path                                                                                       | Responsibility                                                  |
-| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| [src/index.ts](../src/index.ts)                                                            | Public exports.                                                 |
-| [src/types.ts](../src/types.ts)                                                            | Document model, editor props, and API types.                    |
-| [src/EmailEditor.tsx](../src/EmailEditor.tsx)                                              | Controlled Puck editor and host callbacks.                      |
-| [src/EmailCanvas.tsx](../src/EmailCanvas.tsx)                                              | Editing canvas, scoped styles, fonts, and Tailwind integration. |
-| [src/config.tsx](../src/config.tsx)                                                        | Visual blocks and field definitions.                            |
-| [src/export.ts](../src/export.ts)                                                          | MJML serialization and browser compilation.                     |
-| [src/import.ts](../src/import.ts)                                                          | MJML import and unsupported-content warnings.                   |
-| [src/native-catalog.json](../src/native-catalog.json)                                      | Generated compiler attributes, defaults, and provenance.        |
-| [src/canvas-css.ts](../src/canvas-css.ts), [src/canvas-fonts.tsx](../src/canvas-fonts.tsx) | Per-editor CSS scoping and web font aliases.                    |
-| [src/templates/registry.ts](../src/templates/registry.ts)                                  | Demo template registry and remaining template-family TODOs.     |
-| [demo/main.tsx](../demo/main.tsx)                                                          | Demo template picker, file import, and downloads.               |
+| Path                                                                                                                                                                                 | Responsibility                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| [src/index.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/index.ts)                                                                                                         | Public exports.                                                 |
+| [src/types.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/types.ts)                                                                                                         | Document model, editor props, and API types.                    |
+| [src/EmailEditor.tsx](https://github.com/n3crosis/puck-mjml/blob/main/src/EmailEditor.tsx)                                                                                           | Controlled Puck editor and host callbacks.                      |
+| [src/EmailCanvas.tsx](https://github.com/n3crosis/puck-mjml/blob/main/src/EmailCanvas.tsx)                                                                                           | Editing canvas, scoped styles, fonts, and Tailwind integration. |
+| [src/config.tsx](https://github.com/n3crosis/puck-mjml/blob/main/src/config.tsx)                                                                                                     | Visual blocks and field definitions.                            |
+| [src/export.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/export.ts)                                                                                                       | MJML serialization and browser compilation.                     |
+| [src/import.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/import.ts)                                                                                                       | MJML import and unsupported-content warnings.                   |
+| [src/native-catalog.json](https://github.com/n3crosis/puck-mjml/blob/main/src/native-catalog.json)                                                                                   | Generated compiler attributes, defaults, and provenance.        |
+| [src/canvas-css.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/canvas-css.ts), [src/canvas-fonts.tsx](https://github.com/n3crosis/puck-mjml/blob/main/src/canvas-fonts.tsx) | Per-editor CSS scoping and web font aliases.                    |
+| [src/templates/registry.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/templates/registry.ts)                                                                               | Demo template registry and remaining template-family TODOs.     |
+| [demo/main.tsx](https://github.com/n3crosis/puck-mjml/blob/main/demo/main.tsx)                                                                                                       | Demo template picker, file import, and downloads.               |
 
 ## Validation
 
@@ -50,7 +50,7 @@ bun run build:demo
 
 Tests cover compilation, server rendering, and detached DOM interactions. Keep controlled-editor focus/caret continuity, undo/redo, read-only fields, table structure/resizing (including RTL), and overlay placement covered when changing those interactions. A stable Puck plugin list prevents controlled updates from remounting inline editors.
 
-For API or bundling changes, also smoke-test the packaged ESM and CommonJS exports. Browser testing has not been part of the existing verification workflow; Tailwind runtime behavior and real email-client rendering require separate validation. Prior passing test counts are not a guarantee for the current checkout.
+For API or bundling changes, run `bun run test:package` after building. It checks the generated ESM and CommonJS APIs, HTML compilation, and the `puck-mjml/core` entry under React Server Components resolution. Run `bun run test:browser` for the Chromium demo smoke suite. Install its browser once with `bunx playwright install chromium`; a local Chromium can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. These tests do not establish real email-client parity. Prior passing test counts are not a guarantee for the current checkout.
 
 ## Updating MJML
 
@@ -71,3 +71,15 @@ Attribute acceptance establishes compiler coverage, not complete canvas or email
 Keep the editor host-controlled, with no internal draft persistence. Preserve inline editing, undo/redo, the single Puck header, and host-owned actions. Subject metadata remains supported in export without a dedicated subject control in the editor header.
 
 The [compatibility matrix](MJML_COMPATIBILITY.md) tracks rendering limitations. Further work includes specialized native canvas behavior and a host compilation path for filesystem includes or custom MJML components. The template registry tracks unfinished template families separately. Update the relevant reference when adding capabilities; do not infer full compatibility from catalog counts.
+
+## GitHub Actions and Pages
+
+`.github/workflows/ci-pages.yml` runs on pull requests, pushes to `main`, and manual dispatch. It installs Bun 1.4.2 and Node 22, installs from the frozen lockfile, checks formatting/lint/types/tests, builds the library, smoke-tests the package, builds the demo, and exercises Chromium. Only successful `main` builds can deploy.
+
+The deployment uploads `demo-dist/` as a Pages artifact and deploys it through the `github-pages` environment. Relative Vite asset URLs support repository-path hosting. Configure the repository's **Settings → Pages → Build and deployment → Source** as **GitHub Actions**. Environment protection rules may require a deployment approval. The deployment job alone receives `pages: write` and `id-token: write`; checks only need repository read permission.
+
+Use the workflow's deployment URL as the source of truth. A workflow file alone does not mean the site is live. Verify the successful commit, deployed page, assets, template selection, import, preview, and MJML/HTML downloads before announcing a public URL. Public demo publication does not publish the npm package.
+
+## Server and framework consumers
+
+Use `puck-mjml/core` for `fromMjml`, `toMjml`, `compileEmail`, document factories, and model types in Node or React Server Components. Import `EmailEditor` from `puck-mjml` only inside a client component (declare `"use client"` in an RSC framework). Import the bundled CSS once in a location supported by the host framework. The existing root exports remain supported for browser and ordinary Node consumers.

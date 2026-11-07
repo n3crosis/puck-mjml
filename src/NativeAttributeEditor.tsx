@@ -175,7 +175,13 @@ export function NativeAttributeEditor({
   const update = (index: number, patch: Partial<MjmlAttribute>) => {
     if (!Object.keys(patch).some((property) => locked(index, property as keyof MjmlAttribute)))
       onChange(
-        entries.map((entry, current) => (current === index ? { ...entry, ...patch } : entry)),
+        entries.map((entry, current) => {
+          if (current !== index) return entry;
+          // Deliberate native edits become user-owned, even if a later edit
+          // restores the imported value. Moving a row retains its ownership.
+          const { source: _source, importBaseline: _baseline, ...explicit } = entry;
+          return { ...explicit, ...patch };
+        }),
       );
   };
   const move = (from: number, to: number) => {

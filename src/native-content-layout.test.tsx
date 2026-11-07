@@ -207,3 +207,27 @@ describe("native image content width", () => {
     expect(parse(result.html).querySelector(".image-case img")?.getAttribute("width")).toBe("244");
   });
 });
+
+describe("ordinary image desktop clamp", () => {
+  it("matches exported image width without needing a native attribute", async () => {
+    const image = block("Image", "ordinary-image", {
+      src: "https://example.com/photo.png",
+      width: 560,
+      padding: "10px",
+      alt: "Ordinary",
+    });
+    const doc = documentWith([block("Section2", "two-columns", { left: [image], right: [] })]);
+    const canvas = render(doc);
+    const result = await compileEmail(doc);
+    const compiled = parse(result.html);
+    const nativeWidth = compiled.querySelector('img[alt="Ordinary"]')!.getAttribute("width");
+    expect(style(canvas.querySelector('img[alt="Ordinary"]')!.parentElement, "width")).toBe(
+      `${nativeWidth}px`,
+    );
+    image.props.mjmlAttributes = attributes({ title: "Unrelated metadata" });
+    const withNative = render(doc);
+    expect(style(withNative.querySelector('img[alt="Ordinary"]')!.parentElement, "width")).toBe(
+      `${nativeWidth}px`,
+    );
+  });
+});

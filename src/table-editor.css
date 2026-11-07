@@ -58,7 +58,7 @@
 .pm-table-hint,
 .pm-table-empty {
   margin: 0;
-  color: #718095;
+  color: #59697f;
   font-size: 11px;
   line-height: 1.4;
 }
@@ -72,22 +72,23 @@
   color: #344256;
 }
 .pm-table-group-heading small {
-  color: #8a95a5;
+  color: #617085;
   font-weight: 400;
 }
 .pm-table-grid-scroll {
+  min-width: 0;
   overflow-x: auto;
   max-height: 180px;
 }
 .pm-table-cell-grid {
   border-collapse: collapse;
   width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
   font-size: 11px;
 }
 .pm-table-cell-grid td {
   padding: 2px;
-  min-width: 48px;
+  min-width: 64px;
   vertical-align: top;
 }
 .pm-table-cell-grid button {
@@ -96,11 +97,12 @@
   align-items: stretch;
   width: 100%;
   min-height: 42px;
+  max-width: 160px;
   padding: 5px 6px;
   text-align: left;
 }
 .pm-table-cell-grid button small {
-  color: #8a95a5;
+  color: #617085;
   font-size: 9px;
 }
 .pm-table-cell-grid button span {

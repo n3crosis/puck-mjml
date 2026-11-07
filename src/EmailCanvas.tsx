@@ -1,4 +1,13 @@
-import { useEffect, useId, useMemo, useRef, type CSSProperties, type ReactNode } from "react";
+import {
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { normalizeEmailBreakpoint, normalizeEmailWidth } from "./layout";
 import { normalizeEmailDirection, normalizeEmailLanguage } from "./metadata";
 import { resolveBreakpointWidth } from "./head";
@@ -12,7 +21,11 @@ import {
   type FontAliasMap,
 } from "./canvas-css";
 import { useCanvasFonts } from "./canvas-fonts";
-import { resolveTailwindScript, TAILWIND_CANVAS_CONFIG } from "./canvas-tailwind";
+import {
+  resolveTailwindScript,
+  mountTailwindCanvas,
+  TailwindRuntimeContext,
+} from "./canvas-tailwind";
 import { NativeLayoutContext } from "./native-layout-context";
 
 type EmailCanvasProps = {
@@ -121,22 +134,21 @@ export function EmailCanvas({
     if (scopedCss.notes.length) reportCanvasNotes(scopedCss.notes);
   }, [scopedCss]);
   const fonts = useCanvasFonts(imports, aliases);
-  const tailwindScriptSrc = resolveTailwindScript(tailwind, tailwindScriptUrl);
-  // The Tailwind runtime appends generated styles to the canvas document's
-  // head; remove them again when the canvas stops using Tailwind.
+  const tailwindRuntime = useContext(TailwindRuntimeContext);
+  const tailwindScriptSrc = resolveTailwindScript(tailwind, tailwindRuntime);
+  const [tailwindCss, setTailwindCss] = useState("");
   useEffect(() => {
-    if (!tailwindScriptSrc) return;
-    const canvasDocument = canvasRef.current?.ownerDocument;
-    return () => {
-      const head = canvasDocument?.head;
-      if (!head) return;
-      // querySelectorAll returns a static list, so removing while iterating is safe.
-      for (const style of head.querySelectorAll("style")) {
-        const css = style.textContent ?? "";
-        if (css.includes("@layer utilities") || css.includes("--tw-")) style.remove();
-      }
-    };
-  }, [tailwindScriptSrc]);
+    if (tailwindScriptUrl) {
+      reportCanvasNotes([
+        "Document tailwindScriptUrl is ignored. Configure the host's tailwindRuntime prop instead.",
+      ]);
+    }
+  }, [tailwindScriptUrl]);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!tailwindScriptSrc || !canvas) return;
+    return mountTailwindCanvas(canvas, scope, tailwindScriptSrc, setTailwindCss);
+  }, [tailwindScriptSrc, scope]);
   const emailWidthStyle = typeof emailWidth === "number" ? `${emailWidth}px` : emailWidth;
   const aliasedCanvasFont = aliasFontFamilyList(canvasFont, aliases);
   const mobileStyles = `.${scope} .pm-native-navbar-trigger { display: none; }
@@ -168,13 +180,7 @@ export function EmailCanvas({
         } as CSSProperties
       }
     >
-      {tailwindScriptSrc ? (
-        <>
-          {/* The runtime compiles utilities for this document; preflight stays off. */}
-          <style type="text/tailwindcss">{TAILWIND_CANVAS_CONFIG}</style>
-          <script src={tailwindScriptSrc} />
-        </>
-      ) : null}
+      {tailwindCss ? <style data-pm-tailwind-css={scope}>{tailwindCss}</style> : null}
       {scopedCss.css ? <style data-pm-canvas-css={scope}>{scopedCss.css}</style> : null}
       {fonts.css ? <style data-pm-canvas-fonts={scope}>{fonts.css}</style> : null}
       <style data-pm-responsive={scope}>{mobileStyles}</style>

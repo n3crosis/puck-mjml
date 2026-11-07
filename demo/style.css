@@ -168,3 +168,47 @@ button {
     flex-wrap: wrap;
   }
 }
+
+.demo-notice {
+  padding: 6px 20px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font:
+    12px/1.5 system-ui,
+    sans-serif;
+}
+
+/* Long import diagnostics must not push the editor below the viewport. */
+.demo-status {
+  max-height: 25dvh;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+.demo-status summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.demo-notice {
+  flex-shrink: 0;
+  border-bottom: 1px solid #dbeafe;
+}
+@media (max-width: 600px) {
+  .demo-template-picker {
+    width: 100%;
+    min-width: 0;
+  }
+  .demo-template-select {
+    flex: 1;
+    width: auto;
+  }
+  .demo-actions {
+    width: 100%;
+  }
+  .demo-divider {
+    display: none;
+  }
+  .demo-notice,
+  .demo-status {
+    padding-inline: 12px;
+  }
+}

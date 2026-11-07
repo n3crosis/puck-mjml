@@ -54,6 +54,7 @@ export function createCanvasScope(
     const body = applyNativeAttributes(
       "mj-body",
       {
+        ...settings,
         mjClass: settings.bodyMjClass,
         mjmlAttributes: concreteEntries(settings.bodyAttributes),
       } as MjmlElementOptions,

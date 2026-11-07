@@ -1,5 +1,9 @@
 export interface MjmlAttribute {
   name: string;
+  /** Import-owned native value or omission, released when its visual control is edited. */
+  source?: "import";
+  /** Original native rule and raw controls; imported rules yield only to later visual edits. */
+  importBaseline?: { native: string; controls: Record<string, unknown> };
   value?: string;
   /** Preserve a host-trusted template expression instead of validating a concrete native value. */
   template?: boolean;
@@ -51,7 +55,7 @@ export interface EmailSettings {
   headStyles?: { css: string; inline: "head" | "inline" }[];
   /** Load the Tailwind browser runtime on the editing canvas. Email CSS stays the host's responsibility. */
   tailwind?: boolean | "true" | "";
-  /** Custom HTTP(S) URL for the Tailwind runtime script; blank uses the bundled build. */
+  /** @deprecated Ignored. Executable runtime URLs must be supplied by the host through EmailEditorProps.tailwindRuntime. */
   tailwindScriptUrl?: string;
   htmlAttributes?: { selector: string; name: string; value: string }[];
   rawHead?: string;
@@ -91,6 +95,8 @@ export interface EmailEditorProps {
   onPublish?: (value: EmailDocument) => void | Promise<void>;
   onUploadImage?: (file: File) => Promise<string>;
   allowRawHtml?: boolean;
+  /** Opt in to the canvas Tailwind runtime: true uses the pinned CDN build, or supply a trusted HTTP(S) script URL. Never derive this prop from document data. */
+  tailwindRuntime?: true | string;
   /** Branding for Puck's existing header. Email metadata is not used as the header title. */
   headerTitle?: string;
   /** Host actions displayed beside preview and Puck's history controls. */

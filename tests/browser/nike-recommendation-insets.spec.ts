@@ -117,6 +117,27 @@ async function recommendations(root: Locator, kind: "source" | "compiled" | "can
     };
   }, kind);
 }
+
+async function tracking(root: Locator, kind: "compiled" | "canvas") {
+  return root.evaluate((root, kind) => {
+    const area = root.querySelector(".nike-tracking")!;
+    const origin = area.getBoundingClientRect();
+    const box = (node: Element) => {
+      const { x, y, width, height } = node.getBoundingClientRect();
+      return { x: x - origin.x, y: y - origin.y, width, height };
+    };
+    const columns = Array.from(area.querySelectorAll(".nike-tracking-column"));
+    const button = columns[1].querySelector(
+      kind === "canvas" ? ".pm-button" : 'td[role="presentation"]',
+    )!;
+    return {
+      width: origin.width,
+      height: origin.height,
+      columns: columns.map(box),
+      button: box(button),
+    };
+  }, kind);
+}
 const close = (actual: number, expected: number, label: string) =>
   expect(Math.abs(actual - expected), `${label}: ${actual} vs ${expected}`).toBeLessThanOrEqual(
     1 / 64,
@@ -301,10 +322,19 @@ test("Nike recommendations retain source insets and editable mobile pairs withou
         (await image.locator("img").getAttribute("src"))!,
       );
     }
-    for (const label of await canvas.locator(".nike-recommendation-text").all()) {
+    for (const [index, label] of (
+      await canvas.locator(".nike-recommendation-text").all()
+    ).entries()) {
       await label.dblclick();
-      await expect(label.locator('[contenteditable="true"]')).toBeVisible();
+      const editable = label.locator('[contenteditable="true"]');
+      await expect(editable).toBeVisible();
+      await expect(editable).toBeFocused();
+      await editable.press("ControlOrMeta+End");
+      await page.keyboard.insertText(` edited ${index}`);
+      await expect(editable).toContainText(`edited ${index}`);
     }
+    const editedHtml = await compiledEmail(page);
+    for (let index = 0; index < 8; index++) expect(editedHtml).toContain(`edited ${index}`);
   } finally {
     const path = testInfo.outputPath("nike-recommendation-insets.json");
     writeFileSync(
@@ -327,7 +357,7 @@ test("Nike recommendations retain source insets and editable mobile pairs withou
   }
 });
 
-test("Nike switches its actual compiled and native recommendation layout at 479/480px", async ({
+test("Nike preserves recommendation and tracking breakpoints at 479/480 and 537/538px", async ({
   page,
 }, testInfo) => {
   test.setTimeout(90_000);
@@ -346,12 +376,16 @@ test("Nike switches its actual compiled and native recommendation layout at 479/
     compiledViewportWidth: number;
     compiled: Awaited<ReturnType<typeof recommendations>>;
     canvas: Awaited<ReturnType<typeof recommendations>>;
+    tracking: {
+      compiled: Awaited<ReturnType<typeof tracking>>;
+      canvas: Awaited<ReturnType<typeof tracking>>;
+    };
     canvasGeometry: ReturnType<typeof measureCanvasGeometry>;
   }[] = [];
   try {
     await compiled.setContent(await compiledEmail(page), { waitUntil: "load" });
-    for (const width of [479, 480]) {
-      // The public viewport controls offer390/800. Resize the actual preview
+    for (const width of [479, 480, 537, 538]) {
+      // The public viewport controls offer 390/800. Resize the actual preview
       // iframe between those presets, as the existing source-image gate does.
       // Never mock innerWidth or change any authored email styles.
       await page.locator("#preview-frame").evaluate((iframe: HTMLIFrameElement, width) => {
@@ -374,6 +408,10 @@ test("Nike switches its actual compiled and native recommendation layout at 479/
         compiledViewportWidth: await compiled.evaluate(() => innerWidth),
         compiled: await recommendations(compiled.locator("body"), "compiled"),
         canvas: await recommendations(canvasRoot, "canvas"),
+        tracking: {
+          compiled: await tracking(compiled.locator("body"), "compiled"),
+          canvas: await tracking(canvasRoot, "canvas"),
+        },
         canvasGeometry: await canvas.locator(".pm-email").evaluate(measureCanvasGeometry),
       });
       await compiled.screenshot({
@@ -384,13 +422,37 @@ test("Nike switches its actual compiled and native recommendation layout at 479/
         .locator(".nike-recommendations")
         .screenshot({ path: testInfo.outputPath(`nike-native-boundary-${width}.png`) });
     }
-    // Complete both widths' evidence before testing overflow, computed styles,
+    // Complete every width's evidence before testing overflow, computed styles,
     // or geometry. Original mobile overflow is not the responsive target.
     for (const capture of captures) {
       const mobile = capture.width === 479;
       expect(capture.iframeWidth).toBe(capture.width);
       expect(capture.compiledViewportWidth).toBe(capture.width);
       expect(canvasOverflowFailures(capture.canvasGeometry)).toEqual([]);
+      for (const actual of Object.values(capture.tracking)) {
+        expect(actual.columns).toHaveLength(2);
+        const stacked = capture.width < 538;
+        for (const column of actual.columns)
+          close(column.width, (actual.width - 80) / (stacked ? 1 : 2), "tracking column width");
+        close(actual.button.width, 220, "source tracking button width");
+        const column = actual.columns[1];
+        expect(actual.button.x).toBeGreaterThanOrEqual(column.x - 1 / 64);
+        expect(actual.button.x + actual.button.width).toBeLessThanOrEqual(
+          column.x + column.width + 1 / 64,
+        );
+        if (stacked) {
+          close(column.x, actual.columns[0].x, "stacked tracking column left");
+          expect(column.y).toBeGreaterThanOrEqual(
+            actual.columns[0].y + actual.columns[0].height - 1 / 64,
+          );
+        } else close(column.x, actual.columns[0].x + actual.columns[0].width, "tracking row left");
+      }
+      for (const property of ["x", "y", "width", "height"] as const)
+        close(
+          capture.tracking.canvas.button[property],
+          capture.tracking.compiled.button[property],
+          `tracking button ${property}`,
+        );
       for (const actual of [capture.compiled, capture.canvas]) {
         expect(actual.overflow).toBeLessThanOrEqual(1);
         expect(actual.pairCount).toBe(2);
@@ -428,7 +490,7 @@ test("Nike switches its actual compiled and native recommendation layout at 479/
           }
         }
       }
-      //480px is a narrowed email, not the800px card's image dimensions.
+      // 480px is a narrowed email, not the 800px card's image dimensions.
       // Retain exact native/compiler parity without imposing a viewport-derived
       // source auto-layout width or changing the existing strict tolerances.
       close(capture.canvas.width, capture.compiled.width, "boundary region width");
@@ -447,14 +509,14 @@ test("Nike switches its actual compiled and native recommendation layout at 479/
       path,
       JSON.stringify(
         {
-          note: "Actual iframe479/480px media-query boundary; source mobile overflow is deliberately not restored.",
+          note: "Actual iframe 479/480px recommendation and 537/538px tracking boundaries; source mobile overflow is deliberately not restored.",
           captures,
         },
         null,
         2,
       ),
     );
-    await testInfo.attach("Nike recommendation479/480 boundary", {
+    await testInfo.attach("Nike recommendation and tracking boundaries", {
       path,
       contentType: "application/json",
     });

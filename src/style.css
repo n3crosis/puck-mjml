@@ -347,6 +347,17 @@
   min-width: 0;
   flex-wrap: wrap;
 }
+/* The positioned bar moves outside Puck's original action box. Only its
+   visible surface should receive clicks, not the empty box left over text. */
+:where([class*="_DraggableComponent-actions_"]):has(> .pm-selection-actions) {
+  pointer-events: none;
+}
+/* Puck keeps a dragged overlay selected but disables its hit area. Use the
+   registered handle's public grabbed state rather than reactivating that ghost. */
+:where([class*="_DraggableComponent--isSelected_"])
+  .pm-selection-actions:not(:has([data-puck-drag-handle][aria-grabbed="true"])) {
+  pointer-events: auto;
+}
 .pm-selection-actions {
   width: max-content;
   max-width: 100%;

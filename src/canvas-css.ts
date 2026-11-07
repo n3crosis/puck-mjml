@@ -26,6 +26,7 @@ const reservedFontNames = new Set([
   "cursive",
   "fantasy",
   "system-ui",
+  "-webkit-body",
   "math",
   "ui-serif",
   "ui-sans-serif",
@@ -158,7 +159,10 @@ function splitTopLevel(value: string, separator: "," | " ", preserveEmpty = fals
  * A deliberately bounded family grammar, shared by registration and reference
  * rewriting. Escapes/comments and noncanonical whitespace in strings need CSS
  * token decoding; guessing can merge distinct family names or create a face.
- * Keywords are family names only when quoted.
+ * Leading generic/system keywords remain excluded by this supported subset;
+ * later identifiers may contain those words (for example Instrument Serif). Keep
+ * CSS-wide/default tokens excluded everywhere as a conservative boundary.
+ * Registration uses this same supported subset, not a more permissive decoder.
  */
 function literalFontFamily(value: string): string | undefined {
   const trimmed = value.trim();
@@ -167,7 +171,12 @@ function literalFontFamily(value: string): string | undefined {
     ? (quoted[1] ?? quoted[2])
     : trimmed
           .split(/[ \t\r\n\f]+/)
-          .every((token) => customIdent.test(token) && !reservedFontNames.has(token.toLowerCase()))
+          .every(
+            (token, index) =>
+              customIdent.test(token) &&
+              !cssWideKeywords.includes(token.toLowerCase()) &&
+              (index > 0 || !reservedFontNames.has(token.toLowerCase())),
+          )
       ? trimmed.split(/[ \t\r\n\f]+/).join(" ")
       : undefined;
   if (

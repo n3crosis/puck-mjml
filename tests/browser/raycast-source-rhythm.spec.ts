@@ -1,7 +1,26 @@
 import { expect, test, type Locator } from "@playwright/test";
+import { list, parse } from "postcss";
+import { familyKey } from "../../src/canvas-css";
+import { inspectCanvasFontInputs } from "../../src/canvas-font-inputs";
+import { mjmlDefaultFonts } from "../../src/canvas-font-resolver";
 import { inspectArtwork } from "./artwork-evidence";
+import {
+  expectedCanvasFonts,
+  missingFontRegistrations,
+  waitForCanvasFontCss,
+  type CanvasFontCssEvidence,
+} from "./font-evidence";
 import { sourceTemplateRepresentations } from "./source-template-representations";
 import { canvasOverflowFailures, measureCanvasGeometry } from "./template-overflow";
+
+// These two named entries in the source's system stack are MJML defaults.
+// Native canvases isolate their registrations; the other stack entries must
+// remain unchanged and in the same order.
+const implicitFonts = mjmlDefaultFonts
+  .filter(({ name }) => name === "Roboto" || name === "Ubuntu")
+  .map(({ name, href }) => ({ family: name, stylesheetUrl: href }));
+const familyStack = (value: string) =>
+  list.comma(value).map((family) => family.replace(/^(['"])(.*)\1$/, "$2"));
 
 /** Measure actual line boxes and paint, not a combined end-to-end offset that
  * could hide equal and opposite spacing errors. Canvas coordinates exclude only
@@ -43,8 +62,13 @@ async function measure(root: Locator, kind: "source" | "compiled" | "canvas") {
         throw new Error(`Expected one ${prefix} block, found ${matches.length}`);
       const element = matches[0];
       const style = getComputedStyle(element);
+      // Block widths alone cannot prove the selected font's glyph metrics.
+      // Measure the actual text with its live computed stack after fonts settle.
+      const context = root.ownerDocument.createElement("canvas").getContext("2d")!;
+      context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
       return {
         ...box(element, true),
+        glyphAdvance: context.measureText(normalize(element)).width,
         fontFamily: style.fontFamily,
         fontSize: style.fontSize,
         fontWeight: style.fontWeight,
@@ -126,6 +150,12 @@ async function measure(root: Locator, kind: "source" | "compiled" | "canvas") {
     );
     return {
       kind,
+      fontFaces: Array.from(root.ownerDocument.fonts, ({ family, weight, style, status }) => ({
+        family,
+        weight,
+        style,
+        status,
+      })),
       viewport: view.innerWidth,
       overflow: root.ownerDocument.documentElement.scrollWidth - view.innerWidth,
       background,
@@ -170,7 +200,12 @@ test("Raycast retains source rhythm and decorations in compiled and native email
   const results: {
     width: number;
     setupError?: string;
-    captures: { kind: string; value?: Measurement; error?: string }[];
+    captures: {
+      kind: string;
+      value?: Measurement;
+      fontCss?: CanvasFontCssEvidence;
+      error?: string;
+    }[];
     overflowFailures?: string[];
   }[] = [];
   // Collect both widths, every representation, geometry, HTML and screenshots
@@ -196,6 +231,11 @@ test("Raycast retains source rhythm and decorations in compiled and native email
         const capture: (typeof result.captures)[number] = { kind };
         result.captures.push(capture);
         try {
+          if (kind === "canvas") {
+            const [inputs] = await root.evaluate(inspectCanvasFontInputs, true);
+            await waitForCanvasFontCss(root, expectedCanvasFonts(implicitFonts, inputs.scope));
+            [capture.fontCss] = await root.evaluate(inspectCanvasFontInputs, true);
+          }
           await root.evaluate(inspectArtwork, { decode: true });
           capture.value = await measure(root, kind);
         } catch (error) {
@@ -259,7 +299,27 @@ test("Raycast retains source rhythm and decorations in compiled and native email
     expect(source.background.width).toBe(Math.min(600, width - 16));
     expect(source.link.decoration).toBe("none");
     expect(source.divider.borderTopColor).toBe("rgb(234, 234, 234)");
-    for (const { kind, value: actual } of captures) {
+    for (const { kind, value: actual, fontCss } of captures) {
+      const aliases: Record<string, string> = {};
+      if (kind === "canvas") {
+        expect(fontCss?.scope, `${width}px canvas scope`).toMatch(/^pm-canvas-/);
+        expect(fontCss?.status, `${width}px canvas font CSS`).toBe("ready");
+        expect(fontCss?.inputsCurrent, `${width}px current font inputs`).toBe(true);
+        expect(fontCss?.errors, `${width}px font import errors`).toBeNull();
+        expect(fontCss?.missingAliases, `${width}px missing font aliases`).toEqual([]);
+        const expected = expectedCanvasFonts(implicitFonts, fontCss!.scope);
+        expect(missingFontRegistrations(expected, actual!.fontFaces)).toEqual([]);
+        const registeredFamilies: string[] = [];
+        parse(fontCss!.css).walkAtRules("font-face", (rule) => {
+          rule.walkDecls("font-family", (declaration) => {
+            registeredFamilies.push(...familyStack(declaration.value));
+          });
+        });
+        for (const { family, alias } of expected) {
+          expect(registeredFamilies, `${width}px ${family} scoped @font-face`).toContain(alias);
+          aliases[familyKey(family)] = alias;
+        }
+      }
       expect(actual!.overflow, `${width}px ${kind} document containment`).toBeLessThanOrEqual(1);
       for (const load of actual!.backgroundLoads)
         expect(load.error, `${kind} background`).toBeNull();
@@ -285,17 +345,26 @@ test("Raycast retains source rhythm and decorations in compiled and native email
           Math.abs(actual!.gaps[key] - source.gaps[key]),
           `${width}px ${kind} ${key}`,
         ).toBeLessThanOrEqual(1);
-      for (const key of ["title", "cta", "caution", "best", "company", "address"] as const)
-        for (const property of [
-          "fontFamily",
-          "fontSize",
-          "fontWeight",
-          "lineHeight",
-          "color",
-        ] as const)
+      for (const key of ["title", "cta", "caution", "best", "company", "address"] as const) {
+        expect(actual![key].text, `${width}px ${kind} ${key} text`).toBe(source[key].text);
+        // Compare every declared family, including fallbacks and ordering.
+        // Only aliases backed by this canvas's CSS and FontFace set are valid.
+        const expectedStack = familyStack(source[key].fontFamily).map(
+          (family) => aliases[familyKey(family)] ?? family,
+        );
+        expect(
+          familyStack(actual![key].fontFamily),
+          `${width}px ${kind} ${key} fontFamily`,
+        ).toEqual(expectedStack);
+        expect(
+          Math.abs(actual![key].glyphAdvance - source[key].glyphAdvance),
+          `${width}px ${kind} ${key} glyph advance`,
+        ).toBeLessThanOrEqual(1);
+        for (const property of ["fontSize", "fontWeight", "lineHeight", "color"] as const)
           expect(actual![key][property], `${width}px ${kind} ${key} ${property}`).toBe(
             source[key][property],
           );
+      }
       expect(actual!.link).toEqual(source.link);
       expect(actual!.divider.borderTopColor).toBe(source.divider.borderTopColor);
       expect(actual!.divider.borderTopWidth).toBe(source.divider.borderTopWidth);

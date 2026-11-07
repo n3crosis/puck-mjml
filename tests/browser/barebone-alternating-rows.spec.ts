@@ -245,8 +245,16 @@ for (const width of [800, 390]) {
       // The corrected rows remain native editable blocks. Recompilation must
       // recenter naturally after a real text edit, then restore after undo.
       await canvas.getByText(titles[0], { exact: true }).dblclick();
-      const editable = canvas.locator('.bare-alternating-column [contenteditable="true"]');
+      // Every native text block is editable, including the other row titles,
+      // body copy and links. Target the title that the user just opened.
+      const editable = canvas
+        .locator(".bare-alternating-column")
+        .getByRole("textbox")
+        .filter({ hasText: /^Workflow improvements$/ });
+      await expect(editable).toHaveCount(1);
       await expect(editable).toBeVisible();
+      await expect(editable).toHaveAttribute("contenteditable", "true");
+      await expect(editable).toBeFocused();
       await editable.press("ControlOrMeta+End");
       await page.keyboard.insertText(" updated");
       const editedTitles = [titles[0] + " updated", ...titles.slice(1)];

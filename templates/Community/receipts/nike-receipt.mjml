@@ -1,7 +1,7 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/receipts/nike-receipt.tsx
 Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
-Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 leading for readable mobile cards; desktop retains the source line-height of 1 and source image/text insets. Equal native columns remain an approximation of the source auto-layout cell widths. -->
+Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 leading for readable mobile cards; desktop retains the source line-height of 1 and source image/text insets. Equal native columns remain an approximation of the source auto-layout cell widths. The tracking row stacks before its fixed 220px button outgrows a half-column. -->
 <mjml>
   <mj-head>
     <mj-title>Your Nike order is on its way</mj-title>
@@ -58,6 +58,14 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
         color: #000000;
         text-decoration: none;
       }
+      /* Two 220px columns need 538px: 440px + 80px section padding,
+         2px card border, and 16px body padding. Recommendations keep 480px. */
+      @media only screen and (max-width: 537px) {
+        .nike-tracking-column {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+      }
       @media only screen and (max-width: 479px) {
         .nike-recommendations > table > tbody > tr > td {
           padding-left: 14px !important;
@@ -95,8 +103,8 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
       ><mj-column padding="0px"><mj-spacer height="10px" /></mj-column
     ></mj-section>
     <mj-wrapper padding="0px" border="1px solid #e5e5e5" css-class="nike-receipt-card">
-      <mj-section padding="22px 40px" background-color="#F7F7F7">
-        <mj-column padding="0px" width="50%">
+      <mj-section padding="22px 40px" background-color="#F7F7F7" css-class="nike-tracking">
+        <mj-column padding="0px" width="50%" css-class="nike-tracking-column">
           <mj-text padding="0px" font-size="14px" line-height="2" font-weight="700"
             >Tracking Number</mj-text
           >
@@ -109,7 +117,12 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             >1ZV218970300071628</mj-text
           >
         </mj-column>
-        <mj-column padding="0px" width="50%" vertical-align="middle">
+        <mj-column
+          padding="0px"
+          width="50%"
+          vertical-align="middle"
+          css-class="nike-tracking-column"
+        >
           <mj-button
             align="right"
             padding="0px"

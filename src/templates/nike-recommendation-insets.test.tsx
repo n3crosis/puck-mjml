@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { Render, type Data } from "@puckeditor/core";
 import { load } from "cheerio";
+import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createEmailConfig } from "../config";
@@ -62,6 +63,48 @@ it("derives recommendation insets from the immutable source, not measured card w
 });
 
 describe.each([false, true])("Nike native inset contract, editor roundtrip: %s", (roundTrip) => {
+  it("stacks only the tracking row before its source-width button outgrows a half-column", async () => {
+    const input = roundTrip ? toMjml(fromMjml(source).document) : source;
+    const document = fromMjml(input).document;
+    const { default: mjml } = await import("mjml-browser");
+    const compiled = await mjml(input, { validationLevel: "strict" });
+    expect(compiled.errors).toEqual([]);
+    const native = renderToStaticMarkup(
+      <Render config={createEmailConfig()} data={document as Data} />,
+    );
+    for (const width of [390, 479, 480, 537, 538, 800]) {
+      for (const [kind, html] of [
+        ["native", native],
+        ["compiled", compiled.html],
+      ] as const) {
+        const window = new Window({
+          settings: { disableCSSFileLoading: true, enableImageFileLoading: false },
+        });
+        window.happyDOM.setWindowSize({ width, height: 900 });
+        window.document.write(html);
+        const columns = window.document.querySelectorAll(".nike-tracking-column");
+        expect(columns, `${kind}/${width}`).toHaveLength(2);
+        for (const column of columns)
+          expect(window.getComputedStyle(column).width, `${kind}/${width}`).toBe(
+            width < 538 ? "100%" : "50%",
+          );
+        const button =
+          kind === "native"
+            ? columns[1].querySelector(".pm-button")!
+            : columns[1].querySelector('td[role="presentation"]')!.closest("table")!;
+        expect(window.getComputedStyle(button).width, `${kind}/${width}`).toBe("220px");
+        // Happy DOM does not evaluate the native renderer's media-query range
+        // syntax. Playwright below measures native pairs at the real boundary.
+        if (kind === "compiled") {
+          const pair = window.document.querySelector(".nike-recommendation-pair")!;
+          expect(window.getComputedStyle(pair).width, `${kind}/${width}`).toBe(
+            width < 480 ? "100%" : "50%",
+          );
+        }
+        await window.happyDOM.close();
+      }
+    }
+  });
   it("keeps every image/text editable and compiler/native padding and image sizing equal", async () => {
     const imported = fromMjml(source);
     expect(imported.warnings).toEqual([]);

@@ -14,13 +14,19 @@ for (const width of [390, 768]) {
     await expect(editor).toBeFocused();
     await expect(page.getByLabel("Change count")).toHaveText("1");
     await expect(hostSource).toHaveJSProperty("textContent", source);
+    // The fixture's change-count <output> also has an implicit status role.
+    // Scope to the CSS field so this follows its live region even when cleared.
+    const status = page.locator(".pm-css-field").getByRole("status");
+    await expect(status).toHaveCount(1);
+    await expect(status).toHaveAttribute("aria-live", "polite");
+    await expect(status).toHaveAttribute("aria-atomic", "true");
     const notes = page.locator(".pm-css-preview-notes");
     const summary = notes.locator("summary");
     const details = notes.locator("details");
     await expect(notes).toContainText("Native editor preview may differ");
     await expect(notes).toContainText("Source CSS and export are unchanged");
     await expect(summary).toHaveText("1 preview note");
-    await expect(page.getByRole("status")).toHaveText(
+    await expect(status).toHaveText(
       "Custom CSS: 1 native preview note. Source CSS and export are unchanged.",
     );
     await expect(editor).toHaveAccessibleDescription(/Native editor preview may differ/);
@@ -65,7 +71,7 @@ for (const width of [390, 768]) {
     await expect(editor).not.toHaveAccessibleDescription(/Native editor preview may differ/);
     await expect(page.getByLabel("Change count")).toHaveText(changes!);
     await expect(hostSource).toHaveJSProperty("textContent", ".host{color:green}");
-    await expect(page.getByRole("status")).toHaveText("Custom CSS: Native preview notes cleared.");
+    await expect(status).toHaveText("Custom CSS: Native preview notes cleared.");
     expect(errors).toEqual([]);
   });
 }

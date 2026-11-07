@@ -1,7 +1,20 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
+import { columnEdgePoints, emptyRowPoint } from "./native-column-drag-points";
 import { nativeColumnTargets } from "./native-column-drag-selectors";
 export { nativeColumnTargets } from "./native-column-drag-selectors";
+
+export async function moveToColumnEdge(
+  page: Page,
+  bounds: { x: number; y: number; width: number; height: number },
+  axis: string | null,
+  direction: string,
+  after: boolean,
+) {
+  const { edge, finish } = columnEdgePoints(bounds, axis, direction, after);
+  await page.mouse.move(edge.x, edge.y, { steps: 30 });
+  await page.mouse.move(finish.x, finish.y, { steps: 2 });
+}
 
 export async function moveToGap(page: Page, row: Locator, index: number, direction: string) {
   // Puck leaves an inert clone in the source row. It is not a destination and
@@ -12,7 +25,8 @@ export async function moveToGap(page: Page, row: Locator, index: number, directi
     await row.scrollIntoViewIfNeeded();
     const bounds = await row.boundingBox();
     if (!bounds) throw new Error("Missing empty row");
-    await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + 10, { steps: 30 });
+    const point = emptyRowPoint(bounds);
+    await page.mouse.move(point.x, point.y, { steps: 30 });
     const marker = row.locator(":scope > [data-puck-line-placeholder]");
     await expect(marker).toBeVisible();
     const size = await marker.boundingBox();
@@ -30,24 +44,7 @@ export async function moveToGap(page: Page, row: Locator, index: number, directi
   expect(index).toBeGreaterThanOrEqual(0);
   expect(index).toBeLessThanOrEqual(count);
   const after = index === count;
-  const x =
-    axis === "y"
-      ? bounds.x + bounds.width / 2
-      : direction === "rtl"
-        ? after
-          ? bounds.x + 2
-          : bounds.x + bounds.width - 2
-        : after
-          ? bounds.x + bounds.width - 2
-          : bounds.x + 2;
-  const y =
-    axis === "y"
-      ? after
-        ? bounds.y + bounds.height - 2
-        : bounds.y + 2
-      : bounds.y + bounds.height / 2;
-  await page.mouse.move(x, y, { steps: 30 });
-  await page.mouse.move(x + 0.25, y + 0.25, { steps: 2 });
+  await moveToColumnEdge(page, bounds, axis, direction, after);
   const marker = row.locator(":scope > [data-puck-line-placeholder]");
   await expect(marker).toBeVisible();
   // A visible line at the old gap is not enough. Verify the actual insertion

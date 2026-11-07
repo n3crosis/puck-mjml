@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { moveToGap, nativeColumnTargets } from "./native-column-drag-target";
+import { moveToColumnEdge, moveToGap, nativeColumnTargets } from "./native-column-drag-target";
 
 const sourceRow = (page: Page) =>
   page
@@ -245,15 +245,31 @@ for (const direction of ["ltr", "rtl"])
       const group = await frame.locator(".editable-group").boundingBox();
       if (!group) throw new Error("Missing active fluid target");
       await authoredGeometry(page);
-      await page.mouse.move(
-        viewport === "Mobile"
-          ? group.x + group.width / 2
-          : direction === "rtl"
-            ? group.x + 2
-            : group.x + group.width - 2,
-        viewport === "Mobile" ? group.y + group.height - 2 : group.y + group.height / 2,
-        { steps: 30 },
+      await moveToColumnEdge(
+        page,
+        group,
+        await sourceRow(page).getAttribute("data-pm-native-drag-axis"),
+        direction,
+        true,
       );
+      // Puck debounces nested-zone transitions. Releasing while a Group line
+      // preview is still active commits a reparent, not this sibling reorder.
+      // Wait for the real fluid preview in the source row before mouseup.
+      await expect(
+        sourceRow(page).locator(':scope > .editable-solo[data-dnd-placeholder="clone"]'),
+      ).toHaveCount(1);
+      await expect
+        .poll(() =>
+          sourceRow(page)
+            .locator(":scope > [data-puck-component]:not([data-dnd-dragging])")
+            .evaluateAll((items) =>
+              items.map((item) =>
+                ["editable-group", "editable-solo"].find((name) => item.classList.contains(name)),
+              ),
+            ),
+        )
+        .toEqual(["editable-group", "editable-solo"]);
+      await expect(sourceRow(page).locator("[data-puck-line-placeholder]")).toHaveCount(0);
       await page.mouse.up();
       await expectOrder(page, 0, ["editable-group", "editable-solo"]);
       await rest(page);

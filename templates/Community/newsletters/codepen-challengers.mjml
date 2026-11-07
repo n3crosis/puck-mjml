@@ -168,6 +168,29 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         text-decoration: underline;
       }
     </mj-style>
+    <mj-style inline="inline">
+      .codepen-challenge-heading h1 > em {
+        display: block;
+        padding-top: 4px;
+        font-size: 32px;
+        line-height: 1.5;
+        font-style: normal;
+        font-weight: 400;
+      }
+    </mj-style>
+    <mj-style inline="inline">
+      .reference-heading h1,
+      .reference-heading h2 {
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: inherit;
+      }
+    </mj-style>
   </mj-head>
   <mj-body width="648px" background-color="#505050">
     <mj-section padding="0px 0px 30px" background-color="#191919">
@@ -195,10 +218,14 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     </mj-section>
     <mj-section padding="30px" background-color="#f0d361">
       <mj-column padding="0px">
-        <mj-text padding="0px" font-size="24px" line-height="1.3" font-weight="400"
-          ><strong>This week:</strong> #CodePenChallenge:</mj-text
+        <mj-text
+          padding="0px"
+          font-size="24px"
+          line-height="1.3"
+          font-weight="400"
+          css-class="codepen-challenge-heading reference-heading"
+          ><h1><strong>This week:</strong> #CodePenChallenge: <em>Cubes</em></h1></mj-text
         >
-        <mj-text padding="4px 0px 0px" font-size="32px" line-height="1.5">Cubes</mj-text>
       </mj-column>
     </mj-section>
     <mj-section padding="16px 24px 0px" background-color="#ffffff">

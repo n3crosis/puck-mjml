@@ -104,11 +104,27 @@ export function EmailEditor({
     return upload(file);
   }, []);
   const uploadEnabled = Boolean(onUploadImage);
-  const config = useMemo(
-    () =>
-      createEmailConfig(uploadEnabled ? uploadImage : undefined, allowRawHtml, allowLocalImages),
-    [uploadEnabled, uploadImage, allowRawHtml, allowLocalImages],
+  const importedRoot = [
+    editorData.root.props?.attributeDefaults,
+    editorData.root.props?.bodyAttributes,
+  ].some(
+    (entries) => Array.isArray(entries) && entries.some((entry) => entry?.source === "import"),
   );
+  const config = useMemo(() => {
+    const next = createEmailConfig(
+      uploadEnabled ? uploadImage : undefined,
+      allowRawHtml,
+      allowLocalImages,
+    );
+    // Missing imported root controls represent native inheritance, not a new
+    // document awaiting defaults. Puck otherwise injects visual defaults before
+    // recording its first history snapshot, which looks like a deliberate edit
+    // to the import baselines (font, body width/background, and future fields).
+    // Do this before hydration; later user choices, including default values,
+    // remain ordinary editable data and undo restores the exact source omissions.
+    if (importedRoot && next.root) next.root.defaultProps = undefined;
+    return next;
+  }, [uploadEnabled, uploadImage, allowRawHtml, allowLocalImages, importedRoot]);
 
   useEffect(() => {
     // Controlled hosts commonly echo the exact object emitted by handleChange.

@@ -36,6 +36,19 @@ Responsive adaptation: Keep the logo and social icons in one row; 40% leaves roo
         text-decoration: underline;
       }
     </mj-style>
+    <mj-style inline="inline">
+      .reference-heading h1,
+      .reference-heading h2 {
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: inherit;
+      }
+    </mj-style>
   </mj-head>
   <mj-body width="600px" background-color="#ffffff">
     <mj-wrapper padding="0px 20px">
@@ -55,7 +68,8 @@ Responsive adaptation: Keep the logo and social icons in one row; 40% leaves roo
             line-height="42px"
             font-weight="700"
             color="#1d1c1d"
-            >Confirm your email address</mj-text
+            css-class="reference-heading"
+            ><h1>Confirm your email address</h1></mj-text
           >
           <mj-text padding="0px 0px 30px" font-size="20px" line-height="28px"
             >Your confirmation code is below - enter it in your open browser window and we'll help

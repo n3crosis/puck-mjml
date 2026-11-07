@@ -109,6 +109,7 @@ function LayoutBox({
     return (
       <div
         className={classes(`pm-${kind}`, a)}
+        data-pm-mjml-padding={a["background-url"] ? undefined : "self"}
         style={{ ...backgroundStyle(a), textAlign: a["text-align"] as CSSProperties["textAlign"] }}
       >
         {children}
@@ -203,18 +204,28 @@ function ColumnBox({
   return gutter ? (
     <div
       ref={dragRef}
+      data-pm-mjml-padding={hasPadding ? "child" : undefined}
       className={classes(
         `${className} pm-native-gutter${gutter.grouped ? "" : " pm-native-gutter-stacked"}`,
         a,
       )}
       style={{ ...gutter.style, alignSelf: style.alignSelf }}
     >
-      <div className="pm-native-column-content" style={nativeBoxStyle(a)}>
+      <div
+        className="pm-native-column-content"
+        data-pm-mjml-padding-target={hasPadding ? "" : undefined}
+        style={nativeBoxStyle(a)}
+      >
         {content}
       </div>
     </div>
   ) : (
-    <div ref={dragRef} className={classes(className, a)} style={style}>
+    <div
+      ref={dragRef}
+      className={classes(className, a)}
+      data-pm-mjml-padding={hasPadding ? "self" : undefined}
+      style={style}
+    >
       {content}
     </div>
   );

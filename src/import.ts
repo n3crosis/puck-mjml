@@ -94,6 +94,13 @@ const cssClassName: Parser = (value) =>
 const url =
   (contact: boolean): Parser =>
   (value) => {
+    if (
+      Array.from(value).some((character) => {
+        const code = character.charCodeAt(0);
+        return code < 32 || (code >= 127 && code <= 159);
+      })
+    )
+      return INVALID;
     const trimmed = value.trim();
     const schemes = contact ? ["http:", "https:", "mailto:", "tel:"] : ["http:", "https:"];
     try {
@@ -380,6 +387,39 @@ const STRUCTURAL_TAGS = new Set([
   "mj-carousel",
 ]);
 
+function sourceAttribute(tag: string, name: string, value: string): string {
+  // Native selectors match encoded output, while the style mode is a literal
+  // compiler token rather than displayed HTML. Neither should be decoded.
+  if ((tag === "mj-selector" && name === "path") || (tag === "mj-style" && name === "inline"))
+    return value;
+  if (!value.includes("&")) return value;
+  if (name === "ico-open" || name === "ico-close") {
+    // Icons become HTML text, whose legacy entity rules differ from attributes.
+    // Protect markup and the first LF while decoding exactly one text layer,
+    // then encode ampersands for the native reader's one normalization pass.
+    const text = cheerio
+      .load(
+        `<textarea>_${value.replaceAll("<", "&lt;")}</textarea>`,
+        {},
+        false,
+      )("textarea")
+      .text()
+      .slice(1);
+    return text.replaceAll("&", "&amp;");
+  }
+  // MJML retains attribute references until rendering HTML. XML-only decoding
+  // misses named HTML entities and must not be followed by another decode.
+  return (
+    cheerio
+      .load(
+        `<span data-value="${value.replaceAll('"', "&quot;")}"></span>`,
+        {},
+        false,
+      )("span")
+      .attr("data-value") ?? ""
+  );
+}
+
 function parseElements(source: string, importer: Importer): SourceElement[] {
   // MJML ending tags contain HTML, not XML: an unclosed <br> or <img>
   // must never consume the next MJML component. Keep their source opaque.
@@ -455,27 +495,17 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
     }
   }
   protectedSource += source.slice(copied);
-  const $ = cheerio.load(
-    protectedSource,
-    { xml: { withStartIndices: true, withEndIndices: true } },
-    false,
-  );
+  const $ = cheerio.load(protectedSource, { xml: { decodeEntities: false } }, false);
   const build = (node: Element): SourceElement => {
     const wrapped = $(node);
     const children = wrapped.children().toArray();
     const tag = node.tagName.toLowerCase();
-    const attributes = { ...node.attribs };
-    if (tag === "mj-selector" && node.startIndex !== null && node.endIndex !== null) {
-      // MJML evaluates selectors against HTML with entities still encoded. Keep
-      // the source spelling here; decoding &amp; changes an exact href selector.
-      const raw = cheerio.load(
-        protectedSource.slice(node.startIndex, node.endIndex + 1),
-        { xml: { decodeEntities: false } },
-        false,
-      );
-      const path = raw.root().children().first().attr("path");
-      if (path !== undefined) attributes.path = path;
-    }
+    const attributes = Object.fromEntries(
+      Object.entries(node.attribs).map(([name, value]) => [
+        name,
+        sourceAttribute(tag, name, value),
+      ]),
+    );
     const sourceContent = children.length === 0 ? endings.get(wrapped.html() ?? "") : undefined;
     if (sourceContent !== undefined) {
       const html = cheerio.load(sourceContent.trim(), {}, false);
@@ -579,6 +609,9 @@ function parseHead(head: SourceElement, settings: Partial<EmailSettings>, import
     switch (element.tag) {
       case "mj-title": {
         settings.subject = element.textContent;
+        // Native singleton head values replace earlier declarations completely,
+        // including an HTML override left by an earlier value.
+        delete settings.subjectHtmlContent;
         Object.assign(settings, preserveLabelHtml(element, importer, "subjectHtmlContent"));
         if (
           !element.children.length &&
@@ -605,9 +638,14 @@ function parseHead(head: SourceElement, settings: Partial<EmailSettings>, import
       }
       case "mj-preview":
         settings.previewText = element.textContent;
+        delete settings.previewHtmlContent;
         Object.assign(settings, preserveLabelHtml(element, importer, "previewHtmlContent"));
         break;
       case "mj-breakpoint": {
+        // Clear both representations. A final declaration without width also
+        // restores the native default rather than retaining an earlier width.
+        delete settings.breakpoint;
+        delete settings.breakpointWidth;
         const width = element.attributes.width?.trim() ?? "";
         const pixels = /^(\d+(?:\.\d+)?)px$/.exec(width);
         if (pixels) {
@@ -640,9 +678,7 @@ function parseHead(head: SourceElement, settings: Partial<EmailSettings>, import
           {
             css: element.innerHtml,
             inline:
-              element.attributes.inline?.trim() === "inline"
-                ? ("inline" as const)
-                : ("head" as const),
+              element.attributes.inline === "inline" ? ("inline" as const) : ("head" as const),
           },
         ];
         break;
@@ -780,8 +816,8 @@ function nativeEntries(tag: string, element: SourceElement, importer: Importer):
       continue;
     }
     try {
-      readNativeAttributes(tag, [{ name, value }], importer.options);
-      entries.push({ name, value });
+      readNativeAttributes(tag, [{ name, value: rawValue }], importer.options);
+      entries.push({ name, value: rawValue });
     } catch {
       importer.warn(
         `Dropped invalid ${name}="${rawValue}" in ${tag === "*" ? "mj-all" : tag} defaults.`,

@@ -77,6 +77,9 @@
         max-width: 160px;
       }
 
+      .dither-confirm-body-copy > div {
+        max-width: 490px;
+      }
       .dither-confirm-title > div {
         max-width: 490px;
       }
@@ -114,7 +117,7 @@
           letter-spacing: 0.4px !important;
         }
         .dither-footer-rule > table > tbody > tr > td {
-          padding: 0px 16px !important;
+          padding: 0px !important;
         }
         .dither-footer > table > tbody > tr > td {
           padding: 48px 16px !important;
@@ -126,6 +129,9 @@
         .dither-confirm-button {
           padding: 32px 0px 0px !important;
         }
+        .dither-confirm-body-copy > div {
+          max-width: 100% !important;
+        }
         .dither-confirm-title > div {
           max-width: 100% !important;
         }
@@ -134,7 +140,7 @@
           padding: 0px 16px !important;
         }
         .dither-confirm-row > table > tbody > tr > td {
-          padding: 32px 16px 0px !important;
+          padding: 32px 16px 32px !important;
         }
         .dither-confirm-rule > table > tbody > tr > td {
           padding: 0px 16px !important;
@@ -212,7 +218,7 @@
           letter-spacing="0.3px"
           align="left"
           padding="24px 0px 0px"
-          css-class="pm-email-text"
+          css-class="pm-email-text dither-confirm-body-copy"
         >
           <p>Thanks for starting your Pro subscription, Alex.</p>
         </mj-text>
@@ -225,7 +231,7 @@
           letter-spacing="0.3px"
           align="left"
           padding="18px 0px 0px"
-          css-class="pm-email-text"
+          css-class="pm-email-text dither-confirm-body-copy"
         >
           <p>
             Your payment method has been charged. The next charge will be on
@@ -241,7 +247,7 @@
           letter-spacing="0.3px"
           align="left"
           padding="18px 0px 0px"
-          css-class="pm-email-text"
+          css-class="pm-email-text dither-confirm-body-copy"
         >
           <p>
             You can modify your payment method or cancel your subscription anytime by visiting the
@@ -255,7 +261,7 @@
           font-size="15px"
           font-family="Inter, Arial, sans-serif"
           font-weight="450"
-          line-height="1.5"
+          line-height="18px"
           letter-spacing="-0.075px"
           inner-padding="14px 20px"
           border-radius="0px"
@@ -291,7 +297,7 @@
     </mj-section>
     <mj-section
       background-color="#131313"
-      padding="40px 24px 0px"
+      padding="40px 24px 40px"
       border-radius="0px"
       css-class="dither-confirm-row"
     >
@@ -302,9 +308,9 @@
           font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
-          padding="0px"
+          padding="16px 0px 0px"
           css-class="pm-email-text"
         >
           <p>Set up your workspace</p>
@@ -349,7 +355,7 @@
     </mj-section>
     <mj-section
       background-color="#131313"
-      padding="40px 24px 0px"
+      padding="40px 24px 40px"
       border-radius="0px"
       css-class="dither-confirm-row"
     >
@@ -360,9 +366,9 @@
           font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
-          padding="0px"
+          padding="16px 0px 0px"
           css-class="pm-email-text"
         >
           <p>Invite your team</p>
@@ -445,7 +451,7 @@
     </mj-section>
     <mj-section
       background-color="#131313"
-      padding="0px 24px"
+      padding="0px"
       border-radius="0px"
       css-class="dither-footer-rule"
     >

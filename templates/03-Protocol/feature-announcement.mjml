@@ -83,6 +83,10 @@
       .dither-feature-copy > div {
         max-width: 490px;
       }
+      .dither-smart-copy strong {
+        color: #ffffff;
+        font-weight: inherit;
+      }
       .dither-smart-copy > div {
         max-width: 456px;
       }
@@ -119,7 +123,7 @@
           letter-spacing: 0.4px !important;
         }
         .dither-footer-rule > table > tbody > tr > td {
-          padding: 0px 16px !important;
+          padding: 0px !important;
         }
         .dither-footer > table > tbody > tr > td {
           padding: 48px 16px !important;
@@ -151,6 +155,9 @@
         }
         .dither-feature-quote-art > table > tbody > tr > td {
           padding: 48px 16px 24px !important;
+        }
+        .dither-quote-gutter > table > tbody > tr > td {
+          padding: 0px 16px !important;
         }
         .dither-quote-box > table > tbody > tr > td {
           padding: 48px 24px !important;
@@ -254,7 +261,7 @@
           font-size="15px"
           font-family="Inter, Arial, sans-serif"
           font-weight="450"
-          line-height="1.5"
+          line-height="18px"
           letter-spacing="-0.075px"
           inner-padding="14px 20px"
           border-radius="0px"
@@ -308,7 +315,7 @@
           font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
           padding="32px 0px 0px"
           css-class="pm-email-text"
@@ -344,11 +351,11 @@
       </mj-column>
     </mj-section>
     <mj-section
-      background-color="#ffffff"
+      background-color="#131313"
       padding="64px 24px 0px"
       css-class="dither-feature-benefit-first"
     >
-      <mj-column width="48%" padding="0px" vertical-align="top" css-class="dither-benefit-image">
+      <mj-column width="48%" padding="0px" vertical-align="middle" css-class="dither-benefit-image">
         <mj-image
           src="https://demo.react.email/static/dither/dither-image-2.png"
           width="269px"
@@ -370,7 +377,7 @@
           font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
           padding="0px"
           css-class="pm-email-text"
@@ -393,11 +400,11 @@
       </mj-column>
     </mj-section>
     <mj-section
-      background-color="#ffffff"
+      background-color="#131313"
       padding="48px 24px 0px"
       css-class="dither-feature-benefit"
     >
-      <mj-column width="48%" padding="0px" vertical-align="top" css-class="dither-benefit-image">
+      <mj-column width="48%" padding="0px" vertical-align="middle" css-class="dither-benefit-image">
         <mj-image
           src="https://demo.react.email/static/dither/dither-image-2.png"
           width="269px"
@@ -419,7 +426,7 @@
           font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
           padding="0px"
           css-class="pm-email-text"
@@ -442,11 +449,11 @@
       </mj-column>
     </mj-section>
     <mj-section
-      background-color="#ffffff"
+      background-color="#131313"
       padding="48px 24px 0px"
       css-class="dither-feature-benefit"
     >
-      <mj-column width="48%" padding="0px" vertical-align="top" css-class="dither-benefit-image">
+      <mj-column width="48%" padding="0px" vertical-align="middle" css-class="dither-benefit-image">
         <mj-image
           src="https://demo.react.email/static/dither/dither-image-2.png"
           width="269px"
@@ -468,7 +475,7 @@
           font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
           padding="0px"
           css-class="pm-email-text"
@@ -498,20 +505,20 @@
     >
       <mj-column>
         <mj-text
-          color="#FFFFFF"
+          color="#818181"
           font-size="20px"
           font-family="Inter, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
           padding="48px 0px 0px"
           css-class="pm-email-text dither-smart-copy"
         >
           <p>
-            Smart Tasks analyzes your projects in real time and helps organize your workload
-            automatically. As things change, your task list updates so you're always focused on what
-            matters most.
+            <strong>Smart Tasks analyzes your projects in real time and helps organize</strong> your
+            workload automatically. As things change, your task list updates so you're always
+            focused on what matters most.
           </p>
         </mj-text>
       </mj-column>
@@ -533,42 +540,44 @@
         />
       </mj-column>
     </mj-section>
-    <mj-section
-      background-color="#131313"
-      padding="80px 40px"
-      border="1px solid #2B2B2B"
-      border-radius="0px"
-      css-class="dither-quote-box"
-    >
-      <mj-column>
-        <mj-text
-          color="#FFFFFF"
-          font-size="14px"
-          font-family="Inter, Arial, sans-serif"
-          font-weight="350"
-          line-height="1.5"
-          letter-spacing="0.3px"
-          align="center"
-          padding="0px"
-          css-class="pm-email-text"
-        >
-          <p>"Smart Tasks helps me know what to do next without thinking about it."</p>
-        </mj-text>
-        <mj-text
-          color="#C4C4C4"
-          font-size="13px"
-          font-family="Inter, Arial, sans-serif"
-          font-weight="300"
-          line-height="1.5"
-          letter-spacing="0.2px"
-          align="center"
-          padding="16px 0px 0px"
-          css-class="pm-email-text"
-        >
-          <p>Alex, Product Designer at Studio</p>
-        </mj-text>
-      </mj-column>
-    </mj-section>
+    <mj-wrapper background-color="#131313" padding="0px 24px" css-class="dither-quote-gutter">
+      <mj-section
+        background-color="#131313"
+        padding="80px 40px"
+        border="1px solid #2B2B2B"
+        border-radius="0px"
+        css-class="dither-quote-box"
+      >
+        <mj-column>
+          <mj-text
+            color="#FFFFFF"
+            font-size="14px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="350"
+            line-height="1.5"
+            letter-spacing="0.3px"
+            align="center"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>"Smart Tasks helps me know what to do next without thinking about it."</p>
+          </mj-text>
+          <mj-text
+            color="#C4C4C4"
+            font-size="13px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="300"
+            line-height="1.5"
+            letter-spacing="0.2px"
+            align="center"
+            padding="16px 0px 0px"
+            css-class="pm-email-text"
+          >
+            <p>Alex, Product Designer at Studio</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
     <mj-section
       background-color="#131313"
       padding="72px 24px 0px"
@@ -609,7 +618,7 @@
           font-size="15px"
           font-family="Inter, Arial, sans-serif"
           font-weight="450"
-          line-height="1.5"
+          line-height="18px"
           letter-spacing="-0.075px"
           inner-padding="14px 20px"
           border-radius="0px"
@@ -660,7 +669,7 @@
     </mj-section>
     <mj-section
       background-color="#131313"
-      padding="0px 24px"
+      padding="0px"
       border-radius="0px"
       css-class="dither-footer-rule"
     >

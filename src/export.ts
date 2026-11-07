@@ -85,7 +85,13 @@ function nativeAttributes(
     options,
   );
   const output: Record<string, string | undefined> = {};
-  for (const [name, value] of Object.entries(validated)) if (value !== null) output[name] = value;
+  for (const [name, value] of Object.entries(validated)) {
+    if (value === null) continue;
+    // Local icons were already normalized by applyNativeAttributes. Revalidate
+    // their safety above without decoding an escaped literal a second time.
+    output[name] =
+      name === "ico-open" || name === "ico-close" ? String(result.attributes[name]) : value;
+  }
   if (
     richText &&
     props.htmlContent === undefined &&

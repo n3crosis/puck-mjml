@@ -5,6 +5,9 @@ import { thirdPartyNotices } from "./scripts/third-party-notices";
 export default defineConfig(({ command, mode }) => ({
   plugins: [react(), thirdPartyNotices()],
   test: {
+    // The compiler and real-editor suites are memory-heavy. Bound concurrent
+    // forks instead of letting high-core machines terminate test workers.
+    maxWorkers: 2,
     // Reference-rendering tools have their own isolated dependencies/cache.
     // Retain Vitest's recursive defaults so their package tests never run here.
     exclude: [

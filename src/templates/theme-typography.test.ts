@@ -134,4 +134,72 @@ describe.each([false, true])("theme typography, editor round trip: %s", (roundTr
       expect(renderedLinkStyle["line-height"]).toBe(originalLinkStyle["line-height"]);
     }
   });
+
+  it("Barebone text-only preserves the account link's distinct foreground color", async () => {
+    const original = reference("01-Barebone/text-only");
+    const rendered = await compile("01-Barebone/text-only", roundTrip);
+    const originalLink = original("a").filter(
+      (_index, node) => original(node).text() === "Open your account",
+    );
+    const renderedLink = rendered("a").filter(
+      (_index, node) => rendered(node).text() === "Open your account",
+    );
+    expect(originalLink).toHaveLength(1);
+    expect(renderedLink).toHaveLength(1);
+    expect(declarations(originalLink.attr("style")).color).toBe("rgb(20,23,30)");
+    expect(declarations(renderedLink.attr("style")).color.toLowerCase()).toBe("#14171e");
+    expect(declarations(originalLink.parent().attr("style")).color).toBe("rgb(67,69,75)");
+    expect(declarations(renderedLink.parent().attr("style")).color).toBe("#43454B");
+  });
+
+  it("Barebone product update preserves 20px leading on all three numbered steps", async () => {
+    const original = reference("01-Barebone/product-update");
+    const rendered = await compile("01-Barebone/product-update", roundTrip);
+    for (const label of ["1", "2", "3"]) {
+      const originalStep = original("p").filter((_index, node) => original(node).text() === label);
+      const renderedStep = textAtSize(rendered, "div", "14px").filter(
+        (_index, node) => rendered(node).text() === label,
+      );
+      expect(originalStep).toHaveLength(1);
+      expect(renderedStep).toHaveLength(1);
+      const originalStyle = declarations(originalStep.attr("style"));
+      const renderedStyle = declarations(renderedStep.attr("style"));
+      expect(originalStyle["line-height"]).toBe("1.25rem");
+      expect(originalStyle["font-size"]).toBe("0.875rem");
+      // The reference has no root font-size override: its rem is the browser's 16px default.
+      expect(renderedStyle["line-height"]).toBe(
+        `${parseFloat(originalStyle["line-height"]) * 16}px`,
+      );
+      expect(renderedStyle["font-size"]).toBe(`${parseFloat(originalStyle["font-size"]) * 16}px`);
+      expect(renderedStyle["font-weight"]).toBe(originalStyle["font-weight"]);
+    }
+  });
+
+  it.each([
+    ["feature-announcement", 5],
+    ["product-update", 4],
+    ["subscription-confirmation", 2],
+    ["welcome", 2],
+  ] as const)("Protocol %s preserves inherited tracking on its 20px text", async (name, count) => {
+    const original = reference(`03-Protocol/${name}`);
+    const rendered = await compile(`03-Protocol/${name}`, roundTrip);
+    const originalText = textAtSize(original, "p", "20px");
+    const renderedText = textAtSize(rendered, "div", "20px");
+    expect(originalText).toHaveLength(count);
+    expect(renderedText).toHaveLength(count);
+    renderedText.each((index, node) => {
+      const originalNode = originalText.eq(index);
+      expect(rendered(node).text().replace(/\s+/g, " ").trim()).toBe(originalNode.text());
+      const originalStyle = declarations(originalNode.attr("style"));
+      const renderedStyle = declarations(rendered(node).attr("style"));
+      const originalTracking = [originalNode[0], ...originalNode.parents().toArray()]
+        .map((ancestor) => declarations(original(ancestor).attr("style"))["letter-spacing"])
+        .find((value) => value && value !== "inherit");
+      expect(originalTracking).toBe("0.3px");
+      expect(renderedStyle["letter-spacing"]).toBe(originalTracking);
+      for (const property of ["font-size", "font-weight", "line-height"]) {
+        expect(renderedStyle[property], property).toBe(originalStyle[property]);
+      }
+    });
+  });
 });

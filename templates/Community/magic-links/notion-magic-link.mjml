@@ -35,6 +35,19 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         text-decoration: underline;
       }
     </mj-style>
+    <mj-style inline="inline">
+      .reference-heading h1,
+      .reference-heading h2 {
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: inherit;
+      }
+    </mj-style>
   </mj-head>
   <mj-body width="600px" background-color="#ffffff">
     <mj-section padding="0px 12px">
@@ -45,7 +58,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           line-height="1.3"
           font-weight="700"
           color="#333333"
-          >Login</mj-text
+          css-class="reference-heading"
+          ><h1>Login</h1></mj-text
         >
         <mj-text
           padding="0px 0px 16px"

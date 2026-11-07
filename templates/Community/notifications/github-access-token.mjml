@@ -19,6 +19,16 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         color: inherit;
       }
     </mj-style>
+    <mj-style inline="inline">
+      .github-token-note a {
+        color: #067df7;
+        text-decoration: none;
+      }
+      .github-security-links a {
+        color: #0366d6;
+        text-decoration: none;
+      }
+    </mj-style>
   </mj-head>
   <mj-body width="480px" background-color="#ffffff">
     <mj-section padding="20px 0px 0px">
@@ -41,8 +51,12 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text padding="0px 0px 10px" font-size="14px" line-height="1.5"
           >Hey <strong>alanturing</strong>!</mj-text
         >
-        <mj-text padding="0px 0px 10px" font-size="14px" line-height="1.5"
-          >A fine-grained personal access token (resend) was recently added to your
+        <mj-text
+          padding="0px 0px 10px"
+          font-size="14px"
+          line-height="1.5"
+          css-class="github-token-note"
+          >A fine-grained personal access token (<a>resend</a>) was recently added to your
           account.</mj-text
         >
         <mj-button
@@ -65,7 +79,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           line-height="1.5"
           align="center"
           color="#0366d6"
-          >Your security audit log ・ Contact support</mj-text
+          css-class="github-security-links"
+          ><a>Your security audit log</a> ・ <a>Contact support</a></mj-text
         >
         <mj-text
           padding="44px 0px 64px"

@@ -313,8 +313,27 @@ function scopeSelector(selector: string, scope: string): string | undefined {
   return mapped + remainder;
 }
 
+/** Only the ordinary MJML layout padding cell has a native canvas equivalent. */
+function nativePaddingAlias(selector: string, scoped: string, scope: string): string | undefined {
+  const tokens = tokenizeSelector(selector);
+  if (
+    !tokens ||
+    tokens.compounds.length !== 5 ||
+    !/^\.[A-Za-z_][\w-]*$/.test(tokens.compounds[0]) ||
+    tokens.compounds.slice(1).join(" ").toLowerCase() !== "table tbody tr td" ||
+    tokens.combinators.some((combinator) => combinator !== ">")
+  )
+    return undefined;
+  const anchor = `.${scope} ${tokens.compounds[0]}`;
+  const target = `:where(${anchor}[data-pm-mjml-padding="self"], ${anchor}[data-pm-mjml-padding="child"] > [data-pm-mjml-padding-target])`;
+  // :is retains the original selector's specificity. The final :where limits
+  // matches to renderer-owned targets, leaving authored table cells untouched.
+  return `:is(${scoped}, ${target})${target}`;
+}
+
 function scopeRule(rule: Rule, state: ScopeState, label: string): void {
   const scoped: string[] = [];
+  const aliases: string[] = [];
   for (const part of splitTopLevel(rule.selector, ",")) {
     const selector = scopeSelector(part.trim(), state.scope);
     if (selector === undefined) {
@@ -323,10 +342,30 @@ function scopeRule(rule: Rule, state: ScopeState, label: string): void {
       );
     } else {
       scoped.push(selector);
+      const alias = nativePaddingAlias(part.trim(), selector, state.scope);
+      if (alias) aliases.push(alias);
     }
   }
   if (scoped.length) rule.selector = scoped.join(", ");
   else rule.remove();
+  // Nested rules and resets have ordering/box semantics this bounded adapter
+  // does not model. Keep them on the existing scoped stylesheet path only.
+  if (
+    !aliases.length ||
+    rule.nodes.some(
+      (node) =>
+        node.type === "rule" ||
+        node.type === "atrule" ||
+        (node.type === "decl" && node.prop.toLowerCase() === "all"),
+    )
+  )
+    return;
+  const padding = rule.nodes.filter(
+    (node) => node.type === "decl" && /^padding(?:-(?:top|right|bottom|left))?$/i.test(node.prop),
+  );
+  if (padding.length) {
+    rule.cloneAfter({ selector: aliases.join(", "), nodes: padding.map((node) => node.clone()) });
+  }
 }
 
 /** Process one node of a group container (stylesheet root or a group at-rule). */

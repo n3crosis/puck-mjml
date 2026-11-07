@@ -34,6 +34,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
       .bare-shell a {
         color: inherit;
       }
+      .bare-account-link a {
+        color: #14171e;
+      }
       .bare-gap > div {
         display: block;
       }
@@ -54,6 +57,19 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         .bare-stack-gap {
           padding-bottom: 32px !important;
         }
+      }
+    </mj-style>
+    <mj-style inline="inline">
+      .reference-heading h1,
+      .reference-heading h2 {
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: inherit;
       }
     </mj-style> </mj-head
   ><mj-body width="640px" background-color="#F3F4F6">
@@ -99,7 +115,8 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#14171E"
             align="left"
             padding="0px 0px 32px"
-            >A quick note from Barebones</mj-text
+            css-class="reference-heading"
+            ><h1>A quick note from Barebones</h1></mj-text
           ><mj-text
             font-size="16px"
             font-weight="420"
@@ -138,6 +155,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 24px"
+            css-class="bare-account-link"
             ><a href="https://example.com/">Open your account</a></mj-text
           ><mj-spacer height="8px" /><mj-text
             font-size="13px"

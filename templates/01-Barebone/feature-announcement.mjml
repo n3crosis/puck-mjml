@@ -63,6 +63,19 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
           padding-bottom: 32px !important;
         }
       }
+    </mj-style>
+    <mj-style inline="inline">
+      .reference-heading h1,
+      .reference-heading h2 {
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: inherit;
+      }
     </mj-style> </mj-head
   ><mj-body width="640px" background-color="#F3F4F6">
     <mj-section padding="0px" css-class="bare-top-space"
@@ -116,7 +129,8 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#14171E"
             align="center"
             padding="0px 0px 16px"
-            >Release Notes</mj-text
+            css-class="reference-heading"
+            ><h1>Release Notes</h1></mj-text
           ><mj-text
             font-size="16px"
             font-weight="420"
@@ -222,7 +236,8 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#14171E"
             align="left"
             padding="0px 0px 40px"
-            >New ways to work</mj-text
+            css-class="reference-heading"
+            ><h2>New ways to work</h2></mj-text
           ></mj-column
         ></mj-section
       >

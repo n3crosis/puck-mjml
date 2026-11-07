@@ -77,6 +77,9 @@
         max-width: 160px;
       }
 
+      .dither-note-body-copy > div {
+        max-width: 490px;
+      }
       .dither-note-title > div {
         max-width: 490px;
       }
@@ -110,7 +113,7 @@
           letter-spacing: 0.4px !important;
         }
         .dither-footer-rule > table > tbody > tr > td {
-          padding: 0px 16px !important;
+          padding: 0px !important;
         }
         .dither-footer > table > tbody > tr > td {
           padding: 48px 16px !important;
@@ -118,6 +121,9 @@
 
         .dither-note-main > table > tbody > tr > td {
           padding: 48px 16px 40px !important;
+        }
+        .dither-note-body-copy > div {
+          max-width: 100% !important;
         }
         .dither-note-title > div {
           max-width: 100% !important;
@@ -172,7 +178,7 @@
           letter-spacing="0.3px"
           align="left"
           padding="0px"
-          css-class="pm-email-text"
+          css-class="pm-email-text dither-note-body-copy"
         >
           <p>
             We don't send long emails often. When we do, we keep them plain—no hero, no clutter—just
@@ -188,7 +194,7 @@
           letter-spacing="0.3px"
           align="left"
           padding="18px 0px 0px"
-          css-class="pm-email-text"
+          css-class="pm-email-text dither-note-body-copy"
         >
           <p>
             We're building Dither so your team can see what matters, drop what doesn't, and ship
@@ -205,7 +211,7 @@
           letter-spacing="0.3px"
           align="left"
           padding="18px 0px 0px"
-          css-class="pm-email-text"
+          css-class="pm-email-text dither-note-body-copy"
         >
           <p>
             Here's to clearer priorities and less noise. When you're ready to jump back in, we'll be
@@ -221,7 +227,7 @@
           letter-spacing="0.3px"
           align="left"
           padding="18px 0px 0px"
-          css-class="pm-email-text"
+          css-class="pm-email-text dither-note-body-copy"
         >
           <p>— The Dither team</p>
         </mj-text>
@@ -234,7 +240,7 @@
           letter-spacing="0.3px"
           align="left"
           padding="18px 0px 0px"
-          css-class="pm-email-text"
+          css-class="pm-email-text dither-note-body-copy"
         >
           <a href="https://example.com/">Open Dither</a>
         </mj-text>
@@ -242,7 +248,7 @@
     </mj-section>
     <mj-section
       background-color="#131313"
-      padding="0px 24px"
+      padding="0px"
       border-radius="0px"
       css-class="dither-footer-rule"
     >

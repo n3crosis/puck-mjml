@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import { load } from "cheerio";
+import postcss, { type Rule } from "postcss";
 import {
   aliasFontFamilyList,
   createFontAliases,
@@ -11,6 +13,124 @@ import {
 const stylesheet = (css: string): CanvasStyleSheet => ({ css, inline: "head" });
 const scopeCss = (sheets: CanvasStyleSheet[], fontAliases?: Record<string, string>) =>
   scopeDocumentCss(sheets, { scope: "pm-canvas-test", fontAliases });
+
+describe("native MJML padding aliases", () => {
+  const selector = ".inset > table > tbody > tr > td";
+  const rulesFor = (css: string) => {
+    const rules: Rule[] = [];
+    postcss.parse(scopeCss([stylesheet(css)]).css).walkRules((rule) => {
+      rules.push(rule);
+    });
+    return rules;
+  };
+
+  it("keeps the original rule and aliases only physical padding declarations", () => {
+    const [original, alias] = rulesFor(
+      `${selector} { color: red; padding: 10px; padding-left: 24px !important; padding-inline: 12px; --padding: 9px; }`,
+    );
+    expect(original.selector).toBe(`.pm-canvas-test ${selector}`);
+    expect(original.toString()).toContain("color: red");
+    expect(alias.nodes.map((node) => node.toString())).toEqual([
+      "padding: 10px",
+      "padding-left: 24px !important",
+    ]);
+    expect(alias.selector).toContain(`:is(.pm-canvas-test ${selector}, :where(`);
+    expect(alias.selector).toContain('.pm-canvas-test .inset[data-pm-mjml-padding="self"]');
+    expect(alias.selector).toContain(
+      '.pm-canvas-test .inset[data-pm-mjml-padding="child"] > [data-pm-mjml-padding-target]',
+    );
+    expect(alias.selector).toMatch(/\)\):where\(/);
+  });
+
+  it("matches marked boxes only, not authored tables, other canvases, or the host", () => {
+    const [, alias] = rulesFor(`${selector} { padding: 24px !important; }`);
+    const $ = load(`<div class="pm-canvas-test">
+      <div id="section" class="inset" data-pm-mjml-padding="self"></div>
+      <div class="inset" data-pm-mjml-padding="child"><div id="gutter-content" data-pm-mjml-padding-target></div></div>
+      <div class="inset"><table><tbody><tr><td id="authored">Keep original CSS</td></tr></tbody></table></div>
+      <div id="unmarked" class="inset"></div>
+      <div class="inset" data-pm-mjml-padding="child"><div><div id="nested" data-pm-mjml-padding-target></div></div></div>
+    </div>
+    <div class="pm-canvas-other"><div id="other" class="inset" data-pm-mjml-padding="self"></div></div>
+    <div id="host" class="inset" data-pm-mjml-padding="self"></div>`);
+    expect(
+      $(alias.selector)
+        .toArray()
+        .map((element) => $(element).attr("id")),
+    ).toEqual(["section", "gutter-content"]);
+    expect($(`.pm-canvas-test ${selector}`).attr("id")).toBe("authored");
+  });
+
+  it("keeps each selector's specificity separate and preserves source order", () => {
+    const rules = rulesFor(
+      `${selector}, .other>TABLE>TBODY>TR>TD, #ordinary { padding-top: 4px; }
+       .inset { padding-top: 1px !important; }
+       ${selector} { padding-top: 8px; }`,
+    );
+    expect(rules).toHaveLength(5);
+    expect(rules[1].selector.match(/:is\(/g)).toHaveLength(2);
+    expect(rules[1].selector).not.toContain("#ordinary");
+    expect(rules[2].selector).toBe(".pm-canvas-test .inset");
+    expect(rules[4].nodes[0].toString()).toBe("padding-top: 8px");
+  });
+
+  it.each(["media (max-width: 600px)", "supports (display: flex)", "container (width < 600px)"])(
+    "keeps aliases inside @%s",
+    (group) => {
+      const rules = rulesFor(`@${group} { ${selector} { padding-right: 12px !important; } }`);
+      expect(rules).toHaveLength(2);
+      expect(rules[0].parent).toBe(rules[1].parent);
+      expect(rules[1].parent?.toString()).toContain(`@${group}`);
+    },
+  );
+
+  it.each([
+    "table > tbody > tr > td",
+    ".inset table td",
+    ".inset > div > table > tbody > tr > td",
+    ".inset > table > tbody > tr > td:first-child",
+    ".inset:hover > table > tbody > tr > td",
+    ".inset.more > table > tbody > tr > td",
+    ".inset[title] > table > tbody > tr > td",
+    ".inset:is(.x, .y) > table > tbody > tr > td",
+    "#inset > table > tbody > tr > td",
+    "body .inset > table > tbody > tr > td",
+    ".outer .inset > table > tbody > tr > td",
+    ".inset + table > tbody > tr > td",
+    ".inset > table > tbody > tr > td + .host",
+  ])("does not reinterpret unsupported selector %s", (unsupported) => {
+    const result = scopeCss([stylesheet(`${unsupported} { padding: 1px; }`)]);
+    expect(result.css).not.toContain("data-pm-mjml-padding");
+  });
+
+  it("never aliases rejected root sibling selectors", () => {
+    const result = scopeCss([
+      stylesheet(`body + .inset > table > tbody > tr > td, body ~ .host { padding: 1px; }`),
+    ]);
+    expect(result.css).toBe("");
+    expect(result.notes).toHaveLength(2);
+  });
+
+  it("does not clone nested rules, reset semantics, or rules without physical padding", () => {
+    for (const declarations of [
+      "color: red; width: 100%; padding-inline: 2px;",
+      "padding: 2px; all: unset;",
+      "padding: 2px; & { padding: 4px; }",
+      "padding: 2px; @media (max-width: 600px) { padding: 4px; }",
+    ]) {
+      expect(scopeCss([stylesheet(`${selector} { ${declarations} }`)]).css).not.toContain(
+        "data-pm-mjml-padding",
+      );
+    }
+  });
+
+  it("never mutates the source stylesheet", () => {
+    const sheets = [stylesheet(`${selector} { padding-bottom: 16px !important; }`)];
+    const before = JSON.stringify(sheets);
+    scopeCss(sheets);
+    expect(JSON.stringify(sheets)).toBe(before);
+  });
+});
 
 describe("scoped canvas CSS selectors", () => {
   it("prefixes plain selectors with the canvas scope", () => {

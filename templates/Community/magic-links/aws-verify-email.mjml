@@ -27,6 +27,19 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         text-decoration: underline;
       }
     </mj-style>
+    <mj-style inline="inline">
+      .reference-heading h1,
+      .reference-heading h2 {
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: inherit;
+      }
+    </mj-style>
   </mj-head>
   <mj-body width="560px" background-color="#eeeeee">
     <mj-section padding="20px" background-color="#252f3d">
@@ -49,7 +62,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           line-height="1.3"
           font-weight="700"
           color="#333333"
-          >Verify your email address</mj-text
+          css-class="reference-heading"
+          ><h1>Verify your email address</h1></mj-text
         >
         <mj-text padding="9px 0px 14px" font-size="14px" line-height="24px" color="#333333"
           >Thanks for starting the new AWS account creation process. We want to make sure it's

@@ -55,6 +55,19 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         text-decoration: underline;
       }
     </mj-style>
+    <mj-style inline="inline">
+      .reference-heading h1,
+      .reference-heading h2 {
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: inherit;
+      }
+    </mj-style>
   </mj-head>
   <mj-body width="600px" background-color="#ffffff">
     <mj-section padding="22px 40px" background-color="#F7F7F7">
@@ -109,7 +122,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           font-weight="700"
           align="center"
           letter-spacing="-1px"
-          >It's On Its Way.</mj-text
+          css-class="reference-heading"
+          ><h1>It's On Its Way.</h1></mj-text
         >
         <mj-text
           padding="0px"

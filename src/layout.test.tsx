@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Render, type Data } from "@puckeditor/core";
+import { load } from "cheerio";
 import { createEmailConfig } from "./config";
 
 describe("nested email content", () => {
@@ -54,9 +55,16 @@ describe("nested email content", () => {
     };
 
     const html = renderToStaticMarkup(<Render config={createEmailConfig()} data={data as Data} />);
-    expect(html).toContain('class="pm-flex-group" style="flex-basis:75%"');
-    expect(html).toContain('class="pm-flex-column" style="flex-basis:40%"');
-    expect(html).toContain("<summary>Question</summary>");
-    expect(html).toContain("<p>A <strong>formatted</strong> answer.</p>");
+    const $ = load(html);
+    const group = $(".pm-flex-group");
+    expect(group).toHaveLength(1);
+    expect(group.attr("style")).toMatch(/(?:^|;)\s*flex-basis:\s*75%(?:;|$)/);
+    const column = group.find(".pm-flex-column");
+    expect(column).toHaveLength(1);
+    expect(column.attr("style")).toMatch(/(?:^|;)\s*flex-basis:\s*40%(?:;|$)/);
+    expect(column.find("summary")).toHaveLength(1);
+    expect(column.find("summary").text()).toBe("Question");
+    expect(column.find("details p")).toHaveLength(1);
+    expect(column.find("details p").html()).toBe("A <strong>formatted</strong> answer.");
   });
 });

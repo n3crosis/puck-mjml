@@ -77,6 +77,9 @@
         max-width: 160px;
       }
 
+      .dither-renew-body-copy > div {
+        max-width: 480px;
+      }
       .dither-renew-title > div {
         max-width: 480px;
       }
@@ -110,7 +113,7 @@
           letter-spacing: 0.4px !important;
         }
         .dither-footer-rule > table > tbody > tr > td {
-          padding: 0px 16px !important;
+          padding: 0px !important;
         }
         .dither-footer > table > tbody > tr > td {
           padding: 48px 16px !important;
@@ -121,6 +124,9 @@
         }
         .dither-renew-button {
           padding: 32px 0px 0px !important;
+        }
+        .dither-renew-body-copy > div {
+          max-width: 100% !important;
         }
         .dither-renew-title > div {
           max-width: 100% !important;
@@ -175,7 +181,7 @@
           letter-spacing="0.3px"
           align="left"
           padding="32px 0px 0px"
-          css-class="pm-email-text"
+          css-class="pm-email-text dither-renew-body-copy"
         >
           <p>Hi Name Surname, your subscription has been renewed.</p>
         </mj-text>
@@ -188,7 +194,7 @@
           letter-spacing="0.3px"
           align="left"
           padding="18px 0px 0px"
-          css-class="pm-email-text"
+          css-class="pm-email-text dither-renew-body-copy"
         >
           <p>
             Your payment method has been charged. The next charge will be on Jun 15, 2026. You can
@@ -203,7 +209,7 @@
           font-size="15px"
           font-family="Inter, Arial, sans-serif"
           font-weight="450"
-          line-height="1.5"
+          line-height="18px"
           letter-spacing="-0.075px"
           inner-padding="14px 20px"
           border-radius="0px"
@@ -217,7 +223,7 @@
     </mj-section>
     <mj-section
       background-color="#131313"
-      padding="0px 24px"
+      padding="0px"
       border-radius="0px"
       css-class="dither-footer-rule"
     >

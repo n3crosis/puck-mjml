@@ -30,6 +30,19 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         text-decoration: underline;
       }
     </mj-style>
+    <mj-style inline="inline">
+      .reference-heading h1,
+      .reference-heading h2 {
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: inherit;
+      }
+    </mj-style>
   </mj-head>
   <mj-body width="560px" background-color="#ffffff">
     <mj-section padding="20px 0px 48px">
@@ -50,7 +63,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           font-weight="400"
           color="#484848"
           letter-spacing="-0.5px"
-          >Your login code for Linear</mj-text
+          css-class="reference-heading"
+          ><h1>Your login code for Linear</h1></mj-text
         >
         <mj-button
           href="https://linear.app"

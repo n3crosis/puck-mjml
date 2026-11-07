@@ -80,6 +80,10 @@
       .dither-update-title > div {
         max-width: 480px;
       }
+      .dither-smart-copy strong {
+        color: #ffffff;
+        font-weight: inherit;
+      }
       .dither-smart-copy > div {
         max-width: 456px;
       }
@@ -113,7 +117,7 @@
           letter-spacing: 0.4px !important;
         }
         .dither-footer-rule > table > tbody > tr > td {
-          padding: 0px 16px !important;
+          padding: 0px !important;
         }
         .dither-footer > table > tbody > tr > td {
           padding: 48px 16px !important;
@@ -312,7 +316,7 @@
         <mj-image
           src="https://demo.react.email/static/dither/dither-image-7.png"
           width="560px"
-          align="center"
+          align="left"
           padding="48px 0px 0px"
           border-radius="0px"
           css-class="dither-img-fluid"
@@ -323,7 +327,7 @@
           font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
           padding="32px 0px 0px"
           css-class="pm-email-text"
@@ -366,20 +370,20 @@
     >
       <mj-column>
         <mj-text
-          color="#FFFFFF"
+          color="#818181"
           font-size="20px"
           font-family="Inter, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
           padding="48px 0px 0px"
           css-class="pm-email-text dither-smart-copy"
         >
           <p>
-            Smart Tasks analyzes your projects in real time and helps organize your workload
-            automatically. As things change, your task list updates so you're always focused on what
-            matters most.
+            <strong>Smart Tasks analyzes your projects in real time and helps organize</strong> your
+            workload automatically. As things change, your task list updates so you're always
+            focused on what matters most.
           </p>
         </mj-text>
       </mj-column>
@@ -431,7 +435,7 @@
           font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
           padding="24px 0px 0px"
           css-class="pm-email-text"
@@ -485,7 +489,7 @@
           font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
           font-weight="500"
           line-height="1.1"
-          letter-spacing="0px"
+          letter-spacing="0.3px"
           align="left"
           padding="24px 0px 0px"
           css-class="pm-email-text"
@@ -557,7 +561,7 @@
     </mj-section>
     <mj-section
       background-color="#131313"
-      padding="0px 24px"
+      padding="0px"
       border-radius="0px"
       css-class="dither-footer-rule"
     >

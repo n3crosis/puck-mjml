@@ -31,6 +31,19 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         text-decoration: underline;
       }
     </mj-style>
+    <mj-style inline="inline">
+      .reference-heading h1,
+      .reference-heading h2 {
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: inherit;
+      }
+    </mj-style>
   </mj-head>
   <mj-body width="360px" background-color="#ffffff">
     <mj-section
@@ -59,8 +72,14 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           text-transform="uppercase"
           >Verify Your Identity</mj-text
         >
-        <mj-text padding="0px" font-size="20px" line-height="24px" font-weight="500" align="center"
-          >Enter the following code to finish linking Venmo.</mj-text
+        <mj-text
+          padding="0px"
+          font-size="20px"
+          line-height="24px"
+          font-weight="500"
+          align="center"
+          css-class="reference-heading"
+          ><h1>Enter the following code to finish linking Venmo.</h1></mj-text
         >
         <mj-text
           padding="16px 40px 14px"

@@ -7,7 +7,17 @@ import {
   type TestInfo,
 } from "@playwright/test";
 import { createHash } from "node:crypto";
+import { inspectArtwork } from "./artwork-evidence";
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import {
+  declaredMjmlFonts,
+  expectedCanvasFonts,
+  fontFailures,
+  observeResources,
+  waitForFontRegistrations,
+  type DeclaredFont,
+  type ExpectedCanvasFont,
+} from "./font-evidence";
 
 const fixtures: { ref: string; templates: { file: string; content: string[] }[] } = JSON.parse(
   readFileSync(new URL("../../src/templates/upstream-content.json", import.meta.url), "utf8"),
@@ -33,7 +43,7 @@ function referenceHtml(file: string) {
 }
 
 async function measureVisuals(root: Locator) {
-  return root.evaluate((element) => {
+  const metrics = await root.evaluate((element) => {
     const document = element.ownerDocument;
     const view = document.defaultView!;
     const rectangle = (node: Element) => {
@@ -65,13 +75,6 @@ async function measureVisuals(root: Locator) {
         .filter((node) => !node.querySelector("p,h1,h2,h3,li,div,table"))
         .filter((node) => text(node) && node.getBoundingClientRect().height > 1)
         .map((node) => ({ text: text(node), ...typography(node), ...rectangle(node) })),
-      images: Array.from(element.querySelectorAll("img"), (node) => ({
-        src: node.src,
-        alt: node.alt,
-        naturalWidth: node.naturalWidth,
-        naturalHeight: node.naturalHeight,
-        ...rectangle(node),
-      })),
       links: Array.from(element.querySelectorAll("a"), (node) => ({
         href: node.getAttribute("href"),
         text: text(node),
@@ -80,6 +83,7 @@ async function measureVisuals(root: Locator) {
       })),
     };
   });
+  return { ...metrics, ...(await root.evaluate(inspectArtwork)) };
 }
 
 type Capture = {
@@ -87,51 +91,64 @@ type Capture = {
   mode: "desktop" | "mobile";
   screenshot: string;
   resourceError: string | null;
+  fonts: Awaited<ReturnType<typeof fontEvidence>>;
+  resources: ReturnType<ReturnType<typeof observeResources>>;
   metrics: Awaited<ReturnType<typeof measureVisuals>>;
 };
 
-async function waitForArtwork(page: Page | FrameLocator) {
-  await page.locator("body").evaluate(async (body) => {
-    const document = body.ownerDocument;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    try {
-      await Promise.race([
-        Promise.allSettled([
-          document.fonts.ready,
-          ...Array.from(document.images, async (image) => {
-            await image.decode();
-            if (!image.complete || image.naturalWidth === 0)
-              throw new Error(`Artwork failed to load: ${image.src}`);
-          }),
-        ]).then((results) => {
-          const failures = results.filter((result) => result.status === "rejected");
-          const fonts = Array.from(document.fonts).filter((font) => font.status === "error");
-          const messages = [
-            ...failures.map((result) => String(result.reason)),
-            ...fonts.map((font) => `Font failed to load: ${font.family} ${font.weight}`),
-          ];
-          if (messages.length) throw new Error(messages.join("\n"));
-        }),
-        new Promise<never>((_resolve, reject) => {
-          timer = setTimeout(
-            () => reject(new Error("Template fonts or artwork did not finish loading")),
-            20_000,
-          );
-        }),
-      ]);
-    } finally {
-      clearTimeout(timer);
-    }
-  });
+async function fontFaces(root: Locator) {
+  return root.evaluate((element) =>
+    Array.from(element.ownerDocument.fonts, ({ family, weight, style, status }) => ({
+      family,
+      weight,
+      style,
+      status,
+    })),
+  );
 }
 
-async function checkArtwork(page: Page | FrameLocator, label: string, assertComplete = true) {
-  let error: string | null = null;
+async function fontEvidence(
+  root: Locator,
+  resources: ReturnType<ReturnType<typeof observeResources>>,
+  expected: ExpectedCanvasFont[] = [],
+) {
+  const faces = await fontFaces(root);
+  return {
+    expectedCanvasImports: expected,
+    failures: fontFailures(expected, faces, resources),
+    faces,
+    ...(await root.evaluate((element) => ({
+      status: element.ownerDocument.fonts.status,
+      stylesheetLinks: Array.from(
+        element.ownerDocument.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'),
+        (link) => link.href,
+      ),
+    }))),
+  };
+}
+
+async function waitForArtwork(page: Page | FrameLocator) {
+  await page.locator("body").evaluate(inspectArtwork, { decode: true });
+}
+
+async function checkArtwork(
+  page: Page | FrameLocator,
+  label: string,
+  assertComplete = true,
+  expected: ExpectedCanvasFont[] = [],
+) {
+  const errors: string[] = [];
+  try {
+    await waitForFontRegistrations(expected, () => fontFaces(page.locator("body")));
+  } catch (failure) {
+    errors.push(failure instanceof Error ? failure.message : String(failure));
+  }
   try {
     await waitForArtwork(page);
   } catch (failure) {
-    error = failure instanceof Error ? failure.message : String(failure);
+    errors.push(failure instanceof Error ? failure.message : String(failure));
   }
+  const error = errors.length ? errors.join("\n") : null;
   // Resource failures still fail the test, but retain evidence for the audit.
   if (assertComplete) expect.soft(error, `${label} fonts and artwork`).toBeNull();
   return error;
@@ -141,25 +158,35 @@ async function captureCompleteEmail(
   page: Page,
   html: string,
   representation: "react-email" | "mjml",
+  fonts: DeclaredFont[],
   testInfo: TestInfo,
 ): Promise<Capture[]> {
   const email = await page.context().newPage();
+  const resources = observeResources(email, fonts);
   const captures: Capture[] = [];
   try {
     await email.setViewportSize({ width: 800, height: 900 });
     await email.setContent(html, { waitUntil: "load", timeout: 30_000 });
     // Load each document once, then resize sequentially. MJML comes from the
     // actual demo preview; React Email is the verified, unmodified renderer output.
-    const resourceError = await checkArtwork(email, representation, representation === "mjml");
     for (const [mode, width] of [
       ["desktop", 800],
       ["mobile", 390],
     ] as const) {
       await email.setViewportSize({ width, height: 900 });
+      const resourceError = await checkArtwork(email, representation, representation === "mjml");
       const screenshot = `${representation}-${mode}-${width}px.png`;
       await email.screenshot({ path: testInfo.outputPath(screenshot), fullPage: true });
       const metrics = await measureVisuals(email.locator("body"));
-      captures.push({ representation, mode, screenshot, resourceError, metrics });
+      captures.push({
+        representation,
+        mode,
+        screenshot,
+        resourceError,
+        fonts: await fontEvidence(email.locator("body"), resources()),
+        resources: resources(),
+        metrics,
+      });
       // Some originals have fixed-width tables. Record their native overflow;
       // do not silently change the reference or mistake it for a port regression.
       if (representation === "mjml") {
@@ -174,7 +201,12 @@ async function captureCompleteEmail(
   return captures;
 }
 
-async function captureEditorCanvas(page: Page, testInfo: TestInfo): Promise<Capture[]> {
+async function captureEditorCanvas(
+  page: Page,
+  fonts: DeclaredFont[],
+  resources: ReturnType<typeof observeResources>,
+  testInfo: TestInfo,
+): Promise<Capture[]> {
   const frame = page.frameLocator("#preview-frame");
   const email = frame.locator(".pm-email");
   const captures: Capture[] = [];
@@ -192,7 +224,14 @@ async function captureEditorCanvas(page: Page, testInfo: TestInfo): Promise<Capt
         frame.locator("html").evaluate((element) => element.ownerDocument.defaultView!.innerWidth),
       )
       .toBe(width);
-    const resourceError = await checkArtwork(frame, `canvas ${mode}`);
+    const scope = await email.evaluate((element) =>
+      Array.from(element.closest(".pm-canvas")!.classList).find((name) =>
+        name.startsWith("pm-canvas-"),
+      ),
+    );
+    expect(scope, "Live canvas font scope").toBeTruthy();
+    const expected = expectedCanvasFonts(fonts, scope!);
+    const resourceError = await checkArtwork(frame, `canvas ${mode}`, true, expected);
     // Capture-only geometry: keep the real 800/390px Puck iframe, but expand the
     // outer editor height to expose the whole email rather than clipping it to
     // the normal scroll area. Never reconstruct the canvas from compiled HTML.
@@ -205,7 +244,15 @@ async function captureEditorCanvas(page: Page, testInfo: TestInfo): Promise<Capt
     const screenshot = `canvas-${mode}-${width}px.png`;
     await email.screenshot({ path: testInfo.outputPath(screenshot) });
     const metrics = await measureVisuals(email);
-    captures.push({ representation: "canvas", mode, screenshot, resourceError, metrics });
+    captures.push({
+      representation: "canvas",
+      mode,
+      screenshot,
+      resourceError,
+      fonts: await fontEvidence(email, resources(), expected),
+      resources: resources(),
+      metrics,
+    });
     expect
       .soft(metrics.scrollWidth - metrics.clientWidth, `${mode} editor canvas overflow`)
       .toBeLessThanOrEqual(1);
@@ -255,6 +302,10 @@ for (const fixture of fixtures.templates) {
     page,
   }, testInfo) => {
     test.setTimeout(120_000);
+    const fonts = declaredMjmlFonts(
+      readFileSync(new URL(`../../templates/${fixture.file}`, import.meta.url), "utf8"),
+    );
+    const resources = observeResources(page, fonts);
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.setViewportSize({ width: 1600, height: 1000 });
@@ -316,11 +367,13 @@ for (const fixture of fixtures.templates) {
         ),
       }));
     try {
-      captures.push(...(await captureCompleteEmail(page, originalHtml, "react-email", testInfo)));
-      captures.push(...(await captureCompleteEmail(page, html, "mjml", testInfo)));
+      captures.push(
+        ...(await captureCompleteEmail(page, originalHtml, "react-email", fonts, testInfo)),
+      );
+      captures.push(...(await captureCompleteEmail(page, html, "mjml", fonts, testInfo)));
       await dialog.getByRole("button", { name: "Close preview" }).click();
       await expect(dialog).toBeHidden();
-      captures.push(...(await captureEditorCanvas(page, testInfo)));
+      captures.push(...(await captureEditorCanvas(page, fonts, resources, testInfo)));
     } finally {
       writeFileSync(
         testInfo.outputPath("comparison.json"),
@@ -328,8 +381,10 @@ for (const fixture of fixtures.templates) {
           {
             template: fixture.file,
             ref: referenceManifest.ref,
+            declaredMjmlFonts: fonts,
+            editorResources: resources(),
             html: { original: "react-email.html", compiled: "mjml.html" },
-            note: "Original mobile overflow and resource failures are recorded as reference behavior, not repaired. Canvas captures use the live editable DOM with its existing gutter, at 800/390px iframe widths; only the outer editor height is extended. Pixel equality is not asserted.",
+            note: "Original mobile overflow and resource failures are recorded as reference behavior, not repaired. Canvas captures use the live editable DOM with its existing gutter, at 800/390px iframe widths; only the outer editor height is extended. Pixel equality is not asserted. Canvas font CSS must register every declared family before fonts.ready is awaited; registered unused faces may remain unloaded. Resource events are collected before navigation, including the editor preview iframe; each capture contains a cumulative snapshot for its page.",
             contentComparison: compareContent(),
             captures,
           },

@@ -92,6 +92,19 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         text-decoration: underline;
       }
     </mj-style>
+    <mj-style inline="inline">
+      .reference-heading h1,
+      .reference-heading h2 {
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: inherit;
+      }
+    </mj-style>
   </mj-head>
   <mj-body width="600px" background-color="#ffffff">
     <mj-section padding="32px">
@@ -120,7 +133,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           line-height="1.3"
           font-weight="500"
           align="center"
-          >Your Year with Papermark</mj-text
+          css-class="reference-heading"
+          ><h1>Your Year with Papermark</h1></mj-text
         >
         <mj-text padding="0px 0px 32px" font-size="18px" line-height="32px" align="center"
           >What a year it's been! Let's take a look at how you've used Papermark to share your
@@ -155,7 +169,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
             font-weight="500"
             color="#a63b00"
             align="center"
-            >Viewers spent</mj-text
+            css-class="reference-heading"
+            ><h1>Viewers spent</h1></mj-text
           >
           <mj-text
             padding="16px 0px"
@@ -186,7 +201,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
             align="center"
             letter-spacing="1px"
             text-transform="uppercase"
-            >Your activity</mj-text
+            css-class="reference-heading"
+            ><h1>Your activity</h1></mj-text
           >
         </mj-column>
       </mj-section>
@@ -278,7 +294,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           font-weight="500"
           color="#1f2937"
           align="center"
-          >Your top document</mj-text
+          css-class="reference-heading"
+          ><h1>Your top document</h1></mj-text
         >
         <mj-text
           padding="16px 0px"
@@ -321,7 +338,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           font-weight="500"
           color="#9c7b4a"
           align="center"
-          >Your most active month</mj-text
+          css-class="reference-heading"
+          ><h1>Your most active month</h1></mj-text
         >
         <mj-text
           padding="16px 0px"
@@ -351,7 +369,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           align="center"
           letter-spacing="1px"
           text-transform="uppercase"
-          >You're in the top</mj-text
+          css-class="reference-heading"
+          ><h1>You're in the top</h1></mj-text
         >
         <mj-text
           padding="16px 0px"
@@ -393,7 +412,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           font-weight="500"
           color="#065f46"
           align="center"
-          >Your documents were viewed from</mj-text
+          css-class="reference-heading"
+          ><h1>Your documents were viewed from</h1></mj-text
         >
         <mj-text
           padding="16px 0px"

@@ -85,6 +85,7 @@ function SectionFrame({
   return (
     <div
       className={classes("pm-section", cssClass)}
+      data-pm-mjml-padding="self"
       style={{
         backgroundColor: backgroundColor || "#ffffff",
         padding: padding || "0px",
@@ -503,6 +504,7 @@ export function createEmailConfig(
         }) => (
           <div
             className={classes("pm-wrapper", cssClass)}
+            data-pm-mjml-padding="self"
             style={{ backgroundColor, padding, border, borderRadius }}
           >
             <Sections minEmptyHeight={120} />
@@ -577,6 +579,7 @@ export function createEmailConfig(
           <div
             ref={puck.dragRef}
             className={classes("pm-flex-column", cssClass)}
+            data-pm-mjml-padding="self"
             style={{
               flexBasis: `${Number.isFinite(width) ? width : 50}%`,
               padding,

@@ -77,6 +77,148 @@ async function compiled(name: string, roundTrip: boolean) {
 // These fixes follow the immutable source and the 800/390px pixel audit.
 // Compiler/DOM checks do not replace the subsequent browser screenshot gate.
 describe.each([false, true])("Community pixel design, editor round trip: %s", (roundTrip) => {
+  it("retains Linear's original heading-to-button gap and unadorned footer link", async () => {
+    const name = "magic-links/linear-login-code";
+    const original = reference(name);
+    const $ = await compiled(name, roundTrip);
+    const heading = textStyle(original, "Your login code for Linear", true);
+    // The original h1 retains the browser's 0.67em vertical margins in addition
+    // to its explicit 17px top padding. Native text blocks need explicit padding.
+    expect(heading["font-size"]).toBe("24px");
+    expect(heading["padding-top"]).toBe("17px");
+    expect(heading["margin-bottom"]).toBeUndefined();
+    expect(declarations($("h1").closest("td").attr("style")).padding).toBe("33.08px 0px 16.08px");
+    const footer = original("a").filter((_index, node) => original(node).text() === "Linear");
+    expect(declarations(footer.attr("style"))["text-decoration-line"]).toBe("none");
+    expect(ruleStyle($, ".community-rich-1 a:nth-of-type(1)")["text-decoration"]).toBe("none");
+  });
+
+  it("keeps Notion's source paragraph leading and compact monospace code", async () => {
+    const name = "magic-links/notion-magic-link";
+    const original = reference(name);
+    const $ = await compiled(name, roundTrip);
+    for (const text of [
+      "Or, copy and paste this temporary login code:",
+      "If you didn't try to login, you can safely ignore this email.",
+      "Hint: You can set a permanent password in Settings & members → My account.",
+    ]) {
+      expect(textStyle($, text)["line-height"]).toBe(
+        textStyle(original, text, true)["line-height"],
+      );
+    }
+    expect(declarations(original("code").attr("style"))["font-size"]).toBeUndefined();
+    // Chromium's original unstyled code uses the default 13px fixed-width font.
+    // Do not enlarge it to the 16px proportional body default during conversion.
+    expect(declarations($(".community-rich-1 > div").attr("style"))["font-size"]).toBe("13px");
+    expect(ruleStyle($, ".community-rich-1 > div")["line-height"]).toBe("normal");
+    expect(ruleStyle($, ".notion-heading > div")["line-height"]).toBe("normal");
+    const footer = original("a").filter((_index, node) => original(node).text() === "Notion.so");
+    expect(ruleStyle($, ".community-rich-2 a:nth-of-type(1)")["font-size"]).toBe(
+      declarations(footer.attr("style"))["font-size"],
+    );
+  });
+
+  it("avoids doubling Stripe's source divider margins and link decoration", async () => {
+    const name = "welcome/stripe-welcome";
+    const original = reference(name);
+    const $ = await compiled(name, roundTrip);
+    const dividers = $("p[style*='border-top']");
+    expect(dividers).toHaveLength(3);
+    const originalDivider = declarations(original("hr").last().attr("style"));
+    const signoff = textStyle(original, "— The Stripe team", true);
+    expect(originalDivider["margin-top"]).toBe("20px");
+    expect(signoff["margin-bottom"]).toBe("16px");
+    // Native paragraph padding already provides 16px of the collapsed 20px gap.
+    expect(declarations(dividers.last().closest("td").attr("style")).padding).toBe("4px 0px 20px");
+    const button = $('a[href="https://dashboard.stripe.com/login"]');
+    expect(declarations(button.closest("table").closest("td").attr("style")).padding).toBe("0px");
+    for (const [index, selector] of [
+      [0, ".community-rich-0 a:nth-of-type(1)"],
+      [1, ".community-rich-1 a:nth-of-type(1)"],
+      [2, ".community-rich-1 a:nth-of-type(2)"],
+      [3, ".community-rich-3 a:nth-of-type(1)"],
+      [4, ".community-rich-4 a:nth-of-type(1)"],
+    ] as const) {
+      expect(declarations(original("p a").eq(index).attr("style"))["text-decoration-line"]).toBe(
+        "none",
+      );
+      expect(ruleStyle($, selector)["text-decoration"]).toBe("none");
+    }
+  });
+
+  it("matches Koala's address leading without adding its divider margin twice", async () => {
+    const name = "welcome/koala-welcome";
+    const original = reference(name);
+    const $ = await compiled(name, roundTrip);
+    const address = "470 Noor Ave STE B #1148, South San Francisco, CA 94080";
+    expect(textStyle($, address)["line-height"]).toBe(
+      textStyle(original, address, true)["line-height"],
+    );
+    expect(declarations(original("hr").attr("style"))["margin-top"]).toBe("20px");
+    const divider = $("p[style*='border-top']");
+    expect(declarations(divider.closest("td").attr("style")).padding).toBe("4px 0px 20px");
+  });
+
+  it("respects Amazon's effective 600px source maximum rather than its larger width attribute", async () => {
+    const name = "reviews/amazon-review";
+    const original = reference(name);
+    const $ = await compiled(name, roundTrip);
+    const container = original('table[style*="width:640px"]').first();
+    const originalStyle = declarations(container.attr("style"));
+    expect(originalStyle["max-width"]).toBe("37.5em");
+    expect(originalStyle.width).toBe("640px");
+    expect(declarations(container.find("td").first().attr("style")).padding).toBe("20px");
+    const native = $('div[style*="max-width:600px"]').first();
+    expect(native).toHaveLength(1);
+    expect(declarations(native.find("td").first().attr("style")).padding).toBe("20px 20px 0px");
+    expect(600 - 20 * 2).toBe(560);
+    expect($(".amazon-review-copy")).toHaveLength(1);
+    expect(ruleStyle($, ".amazon-review-copy > table > tbody > tr > td")["padding-left"]).toBe(
+      "0px",
+    );
+  });
+
+  it("retains Nike's card border, source desktop leading, and non-underlined links", async () => {
+    const name = "receipts/nike-receipt";
+    const original = reference(name);
+    const $ = await compiled(name, roundTrip);
+    const card = original('table[style*="border-width:1px"][style*="width:600px"]');
+    expect(card).toHaveLength(1);
+    expect(declarations(card.attr("style"))["border-color"]).toBe("rgb(229,229,229)");
+    expect(declarations(card.attr("style"))["margin-top"]).toBe("10px");
+    expect(
+      declarations($(".nike-receipt-card > table > tbody > tr > td").attr("style")).border,
+    ).toBe("1px solid #e5e5e5");
+    const labels = $(".nike-recommendation-text > div");
+    expect(labels).toHaveLength(8);
+    labels.each((_index, node) => {
+      const text = normalize($(node).text());
+      const matching = original("p")
+        .filter((_i, item) => normalize(original(item).text()) === text)
+        .first();
+      expect(declarations($(node).attr("style"))["line-height"]).toBe(
+        declarations(matching.attr("style"))["line-height"],
+      );
+    });
+    for (const text of [
+      "Get Help",
+      "1-800-806-6453",
+      "4 am - 11 pm PT",
+      "© 2022 Nike, Inc. All Rights Reserved.",
+    ]) {
+      expect(textStyle($, text)["line-height"]).toBe(
+        textStyle(original, text, true)["line-height"],
+      );
+    }
+    for (let index = 0; index < 9; index += 1) {
+      expect(ruleStyle($, `.community-rich-${index} a:nth-of-type(1)`)["text-decoration"]).toBe(
+        "none",
+      );
+    }
+    // Existing mobile tests separately require the two fluid pairs and 1.4 leading.
+    expect($(".nike-recommendation-pair")).toHaveLength(2);
+  });
+
   it("restores CodePen's full-width banner, title, and readable rounded cards", async () => {
     const name = "newsletters/codepen-challengers";
     const original = reference(name);

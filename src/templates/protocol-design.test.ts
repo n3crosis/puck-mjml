@@ -83,6 +83,24 @@ function paragraph($: CheerioAPI, text: string) {
 // Source-backed regressions for all 16 desktop/mobile Protocol triptychs reviewed
 // at ffee2e9. Geometry comes from native MJML; no trusted HTML or renderer overrides.
 describe.each([false, true])("Protocol design, editor round trip: %s", (roundTrip) => {
+  it("preserves the intentional readable adaptation of the original welcome assistance color", async () => {
+    const original = reference("welcome");
+    const rendered = await compile("welcome", roundTrip);
+    const originalCopy = original("p").filter((_index, node) =>
+      normalize(original(node).text()).startsWith("If you need help getting started"),
+    );
+    expect(originalCopy).toHaveLength(1);
+    expect(declarations(originalCopy.attr("style")).color).toBe("rgb(74,74,74)");
+    expect(declarations(originalCopy.find("a").attr("style")).color).toBe("rgb(74,74,74)");
+    const renderedCopy = rendered(".dither-welcome-assist-copy > div");
+    expect(renderedCopy).toHaveLength(1);
+    expect(normalize(renderedCopy.text())).toBe(normalize(originalCopy.text()));
+    // The original muted color fails normal-text contrast on #131313. Keep the
+    // accessible fg-3 adaptation; template-contrast.test.ts verifies >= 4.5:1.
+    expect(declarations(renderedCopy.attr("style")).color.toLowerCase()).toBe("#818181");
+    expect(declarations(renderedCopy.find("a").attr("style")).color).toBe("inherit");
+  });
+
   it("keeps all feature benefit rows dark with vertically centered desktop columns", async () => {
     const original = reference("feature-announcement");
     const rendered = await compile("feature-announcement", roundTrip);

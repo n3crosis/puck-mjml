@@ -4,6 +4,8 @@ export interface MjmlAttribute {
   source?: "import";
   /** Original native rule and raw controls; imported rules yield only to later visual edits. */
   importBaseline?: { native: string; controls: Record<string, unknown> };
+  /** Original entity spelling; advisory metadata revalidated only for unchanged values. */
+  importSource?: { name: string; value: string; source: string };
   value?: string;
   /** Preserve a host-trusted template expression instead of validating a concrete native value. */
   template?: boolean;

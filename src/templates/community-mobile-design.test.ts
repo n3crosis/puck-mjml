@@ -119,11 +119,21 @@ describe.each([false, true])("Community mobile design, editor round trip: %s", (
         source(column)
           .find("mj-text")
           .each((_index, text) => {
-            expect(source(text).attr("line-height")).toBe("1.4");
+            expect(source(text).attr("line-height")).toBe("1");
+            expect(source(text).attr("css-class")).toBe("nike-recommendation-text");
           });
       });
     });
     const $ = await compiled("nike", roundTrip);
+    expect(
+      hasCssRule(
+        $,
+        ".nike-recommendation-text > div",
+        "line-height",
+        "1.4",
+        "only screen and (max-width: 479px)",
+      ),
+    ).toBe(true);
     expect($(".nike-recommendation-pair")).toHaveLength(2);
     expect($(".nike-recommendation-pair > .nike-recommendation-card")).toHaveLength(4);
     expect($(".nike-recommendation-card table.mj-full-width-mobile")).toHaveLength(4);

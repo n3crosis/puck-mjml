@@ -7,6 +7,7 @@ import { getNativeBaseAttributes } from "./native-base";
 import { applyNativeAttributes, createNativeContext, type NativeContext } from "./native-cascade";
 import { readNativeAttributes } from "./native-attributes";
 import { encodeEndingWhitespace, trustedEndingContent } from "./ending-content";
+import type { NativeAttributeSources } from "./imported-attribute-source";
 import { renderHeadSettings } from "./head";
 import type {
   CompiledEmail,
@@ -28,10 +29,17 @@ const XML_ESCAPE: Record<string, string> = {
 const escapeXml = (value: unknown) =>
   String(value ?? "").replace(/[&<>"']/g, (match) => XML_ESCAPE[match]);
 const endingText = (value: unknown) => encodeEndingWhitespace(escapeXml(value));
-const attributes = (values: Record<string, string | number | undefined>, preserveEmpty = false) =>
+const attributes = (
+  values: Record<string, string | number | undefined>,
+  preserveEmpty = false,
+  sources: NativeAttributeSources = {},
+) =>
   Object.entries(values)
     .filter(([, value]) => value !== undefined && (preserveEmpty || value !== ""))
-    .map(([key, value]) => ` ${key}="${escapeXml(value)}"`)
+    .map(
+      ([key, value]) =>
+        ` ${key}="${Object.hasOwn(sources, key) && sources[key].value === String(value) ? sources[key].source : escapeXml(value)}"`,
+    )
     .join("");
 function records(value: unknown, label: string): Record<string, unknown>[] {
   if (!Array.isArray(value)) throw new Error(`${label} must be an array`);
@@ -101,7 +109,7 @@ function nativeAttributes(
     output["css-class"] = ["pm-email-text", String(result.effective["css-class"] ?? "")]
       .filter(Boolean)
       .join(" ");
-  return attributes(output, true);
+  return attributes(output, true, result.attributeSources);
 }
 
 function childOptions(
@@ -373,17 +381,20 @@ function renderLayout(block: EmailBlock, options: RenderOptions): string {
 }
 
 function renderNativeDefaults(context: NativeContext): string {
-  const components = (entries: NativeContext["components"]) =>
+  const components = (
+    entries: NativeContext["components"],
+    sources: NativeContext["sources"]["components"],
+  ) =>
     Object.entries(entries)
-      .map(([tag, values]) => `<${tag}${attributes(values, true)} />`)
+      .map(([tag, values]) => `<${tag}${attributes(values, true, sources[tag])} />`)
       .join("");
   const classes = Object.entries(context.classes)
     .map(
       ([name, definition]) =>
-        `<mj-class${attributes({ name, ...definition.attributes }, true)}>${components(definition.components)}</mj-class>`,
+        `<mj-class${attributes({ name, ...definition.attributes }, true, context.sources.classes[name]?.attributes)}>${components(definition.components, context.sources.classes[name]?.components ?? {})}</mj-class>`,
     )
     .join("");
-  return `<mj-attributes><mj-all${attributes(context.all, true)} />${components(context.components)}${classes}</mj-attributes>`;
+  return `<mj-attributes><mj-all${attributes(context.all, true, context.sources.all)} />${components(context.components, context.sources.components)}${classes}</mj-attributes>`;
 }
 
 function renderHead(

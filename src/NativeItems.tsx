@@ -120,13 +120,24 @@ const socialKeys = [
 
 function Social({ props, attributes, scope }: ItemProps) {
   const vertical = attributes.mode === "vertical";
+  const links = items(props.links);
+  const hasSourcePreview = links.some(
+    (item) => item.kind === "raw" || typeof item.htmlContent === "string",
+  );
   const inherited = pick(attributes, socialKeys);
   if (attributes["inner-padding"]) inherited.padding = attributes["inner-padding"];
   return (
     <div
       className={classes("pm-social", attributes["css-class"])}
       // Social borders and radii belong to the icons, not the containing row.
-      style={{ ...outerStyle(attributes), border: undefined, borderRadius: undefined }}
+      style={{
+        ...outerStyle(attributes),
+        border: undefined,
+        borderRadius: undefined,
+        // MJML's containing cell removes the inline row's baseline descent.
+        // Source previews are editor UI, not rendered email; keep their inherited text size.
+        fontSize: hasSourcePreview ? undefined : 0,
+      }}
     >
       <div
         style={{
@@ -135,7 +146,7 @@ function Social({ props, attributes, scope }: ItemProps) {
           alignItems: "flex-start",
         }}
       >
-        {items(props.links).map((item, index) => {
+        {links.map((item, index) => {
           if (item.kind === "raw")
             return (
               <TrustedHtmlPreview

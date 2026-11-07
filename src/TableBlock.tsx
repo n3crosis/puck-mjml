@@ -1,5 +1,4 @@
 import type { ArrayField, ComponentConfig } from "@puckeditor/core";
-import type { CSSProperties } from "react";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
 import { emailRichTextConfig } from "./EmailRichText";
 import { sanitizeEmailRichText } from "./richtext";
@@ -112,6 +111,9 @@ export function TableBlock(
   const sourceRows = input.source ? normalizeTableRows(input.source) : rows;
   const native = Boolean(props.importedTableContent);
   const attrs = input.nativeAttributes ?? getTableAttributes(props);
+  // Match MJML's containing td presentation hint. An inline CSS text-align
+  // changes browser TH inheritance and also overrides authored wrapper CSS.
+  const alignment = input.nativeAttributes ? { align: attrs.align } : {};
   const renderRows = (items: TableRow[], originals: TableRow[]) =>
     items.map((row, rowIndex) => (
       <tr key={rowIndex}>
@@ -150,6 +152,7 @@ export function TableBlock(
     ));
   return (
     <div
+      {...alignment}
       className={input.nativeAttributes?.["css-class"] ?? props.cssClass ?? undefined}
       style={{
         padding: String(attrs.padding),
@@ -162,9 +165,6 @@ export function TableBlock(
             ])
           : {}),
         backgroundColor: attrs["container-background-color"] as string | undefined,
-        // MJML places align on the containing td. Preserve that inheritance
-        // without overriding explicit authored cell alignment or th defaults.
-        textAlign: input.nativeAttributes ? (attrs.align as CSSProperties["textAlign"]) : undefined,
       }}
     >
       <table

@@ -1,6 +1,7 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reviews/amazon-review.tsx
 Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
+The source container's 37.5em maximum caps its 640px width at 600px.
 Responsive adaptation: Keep the upstream desktop book/review row, but let it stack on mobile for legible copy. -->
 <mjml>
   <mj-head>
@@ -50,7 +51,7 @@ Responsive adaptation: Keep the upstream desktop book/review row, but let it sta
       }
     </mj-style>
   </mj-head>
-  <mj-body width="640px" background-color="#ffffff">
+  <mj-body width="600px" background-color="#ffffff">
     <mj-section padding="20px 20px 0px" border-top="4px solid #FF9900">
       <mj-column padding="0px">
         <mj-image

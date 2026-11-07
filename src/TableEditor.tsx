@@ -12,6 +12,7 @@ import { newTableCell } from "./TableBlock";
 import { isReadOnlyPath } from "./field-permissions";
 import { PermissionField } from "./FieldPermissions";
 import { PropertyFieldLabel } from "./PropertyInspector";
+import { ArrayFieldAccessibility } from "./ArrayFieldAccessibility";
 import { sanitizeEmailRichText } from "./richtext";
 import { normalizeTableRows, type TableCell, type TableProps, type TableRow } from "./table";
 
@@ -519,8 +520,10 @@ export function TableArrayField({
   return field.type === "array" && field.metadata?.tableEditor ? (
     <TableEditor key={id} field={field as ArrayField<TableRow[]>} />
   ) : (
-    <PermissionField {...props} field={field}>
-      {children}
-    </PermissionField>
+    <ArrayFieldAccessibility label={field.label ?? props.name ?? "items"}>
+      <PermissionField {...props} field={field}>
+        {children}
+      </PermissionField>
+    </ArrayFieldAccessibility>
   );
 }

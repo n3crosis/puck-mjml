@@ -1,16 +1,30 @@
+import {
+  readImportedAttributeSources,
+  type NativeAttributeSource,
+  type NativeAttributeSources,
+} from "./imported-attribute-source";
 import { resolveImportedAttributes } from "./import-inheritance";
 import { nativeCatalog, normalizeMjClass, readNativeAttributes } from "./native-attributes";
-import type { EmailSettings, ExportOptions, MjmlElementOptions } from "./types";
+import type { EmailSettings, ExportOptions, MjmlAttribute, MjmlElementOptions } from "./types";
 
 export type NativeAttributeValues = Readonly<Record<string, string>>;
 export type NativeClass = Readonly<{
   attributes: NativeAttributeValues;
   components: Readonly<Record<string, NativeAttributeValues>>;
 }>;
+type NativeSourceClass = Readonly<{
+  attributes: NativeAttributeSources;
+  components: Readonly<Record<string, NativeAttributeSources>>;
+}>;
 export type NativeContext = Readonly<{
   all: NativeAttributeValues;
   components: Readonly<Record<string, NativeAttributeValues>>;
   classes: Readonly<Record<string, NativeClass>>;
+  sources: Readonly<{
+    all: NativeAttributeSources;
+    components: Readonly<Record<string, NativeAttributeSources>>;
+    classes: Readonly<Record<string, NativeSourceClass>>;
+  }>;
   hasNativeDefinitions: boolean;
   allowRawHtml: boolean;
   allowLocalImages: boolean;
@@ -41,7 +55,7 @@ function componentTag(value: unknown): string {
   return value;
 }
 
-function mergeEdits(target: Record<string, string>, changes: Record<string, string | null>) {
+function mergeEdits<T>(target: Record<string, T>, changes: Record<string, T | null>) {
   for (const [name, value] of Object.entries(changes)) {
     if (value === null) delete target[name];
     else target[name] = value;
@@ -63,20 +77,32 @@ export function createNativeContext(
 ): NativeContext {
   const source = record(settings, "Email settings");
   const all = map<string>();
+  const sources = {
+    all: map<NativeAttributeSource>(),
+    components: map<Record<string, NativeAttributeSource>>(),
+    classes: map<{
+      attributes: Record<string, NativeAttributeSource>;
+      components: Record<string, Record<string, NativeAttributeSource>>;
+    }>(),
+  };
   const font = typeof source.fontFamily === "string" ? source.fontFamily.trim() : "";
   all["font-family"] = /^[\p{L}\p{N} ,'"_-]{1,160}$/u.test(font) ? font : "Arial, sans-serif";
-  const globalEdits = readNativeAttributes(
-    "*",
-    resolveImportedAttributes(source, "attributeDefaults"),
-    options,
-  );
+  const globalEntries = resolveImportedAttributes(source, "attributeDefaults");
+  const globalEdits = readNativeAttributes("*", globalEntries, options);
   mergeEdits(all, globalEdits);
+  mergeEdits(sources.all, readImportedAttributeSources("*", globalEntries, options));
 
   const components = map<Record<string, string>>();
   for (const entry of records(source.componentDefaults, "MJML component defaults")) {
     const tag = componentTag(entry.tag);
     const values = own(components, tag) ?? (components[tag] = map<string>());
     mergeEdits(values, readNativeAttributes(tag, entry.attributes, options));
+    const sourceValues =
+      own(sources.components, tag) ?? (sources.components[tag] = map<NativeAttributeSource>());
+    mergeEdits(
+      sourceValues,
+      readImportedAttributeSources(tag, entry.attributes as MjmlAttribute[], options),
+    );
   }
 
   const classes = map<{
@@ -90,10 +116,20 @@ export function createNativeContext(
     const definition =
       own(classes, name) ??
       (classes[name] = { attributes: map<string>(), components: map<Record<string, string>>() });
+    const sourceDefinition =
+      own(sources.classes, name) ??
+      (sources.classes[name] = {
+        attributes: map<NativeAttributeSource>(),
+        components: map<Record<string, NativeAttributeSource>>(),
+      });
     const attributes = readNativeAttributes("*", entry.attributes, options);
     if (Object.hasOwn(attributes, "name"))
       throw new Error("MJML class attributes cannot override the reserved name attribute");
     mergeEdits(definition.attributes, attributes);
+    mergeEdits(
+      sourceDefinition.attributes,
+      readImportedAttributeSources("*", entry.attributes as MjmlAttribute[], options),
+    );
     for (const child of records(entry.components, `MJML class ${name} component defaults`)) {
       if (/\.|\[|\]/.test(name)) {
         throw new Error(
@@ -105,6 +141,12 @@ export function createNativeContext(
       const values = map<string>();
       mergeEdits(values, readNativeAttributes(tag, child.attributes, options));
       definition.components[tag] = values;
+      const sourceValues = map<NativeAttributeSource>();
+      mergeEdits(
+        sourceValues,
+        readImportedAttributeSources(tag, child.attributes as MjmlAttribute[], options),
+      );
+      sourceDefinition.components[tag] = sourceValues;
     }
   }
 
@@ -112,6 +154,7 @@ export function createNativeContext(
     all,
     components,
     classes,
+    sources,
     allowRawHtml: options.allowRawHtml === true,
     allowLocalImages: options.allowLocalImages === true,
     hasNativeDefinitions:
@@ -133,6 +176,7 @@ export function applyNativeAttributes(
   effective: Record<string, unknown>;
   childClasses?: string;
   templateAttributes: readonly string[];
+  attributeSources: NativeAttributeSources;
 } {
   componentTag(tag);
   const attributes = map<string | number | undefined>();
@@ -147,6 +191,9 @@ export function applyNativeAttributes(
     if (value === null) delete attributes[name];
     else attributes[name] = value;
   }
+
+  const attributeSources = map<NativeAttributeSource>();
+  mergeEdits(attributeSources, readImportedAttributeSources(tag, entries, context));
 
   // The reader has already validated every entry. Preserve the status of the
   // last local edit so final serialization bypasses value validation only for
@@ -211,6 +258,7 @@ export function applyNativeAttributes(
   return {
     attributes,
     effective,
+    attributeSources,
     childClasses: ownClasses ?? inheritedClasses,
     templateAttributes: Object.freeze([...templates]),
   };

@@ -33,6 +33,10 @@ All 62 canonical sources are included, plus the blank document in the picker. Ex
 
 The MIT copyright and license text are preserved in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Brand names and artwork are demonstration material, not an endorsement. Historical sample prices and policy text are not current offers or advice.
 
+## Intentional accessibility adaptations
+
+Visual fidelity does not require reproducing unreadable upstream colors. The Protocol welcome email's 11px, weight-300 assistance copy and Help Center link use `#818181` on `#131313`, rather than the original `#4A4A4A`. Matte footer descriptions use `#5f7458` on white while preserving their original typography. Both adaptations maintain at least 4.5:1 text contrast and are protected by `src/templates/template-contrast.test.ts`. Keep these readable colors when comparing against the immutable original screenshots.
+
 ## Validation
 
 From the repository root:

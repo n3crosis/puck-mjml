@@ -3,6 +3,10 @@ import { isLocalImageSource } from "./image-upload";
 import type { Element, Text } from "domhandler";
 import { normalizeMjClass, nativeCatalog, readNativeAttributes } from "./native-attributes";
 import { captureImportedAttributeBaselines } from "./import-inheritance";
+import {
+  captureImportedAttributeSource,
+  decodeImportedAttribute,
+} from "./imported-attribute-source";
 import { trustedEndingContent } from "./ending-content";
 import { getNativeBaseAttributes } from "./native-base";
 import { sanitizeEmailRichText, sanitizeEmailTableContent } from "./richtext";
@@ -251,6 +255,7 @@ const BODY_ATTRS: AttrSpec = {
 interface SourceElement {
   tag: string;
   attributes: Record<string, string>;
+  attributeSources?: Record<string, string>;
   children: SourceElement[];
   textContent: string;
   innerHtml: string;
@@ -325,7 +330,8 @@ class Importer {
           // narrows (for example percentage social radii or fractional table
           // spacing). Keep their native value until that visual field is edited.
           const generated = getNativeBaseAttributes(tag, props, { nativeEnabled: true })[name];
-          if (String(generated) !== rawValue) this.pushNative(tag, native, name, rawValue);
+          if (String(generated) !== rawValue || element.attributeSources?.[name]?.includes("&"))
+            this.pushNative(tag, native, name, rawValue);
           continue;
         }
       }
@@ -343,6 +349,8 @@ class Importer {
       !native.some((entry) => entry.name === "name")
     )
       this.pushNative(tag, native, "name", element.attributes.name);
+    for (const entry of native)
+      captureImportedAttributeSource(entry, element.attributeSources?.[entry.name]);
     if (native.length) props.mjmlAttributes = native;
     return props;
   }
@@ -409,15 +417,7 @@ function sourceAttribute(tag: string, name: string, value: string): string {
   }
   // MJML retains attribute references until rendering HTML. XML-only decoding
   // misses named HTML entities and must not be followed by another decode.
-  return (
-    cheerio
-      .load(
-        `<span data-value="${value.replaceAll('"', "&quot;")}"></span>`,
-        {},
-        false,
-      )("span")
-      .attr("data-value") ?? ""
-  );
+  return decodeImportedAttribute(value);
 }
 
 function parseElements(source: string, importer: Importer): SourceElement[] {
@@ -512,6 +512,7 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
       return {
         tag,
         attributes,
+        attributeSources: { ...node.attribs },
         // Only ending-label markup detection uses these children.
         children: html
           .root()
@@ -543,6 +544,7 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
     return {
       tag,
       attributes,
+      attributeSources: { ...node.attribs },
       children: children.map(build),
       textContent: wrapped.text(),
       innerHtml: wrapped.html() ?? "",
@@ -577,7 +579,13 @@ function dropShadowedDefaults(
   if (!Array.isArray(native) || !native.length) return;
   const overridden = new Set(native.map((entry) => entry.name));
   for (const [attribute, entry] of Object.entries(spec)) {
-    if (overridden.has(attribute) && entry[0] in block) delete block[entry[0]];
+    if (overridden.has(attribute) && entry[0] in block) {
+      // A source-only entity rule must not hide the same decoded visual value.
+      const sourceOnly = native.some(
+        (rule) => rule.name === attribute && rule.importSource && rule.value === props[entry[0]],
+      );
+      if (!sourceOnly) delete block[entry[0]];
+    }
   }
 }
 
@@ -824,6 +832,8 @@ function nativeEntries(tag: string, element: SourceElement, importer: Importer):
       );
     }
   }
+  for (const entry of entries)
+    captureImportedAttributeSource(entry, element.attributeSources?.[entry.name]);
   return entries;
 }
 

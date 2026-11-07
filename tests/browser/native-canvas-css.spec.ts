@@ -179,10 +179,15 @@ for (const width of [390, 600, 601, 800]) {
       if (width === 390) expect(actualWidth).toBe(342);
       if (width === 800) expect(actualWidth).toBe(desktop);
       // Original specificity beats the later, lower-specificity `:where(a)` rule.
-      await expect(canvas.locator(`.${name} [data-pm-mjml-image-width]`)).toHaveCSS(
-        "width",
-        `${actualWidth}px`,
-      );
+      // Compare geometry, not the rounded CSSOM width serialization. The 0.05px
+      // tolerance covers subpixel layout without hiding a wrong sizing rule.
+      await expect
+        .poll(() =>
+          canvas
+            .locator(`.${name} [data-pm-mjml-image-width]`)
+            .evaluate((element) => element.getBoundingClientRect().width),
+        )
+        .toBeCloseTo(actualWidth, 1);
       if (width === 390 || width === 800)
         await expect(other.locator(`.${name} img`)).toHaveCSS("width", `${desktop}px`);
     }

@@ -131,6 +131,33 @@ describe("bounded raster upload validation", () => {
       "https://example.com/image.png",
     );
   });
+  it("validates large binary sources without relaxing byte limits or canonical base64", () => {
+    // Header validation is separate from the demo's browser decoding check.
+    // Exercise all byte values and all three base64 padding lengths at the cap.
+    for (const length of [MAX_IMAGE_BYTES - 2, MAX_IMAGE_BYTES - 1, MAX_IMAGE_BYTES]) {
+      const bytes = new Uint8Array(length);
+      for (let index = 0; index < length; index++) bytes[index] = index % 256;
+      bytes.set(pngImageBytes());
+      const encoded = Buffer.from(bytes).toString("base64");
+      const source = `data:image/png;base64,${encoded}`;
+      expect(isLocalImageSource(source)).toBe(true);
+      expect(safeImageSource(source)).toBe("");
+      expect(isLocalImageSource(`${source.slice(0, -1)}!`)).toBe(false);
+      if (encoded.endsWith("=")) {
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        const lastByte = encoded.indexOf("=") - 1;
+        const changed = alphabet[alphabet.indexOf(encoded[lastByte]) + 1];
+        const noncanonical = encoded.slice(0, lastByte) + changed + encoded.slice(lastByte + 1);
+        expect(atob(noncanonical)).toBe(atob(encoded));
+        expect(isLocalImageSource(`data:image/png;base64,${noncanonical}`)).toBe(false);
+      }
+    }
+    const oversized = new Uint8Array(MAX_IMAGE_BYTES + 1);
+    oversized.set(pngImageBytes());
+    expect(
+      isLocalImageSource(`data:image/png;base64,${Buffer.from(oversized).toString("base64")}`),
+    ).toBe(false);
+  });
 });
 
 describe("explicit local image policy", () => {

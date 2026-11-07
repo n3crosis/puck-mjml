@@ -125,7 +125,10 @@ export function isLocalImageSource(value: unknown): value is string {
   try {
     const binary = atob(encoded);
     if (btoa(binary) !== encoded) return false;
-    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    // Avoid the iterable/callback allocation cost for multi-megabyte images.
+    // atob returns one byte per character, including zero and high-bit bytes.
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
     return inspectRasterImage(bytes).mime === mime;
   } catch {
     return false;

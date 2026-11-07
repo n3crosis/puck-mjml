@@ -205,8 +205,18 @@ export function NativeAttributeEditor({
     dragIndex.current = null;
     move(from, to);
   };
-  const closeMenu = (target: EventTarget & HTMLElement) => {
+  const closeMenu = (target: EventTarget & HTMLElement, focusIndex: number) => {
     target.closest("details")?.removeAttribute("open");
+    // Rows are keyed by position, so this visible summary survives the update
+    // and follows the moved/next attribute. Never leave focus in a closed menu
+    // or on a row that will be removed. An empty list returns to Add instead.
+    const destination =
+      focusIndex >= 0
+        ? editorRef.current?.querySelectorAll<HTMLElement>(".pm-attribute-menu > summary")[
+            focusIndex
+          ]
+        : editorRef.current?.querySelector<HTMLButtonElement>(".pm-attribute-add");
+    destination?.focus();
   };
   return (
     <div
@@ -399,7 +409,7 @@ export function NativeAttributeEditor({
                       type="button"
                       disabled={structureLocked || index === 0}
                       onClick={(event) => {
-                        closeMenu(event.currentTarget);
+                        closeMenu(event.currentTarget, index - 1);
                         move(index, index - 1);
                       }}
                     >
@@ -409,7 +419,7 @@ export function NativeAttributeEditor({
                       type="button"
                       disabled={structureLocked || index === entries.length - 1}
                       onClick={(event) => {
-                        closeMenu(event.currentTarget);
+                        closeMenu(event.currentTarget, index + 1);
                         move(index, index + 1);
                       }}
                     >
@@ -421,7 +431,7 @@ export function NativeAttributeEditor({
                     type="button"
                     disabled={structureLocked}
                     onClick={(event) => {
-                      closeMenu(event.currentTarget);
+                      closeMenu(event.currentTarget, Math.min(index, entries.length - 2));
                       if (!structureLocked)
                         onChange(entries.filter((_entry, current) => current !== index));
                     }}

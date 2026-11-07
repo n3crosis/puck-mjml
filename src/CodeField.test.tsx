@@ -60,6 +60,53 @@ describe("code area source fields", () => {
     expect(value).toBe(".a{\n    color: red;\n}");
   });
 
+  it("documents Escape then Tab and leaves that Tab to native focus navigation", () => {
+    const onChange = vi.fn();
+    const area = mount({ ariaLabel: "HTML", value: "<p>Hello</p>", onChange });
+    expect(document.getElementById(area.getAttribute("aria-describedby")!)?.textContent).toContain(
+      "Esc, then Tab to leave",
+    );
+    const tab = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    act(() => {
+      area.focus();
+      area.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      area.dispatchEvent(tab);
+    });
+    expect(tab.defaultPrevented).toBe(false);
+    expect(onChange).not.toHaveBeenCalled();
+    const nextTab = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    act(() => area.dispatchEvent(nextTab));
+    expect(nextTab.defaultPrevented).toBe(true);
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
+  it("retains backward navigation and cancels a pending keyboard exit after typing or blur", () => {
+    const onChange = vi.fn();
+    const area = mount({ ariaLabel: "HTML", value: "<p>Hello</p>", onChange });
+    const key = (key: string, shiftKey = false) => {
+      const event = new KeyboardEvent("keydown", {
+        key,
+        shiftKey,
+        bubbles: true,
+        cancelable: true,
+      });
+      act(() => area.dispatchEvent(event));
+      return event;
+    };
+    act(() => area.focus());
+    expect(key("Tab", true).defaultPrevented).toBe(false);
+    expect(onChange).not.toHaveBeenCalled();
+    key("Escape");
+    key("a");
+    expect(key("Tab").defaultPrevented).toBe(true);
+    key("Escape");
+    act(() => {
+      area.blur();
+      area.focus();
+    });
+    expect(key("Tab").defaultPrevented).toBe(true);
+  });
+
   it("never renders non-string values", () => {
     const area = mount({ ariaLabel: "HTML", value: undefined, onChange: () => {} });
     expect(area.value).toBe("");
@@ -91,13 +138,33 @@ describe("code area source fields", () => {
     const onChange = vi.fn();
     const area = mount({ ariaLabel: "HTML", value: source, disabled: true, onChange });
     expect(area.value).toBe(source);
-    expect(area.disabled).toBe(true);
+    expect(area.disabled).toBe(false);
+    expect(area.readOnly).toBe(true);
+    act(() => {
+      area.focus();
+      area.select();
+    });
+    expect(document.activeElement).toBe(area);
+    expect(area.selectionStart).toBe(0);
+    expect(area.selectionEnd).toBe(source.length);
+    expect(document.getElementById(area.getAttribute("aria-describedby")!)?.textContent).toContain(
+      "Read-only source. Select and copy with the keyboard.",
+    );
     expect(container!.querySelector('[aria-label="Format HTML"]')).toBeNull();
+    const tab = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
     const setValue = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")!.set!;
     act(() => {
+      area.dispatchEvent(tab);
       setValue.call(area, "changed");
       area.dispatchEvent(new Event("input", { bubbles: true }));
     });
+    expect(tab.defaultPrevented).toBe(false);
+    expect(area.value).toBe(source);
+    expect(onChange).not.toHaveBeenCalled();
+    act(() => container!.querySelector<HTMLButtonElement>("button")!.click());
+    expect(area.getAttribute("rows")).toBe("16");
+    expect(area.readOnly).toBe(true);
+    expect(area.value).toBe(source);
     expect(onChange).not.toHaveBeenCalled();
   });
 });

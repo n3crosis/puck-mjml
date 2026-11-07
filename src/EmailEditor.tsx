@@ -111,6 +111,9 @@ export function EmailEditor({
   );
 
   useEffect(() => {
+    // Controlled hosts commonly echo the exact object emitted by handleChange.
+    // Skip whole-document serialization, including embedded image data, in that case.
+    if (value === currentData.current) return;
     const current = fingerprint(currentData.current);
     if (fingerprint(value) === current) return;
     const next = sanitizeDocumentRichText(value);

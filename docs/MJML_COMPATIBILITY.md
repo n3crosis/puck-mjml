@@ -60,6 +60,8 @@ Remaining compatibility work includes canvas fidelity for specialized native beh
 
 Generated HTML selectors support child combinators and quoted attribute values. The installed MJML compiler matches selectors against HTML with entities still encoded: an exact selector for an href containing an ampersand may need `&amp;` in the selector value. Combining generated HTML attributes or inline CSS with XML-like template syntax can reparse that syntax; apply such templates after compilation when needed.
 
+Ambiguous legacy HTML entities in plain titles (for example `&notit;`) can decode differently in native title text and its generated accessible label. Import keeps the safe displayed text and reports that the accessible label will normalize to it on export. Standard named and numeric entities do not need trusted-source mode.
+
 ### Tailwind trust and browser behavior
 
 Tailwind needs both the document toggle and the host's `EmailEditor` `tailwindRuntime` opt-in. The deprecated document `tailwindScriptUrl` is ignored: imported or persisted document data cannot select executable code. Each canvas uses a hidden compiler frame for lifecycle and stylesheet isolation. This is not a security sandbox for untrusted host code; a custom runtime URL must be code the host trusts. Tailwind remains a canvas aid, not an email CSS compiler. Include the actual utility CSS in exported `headStyles` when required.

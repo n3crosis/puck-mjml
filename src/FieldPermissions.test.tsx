@@ -277,7 +277,8 @@ it("protects nested ordered accordion HTML fields without persisting derived loc
     ...container.querySelectorAll<HTMLTextAreaElement>('textarea[aria-label="Raw HTML source"]'),
   ].find((field) => field.value === "<p>Locked raw</p>")!;
   expect(source).not.toBeNull();
-  expect(source.disabled).toBe(true);
+  expect(source.disabled).toBe(false);
+  expect(source.readOnly).toBe(true);
   expect(api.getItemById("test")!.readOnly).toEqual({ "items[0].children": true });
 });
 
@@ -311,6 +312,7 @@ it("edits ordered child source using its document path and retains native attrib
     ...container.querySelectorAll<HTMLTextAreaElement>('textarea[aria-label="Raw HTML source"]'),
   ].find((field) => field.value === "<p>Original raw</p>")!;
   expect(source.disabled).toBe(false);
+  expect(source.readOnly).toBe(false);
   expect(container.querySelector('.pm-attribute-name option[value="position"]')).not.toBeNull();
   const before = api.getItemById("test")!;
   await act(async () => {
@@ -374,11 +376,13 @@ it("allows edits to an unlocked ordered child while locking its sibling and arra
     });
   };
   await act(async () => summaries[0].click());
-  expect(source().disabled).toBe(true);
+  expect(source().disabled).toBe(false);
+  expect(source().readOnly).toBe(true);
   await input("<p>Rejected change</p>");
   expect(api.getItemById("test")!.props.items[0].children).toEqual(children);
   await act(async () => summaries[1].click());
   expect(source().disabled).toBe(false);
+  expect(source().readOnly).toBe(false);
   await input("<p>Updated child</p>");
   expect(api.getItemById("test")!.props.items[0].children).toEqual([
     children[0],

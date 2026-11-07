@@ -15,7 +15,7 @@
 .pm-attribute-count {
   font-size: 10px;
   font-weight: 400;
-  color: #94a3b8;
+  color: #64748b;
 }
 .pm-attribute-list {
   display: grid;
@@ -88,10 +88,11 @@
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: #94a3b8;
+  color: #64748b;
   cursor: grab;
 }
 .pm-attribute-grip:disabled {
+  color: #94a3b8;
   opacity: 0.35;
 }
 .pm-attribute-menu {
@@ -184,7 +185,7 @@
 }
 .pm-attribute-empty {
   display: block;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 11px;
 }
 .pm-attribute-editor :is(input, select, button, summary):focus-visible {

@@ -570,10 +570,32 @@ function columnWidths(columns: SourceElement[], containerWidth: number): number[
 function parseHead(head: SourceElement, settings: Partial<EmailSettings>, importer: Importer) {
   for (const element of head.children) {
     switch (element.tag) {
-      case "mj-title":
+      case "mj-title": {
         settings.subject = element.textContent;
         Object.assign(settings, preserveLabelHtml(element, importer, "subjectHtmlContent"));
+        if (
+          !element.children.length &&
+          element.innerHtml.includes("&") &&
+          !element.innerHtml.includes("<!--")
+        ) {
+          // MJML uses the title source in both text and an HTML attribute.
+          // Legacy/ambiguous entities such as &notit; decode differently there.
+          // Keep safe plain-text export, but disclose the accessible-name change.
+          const source = element.innerHtml.trim().replaceAll('"', "&quot;");
+          const label = cheerio
+            .load(
+              `<span data-title="${source}"></span>`,
+              {},
+              false,
+            )("span")
+            .attr("data-title");
+          if (label !== element.textContent)
+            importer.warn(
+              "mj-title contains ambiguous HTML entities; its accessible label will be normalized to the displayed title text on export.",
+            );
+        }
         break;
+      }
       case "mj-preview":
         settings.previewText = element.textContent;
         Object.assign(settings, preserveLabelHtml(element, importer, "previewHtmlContent"));

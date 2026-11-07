@@ -1,10 +1,9 @@
+import { moveToGap } from "./native-column-drag-target";
 import { expect, test, type Locator } from "@playwright/test";
 import { alignmentCases, type AlignmentCase } from "./fixtures/native-column-alignment-source";
 import { visibleTextLineBounds, type TextFragment } from "./text-line-geometry";
 
-type Bounds = { x: number; y: number; width: number; height: number };
-const dimensions = ["x", "y", "width", "height"] as const;
-const tolerance = 1 / 64;
+import { compareGeometry, tolerance, type Bounds } from "./native-column-geometry";
 
 /** Compare local coordinates so canvas chrome and earlier cases cannot mask drift.
  * Preserve whole-node ranges, but compare word-range unions: pre-wrap hanging
@@ -99,29 +98,6 @@ async function geometry(row: Locator, id: string) {
 }
 type Geometry = Awaited<ReturnType<typeof geometry>>;
 
-function compareGeometry(actual: Geometry, expected: Geometry): string[] {
-  const failures: string[] = [];
-  const names = new Set([...Object.keys(actual.bounds), ...Object.keys(expected.bounds)]);
-  for (const name of names) {
-    const a = actual.bounds[name],
-      b = expected.bounds[name];
-    if (!a || !b) {
-      failures.push(`${name}: missing ${a ? "compiled" : "canvas"} probe`);
-      continue;
-    }
-    if (a.length !== b.length)
-      failures.push(`${name}: count canvas=${a.length}, compiled=${b.length}`);
-    for (let index = 0; index < Math.min(a.length, b.length); index++)
-      for (const dimension of dimensions) {
-        const delta = Math.abs(a[index][dimension] - b[index][dimension]);
-        if (!Number.isFinite(delta) || delta > tolerance)
-          failures.push(
-            `${name}[${index}].${dimension}: canvas=${a[index][dimension]}, compiled=${b[index][dimension]}, delta=${delta}`,
-          );
-      }
-  }
-  return failures;
-}
 async function measureCase(entry: AlignmentCase, canvas: Locator, compiled: Locator) {
   const failures: string[] = [];
   const required = [...entry.mjml.matchAll(/css-class="([^"]*)"/g)]
@@ -300,18 +276,17 @@ test("inline layout retains mounted refs, alignment edits, text editing, history
   const check = async (alignment: string) => {
     await expect(page.getByLabel("Compilation status")).toHaveText("ready");
     await expect(target).toHaveCSS("vertical-align", alignment);
-    const actual = await geometry(frame.locator(".editable"), "editable");
-    const expected = await geometry(
-      page.frameLocator("#compiled").locator("div.editable"),
-      "editable",
-    );
-    for (const name of ["editable-solo", "editable-group", "editable-inner"]) {
-      for (const dimension of ["x", "y", "width", "height"] as const)
-        expect(
-          Math.abs(actual.bounds[name][0][dimension] - expected.bounds[name][0][dimension]),
-          `${name}.${dimension}`,
-        ).toBeLessThanOrEqual(1 / 64);
-    }
+    // The compiler signal can precede its iframe load and Puck's history FLIP
+    // animation. Compare the complete settled row, including visible text lines.
+    await expect
+      .poll(async () =>
+        compareGeometry(
+          await geometry(frame.locator(".editable"), "editable"),
+          await geometry(page.frameLocator("#compiled").locator("div.editable"), "editable"),
+          ["editable-solo", "editable-group", "editable-inner", "editable-copy"],
+        ),
+      )
+      .toEqual([]);
   };
   await expect
     .poll(() =>
@@ -354,8 +329,19 @@ test("inline layout retains mounted refs, alignment edits, text editing, history
     .poll(async () => Number(await page.getByLabel("History index").textContent()))
     .toBeGreaterThan(beforeText);
   await check("baseline");
-  await page.getByRole("button", { name: /^undo$/i }).click();
+  // Shift+Enter and typing may be separate history entries. Restore the
+  // pre-edit state, rather than stopping on a terminal hard break whose live
+  // ProseMirror caret helper intentionally adds an extra blank editor line.
+  while (Number(await page.getByLabel("History index").textContent()) > beforeText) {
+    const previous = Number(await page.getByLabel("History index").textContent());
+    await page.getByRole("button", { name: /^undo$/i }).click();
+    await expect
+      .poll(async () => Number(await page.getByLabel("History index").textContent()))
+      .toBeLessThan(previous);
+  }
+  await expect(page.getByLabel("History index")).toHaveText(String(beforeText));
   await expect(copy).not.toContainText("Another editable line");
+  await expect(editor.locator("br")).toHaveCount(1);
   await check("baseline");
   await page.getByRole("button", { name: "Replace source", exact: true }).click();
   await check("bottom");
@@ -374,6 +360,13 @@ test("inline layout retains mounted refs, alignment edits, text editing, history
   for (const viewport of ["Desktop", "Mobile"]) {
     if (viewport === "Mobile")
       await page.getByRole("button", { name: "Switch to Mobile viewport" }).click();
+    const width = viewport === "Mobile" ? 390 : 800;
+    await expect(page.locator("#preview-frame")).toHaveCSS("width", `${width}px`);
+    await expect
+      .poll(() =>
+        frame.locator("html").evaluate((element) => element.ownerDocument.defaultView!.innerWidth),
+      )
+      .toBe(width);
     await page.getByRole("button", { name: "Select first column", exact: true }).click();
     const handle = frame.getByRole("button", { name: "Drag to reorder", exact: true });
     await expect(handle).toBeVisible();
@@ -386,20 +379,18 @@ test("inline layout retains mounted refs, alignment edits, text editing, history
       );
     await expect.poll(order).toEqual(["solo", "group"]);
     const before = Number(await page.getByLabel("History index").textContent());
-    const start = await handle.boundingBox(),
-      end = await target.boundingBox();
-    if (!start || !end) throw new Error("Missing column drag bounds");
+    const start = await handle.boundingBox();
+    if (!start) throw new Error("Missing column drag bounds");
     await page.mouse.move(start.x + start.width / 2, start.y + start.height / 2);
     await page.mouse.down();
     await page.mouse.move(start.x + start.width / 2 + 12, start.y + start.height / 2 + 4, {
       steps: 5,
     });
-    await page.mouse.move(end.x + end.width / 2, end.y + end.height - 2, { steps: 30 });
-    await expect(
-      frame.locator(
-        ".editable > .pm-native-inline-section > [data-puck-dropzone] > [data-puck-line-placeholder]",
-      ),
-    ).toBeVisible();
+    await expect(page.getByLabel("Drag state")).toHaveText("true");
+    const row = frame.locator(".editable > .pm-native-inline-section > [data-puck-dropzone]");
+    await expect(row).toHaveAttribute("data-pm-native-dragging", "true");
+    // Measure the active target, not its earlier inline baseline position.
+    await moveToGap(page, row, 1, "ltr");
     await page.mouse.up();
     await expect.poll(order).toEqual(["group", "solo"]);
     await expect

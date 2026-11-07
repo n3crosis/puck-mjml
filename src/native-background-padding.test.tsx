@@ -143,6 +143,22 @@ describe("bounded background padding CSS aliases", () => {
 });
 
 describe("compiler-backed background padding targets", () => {
+  it("caps nested sections at the compiler width when wrapper CSS reduces padding", async () => {
+    const { document, canvas } = canvasFor(backgroundPaddingSource(24, true));
+    const result = await compileEmail(document);
+    expect(result.errors).toEqual([]);
+    const compiled = load(result.html);
+    const nativeSection = canvas(".shell .pm-section").first();
+    const compiledSection = compiled(".shell div[style*='max-width:576px']").first();
+    expect(compiledSection).toHaveLength(1);
+    expect(nativeSection.css("max-width")).toBe(compiledSection.css("max-width"));
+    expect(nativeSection.css("margin-inline")).toBe("auto");
+    // Mobile CSS exposes 584px in a 600px viewport, but MJML keeps the 576px
+    // source-derived cap. The 390/601px viewports fit underneath that cap.
+    expect(nativeSection.css("max-width")).toBe("576px");
+    expect(canvas(".shell").css("max-width")).toBeUndefined();
+  });
+
   it.each([true, false])(
     "compiles the browser fixture with background=%s and keeps authored tables unmarked",
     async (hasBackground) => {

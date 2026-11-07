@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { Render, type Data } from "@puckeditor/core";
 import { Window, type HTMLElement } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -115,4 +116,35 @@ describe("native divider spacing", () => {
       compiled.querySelector<HTMLElement>(".divider-case")!.style.padding,
     );
   });
+});
+
+describe("native spacer editor decoration", () => {
+  it.each(["0px", "7px 11px"])(
+    "keeps the compiler height and padding without a layout border at padding %s",
+    async (padding) => {
+      const { canvas, compiled } = await render(
+        `<mjml><mj-body><mj-section><mj-column><mj-spacer css-class="spacer-case" height="27px" padding="${padding}" /></mj-column></mj-section></mj-body></mjml>`,
+      );
+      const stylesheet = canvas.createElement("style");
+      stylesheet.textContent = readFileSync(new URL("./style.css", import.meta.url), "utf8");
+      canvas.head.append(stylesheet);
+      const spacer = canvas.querySelector<HTMLElement>(".spacer-case")!;
+      const reference = compiled.querySelector<HTMLElement>(".spacer-case > div")!;
+      const style = canvas.defaultView!.getComputedStyle(spacer);
+      expect(spacer.style.height).toBe(reference.style.height);
+      expect(spacer.style.lineHeight).toBe(reference.style.lineHeight);
+      expect(spacer.style.padding).toBe(
+        compiled.querySelector<HTMLElement>(".spacer-case")!.style.padding,
+      );
+      for (const edge of ["top", "right", "bottom", "left"])
+        expect(Number.parseFloat(style.getPropertyValue(`border-${edge}-width`)) || 0).toBe(0);
+      expect(style.outlineWidth).toBe("1px");
+      expect(style.outlineOffset).toBe("-1px");
+      // The legacy renderer's existing editor decoration remains unchanged.
+      const legacy = canvas.createElement("div");
+      legacy.className = "pm-spacer";
+      canvas.body.append(legacy);
+      expect(canvas.defaultView!.getComputedStyle(legacy).borderTopWidth).toBe("1px");
+    },
+  );
 });

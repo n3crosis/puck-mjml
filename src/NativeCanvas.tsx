@@ -103,12 +103,20 @@ function LayoutBox({
   children: ReactNode;
 }) {
   const insideWrapper = useContext(WrapperContentContext);
+  const layout = useContext(NativeLayoutContext);
   if (a["full-width"] !== "full-width") {
     return (
       <div
         className={classes(`pm-${kind}`, a)}
         data-pm-mjml-padding={a["background-url"] ? "background" : "self"}
-        style={{ ...backgroundStyle(a), textAlign: a["text-align"] as CSSProperties["textAlign"] }}
+        style={{
+          ...backgroundStyle(a),
+          // MJML fixes a nested section's cap from source wrapper padding,
+          // even when authored CSS later exposes more available inline space.
+          maxWidth: insideWrapper ? layout.width : undefined,
+          marginInline: insideWrapper ? "auto" : undefined,
+          textAlign: a["text-align"] as CSSProperties["textAlign"],
+        }}
       >
         {children}
       </div>
@@ -591,7 +599,7 @@ function NativeBlockView({
     case "Spacer":
       return (
         <div
-          className={classes("pm-spacer", a)}
+          className={classes("pm-spacer pm-native-spacer", a)}
           style={{ ...outerStyle(a), height: a.height, lineHeight: a.height, fontSize: 0 }}
           aria-label="Spacer"
         >

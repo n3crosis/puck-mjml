@@ -1,5 +1,8 @@
 // @vitest-environment happy-dom
+import { readFileSync } from "node:fs";
 import { act, useEffect } from "react";
+import postcss from "postcss";
+import { nativeColumnTargets } from "../tests/browser/native-column-drag-selectors";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Puck, Render, createUsePuck, type Data, type PuckApi } from "@puckeditor/core";
@@ -46,6 +49,68 @@ describe("native drag preview instance bridge", () => {
     first.onAction({ type: "setUi" }, state(false));
     expect(source.hasAttribute("data-pm-native-dragging")).toBe(false);
     expect(destination.hasAttribute("data-pm-native-drag-axis")).toBe(false);
+  });
+  it("classifies newly registered rows by content width, excluding the active hit area", () => {
+    const bridge = createNativeDragPreview();
+    bridge.onAction({}, state(true));
+    const stacked = row(406, [390, 390]);
+    stacked.style.padding = "8px";
+    document.body.append(stacked);
+    const remove = bridge.register(stacked, "section");
+    expect(stacked.getAttribute("data-pm-native-drag-axis")).toBe("y");
+    remove();
+    expect(stacked.hasAttribute("data-pm-native-dragging")).toBe(false);
+    expect(stacked.hasAttribute("data-pm-native-drag-axis")).toBe(false);
+    stacked.remove();
+  });
+  it("gives only active editable Section rows a contained outer hit area", () => {
+    const css = postcss.parse(readFileSync("src/style.css", "utf8"));
+    const properties = (selector: string) => {
+      const result: Record<string, string> = {};
+      css.walkRules((rule) => {
+        if (rule.selector.replace(/\s+/g, " ") !== selector) return;
+        rule.walkDecls((decl) => {
+          result[decl.prop] = decl.value;
+        });
+      });
+      return result;
+    };
+    expect(properties('.pm-native-inline-section:has(> [data-pm-native-dragging="true"])')).toEqual(
+      { display: "flow-root" },
+    );
+    expect(properties('.pm-native-inline-section > [data-pm-native-dragging="true"]')).toEqual({
+      "box-sizing": "border-box",
+      width: "auto",
+      height: "auto",
+      margin: "-8px",
+      padding: "8px",
+    });
+    expect(
+      properties(
+        '.pm-native-inline-section > [data-pm-native-dragging="true"]:not(:has(> [data-puck-component]))',
+      ),
+    ).toEqual({
+      "min-height": "calc(var(--puck-slot-min-empty-height, 100px) + 16px)",
+    });
+    // No padding or margin is assigned to active Groups or unregistered renders.
+    for (const selector of [
+      '.pm-native-inline-group > [data-pm-native-dragging="true"]',
+      ".pm-native-inline-section > div",
+    ]) {
+      const values = properties(selector);
+      expect(values.padding).toBeUndefined();
+      expect(values.margin).toBeUndefined();
+    }
+  });
+  it("does not count an inert drag clone as an insertion target", () => {
+    const section = document.createElement("div");
+    section.innerHTML =
+      '<div data-puck-component="column" data-dnd-dragging="true"></div><div data-puck-component="column" data-dnd-placeholder="clone" inert></div><div data-puck-component="group"></div><div data-puck-line-placeholder="true"></div>';
+    expect(
+      [...section.querySelectorAll(nativeColumnTargets)].map((element) =>
+        element.getAttribute("data-puck-component"),
+      ),
+    ).toEqual(["group"]);
   });
   it("classifies actual mobile widths, retains horizontal groups, and cleans up new/replaced rows", () => {
     const bridge = createNativeDragPreview();

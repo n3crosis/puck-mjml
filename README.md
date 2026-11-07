@@ -70,7 +70,7 @@ See [Image uploads](docs/IMAGE_UPLOADS.md) for provider-independent host wiring,
 
 `EmailEditor` automatically uses MJML's inline alignment for native columns. Read-only `<Render config={createEmailConfig()} ... />` also uses inline layout without extra setup.
 
-A custom editable `<Puck>` host keeps the previous flex-column preview unless it opts into the public drag-preview bridge. Puck 0.24's insertion markers understand flex/grid geometry, so the bridge temporarily uses flex during a drag and restores inline layout when Puck finishes the drop or cancellation. Mixed vertical alignments may shift during the drag preview; final document geometry is unchanged. The bridge is per editor and does not use global iframe queries or bypass drag permissions.
+A custom editable `<Puck>` host keeps the previous flex-column preview unless it opts into the public drag-preview bridge. Puck 0.24's insertion markers understand flex/grid geometry, so the bridge temporarily uses flex during a drag and restores inline layout when Puck finishes the drop or cancellation. Mixed vertical alignments may shift during the drag preview; final document geometry is unchanged. Active Section hit areas extend 8px around their content so a parent insertion edge remains reachable beside a nested Group. Equal padding and negative margins preserve the content width and surrounding layout; Group rows and read-only previews do not receive this hit area. The bridge is per editor and does not use global iframe queries or bypass drag permissions.
 
 ```tsx
 import { useEffect, useMemo } from "react";

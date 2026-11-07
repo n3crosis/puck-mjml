@@ -25,11 +25,35 @@ for (const width of [390, 600, 601, 800]) {
   });
 }
 
-test("nested CSS cannot style host siblings or a sibling editor", async ({ page }) => {
+test("nested CSS cannot style host siblings or a sibling editor", async ({ page }, testInfo) => {
   await page.goto("/tests/browser/fixtures/canvas-css-root.html");
   await expect(page.getByLabel("Compilation status")).toHaveText("ready");
-  for (const id of ["host-before", "host-after", "sibling-target", "supported", "invalid-list"]) {
-    await expect(page.locator(`#${id}`)).toHaveCSS("outline-width", "0px");
+  const ids = ["host-before", "host-after", "sibling-target", "supported", "invalid-list"];
+  const outlines = await page.locator(ids.map((id) => `#${id}`).join(", ")).evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const style = getComputedStyle(node);
+      return {
+        id: node.id,
+        style: style.outlineStyle,
+        width: style.outlineWidth,
+        color: style.outlineColor,
+      };
+    }),
+  );
+  await testInfo.attach("nested-css-isolation-outlines.json", {
+    body: JSON.stringify(outlines, null, 2),
+    contentType: "application/json",
+  });
+  await testInfo.attach("nested-css-isolation.png", {
+    body: await page.getByRole("region", { name: "Isolation", exact: true }).screenshot(),
+    contentType: "image/png",
+  });
+  for (const id of ids) {
+    // Chromium can expose the initial medium width as 3px even when no outline
+    // is painted. The rejected rules would set all three properties below.
+    await expect(page.locator(`#${id}`)).toHaveCSS("outline-style", "none");
+    await expect(page.locator(`#${id}`)).not.toHaveCSS("outline-width", "19px");
+    await expect(page.locator(`#${id}`)).not.toHaveCSS("outline-color", "rgb(255, 0, 0)");
   }
   await expect(page.locator("#supported")).toHaveCSS("color", "rgb(11, 22, 33)");
   await expect(page.locator("#supported")).toHaveCSS("border-top-width", "7px");

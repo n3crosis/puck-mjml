@@ -62,6 +62,15 @@ function Controls({ replace }: { replace: (value: EmailDocument) => void }) {
     <>
       <output aria-label="History index">{api.history.index}</output>
       <output aria-label="Drag state">{String(api.appState.ui.isDragging)}</output>
+      <output aria-label="Document column order" hidden>
+        {JSON.stringify(
+          (api.appState.data as EmailDocument).root.props?.sections?.map((section) =>
+            (section.props.columns as EmailBlock[]).map(
+              (column) => column.props.cssClass || "inserted",
+            ),
+          ),
+        )}
+      </output>
       {["top", "middle", "bottom", ""].map((value) => (
         <button key={value} onClick={() => align(value)}>
           Align {value || "default"}

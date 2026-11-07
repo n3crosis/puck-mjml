@@ -31,6 +31,7 @@ import {
 } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
 import { formatCss } from "./format-css";
+import { CSSPreviewNotes } from "./CSSPreviewNotes";
 import "./css-code-editor.css";
 
 const externalSource = Annotation.define<boolean>();
@@ -65,8 +66,10 @@ export function CSSCodeEditor({
   const generatedId = useId();
   const editorId = `${id ?? "pm-css"}-${generatedId}`;
   const helpId = `${editorId}-help`;
+  const previewNotesId = `${editorId}-preview-notes`;
   const source = typeof value === "string" ? value : "";
   const [expanded, setExpanded] = useState(false);
+  const [previewSource, setPreviewSource] = useState(source);
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const previousSource = useRef(source);
@@ -139,6 +142,7 @@ export function CSSCodeEditor({
               : transaction,
           ),
           EditorView.updateListener.of((update) => {
+            if (update.docChanged) setPreviewSource(update.state.doc.toString());
             if (
               !update.docChanged ||
               latest.current.disabled ||
@@ -168,7 +172,7 @@ export function CSSCodeEditor({
           EditorView.contentAttributes.of({
             id: editorId,
             "aria-label": ariaLabel,
-            "aria-describedby": helpId,
+            "aria-describedby": `${helpId} ${previewNotesId}`,
             "aria-readonly": String(disabled),
             "aria-multiline": "true",
             // Read-only source remains focusable for keyboard selection and copying.
@@ -180,7 +184,7 @@ export function CSSCodeEditor({
         ),
       ],
     });
-  }, [ariaLabel, configuration, disabled, editorId, helpId]);
+  }, [ariaLabel, configuration, disabled, editorId, helpId, previewNotesId]);
 
   useEffect(() => {
     const editor = view.current;
@@ -253,6 +257,11 @@ export function CSSCodeEditor({
           ? "Read-only CSS. Select and copy with the keyboard."
           : "Tab / Shift+Tab to indent. Esc, then Tab to leave."}
       </p>
+      <CSSPreviewNotes
+        source={previewSource}
+        descriptionId={previewNotesId}
+        ariaLabel={ariaLabel}
+      />
     </div>
   );
 }

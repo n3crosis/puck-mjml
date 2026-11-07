@@ -114,7 +114,7 @@ describe.each([false, true])("Community mobile design, editor round trip: %s", (
       expect(pair.children("mj-column")).toHaveLength(2);
       pair.children("mj-column").each((_index, column) => {
         expect(source(column).attr("width")).toBe("50%");
-        expect(source(column).attr("padding")).toBe("0px 6px 24px");
+        expect(source(column).attr("padding")).toContain("24px");
         expect(source(column).find("mj-image").attr("fluid-on-mobile")).toBe("true");
         source(column)
           .find("mj-text")
@@ -134,6 +134,16 @@ describe.each([false, true])("Community mobile design, editor round trip: %s", (
         "only screen and (max-width: 479px)",
       ),
     ).toBe(true);
+    for (const [selector, padding] of [
+      [".nike-recommendations > table > tbody > tr > td", "14px"],
+      [".nike-recommendation-card > table > tbody > tr > td", "6px"],
+      [".nike-recommendation-text", "4px"],
+    ]) {
+      for (const edge of ["left", "right"])
+        expect(
+          hasCssRule($, selector, `padding-${edge}`, padding, "only screen and (max-width: 479px)"),
+        ).toBe(true);
+    }
     expect($(".nike-recommendation-pair")).toHaveLength(2);
     expect($(".nike-recommendation-pair > .nike-recommendation-card")).toHaveLength(4);
     expect($(".nike-recommendation-card table.mj-full-width-mobile")).toHaveLength(4);

@@ -266,7 +266,9 @@ for (const width of [800, 390]) {
     }
   });
 
-  test(`Matte subscription CTA matches the loaded source label at ${width}px`, async ({ page }) => {
+  test(`Matte subscription CTA matches the loaded source label at ${width}px`, async ({
+    page,
+  }, testInfo) => {
     const { reference, compiled, canvas } = await representations(
       page,
       "02-Matte/subscription-confirmation",
@@ -274,8 +276,18 @@ for (const width of [800, 390]) {
       "Manage subscription",
     );
     try {
-      const original = reference.locator("a").filter({ hasText: /^Manage subscription$/ });
-      const label = original.locator("span").filter({ hasText: /^Manage subscription$/ });
+      // Role names normalize formatter whitespace in compiled MJML anchors.
+      // The native editing surface deliberately has no navigation link role.
+      const buttons = {
+        reference: reference.getByRole("link", { name: "Manage subscription", exact: true }),
+        compiled: compiled.getByRole("link", { name: "Manage subscription", exact: true }),
+        canvas: canvas.locator(".pm-button").filter({ hasText: /^\s*Manage\s+subscription\s*$/ }),
+      };
+      for (const button of Object.values(buttons)) {
+        await expect(button).toHaveCount(1);
+        await expect(button).toHaveText("Manage subscription");
+      }
+      const label = buttons.reference.getByText("Manage subscription", { exact: true });
       const font = await label.evaluate((element) => ({
         family: getComputedStyle(element).fontFamily,
         weight: getComputedStyle(element).fontWeight,
@@ -283,17 +295,21 @@ for (const width of [800, 390]) {
           .filter((face) => face.family.replace(/["']/g, "") === "Inter" && face.weight === "500")
           .map((face) => face.status),
       }));
+      const bounds = {
+        reference: await box(buttons.reference),
+        compiled: await box(buttons.compiled),
+        canvas: await box(buttons.canvas),
+      };
+      await testInfo.attach(`matte-subscription-cta-${width}.json`, {
+        body: JSON.stringify({ width, sourceFont: font, bounds }, null, 2),
+        contentType: "application/json",
+      });
       expect(font.family).toContain("Inter");
       expect(font.weight).toBe("500");
       expect(font.faces).toEqual(["loaded"]);
-      const expected = await box(original);
-      for (const button of [
-        compiled.locator("a").filter({ hasText: /^Manage subscription$/ }),
-        canvas.locator(".pm-button").filter({ hasText: /^Manage subscription$/ }),
-      ]) {
-        const actual = await box(button);
-        expect(actual.width).toBeCloseTo(expected.width, 1);
-        expect(actual.height).toBeCloseTo(expected.height, 1);
+      for (const name of ["compiled", "canvas"] as const) {
+        expect(bounds[name].width, `${name} CTA width`).toBeCloseTo(bounds.reference.width, 1);
+        expect(bounds[name].height, `${name} CTA height`).toBeCloseTo(bounds.reference.height, 1);
       }
     } finally {
       await reference.close();

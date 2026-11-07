@@ -102,6 +102,8 @@ Set `root.props.tailwind` to render Tailwind utility classes from `css-class` va
 
 Custom CSS uses CodeMirror with CSS highlighting, line numbers, autocomplete, bracket matching, local undo/redo, and Format/Expand controls. Tab and Shift+Tab indent selected lines; press Escape, then Tab to move focus out of the editor. Read-only fields cannot change the document, but both CSS and HTML source remain focusable for keyboard selection and copying. Ordinary controlled updates preserve the cursor and local undo; replacing the source externally starts a fresh local history. Initial display formatting does not change stored CSS. HTML source remains a plain monospace field: Tab inserts two spaces, Escape then Tab moves forward, and Shift+Tab moves back. For CSS scoping and font limitations, see [canvas behavior](MJML_COMPATIBILITY.md#custom-css-and-web-fonts).
 
+When the native canvas cannot parse or fully reproduce Custom CSS, a **preview notes** disclosure below the field lists the affected rules or parsing issue. These notes describe native preview limitations, not a complete CSS validation; valid browser CSS can also trigger them. The notes leave source CSS and export unchanged. Open **Preview** to compare against the compiled email.
+
 ## Trusted raw HTML
 
 Set `allowRawHtml` on `EmailEditor` to enable Raw blocks, raw list entries, and native HTML source controls. Pass `{ allowRawHtml: true }` to `toMjml` or `compileEmail` when exporting the same document:

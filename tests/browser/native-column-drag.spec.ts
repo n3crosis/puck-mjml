@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { moveToGap, nativeColumnTargets } from "./native-column-drag-target";
 
 const sourceRow = (page: Page) =>
   page
@@ -17,6 +18,25 @@ async function committed(page: Page, before: number) {
   await expect.poll(() => history(page)).toBeGreaterThan(before);
 }
 async function authoredGeometry(page: Page) {
+  // The hit area may grow, but neither the authored columns nor their Section's
+  // layout box may grow or move relative to each other.
+  const dimensions = (element: Element) => {
+    const { width, height } = element.getBoundingClientRect();
+    return { width, height };
+  };
+  const actualSection = await page
+    .frameLocator("#preview-frame")
+    .locator(".drag-authored")
+    .evaluate(dimensions);
+  const expectedSection = await page
+    .frameLocator("#compiled")
+    .locator(".drag-authored")
+    .evaluate(dimensions);
+  for (const key of ["width", "height"] as const)
+    expect(
+      Math.abs(actualSection[key] - expectedSection[key]),
+      `active Section ${key}`,
+    ).toBeLessThanOrEqual(1 / 64);
   const position = (element: Element) => {
     const parent = element.closest(".drag-authored")!.getBoundingClientRect(),
       r = element.getBoundingClientRect();
@@ -32,6 +52,9 @@ async function authoredGeometry(page: Page) {
   }
 }
 async function begin(page: Page, source: Locator) {
+  const emptySection = page.frameLocator("#preview-frame").locator(".drag-empty");
+  const emptyBefore = await emptySection.boundingBox();
+  if (!emptyBefore) throw new Error("Missing empty Section geometry");
   await source.scrollIntoViewIfNeeded();
   const bounds = await source.boundingBox();
   if (!bounds) throw new Error("Missing drag source");
@@ -46,60 +69,23 @@ async function begin(page: Page, source: Locator) {
   for (const target of [sourceRow(page), destinationRow(page)]) {
     await expect(target).toHaveAttribute("data-pm-native-dragging", "true");
     await expect(target).toHaveCSS("display", "flex");
+    await expect(target).toHaveCSS("padding", "8px");
+    await expect(target).toHaveCSS("margin", "-8px");
   }
-}
-async function moveToGap(page: Page, row: Locator, index: number, direction: string) {
-  const items = row.locator(":scope > [data-puck-component]:not([data-dnd-dragging])");
-  const count = await items.count();
-  if (!count) {
-    await row.scrollIntoViewIfNeeded();
-    const bounds = await row.boundingBox();
-    if (!bounds) throw new Error("Missing empty row");
-    await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + 10, { steps: 30 });
-    const marker = row.locator(":scope > [data-puck-line-placeholder]");
-    await expect(marker).toBeVisible();
-    const size = await marker.boundingBox();
-    if ((await row.getAttribute("data-pm-native-drag-axis")) === "y") {
-      expect(size!.height).toBeLessThanOrEqual(4);
-      expect(size!.width).toBeGreaterThan(10);
-    }
-    return;
-  }
-  const target = items.nth(Math.min(index, count - 1));
-  await target.scrollIntoViewIfNeeded();
-  const bounds = await target.boundingBox();
-  if (!bounds) throw new Error("Missing drag target");
-  const axis = await row.getAttribute("data-pm-native-drag-axis");
-  const after = index >= count;
-  const x =
-    axis === "y"
-      ? bounds.x + bounds.width / 2
-      : direction === "rtl"
-        ? after
-          ? bounds.x + 2
-          : bounds.x + bounds.width - 2
-        : after
-          ? bounds.x + bounds.width - 2
-          : bounds.x + 2;
-  const y =
-    axis === "y"
-      ? after
-        ? bounds.y + bounds.height - 2
-        : bounds.y + 2
-      : bounds.y + bounds.height / 2;
-  await page.mouse.move(x, y, { steps: 30 });
-  await page.mouse.move(x + 0.25, y + 0.25, { steps: 2 });
-  const marker = row.locator(":scope > [data-puck-line-placeholder]");
-  await expect(marker).toBeVisible();
-  const size = await marker.boundingBox();
-  expect(size).not.toBeNull();
-  if (axis === "x") {
-    expect(size!.width).toBeLessThanOrEqual(4);
-    expect(size!.height).toBeGreaterThan(10);
-  } else {
-    expect(size!.height).toBeLessThanOrEqual(4);
-    expect(size!.width).toBeGreaterThan(10);
-  }
+  await expect(
+    page.frameLocator("#preview-frame").locator(".editable-group > [data-puck-dropzone]"),
+  ).toHaveCSS("padding", "0px");
+  await expect
+    .poll(async () => {
+      const current = await emptySection.boundingBox();
+      return current
+        ? Math.max(
+            Math.abs(current.width - emptyBefore.width),
+            Math.abs(current.height - emptyBefore.height),
+          )
+        : Infinity;
+    })
+    .toBeLessThanOrEqual(1 / 64);
 }
 async function rest(page: Page) {
   await expect(page.getByLabel("Drag state")).toHaveText("false");
@@ -108,6 +94,14 @@ async function rest(page: Page) {
   await expect(frame.locator("[data-puck-line-placeholder]")).toHaveCount(0);
   await expect(sourceRow(page)).toHaveCSS("display", "block");
   await expect(destinationRow(page)).toHaveCSS("display", "block");
+  for (const row of [sourceRow(page), destinationRow(page), emptyRow(page)]) {
+    await expect(row).toHaveCSS("padding", "0px");
+    await expect(row).toHaveCSS("margin", "0px");
+  }
+  await expect(frame.locator(".editable > .pm-native-inline-section")).toHaveCSS(
+    "display",
+    "block",
+  );
   await expect(page.getByLabel("Compilation status")).toHaveText("ready");
   // Final source geometry must return after both successful drops and cancel.
   const position = (element: Element) => {
@@ -144,6 +138,18 @@ const order = (row: Locator) =>
       ),
     );
 
+async function expectOrder(page: Page, section: number, expected: string[]) {
+  const row =
+    section === 0 ? sourceRow(page) : section === 1 ? destinationRow(page) : emptyRow(page);
+  await expect.poll(() => order(row)).toEqual(expected);
+  await expect
+    .poll(
+      async () =>
+        JSON.parse((await page.getByLabel("Document column order").textContent())!)[section],
+    )
+    .toEqual(expected);
+}
+
 for (const direction of ["ltr", "rtl"])
   for (const viewport of ["Desktop", "Mobile"]) {
     test(`native column handle/body/palette/cross-row drag and cancel in ${direction} ${viewport}`, async ({
@@ -155,14 +161,25 @@ for (const direction of ["ltr", "rtl"])
       await expect(page.getByLabel("Compilation status")).toHaveText("ready");
       const frame = page.frameLocator("#preview-frame");
       const selectViewport = async () => {
+        const width = viewport === "Mobile" ? 390 : 800;
         const button = page.getByRole("button", { name: `Switch to ${viewport} viewport` });
         if (await button.isEnabled()) await button.click();
-        await page.locator("#compiled").evaluate(
-          (element, width) => {
-            (element as HTMLIFrameElement).style.width = `${width}px`;
-          },
-          viewport === "Mobile" ? 390 : 800,
-        );
+        await page.locator("#compiled").evaluate((element, width) => {
+          (element as HTMLIFrameElement).style.width = `${width}px`;
+        }, width);
+        // Puck animates the iframe width. Capture drag geometry only after the
+        // exact CSS width and the iframe's own viewport reach the requested size.
+        for (const selector of ["#preview-frame", "#compiled"]) {
+          await expect(page.locator(selector)).toHaveCSS("width", `${width}px`);
+          await expect
+            .poll(() =>
+              page
+                .frameLocator(selector)
+                .locator("html")
+                .evaluate((element) => element.ownerDocument.defaultView!.innerWidth),
+            )
+            .toBe(width);
+        }
       };
       await selectViewport();
       await rest(page);
@@ -172,6 +189,8 @@ for (const direction of ["ltr", "rtl"])
       };
       const handle = await selectColumn();
       await begin(page, handle);
+      await expect(sourceRow(page).locator(nativeColumnTargets)).toHaveCount(1);
+      await expect(sourceRow(page).locator(nativeColumnTargets)).toHaveClass(/editable-group/);
       await expect(frame.locator(".editable-group > [data-puck-dropzone]")).toHaveCSS(
         "flex-direction",
         "row",
@@ -183,13 +202,21 @@ for (const direction of ["ltr", "rtl"])
       await moveToGap(page, sourceRow(page), 1, direction);
       const before = Number(await page.getByLabel("History index").textContent());
       await page.mouse.up();
-      await expect.poll(() => order(sourceRow(page))).toEqual(["editable-group", "editable-solo"]);
+      await expectOrder(page, 0, ["editable-group", "editable-solo"]);
       await rest(page);
       await expect
         .poll(async () => Number(await page.getByLabel("History index").textContent()))
         .toBeGreaterThan(before);
       await page.getByRole("button", { name: /^undo$/i }).click();
-      await expect.poll(() => order(sourceRow(page))).toEqual(["editable-solo", "editable-group"]);
+      await expectOrder(page, 0, ["editable-solo", "editable-group"]);
+      await selectViewport();
+      await rest(page);
+      await page.getByRole("button", { name: /^redo$/i }).click();
+      await expectOrder(page, 0, ["editable-group", "editable-solo"]);
+      await selectViewport();
+      await rest(page);
+      await page.getByRole("button", { name: /^undo$/i }).click();
+      await expectOrder(page, 0, ["editable-solo", "editable-group"]);
       await selectViewport();
       await rest(page);
 
@@ -228,28 +255,24 @@ for (const direction of ["ltr", "rtl"])
         { steps: 30 },
       );
       await page.mouse.up();
-      await expect.poll(() => order(sourceRow(page))).toEqual(["editable-group", "editable-solo"]);
+      await expectOrder(page, 0, ["editable-group", "editable-solo"]);
       await rest(page);
       await committed(page, beforeBody);
       await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();
       await page.getByRole("button", { name: /^undo$/i }).click();
-      await expect.poll(() => order(sourceRow(page))).toEqual(["editable-solo", "editable-group"]);
+      await expectOrder(page, 0, ["editable-solo", "editable-group"]);
       await selectViewport();
 
       const beforeCross = await history(page);
       await begin(page, await selectColumn());
       await moveToGap(page, destinationRow(page), 1, direction);
       await page.mouse.up();
-      await expect
-        .poll(() => order(destinationRow(page)))
-        .toEqual(["destination-a", "editable-solo", "destination-b"]);
-      await expect.poll(() => order(sourceRow(page))).toEqual(["editable-group"]);
+      await expectOrder(page, 1, ["destination-a", "editable-solo", "destination-b"]);
+      await expectOrder(page, 0, ["editable-group"]);
       await rest(page);
       await committed(page, beforeCross);
       await page.getByRole("button", { name: /^undo$/i }).click();
-      await expect
-        .poll(() => order(destinationRow(page)))
-        .toEqual(["destination-a", "destination-b"]);
+      await expectOrder(page, 1, ["destination-a", "destination-b"]);
       await selectViewport();
 
       const palette = page.getByRole("button", { name: "Column", exact: true });
@@ -258,22 +281,16 @@ for (const direction of ["ltr", "rtl"])
       await page.keyboard.press("Escape");
       await page.mouse.up();
       await rest(page);
-      await expect
-        .poll(() => order(destinationRow(page)))
-        .toEqual(["destination-a", "destination-b"]);
+      await expectOrder(page, 1, ["destination-a", "destination-b"]);
       const beforePalette = await history(page);
       await begin(page, palette);
       await moveToGap(page, destinationRow(page), 0, direction);
       await page.mouse.up();
-      await expect
-        .poll(() => order(destinationRow(page)))
-        .toEqual(["inserted", "destination-a", "destination-b"]);
+      await expectOrder(page, 1, ["inserted", "destination-a", "destination-b"]);
       await rest(page);
       await committed(page, beforePalette);
       await page.getByRole("button", { name: /^undo$/i }).click();
-      await expect
-        .poll(() => order(destinationRow(page)))
-        .toEqual(["destination-a", "destination-b"]);
+      await expectOrder(page, 1, ["destination-a", "destination-b"]);
       await selectViewport();
       await rest(page);
 
@@ -285,11 +302,11 @@ for (const direction of ["ltr", "rtl"])
       );
       await moveToGap(page, emptyRow(page), 0, direction);
       await page.mouse.up();
-      await expect.poll(() => order(emptyRow(page))).toEqual(["inserted"]);
+      await expectOrder(page, 3, ["inserted"]);
       await rest(page);
       await committed(page, beforeEmpty);
       await page.getByRole("button", { name: /^undo$/i }).click();
-      await expect.poll(() => order(emptyRow(page))).toEqual([]);
+      await expectOrder(page, 3, []);
       await selectViewport();
       await rest(page);
 
@@ -310,7 +327,7 @@ for (const direction of ["ltr", "rtl"])
       await selectViewport();
       await rest(page);
       await expect.poll(() => history(page)).toBe(0);
-      await expect.poll(() => order(sourceRow(page))).toEqual(["editable-solo", "editable-group"]);
+      await expectOrder(page, 0, ["editable-solo", "editable-group"]);
     });
   }
 

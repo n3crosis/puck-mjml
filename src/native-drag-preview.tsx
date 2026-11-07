@@ -17,7 +17,16 @@ export function createNativeDragPreview() {
   let dragging = false;
   function classifyRow(row: HTMLElement, kind: RowKind): "x" | "y" {
     if (kind === "group") return "x";
-    const width = row.getBoundingClientRect().width;
+    const style = row.ownerDocument.defaultView?.getComputedStyle(row);
+    const px = (value: string | undefined) => Number.parseFloat(value || "") || 0;
+    // Rows registered during a drag can already carry the Section hit-area
+    // padding. Classify against the content box that sizes their children.
+    const width =
+      row.getBoundingClientRect().width -
+      px(style?.paddingLeft) -
+      px(style?.paddingRight) -
+      px(style?.borderLeftWidth) -
+      px(style?.borderRightWidth);
     const items = [...row.children].filter((child) =>
       child.matches(".pm-native-inline-column, .pm-native-inline-group"),
     );

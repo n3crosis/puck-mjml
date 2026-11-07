@@ -1,8 +1,24 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
+
+async function backgroundEvidence(target: Locator) {
+  return target.evaluate((element) => {
+    const { width, height } = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return {
+      width,
+      height,
+      viewportWidth: element.ownerDocument.defaultView!.innerWidth,
+      position: style.backgroundPosition,
+      size: style.backgroundSize,
+      image: style.backgroundImage,
+      repeat: style.backgroundRepeat,
+    };
+  });
+}
 
 test("background position survives mount, axis edits, removal, undo and source replacement", async ({
   page,
-}) => {
+}, testInfo) => {
   await page.route("https://example.com/background.svg", (route) =>
     route.fulfill({
       contentType: "image/svg+xml",
@@ -18,16 +34,41 @@ test("background position survives mount, axis edits, removal, undo and source r
   const compiled = page.frameLocator("#compiled").locator(".background-target");
   await expect(target).toBeVisible();
   await page.getByRole("button", { name: "Switch to Mobile viewport" }).click();
+  let checkpoint = 0;
   const check = async (position: string) => {
     await expect(page.getByLabel("Compilation status")).toHaveText("ready");
+    // Source replacement and history can restore Desktop. Selecting Mobile
+    // starts a width transition; button state does not mean geometry is ready.
+    await expect
+      .poll(() =>
+        page.locator("#preview-frame").evaluate((iframe: HTMLIFrameElement) => ({
+          frameWidth: iframe.getBoundingClientRect().width,
+          viewportWidth: iframe.contentWindow!.innerWidth,
+        })),
+      )
+      .toEqual({ frameWidth: 390, viewportWidth: 390 });
     await expect(target).toHaveCSS("background-position", position);
     await expect(compiled).toHaveCSS("background-position", position);
     await expect(target).toHaveCSS("background-size", "cover");
-    const actual = await target.boundingBox(),
-      reference = await compiled.boundingBox();
-    expect(actual!.width).toBeCloseTo(reference!.width, 1);
-    expect(actual!.height).toBeCloseTo(reference!.height, 1);
-    expect(actual!.width).toBe(390);
+    const actual = await backgroundEvidence(target),
+      reference = await backgroundEvidence(compiled);
+    await testInfo.attach(`background-checkpoint-${++checkpoint}.json`, {
+      body: JSON.stringify(
+        {
+          position,
+          history: await page.getByLabel("History index").textContent(),
+          native: actual,
+          compiled: reference,
+        },
+        null,
+        2,
+      ),
+      contentType: "application/json",
+    });
+    expect(reference.viewportWidth).toBe(390);
+    expect(actual.width).toBeCloseTo(reference.width, 1);
+    expect(actual.height).toBeCloseTo(reference.height, 1);
+    expect(actual.width).toBe(390);
   };
   const edit = async (label: string, position: string) => {
     const history = page.getByLabel("History index");

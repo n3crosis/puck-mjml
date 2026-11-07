@@ -1,7 +1,7 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/receipts/nike-receipt.tsx
 Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
-Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 leading for readable mobile cards; desktop retains the source line-height of 1. -->
+Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 leading for readable mobile cards; desktop retains the source line-height of 1 and source image/text insets. Equal native columns remain an approximation of the source auto-layout cell widths. -->
 <mjml>
   <mj-head>
     <mj-title>Your Nike order is on its way</mj-title>
@@ -59,6 +59,18 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
         text-decoration: none;
       }
       @media only screen and (max-width: 479px) {
+        .nike-recommendations > table > tbody > tr > td {
+          padding-left: 14px !important;
+          padding-right: 14px !important;
+        }
+        .nike-recommendation-card > table > tbody > tr > td {
+          padding-left: 6px !important;
+          padding-right: 6px !important;
+        }
+        .nike-recommendation-text {
+          padding-left: 4px !important;
+          padding-right: 4px !important;
+        }
         .nike-recommendation-text > div {
           line-height: 1.4 !important;
         }
@@ -267,9 +279,9 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
           >
         </mj-column>
       </mj-section>
-      <mj-section padding="20px 14px 0px" css-class="nike-recommendations">
+      <mj-section padding="20px 0px 0px" css-class="nike-recommendations">
         <mj-group width="50%" css-class="nike-recommendation-pair">
-          <mj-column padding="0px 6px 24px" width="50%" css-class="nike-recommendation-card">
+          <mj-column padding="0px 2px 24px 4px" width="50%" css-class="nike-recommendation-card">
             <mj-image
               src="https://demo.react.email/static/nike-recomendation-1.png"
               alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
@@ -278,7 +290,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
               padding="0px"
             />
             <mj-text
-              padding="12px 4px 0px"
+              padding="12px 10px 0px"
               font-size="15px"
               line-height="1"
               css-class="nike-recommendation-text"
@@ -286,7 +298,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
               >USWNT 2022/23 Stadium Home</mj-text
             >
             <mj-text
-              padding="4px 4px 0px"
+              padding="4px 10px 0px"
               font-size="15px"
               line-height="1"
               css-class="nike-recommendation-text"
@@ -294,7 +306,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
               >Women's Nike Dri-FIT Soccer Jersey</mj-text
             >
           </mj-column>
-          <mj-column padding="0px 6px 24px" width="50%" css-class="nike-recommendation-card">
+          <mj-column padding="0px 2px 24px" width="50%" css-class="nike-recommendation-card">
             <mj-image
               src="https://demo.react.email/static/nike-recomendation-2.png"
               alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
@@ -303,7 +315,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
               padding="0px"
             />
             <mj-text
-              padding="12px 4px 0px"
+              padding="12px 10px 0px"
               font-size="15px"
               line-height="1"
               css-class="nike-recommendation-text"
@@ -311,7 +323,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
               >Brazil 2022/23 Stadium Goalkeeper</mj-text
             >
             <mj-text
-              padding="4px 4px 0px"
+              padding="4px 10px 0px"
               font-size="15px"
               line-height="1"
               css-class="nike-recommendation-text"
@@ -321,7 +333,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
           </mj-column>
         </mj-group>
         <mj-group width="50%" css-class="nike-recommendation-pair">
-          <mj-column padding="0px 6px 24px" width="50%" css-class="nike-recommendation-card">
+          <mj-column padding="0px 2px 24px" width="50%" css-class="nike-recommendation-card">
             <mj-image
               src="https://demo.react.email/static/nike-recomendation-4.png"
               alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
@@ -330,7 +342,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
               padding="0px"
             />
             <mj-text
-              padding="12px 4px 0px"
+              padding="12px 10px 0px"
               font-size="15px"
               line-height="1"
               css-class="nike-recommendation-text"
@@ -338,7 +350,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
               >FFF</mj-text
             >
             <mj-text
-              padding="4px 4px 0px"
+              padding="4px 10px 0px"
               font-size="15px"
               line-height="1"
               css-class="nike-recommendation-text"
@@ -346,7 +358,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
               >Women's Soccer Jacket</mj-text
             >
           </mj-column>
-          <mj-column padding="0px 6px 24px" width="50%" css-class="nike-recommendation-card">
+          <mj-column padding="0px 4px 24px 2px" width="50%" css-class="nike-recommendation-card">
             <mj-image
               src="https://demo.react.email/static/nike-recomendation-4.png"
               alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
@@ -355,7 +367,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
               padding="0px"
             />
             <mj-text
-              padding="12px 4px 0px"
+              padding="12px 10px 0px"
               font-size="15px"
               line-height="1"
               css-class="nike-recommendation-text"
@@ -363,7 +375,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
               >FFF</mj-text
             >
             <mj-text
-              padding="4px 4px 0px"
+              padding="4px 10px 0px"
               font-size="15px"
               line-height="1"
               css-class="nike-recommendation-text"

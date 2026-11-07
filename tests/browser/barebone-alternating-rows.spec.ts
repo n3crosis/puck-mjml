@@ -42,17 +42,17 @@ async function geometry(root: Locator, headings = titles) {
   );
 }
 
-async function checkpoints(root: Locator) {
+async function checkpoints(root: Locator, buttons: Locator) {
   const origin = (await rectangle(root.locator("h1"))).y;
   const points = [
     root.getByText("Share with your team", { exact: true }),
-    root.getByRole("link", { name: "Explore updates", exact: true }).nth(0),
+    buttons.nth(0),
     root.getByText("Quality-of-life fixes", { exact: true }),
     root.getByText(titles[0], { exact: true }),
     ...Array.from({ length: 4 }, (_value, index) =>
       root.getByText(bulletCopy, { exact: true }).nth(index),
     ),
-    root.getByRole("link", { name: "Explore updates", exact: true }).nth(2),
+    buttons.nth(2),
     root.getByText(/Get the app\.\s*The fastest, easiest way to use Barebones\./),
     root.getByText(
       "Barebones is the catchy slogan that perfectly encapsulates the vision of our company.",
@@ -120,15 +120,53 @@ for (const width of [800, 390]) {
       await reference.locator("body").evaluate(inspectArtwork, { decode: true });
       await compiled.setContent(html, { waitUntil: "load" });
       await compiled.locator("body").evaluate(inspectArtwork, { decode: true });
-      const expected = await geometry(reference.locator("body"));
+      const roots = {
+        reference: reference.locator("body"),
+        compiled: compiled.locator("body"),
+        canvas,
+      };
+      const buttons = {
+        reference: roots.reference.getByRole("link", { name: "Explore updates", exact: true }),
+        compiled: roots.compiled.getByRole("link", { name: "Explore updates", exact: true }),
+        // Native Button blocks are inert editing surfaces, not navigation links.
+        canvas: canvas.locator(".pm-button").filter({ hasText: /^\s*Explore updates\s*$/ }),
+      };
+      const content = Object.fromEntries(
+        await Promise.all(
+          Object.entries(roots).map(async ([name, root]) => [
+            name,
+            {
+              buttons: await buttons[name as keyof typeof buttons].allTextContents(),
+              links: await root
+                .getByRole("link", { name: "Learn about Pro", exact: true })
+                .allTextContents(),
+              bodies: await root.getByText(body, { exact: true }).count(),
+              bullets: await root.getByText(bulletCopy, { exact: true }).count(),
+            },
+          ]),
+        ),
+      );
+      await testInfo.attach(`barebone-content-${width}.json`, {
+        body: JSON.stringify(content, null, 2),
+        contentType: "application/json",
+      });
+      for (const name of ["reference", "compiled", "canvas"] as const) {
+        await expect(buttons[name]).toHaveText(Array(3).fill("Explore updates"));
+        await expect(
+          roots[name].getByRole("link", { name: "Learn about Pro", exact: true }),
+        ).toHaveCount(3);
+        expect(content[name].bodies).toBe(3);
+        expect(content[name].bullets).toBe(4);
+      }
+      const expected = await geometry(roots.reference);
       const actuals = {
         compiled: await geometry(compiled.locator("body")),
         canvas: await geometry(canvas),
       };
       const cumulative = {
-        reference: await checkpoints(reference.locator("body")),
-        compiled: await checkpoints(compiled.locator("body")),
-        canvas: await checkpoints(canvas),
+        reference: await checkpoints(roots.reference, buttons.reference),
+        compiled: await checkpoints(roots.compiled, buttons.compiled),
+        canvas: await checkpoints(canvas, buttons.canvas),
       };
       await testInfo.attach(`barebone-alternating-rows-${width}.json`, {
         body: JSON.stringify({ width, reference: expected, ...actuals, cumulative }, null, 2),
@@ -173,7 +211,8 @@ for (const width of [800, 390]) {
           ).toBeLessThanOrEqual(0.125);
         }
       }
-      for (const root of [compiled.locator("body"), canvas]) {
+      for (const name of ["compiled", "canvas"] as const) {
+        const root = roots[name];
         for (const square of await root.locator(".bare-bullet-square p").all()) {
           expect((await rectangle(square)).width).toBe(26);
           expect((await rectangle(square)).height).toBe(26);
@@ -184,9 +223,7 @@ for (const width of [800, 390]) {
             { exact: true },
           ),
         );
-        const firstButton = await rectangle(
-          root.getByRole("link", { name: "Explore updates", exact: true }).nth(0),
-        );
+        const firstButton = await rectangle(buttons[name].nth(0));
         expect(firstButton.y - lastStep.y - lastStep.height).toBe(40);
       }
       for (const root of [reference.locator("body"), compiled.locator("body"), canvas]) {

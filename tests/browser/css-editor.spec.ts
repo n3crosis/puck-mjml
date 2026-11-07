@@ -39,6 +39,10 @@ test("CSS editor has stable controlled typing, indentation, completion, history,
   await expect(page.locator(".cm-tooltip-autocomplete")).toBeHidden();
   await expect(editor).toBeFocused();
   await page.keyboard.press("Tab");
+  // The unfinished declaration has a preview note. Its disclosure is the
+  // next keyboard stop after leaving the editor.
+  await expect(page.locator(".pm-css-preview-notes summary")).toBeFocused();
+  await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Toggle read-only" })).toBeFocused();
   await expect(source).toHaveJSProperty("textContent", ".card {\n  col\n}");
   await editor.focus();

@@ -71,7 +71,11 @@ describe("CSS code editor", () => {
     expect(view.contentDOM.getAttribute("aria-multiline")).toBe("true");
     expect(view.contentDOM.getAttribute("spellcheck")).toBe("false");
     expect(
-      document.getElementById(view.contentDOM.getAttribute("aria-describedby")!)!.textContent,
+      view.contentDOM
+        .getAttribute("aria-describedby")!
+        .split(" ")
+        .map((id) => document.getElementById(id)!.textContent)
+        .join(" "),
     ).toContain("Esc, then Tab to leave");
     expect(onChange).not.toHaveBeenCalled();
   });
@@ -361,10 +365,9 @@ describe("duplicate CSS field instances", () => {
       expect(document.getElementById(toggle.getAttribute("aria-controls")!)).toBe(
         views[index].contentDOM,
       );
-      const help = document.getElementById(
-        views[index].contentDOM.getAttribute("aria-describedby")!,
-      )!;
-      expect(copy.contains(help)).toBe(true);
+      for (const id of views[index].contentDOM.getAttribute("aria-describedby")!.split(" ")) {
+        expect(copy.contains(document.getElementById(id))).toBe(true);
+      }
     });
     expect(new Set(ids).size).toBe(2);
     act(() => views[1].focus());
@@ -387,5 +390,112 @@ describe("duplicate CSS field instances", () => {
       expect(undo(views[1])).toBe(true);
     });
     expect(views[1].state.doc.toString()).toBe(".a {\n  color: red;\n}\n");
+  });
+});
+
+describe("CSS preview diagnostics during authoring", () => {
+  it("diagnoses the current view before a host echo without adding history or callbacks", () => {
+    const onChange = vi.fn();
+    const view = mount(
+      <CSSCodeEditor ariaLabel="CSS" value=".card{color:red}" onChange={onChange} />,
+    );
+    act(() => view.focus());
+    const draft = ".card{color:";
+    replace(view, draft, 6);
+    expect(container!.querySelector("li")!.textContent).toContain("Could not be parsed");
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(draft);
+    expect(undoDepth(view.state)).toBe(1);
+    expect(document.activeElement).toBe(view.contentDOM);
+    expect(view.state.selection.main.head).toBe(6);
+    // Echoing source, changing the label, and toggling the disclosure are not edits.
+    act(() =>
+      root!.render(<CSSCodeEditor ariaLabel="Custom CSS" value={draft} onChange={onChange} />),
+    );
+    act(() => {
+      container!.querySelector("details")!.open = true;
+    });
+    expect(EditorView.findFromDOM(container!.querySelector(".cm-editor")!)).toBe(view);
+    expect(undoDepth(view.state)).toBe(1);
+    expect(onChange).toHaveBeenCalledTimes(1);
+    act(() => {
+      expect(undo(view)).toBe(true);
+    });
+    expect(container!.querySelector("details")).toBeNull();
+    act(() => {
+      expect(redo(view)).toBe(true);
+    });
+    expect(container!.querySelector("li")!.textContent).toContain("Could not be parsed");
+    expect(onChange).toHaveBeenCalledTimes(3);
+  });
+
+  it("clears or replaces notes on host replacements while preserving focus and enforcing read-only", () => {
+    const onChange = vi.fn();
+    const render = (source: string, disabled = false) => (
+      <CSSCodeEditor ariaLabel="CSS" value={source} disabled={disabled} onChange={onChange} />
+    );
+    const view = mount(render("@page{margin:0}"));
+    expect(container!.querySelector("li")!.textContent).toContain("@page");
+    act(() => view.focus());
+    replace(view, ".card{color:", 5);
+    act(() => root!.render(render("@scope (.card){p{color:red}}", true)));
+    expect(container!.querySelectorAll("li")).toHaveLength(1);
+    expect(container!.querySelector("li")!.textContent).toContain("@scope");
+    expect(container!.textContent).not.toContain("Could not be parsed");
+    expect(view.state.selection.main.head).toBe(5);
+    expect(document.activeElement).toBe(view.contentDOM);
+    expect(undoDepth(view.state)).toBe(0);
+    const locked = view.state.doc.toString();
+    replace(view, ".card{color:green}");
+    act(() => formatButton().click());
+    expect(view.state.doc.toString()).toBe(locked);
+    expect(container!.querySelector("li")!.textContent).toContain("@scope");
+    act(() => root!.render(render(".host{color:green}", true)));
+    expect(container!.querySelector("details")).toBeNull();
+    expect(view.state.doc.toString()).toBe(".host{color:green}");
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(".card{color:");
+    expect(EditorView.findFromDOM(container!.querySelector(".cm-editor")!)).toBe(view);
+  });
+
+  it("keeps notes, source, and history coherent through format, expansion, and keyboard indentation", () => {
+    const onChange = vi.fn();
+    const view = mount(<CSSCodeEditor ariaLabel="CSS" value="" onChange={onChange} />);
+    act(() => view.focus());
+    const source = "@scope (.card){p{color:red}}";
+    replace(view, source);
+    act(() => {
+      container!.querySelector("details")!.open = true;
+    });
+    const note = container!.querySelector("li")!.textContent;
+    act(() => formatButton().click());
+    const formatted = view.state.doc.toString();
+    expect(formatted).not.toBe(source);
+    expect(container!.querySelector("li")!.textContent).toBe(note);
+    expect(container!.querySelector("details")!.open).toBe(true);
+    const depth = undoDepth(view.state);
+    act(() =>
+      container!.querySelector<HTMLButtonElement>('[aria-label="Expand CSS editor"]')!.click(),
+    );
+    expect(undoDepth(view.state)).toBe(depth);
+    expect(onChange).toHaveBeenCalledTimes(2);
+    act(() => view.dispatch({ selection: { anchor: formatted.indexOf("color") } }));
+    const tab = new KeyboardEvent("keydown", {
+      key: "Tab",
+      keyCode: 9,
+      bubbles: true,
+      cancelable: true,
+    });
+    act(() => view.contentDOM.dispatchEvent(tab));
+    expect(tab.defaultPrevented).toBe(true);
+    expect(container!.querySelector("li")!.textContent).toBe(note);
+    act(() => {
+      expect(undo(view)).toBe(true);
+    });
+    expect(view.state.doc.toString()).toBe(formatted);
+    act(() => {
+      expect(undo(view)).toBe(true);
+    });
+    expect(view.state.doc.toString()).toBe(source);
+    expect(container!.querySelector("li")!.textContent).toBe(note);
+    expect(onChange).toHaveBeenCalledTimes(5);
   });
 });

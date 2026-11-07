@@ -16,7 +16,30 @@ export interface ScopedCss {
 const scopeIdent = /^(?:pm-canvas-)?[a-z0-9-]+$/i;
 const rootCompound = /^(html|body|:root)(.*)$/i;
 const customIdent = /^-?[a-zA-Z_\u0080-\uFFFF][\w\u0080-\uFFFF-]*$/;
-const reservedKeyframesNames = new Set(["none", "initial", "inherit", "unset", "revert"]);
+const cssWideKeywords = ["initial", "inherit", "unset", "revert", "revert-layer", "default"];
+const reservedKeyframesNames = new Set(["none", ...cssWideKeywords]);
+const reservedFontNames = new Set([
+  ...cssWideKeywords,
+  "serif",
+  "sans-serif",
+  "monospace",
+  "cursive",
+  "fantasy",
+  "system-ui",
+  "math",
+  "ui-serif",
+  "ui-sans-serif",
+  "ui-monospace",
+  "ui-rounded",
+  "caption",
+  "icon",
+  "menu",
+  "message-box",
+  "small-caption",
+  "status-bar",
+]);
+const supportedKeyframeName = (name: string) =>
+  customIdent.test(name) && !reservedKeyframesNames.has(name.toLowerCase());
 const animationKeywords = new Set([
   "linear",
   "ease",
@@ -101,7 +124,7 @@ export function createFontAliases(names: string[], scope: string): FontAliasMap 
  * Split a declaration value on top-level separators, preserving parentheses,
  * brackets, and quoted strings.
  */
-function splitTopLevel(value: string, separator: "," | " "): string[] {
+function splitTopLevel(value: string, separator: "," | " ", preserveEmpty = false): string[] {
   const parts: string[] = [];
   let current = "";
   let depth = 0;
@@ -121,14 +144,41 @@ function splitTopLevel(value: string, separator: "," | " "): string[] {
       depth = Math.max(0, depth - 1);
       current += character;
     } else if (depth === 0 && (separator === "," ? character === "," : /\s/.test(character))) {
-      if (separator === "," ? current.trim() : current) parts.push(current);
+      if (separator === "," ? preserveEmpty || current.trim() : current) parts.push(current);
       current = "";
     } else {
       current += character;
     }
   }
-  if (separator === "," ? current.trim() : current) parts.push(current);
+  if (separator === "," ? preserveEmpty || current.trim() : current) parts.push(current);
   return parts;
+}
+
+/**
+ * A deliberately bounded family grammar, shared by registration and reference
+ * rewriting. Escapes/comments and noncanonical whitespace in strings need CSS
+ * token decoding; guessing can merge distinct family names or create a face.
+ * Keywords are family names only when quoted.
+ */
+function literalFontFamily(value: string): string | undefined {
+  const trimmed = value.trim();
+  const quoted = trimmed.match(/^"([^"\\\r\n\f]*)"$|^'([^'\\\r\n\f]*)'$/);
+  const name = quoted
+    ? (quoted[1] ?? quoted[2])
+    : trimmed
+          .split(/[ \t\r\n\f]+/)
+          .every((token) => customIdent.test(token) && !reservedFontNames.has(token.toLowerCase()))
+      ? trimmed.split(/[ \t\r\n\f]+/).join(" ")
+      : undefined;
+  if (
+    !name ||
+    [...name].some(
+      (character) => character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127,
+    ) ||
+    familyKey(name) !== name.toLowerCase()
+  )
+    return undefined;
+  return name;
 }
 
 /** Rewrite font-family lists so canvas styles reference the per-instance alias. */
@@ -136,22 +186,28 @@ export function aliasFontFamilyList(value: string, aliases: FontAliasMap): strin
   if (!value.trim() || !Object.keys(aliases).length) return value;
   return splitTopLevel(value, ",")
     .map((part) => {
-      const trimmed = part.trim();
-      const quoted = trimmed.match(/^(['"])(.*)\1$/s);
-      const key = familyKey(quoted ? quoted[2] : trimmed);
-      const alias = Object.hasOwn(aliases, key) ? aliases[key] : undefined;
+      const family = literalFontFamily(part);
+      const key = family === undefined ? undefined : familyKey(family);
+      const alias = key !== undefined && Object.hasOwn(aliases, key) ? aliases[key] : undefined;
       return alias ? `"${alias}"` : part;
     })
     .join(",");
 }
 
 function aliasFontFace(rule: AtRule, aliases: FontAliasMap): void {
-  rule.walkDecls("font-family", (declaration) => {
-    declaration.value = aliasFontFamilyList(declaration.value, aliases);
-  });
+  // Collection has already rejected unsupported faces and retained exactly
+  // one family descriptor. CSS descriptor names are case-insensitive.
+  for (const node of rule.nodes ?? []) {
+    if (node.type === "decl" && node.prop.toLowerCase() === "font-family")
+      node.value = aliasFontFamilyList(node.value, aliases);
+  }
 }
 
-function rewriteKeyframeNames(value: string, names: Map<string, string>): string {
+function rewriteKeyframeNames(
+  value: string,
+  names: Map<string, string>,
+  shorthand: boolean,
+): string {
   if (!names.size) return value;
   return splitTopLevel(value, ",")
     .map((group) =>
@@ -159,8 +215,8 @@ function rewriteKeyframeNames(value: string, names: Map<string, string>): string
         .map((token) => {
           const trimmed = token.trim();
           if (
-            customIdent.test(trimmed) &&
-            !animationKeywords.has(trimmed.toLowerCase()) &&
+            supportedKeyframeName(trimmed) &&
+            (!shorthand || !animationKeywords.has(trimmed.toLowerCase())) &&
             names.has(trimmed)
           ) {
             return names.get(trimmed);
@@ -177,6 +233,7 @@ interface ScopeState {
   notes: string[];
   aliases: FontAliasMap;
   keyframes: Map<string, string>;
+  fontFaces: Map<AtRule, string>;
 }
 
 function rewriteDeclaration(declaration: Declaration, state: ScopeState): void {
@@ -184,44 +241,46 @@ function rewriteDeclaration(declaration: Declaration, state: ScopeState): void {
   if (property === "font-family") {
     declaration.value = aliasFontFamilyList(declaration.value, state.aliases);
   } else if (property === "animation" || property === "animation-name") {
-    declaration.value = rewriteKeyframeNames(declaration.value, state.keyframes);
+    declaration.value = rewriteKeyframeNames(
+      declaration.value,
+      state.keyframes,
+      property === "animation",
+    );
   }
 }
 
 /**
- * Rewrite declarations inside a rule, recursing through nested rules and group
- * at-rules. Nested selectors stay untouched: CSS nesting resolves them against
- * the already-scoped parent selector.
+ * Decide which nested structure is retained before collecting registrations.
+ * Nested selectors stay untouched: CSS nesting resolves them against the
+ * already-scoped parent selector. Declaration values are rewritten afterward.
  */
-function rewriteRule(rule: Rule | AtRule, state: ScopeState, label: string): void {
+function prepareRule(rule: Rule | AtRule, state: ScopeState, label: string): void {
   for (const child of rule.nodes?.slice() ?? []) {
-    if (child.type === "decl") {
-      rewriteDeclaration(child, state);
-    } else if (child.type === "rule") {
-      rewriteNestedRule(child, state, label);
+    if (child.type === "rule") {
+      prepareNestedRule(child, state, label);
     } else if (child.type === "atrule") {
-      rewriteNestedAtRule(child, state, label);
+      prepareNestedAtRule(child, state, label);
     }
   }
 }
 
-function rewriteNestedAtRule(atRule: AtRule, state: ScopeState, label: string): void {
+function prepareNestedAtRule(atRule: AtRule, state: ScopeState, label: string): void {
   switch (atRuleKind(atRule.name)) {
     case "group":
-      rewriteRule(atRule, state, label);
+      prepareRule(atRule, state, label);
       break;
     case "keyframes":
-      namespaceKeyframes(atRule, state);
+      prepareKeyframes(atRule, state);
       break;
     case "font-face":
-      aliasFontFace(atRule, state.aliases);
+      prepareFontFace(atRule, state, label);
       break;
     case "layer": {
       const children = atRule.nodes?.slice() ?? [];
       atRule.replaceWith(...children);
       for (const child of children) {
-        if (child.type === "rule") rewriteNestedRule(child, state, label);
-        else if (child.type === "atrule") rewriteNestedAtRule(child, state, label);
+        if (child.type === "rule") prepareNestedRule(child, state, label);
+        else if (child.type === "atrule") prepareNestedAtRule(child, state, label);
       }
       state.notes.push(
         `${label} uses @layer; layer semantics are not preserved on the canvas, but its rules are applied.`,
@@ -236,17 +295,62 @@ function rewriteNestedAtRule(atRule: AtRule, state: ScopeState, label: string): 
   }
 }
 
-function namespaceKeyframes(atRule: AtRule, state: ScopeState): void {
+function prepareKeyframes(atRule: AtRule, state: ScopeState): void {
   const name = atRule.params.trim();
-  const quoted = name.match(/^(['"])(.*)\1$/s);
-  const ident = quoted ? quoted[2] : name;
-  if (quoted || !customIdent.test(ident) || reservedKeyframesNames.has(ident.toLowerCase())) {
+  if (!supportedKeyframeName(name) || !atRule.nodes) {
     state.notes.push(
-      `@keyframes name "${name}" cannot be namespaced for the canvas and was left global.`,
+      `@keyframes name "${name}" is outside the supported plain-name subset or has no block and is not applied on the canvas.`,
     );
+    atRule.remove();
     return;
   }
-  atRule.params = `${state.scope}-${ident}`;
+}
+
+/** Rewrite only valid direct font declarations; step selectors are not nesting. */
+function namespaceKeyframes(atRule: AtRule, state: ScopeState): void {
+  atRule.params = `${state.scope}-${atRule.params.trim()}`;
+  for (const step of atRule.nodes ?? []) {
+    if (step.type !== "rule") continue;
+    for (const node of step.nodes ?? []) {
+      if (
+        node.type === "decl" &&
+        node.prop.toLowerCase() === "font-family" &&
+        !node.important &&
+        // This bounded path does not decode escapes or raw token comments.
+        !/[\\]|\/\*/.test(node.raws.value?.raw ?? node.value) &&
+        // Do not turn an invalid empty-item list into an active keyframe value.
+        splitTopLevel(node.value, ",", true).every((family) => family.trim())
+      )
+        node.value = aliasFontFamilyList(node.value, state.aliases);
+    }
+  }
+}
+
+/** Rewrite the retained AST once, without scoping or revalidating selectors. */
+function rewritePreparedCss(
+  container: Root | AtRule | Rule,
+  state: ScopeState,
+  declarations = false,
+): void {
+  for (const node of container.nodes ?? []) {
+    if (node.type === "decl" && declarations) {
+      rewriteDeclaration(node, state);
+    } else if (node.type === "rule") {
+      rewritePreparedCss(node, state, true);
+    } else if (node.type === "atrule") {
+      switch (atRuleKind(node.name)) {
+        case "keyframes":
+          namespaceKeyframes(node, state);
+          break;
+        case "font-face":
+          aliasFontFace(node, state.aliases);
+          break;
+        case "group":
+          rewritePreparedCss(node, state, declarations);
+          break;
+      }
+    }
+  }
 }
 
 /** Tokenize one complex selector into compounds and the combinators between them. */
@@ -352,7 +456,7 @@ function isContainedNestedSelector(selector: string): boolean {
   return tokens.combinators[0] !== "+" && tokens.combinators[0] !== "~";
 }
 
-function rewriteNestedRule(rule: Rule, state: ScopeState, label: string): void {
+function prepareNestedRule(rule: Rule, state: ScopeState, label: string): void {
   const raw = rule.raws.selector;
   const selector = raw?.value === rule.selector ? raw.raw : rule.selector;
   const selectors = nestedSelectorList(selector);
@@ -365,7 +469,7 @@ function rewriteNestedRule(rule: Rule, state: ScopeState, label: string): void {
     rule.remove();
     return;
   }
-  rewriteRule(rule, state, label);
+  prepareRule(rule, state, label);
 }
 
 /**
@@ -529,7 +633,7 @@ function scopeRule(rule: Rule, state: ScopeState, label: string): void {
 function processNode(node: Rule | AtRule, state: ScopeState, label: string): void {
   if (node.type === "rule") {
     scopeRule(node, state, label);
-    rewriteRule(node, state, label);
+    prepareRule(node, state, label);
     return;
   }
   switch (atRuleKind(node.name)) {
@@ -537,10 +641,10 @@ function processNode(node: Rule | AtRule, state: ScopeState, label: string): voi
       scopeGroup(node, state, label);
       break;
     case "keyframes":
-      namespaceKeyframes(node, state);
+      prepareKeyframes(node, state);
       break;
     case "font-face":
-      aliasFontFace(node, state.aliases);
+      prepareFontFace(node, state, label);
       break;
     case "layer": {
       const children = node.nodes?.slice() ?? [];
@@ -567,31 +671,66 @@ function scopeGroup(container: Root | AtRule, state: ScopeState, label: string):
   }
 }
 
-function collectGlobalRegistrations(root: Root, state: ScopeState): void {
-  root.walkAtRules((atRule) => {
-    const kind = atRuleKind(atRule.name);
-    if (kind === "font-face") {
-      let family: string | undefined;
-      let rawFamily: string | undefined;
-      atRule.walkDecls("font-family", (declaration) => {
-        if (family === undefined) {
-          const quoted = declaration.value.trim().match(/^(['"])(.*)\1$/s);
-          rawFamily = quoted ? quoted[2] : declaration.value.trim();
-          family = familyKey(rawFamily);
-        }
-      });
-      if (family && rawFamily) {
-        registerFontAlias(rawFamily, state.scope, state.aliases);
-      }
-    } else if (kind === "keyframes") {
-      const name = atRule.params.trim();
-      const quoted = name.match(/^(['"])(.*)\1$/s);
-      const ident = quoted ? quoted[2] : name;
-      if (!quoted && customIdent.test(ident) && !reservedKeyframesNames.has(ident.toLowerCase())) {
-        state.keyframes.set(ident, `${state.scope}-${ident}`);
-      }
+/** Select only an unambiguous effective descriptor, before creating any alias. */
+function prepareFontFace(rule: AtRule, state: ScopeState, label: string): void {
+  const families: { declaration: Declaration; family: string }[] = [];
+  let supported = !rule.params.trim() && Boolean(rule.nodes);
+  for (const node of rule.nodes ?? []) {
+    if (node.type === "comment") continue;
+    // An escaped property could be another font-family descriptor that wins
+    // in the browser. PostCSS also moves invalid `_`/`*` property prefixes into
+    // raws.before; do not mistake those for effective descriptors either.
+    if (
+      node.type !== "decl" ||
+      node.prop.includes("\\") ||
+      /[^ \t\r\n\f]/.test(node.raws.before ?? "")
+    ) {
+      supported = false;
+      continue;
     }
-  });
+    if (node.prop.toLowerCase() !== "font-family") continue;
+    const family = literalFontFamily(node.value);
+    const raw = node.raws.value?.raw ?? node.value;
+    if (family === undefined || node.important || raw.includes("/*")) supported = false;
+    else families.push({ declaration: node, family });
+  }
+  if (!supported || !families.length) {
+    state.notes.push(
+      `${label} contains an @font-face with an unsupported or ambiguous font-family descriptor; the whole face is not applied on the canvas.`,
+    );
+    rule.remove();
+    return;
+  }
+  // All descriptors are in the supported grammar, so the last one wins.
+  // Registering earlier, ineffective families would redirect unrelated text.
+  const selected = families[families.length - 1];
+  for (const entry of families.slice(0, -1)) entry.declaration.remove();
+  state.fontFaces.set(rule, selected.family);
+}
+
+function collectGlobalRegistrations(container: Root | AtRule | Rule, state: ScopeState): void {
+  for (const node of container.nodes ?? []) {
+    if (node.type === "rule") {
+      collectGlobalRegistrations(node, state);
+    } else if (node.type === "atrule") {
+      switch (atRuleKind(node.name)) {
+        case "font-face": {
+          const family = state.fontFaces.get(node);
+          if (family !== undefined) registerFontAlias(family, state.scope, state.aliases);
+          break;
+        }
+        case "keyframes": {
+          const name = node.params.trim();
+          state.keyframes.set(name, `${state.scope}-${name}`);
+          break;
+        }
+        case "group":
+          collectGlobalRegistrations(node, state);
+          break;
+      }
+      // Registration bodies cannot contain other valid global registrations.
+    }
+  }
 }
 
 function stylesheetLabel(index: number): string {
@@ -622,6 +761,7 @@ export function scopeDocumentCss(
     notes,
     aliases: { ...options.fontAliases },
     keyframes: new Map(),
+    fontFaces: new Map(),
   };
   const roots: { root: Root; label: string }[] = [];
   stylesheets.forEach((entry, index) => {
@@ -636,11 +776,14 @@ export function scopeDocumentCss(
       );
     }
   });
-  // Keyframes and font faces are collected across every stylesheet first so a
-  // rule can reference a global registration declared later in the list.
+  // Decide retained structure first: names inside omitted ancestors must not
+  // redirect unrelated retained rules to registrations that will never exist.
+  for (const { root, label } of roots) scopeGroup(root, state, label);
+  // Collect across every retained stylesheet before rewriting values so forward
+  // references still work. Browser conditions are preserved, never evaluated.
   for (const { root } of roots) collectGlobalRegistrations(root, state);
-  const css = roots.map(({ root, label }) => {
-    scopeGroup(root, state, label);
+  const css = roots.map(({ root }) => {
+    rewritePreparedCss(root, state);
     return root.toString();
   });
   return { css: css.join("\n"), notes, fontAliases: state.aliases };

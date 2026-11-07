@@ -57,9 +57,15 @@ Nested CSS is supported conservatively. Implicit descendants, leading child comb
 These selectors isolate sibling editors and host-page targets. They do not create a boundary around a second canvas nested inside the first canvas's DOM: an outer descendant selector can still match that inner canvas's elements, and its cascade can affect them. Keep independently styled editors as siblings rather than nesting their canvases. This is CSS scoping, not a sandbox for arbitrary untrusted CSS.
 
 - `@media`, `@supports`, and `@container` groups are preserved.
-- `@keyframes` and `@font-face` registrations are namespaced per editor instance.
-- `@layer` rules are applied without layer semantics.
+- Supported `@keyframes` and custom-document `@font-face` registrations are namespaced per editor instance. Unsupported registrations are omitted with a console note, never retained as a global fallback.
+- Keyframe registration supports plain, unescaped identifier names. Quoted names, escapes, CSS-wide keywords, other unsupported names, and rules without a keyframe block are omitted, even when some of those forms are valid browser CSS. Matching remains case-sensitive. Literal `animation-name` references include keyword-like names such as `linear`; timing, direction, fill, and other shorthand keywords are not rewritten as names. Use `animation-name` for those ambiguous names.
+- Custom-document font faces accept literal quoted family names without escapes and unquoted identifier sequences. Duplicate supported `font-family` descriptors use only the last family, including differently cased descriptor names. Earlier families do not get aliases. A face with any unsupported or invalid family descriptor, `!important` family descriptor, embedded value comment, escaped or hack-prefixed descriptor name, or noncanonical whitespace in a quoted family is omitted in full, rather than guessing which fallback descriptor the browser would use. Generic and CSS-wide keywords are family names only when quoted. This is intentionally narrower than browser CSS.
+- `@layer` rules are applied without layer semantics. Direct declarations inside nested layers still receive the same literal font and animation aliases as other declarations.
 - `@import` and other global at-rules are not applied on the canvas and are reported once per note in the console.
+
+Only registrations in retained canvas CSS contribute aliases. Definitions beneath an omitted wrapper or rejected selector do not redirect surviving rules to missing aliases; explicitly supplied imported-font aliases are kept. Supported conditional groups still contribute aliases without evaluating their media/support/container conditions on the server. Unsupported `@scope` remains omitted in full, including its otherwise browser-valid global definitions.
+
+Literal `font-family` declarations in direct keyframe steps use the same per-instance aliases as ordinary declarations. Step selectors, timing functions, custom properties, `var()` values/fallbacks, font shorthand, escaped/commented font values, invalid empty-item font lists, and invalid `!important` declarations are left unchanged. Keyframe steps are not treated as nested selectors, and arbitrary nested content inside keyframes is not promoted into supported CSS.
 
 ### Web fonts
 
@@ -69,7 +75,7 @@ The same alias map covers native typography and custom head-only `@font-face` re
 
 The canvas also resolves MJML 5.4.1's five built-in font families: Open Sans, Droid Sans, Lato, Roboto, and Ubuntu. It requests only families used in this canvas's rendered inline font stacks or inline `mj-style` declarations. Explicit `mj-font` entries take precedence, including differently cased names. Ordinary head-only CSS does not trigger an implicit import. Matching uses complete family names rather than copying the compiler's unused substring matches, such as loading Roboto for Roboto Slab.
 
-The `font` shorthand is not rewritten to per-instance font aliases; use `font-family` declarations when aliases are needed. Safe rich-text HTML does not preserve arbitrary inline font-family styles; use the native typography controls or scoped document CSS. Trusted HTML continues to use a source placeholder on the canvas rather than executing imported markup.
+The `font` shorthand is not rewritten to per-instance font aliases; use `font-family` declarations when aliases are needed. CSS custom-property values, references inside `var()` (including fallbacks), and quoted/escaped animation references are not token-decoded or rewritten. Unknown references remain unchanged and can resolve to host-page registrations; this is not a CSS sandbox. Exported MJML and its original CSS are unchanged by canvas omission or aliasing. Safe rich-text HTML does not preserve arbitrary inline font-family styles; use the native typography controls or scoped document CSS. Trusted HTML continues to use a source placeholder on the canvas rather than executing imported markup.
 
 ### Generated-table selector adapters
 

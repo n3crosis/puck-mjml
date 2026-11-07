@@ -74,7 +74,8 @@
   flex: none;
 }
 @media (min-width: 1000px) {
-  .pm-editor > .Puck {
+  .pm-editor > .Puck,
+  .pm-editor-workspace > .Puck {
     --puck-user-sidebar-left-width: 216px;
     --puck-user-sidebar-right-width: 304px;
   }

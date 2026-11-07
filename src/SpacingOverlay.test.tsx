@@ -358,6 +358,8 @@ async function mount(
   document.body.append(container);
   if (inFrame) {
     frame = document.createElement("iframe");
+    // A local fixture document does not need Happy DOM's external iframe loading.
+    frame.srcdoc = "<!doctype html><html><body></body></html>";
     document.body.append(frame);
   }
   const owner = frame?.contentDocument ?? document;

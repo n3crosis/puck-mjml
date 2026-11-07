@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Puck, type Data, type Plugin, type Overrides } from "@puckeditor/core";
+import { Puck, createUsePuck, type Data, type Plugin, type Overrides } from "@puckeditor/core";
 import { EyeIcon } from "@phosphor-icons/react/dist/csr/Eye";
 import { BlockPaletteItem } from "./BlockPaletteItem";
 import { EmailOutline } from "./EmailOutline";
@@ -19,6 +19,40 @@ const fingerprint = (value: EmailDocument) => JSON.stringify(value);
 // Puck otherwise creates a new empty plugin array when host props update,
 // rebuilding slot renderers and unmounting focused inline text editors.
 const editorPlugins: Plugin[] = [];
+const usePuck = createUsePuck();
+
+// Retain Puck's native controls while giving tablet canvases room to work.
+// This stable override changes only UI state, never document data or history.
+const ResponsiveEditorLayout: Overrides["puck"] = ({ children }) => {
+  const left = usePuck((state) => state.appState.ui.leftSideBarVisible);
+  const right = usePuck((state) => state.appState.ui.rightSideBarVisible);
+  const dispatch = usePuck((state) => state.dispatch);
+  const [tablet, setTablet] = useState(false);
+  const previous = useRef({ left, right });
+
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 638px) and (max-width: 1000px)");
+    const update = () => setTablet(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    const was = previous.current;
+    previous.current = { left, right };
+    if (tablet && left && right) {
+      dispatch({
+        type: "setUi",
+        // A newly opened panel wins. On initial load/resize, retain Fields.
+        ui: !was.left ? { rightSideBarVisible: false } : { leftSideBarVisible: false },
+        recordHistory: false,
+      });
+    }
+  }, [tablet, left, right, dispatch]);
+
+  return <>{children}</>;
+};
 
 export function EmailEditor({
   value,
@@ -152,6 +186,7 @@ export function EmailEditor({
             onChange={handleChange}
             onPublish={onPublish ? (data) => onPublish(data as EmailDocument) : undefined}
             overrides={{
+              puck: ResponsiveEditorLayout,
               drawerItem: BlockPaletteItem,
               outline: EmailOutline,
               actionBar: SelectionActionBar,
@@ -201,7 +236,7 @@ export function EmailEditor({
                     aria-pressed={previewWidth === "desktop"}
                     onClick={() => setPreviewWidth("desktop")}
                   >
-                    Desktop
+                    Responsive
                   </button>
                   <button
                     type="button"

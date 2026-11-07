@@ -20,7 +20,9 @@ Blocks appear in a compact two-column palette with [Phosphor icons](https://phos
 
 Selected and hovered blocks show green padding and amber margins with side measurements, including their owned inner layout boxes. Selection tools prefer space above or below the content; tall selections keep controls within the visible preview. These editing aids are excluded from exported email.
 
-Root settings include email language/direction, legacy Outlook web layout, mobile breakpoint, hosted web fonts, custom CSS, and generated HTML attributes. The preview compiles the current document with MJML and offers desktop and mobile widths.
+At tablet widths, opening Blocks/Outline or Fields closes the other sidebar to preserve canvas space. The native header toggles still control each panel. Custom header actions expand into a separate row instead of covering canvas controls.
+
+Root settings include email language/direction, legacy Outlook web layout, mobile breakpoint, hosted web fonts, custom CSS, and generated HTML attributes. The preview compiles the current document with MJML. Responsive mode fits the available space up to 800px; Mobile caps it at 390px. Both shrink on narrower screens, so use a wider screen to inspect desktop email layout.
 
 ## Importing MJML
 

@@ -60,22 +60,36 @@
   padding: 8px 12px;
 }
 /* Puck's built-in menu retains sidebar and history behavior on narrower screens. */
-@media (min-width: 638px) and (max-width: 1000px) {
+@media (max-width: 1000px) {
   .pm-editor--custom-header [class*="_PuckLayout-header_"] {
     overflow: visible;
   }
   .pm-editor--custom-header :where([class*="_PuckHeader-menuButton_"]) {
     display: block;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .pm-editor--custom-header :where([class*="_PuckHeader-tools_"]) {
+    display: contents;
+  }
+  .pm-editor--custom-header :where([class*="_PuckHeader-toggle_"]) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .pm-editor--custom-header :where([class*="_PuckHeader-title_"]) {
+    grid-column: 2;
+    grid-row: 1;
   }
   .pm-editor--custom-header :where([class*="_MenuBar_"]) {
     display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    padding: 8px 16px;
-    margin-top: 1px;
-    border-bottom: 1px solid var(--puck-color-border);
+    position: static;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding: 8px 0 0;
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--puck-color-border);
   }
   .pm-editor--custom-header :where([class*="_MenuBar--menuOpen_"]) {
     display: block;

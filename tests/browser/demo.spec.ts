@@ -17,7 +17,7 @@ test("demo loads, exports source, and rejects trusted imports without replacemen
       "<mjml><mj-body><mj-raw><div>Untrusted source</div></mj-raw></mj-body></mjml>",
     ),
   });
-  await expect(page.getByRole("status")).toContainText("Import not loaded");
+  await expect(page.locator('.demo-status[role="status"]')).toContainText("Import not loaded");
   await expect(page.getByRole("combobox", { name: "Email template" })).toHaveValue(template);
 });
 
@@ -27,6 +27,52 @@ test("preview opens and dismisses with Escape", async ({ page }) => {
   await expect(page.getByRole("dialog", { name: "Email preview" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog", { name: "Email preview" })).toBeHidden();
+});
+
+test("tablet sidebars preserve canvas space and expanded actions do not cover controls", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 834, height: 1112 });
+  await page.goto("/");
+  const left = page.locator('[class*="_Sidebar--left_"]');
+  const right = page.locator('[class*="_Sidebar--right_"]');
+  const canvas = page.locator('[class*="_PuckCanvas_"]');
+  const expectUsableCanvas = async () =>
+    expect.poll(async () => (await canvas.boundingBox())?.width ?? 0).toBeGreaterThanOrEqual(440);
+
+  await expect(left).toBeHidden();
+  await expect(right).toBeVisible();
+  await expectUsableCanvas();
+  await page.getByRole("button", { name: "Toggle menu bar" }).click();
+  await expect(page.getByRole("button", { name: "Preview email" })).toBeVisible();
+  const header = page.locator('header[class*="_PuckHeader_"]');
+  const controls = page.locator('[class*="_PuckCanvas-controls_"]');
+  await expect(controls).toBeVisible();
+  await expect
+    .poll(async () => {
+      const top = await controls.boundingBox();
+      const above = await header.boundingBox();
+      return top && above ? top.y - (above.y + above.height) : -1;
+    })
+    .toBeGreaterThanOrEqual(0);
+
+  await page.getByRole("button", { name: "Toggle left sidebar" }).click();
+  await expect(left).toBeVisible();
+  await expect(right).toBeHidden();
+  await expectUsableCanvas();
+  await page.getByRole("button", { name: "Toggle right sidebar" }).click();
+  await expect(right).toBeVisible();
+  await expect(left).toBeHidden();
+  await expectUsableCanvas();
+
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole("button", { name: "Toggle left sidebar" }).click();
+  await expect(left).toBeVisible();
+  await expect(right).toBeVisible();
+  await page.setViewportSize({ width: 834, height: 1112 });
+  await expect(left).toBeHidden();
+  await expect(right).toBeVisible();
+  await expectUsableCanvas();
 });
 
 for (const viewport of [

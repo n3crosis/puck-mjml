@@ -132,6 +132,40 @@ async function insert(element: HTMLInputElement, text: string) {
 // Leave bounded headroom for the full editor/iframe under parallel CI load;
 // the default 5s timeout can interrupt React act and contaminate following cases.
 describe("controlled EmailEditor typing", { timeout: 20_000 }, () => {
+  it("switches tablet sidebars without remounting the editor or recording history", async () => {
+    const originalMatchMedia = window.matchMedia.bind(window);
+    const matchMedia = vi.spyOn(window, "matchMedia").mockImplementation((query) => {
+      const result = originalMatchMedia(query);
+      if (query === "(min-width: 638px) and (max-width: 1000px)") {
+        Object.defineProperty(result, "matches", { value: true });
+      }
+      return result;
+    });
+    try {
+      await mount();
+      const initialPuck = container!.querySelector(".Puck");
+      const initialHistory = api!.history.index;
+      const initialDocument = value;
+      expect(api!.appState.ui.leftSideBarVisible).toBe(false);
+      expect(api!.appState.ui.rightSideBarVisible).toBe(true);
+      await act(async () => {
+        api!.dispatch({ type: "setUi", ui: { leftSideBarVisible: true }, recordHistory: false });
+      });
+      expect(api!.appState.ui.leftSideBarVisible).toBe(true);
+      expect(api!.appState.ui.rightSideBarVisible).toBe(false);
+      await act(async () => {
+        api!.dispatch({ type: "setUi", ui: { rightSideBarVisible: true }, recordHistory: false });
+      });
+      expect(api!.appState.ui.leftSideBarVisible).toBe(false);
+      expect(api!.appState.ui.rightSideBarVisible).toBe(true);
+      expect(container!.querySelector(".Puck")).toBe(initialPuck);
+      expect(api!.history.index).toBe(initialHistory);
+      expect(value).toBe(initialDocument);
+    } finally {
+      matchMedia.mockRestore();
+    }
+  });
+
   it.each(["text", "table", "accordion"])(
     "keeps the %s inline editor and selection through typing echoes",
     async (id) => {

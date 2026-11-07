@@ -54,6 +54,9 @@ describe("Tailwind compiler ownership", () => {
       settings: {
         disableJavaScriptFileLoading: true,
         enableJavaScriptEvaluation: false,
+        // Create the compiler's blank frames, but prohibit external navigation or scripts.
+        enableIframePageLoading: true,
+        navigation: { disableChildFrameNavigation: true, disableFallbackToSetURL: true },
       },
     });
     const document = window.document;

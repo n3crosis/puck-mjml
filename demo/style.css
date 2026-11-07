@@ -193,16 +193,36 @@ button {
   border-bottom: 1px solid #dbeafe;
 }
 @media (max-width: 600px) {
+  .demo-app .pm-editor :where([class*="_MenuBar-inner_"]) {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px 6px;
+  }
+  .demo-app .pm-editor :where([class*="_MenuBar-history_"]) {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+  }
   .demo-template-picker {
     width: 100%;
     min-width: 0;
+    grid-column: 1 / 4;
+    grid-row: 1;
   }
   .demo-template-select {
     flex: 1;
     width: auto;
   }
   .demo-actions {
-    width: 100%;
+    display: contents;
+  }
+  .demo-actions button,
+  .demo-import,
+  .demo-app .pm-preview-button {
+    min-width: 0;
+    padding-inline: 5px;
+    gap: 4px;
+    justify-content: center;
   }
   .demo-divider {
     display: none;

@@ -52,6 +52,12 @@ Tests cover compilation, server rendering, and detached DOM interactions. Keep c
 
 For API or bundling changes, run `bun run test:package` after building. It checks the generated ESM and CommonJS APIs, HTML compilation, and the `puck-mjml/core` entry under React Server Components resolution. Run `bun run test:browser` for the Chromium demo smoke suite. Install its browser once with `bunx playwright install chromium`; a local Chromium can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. These tests do not establish real email-client parity. Prior passing test counts are not a guarantee for the current checkout.
 
+## Dependency security
+
+Run `bun audit` after dependency changes. This repository pins Happy DOM 21.0.4, the published patched release for [GHSA-834v-8h66-3h79](https://github.com/advisories/GHSA-834v-8h66-3h79) and [GHSA-c8p4-j97h-3vg8](https://github.com/advisories/GHSA-c8p4-j97h-3vg8). The root override covers both the test dependency and Puck's transitive dependency in this development/demo installation.
+
+Puck 0.23.0 declares Happy DOM as a regular dependency; its Tiptap Node rich-text path imports it. Tiptap's browser path uses the browser DOM instead. Package-level overrides do not propagate to consuming applications: hosts must audit their own lockfile and resolve a patched Happy DOM version for their Puck installation, using a compatible upstream release or a tested root override.
+
 ## Updating MJML
 
 The current catalog records `mjml-browser` 5.4.1: 31 components, including 23 body components, with 394 declared attributes (390 on body components). Shared `mj-class` and `css-class` attributes are additional. Catalog provenance is recorded in `src/native-catalog.json`.
@@ -74,7 +80,7 @@ The [compatibility matrix](MJML_COMPATIBILITY.md) tracks rendering limitations. 
 
 ## GitHub Actions and Pages
 
-`.github/workflows/ci-pages.yml` runs on pull requests, pushes to `main`, and manual dispatch. It installs Bun 1.4.2 and Node 22, installs from the frozen lockfile, checks formatting/lint/types/tests, builds the library, smoke-tests the package, builds the demo, and exercises Chromium. Only successful `main` builds can deploy.
+`.github/workflows/ci-pages.yml` runs on pull requests, pushes to `main`, and manual dispatch. It installs Bun 1.4.2 and Node 22, installs from the frozen lockfile, audits dependencies, checks formatting/lint/types/tests, builds the library, smoke-tests the package, builds the demo, and exercises Chromium. Only successful `main` builds can deploy.
 
 The deployment uploads `demo-dist/` as a Pages artifact and deploys it through the `github-pages` environment. Relative Vite asset URLs support repository-path hosting. Configure the repository's **Settings → Pages → Build and deployment → Source** as **GitHub Actions**. Environment protection rules may require a deployment approval. The deployment job alone receives `pages: write` and `id-token: write`; checks only need repository read permission.
 

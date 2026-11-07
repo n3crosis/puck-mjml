@@ -5,6 +5,7 @@ import { thirdPartyNotices } from "./scripts/third-party-notices";
 export default defineConfig(({ command, mode }) => ({
   plugins: [react(), thirdPartyNotices()],
   test: {
+    setupFiles: ["./tests/happy-dom-fonts.setup.ts"],
     // The compiler and real-editor suites are memory-heavy. Bound concurrent
     // forks instead of letting high-core machines terminate test workers.
     maxWorkers: 2,

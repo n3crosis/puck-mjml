@@ -1,6 +1,10 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/notifications/papermark-year-in-review.tsx
-Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
+Activity statistics retain the source auto-layout table: equal preferred desktop
+columns, intrinsic mobile widths, and editable cell text. Body padding reproduces
+the original browser margin. Divider padding represents collapsed 24px/8.04px
+source margins after the preceding paragraph's 16px bottom space. -->
 <mjml>
   <mj-head>
     <mj-title>Your Year with Papermark</mj-title>
@@ -12,6 +16,31 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-text padding="0px" color="#101828" />
     </mj-attributes>
     <mj-style inline="inline">
+      .paper-activity-stats td p {
+        overflow-wrap: normal;
+        word-break: normal;
+      }
+      .paper-activity-stats td p:nth-of-type(1) {
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: 500;
+        color: #a63b00;
+        margin: 16px 0px;
+      }
+      .paper-activity-stats td p:nth-of-type(2) {
+        font-size: 36px;
+        line-height: 40px;
+        font-weight: 700;
+        color: #101828;
+        margin: 4px 0px;
+      }
+      .paper-activity-stats td p:nth-of-type(3) {
+        font-size: 24px;
+        line-height: 32px;
+        color: #101828;
+        margin: 16px 0px;
+      }
+
       /* Style both opaque surfaces; solid colors remain fallbacks for email clients. */
       .paper-orange,
       .paper-orange > table {
@@ -47,6 +76,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       }
     </mj-style>
     <mj-style>
+      body {
+        padding: 8px !important;
+      }
       p {
         margin: 0;
       }
@@ -58,6 +90,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         display: inline-block;
         border-radius: 999px;
         background-color: #10b981;
+        font-weight: 500;
         padding: 4px 12px;
         margin: 4px;
         color: #ffffff;
@@ -67,6 +100,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         display: inline-block;
         border-radius: 999px;
         background-color: #10b981;
+        font-weight: 500;
         padding: 4px 12px;
         margin: 4px;
         color: #ffffff;
@@ -76,6 +110,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         display: inline-block;
         border-radius: 999px;
         background-color: #10b981;
+        font-weight: 500;
         padding: 4px 12px;
         margin: 4px;
         color: #ffffff;
@@ -85,11 +120,13 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         display: inline-block;
         border-radius: 999px;
         background-color: #10b981;
+        font-weight: 500;
         padding: 4px 12px;
         margin: 4px;
         color: #ffffff;
       }
       .community-rich-4 a:nth-of-type(1) {
+        display: block;
         color: #101828;
         text-decoration: none;
       }
@@ -157,6 +194,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         >
       </mj-column>
     </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px"><mj-spacer height="24px" /></mj-column>
+    </mj-section>
     <mj-wrapper
       padding="0px"
       background-color="#fff2e6"
@@ -195,7 +235,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           <mj-text padding="0px 0px 16px" font-size="14px" line-height="20px" align="center"
             >That's a lot of engagement! Your documents are resonating with your visitors.</mj-text
           >
-          <mj-divider border-color="#fb7a00" border-width="1px" padding="24px 0px" />
+          <mj-divider border-color="#eaeaea" border-width="1px" padding="8px 0px 8.04px" />
           <mj-text
             padding="20px 0px 0px"
             font-size="12px"
@@ -210,74 +250,35 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         </mj-column>
       </mj-section>
       <mj-section padding="20px 32px 32px">
-        <mj-group width="100%" css-class="paper-activity-stats">
-          <mj-column padding="0px" width="33.333%">
-            <mj-text
-              padding="0px 0px 16px"
-              font-size="14px"
-              line-height="20px"
-              color="#a63b00"
-              font-weight="500"
-              align="center"
-              >You uploaded</mj-text
-            >
-            <mj-text
-              padding="4px 0px"
-              font-size="36px"
-              line-height="40px"
-              font-weight="700"
-              align="center"
-              >25</mj-text
-            >
-            <mj-text padding="12px 0px 16px" font-size="24px" line-height="32px" align="center"
-              >documents</mj-text
-            >
-          </mj-column>
-          <mj-column padding="0px" width="33.333%">
-            <mj-text
-              padding="0px 0px 16px"
-              font-size="14px"
-              line-height="20px"
-              color="#a63b00"
-              font-weight="500"
-              align="center"
-              >You shared</mj-text
-            >
-            <mj-text
-              padding="4px 0px"
-              font-size="36px"
-              line-height="40px"
-              font-weight="700"
-              align="center"
-              >50</mj-text
-            >
-            <mj-text padding="12px 0px 16px" font-size="24px" line-height="32px" align="center"
-              >links</mj-text
-            >
-          </mj-column>
-          <mj-column padding="0px" width="33.333%">
-            <mj-text
-              padding="0px 0px 16px"
-              font-size="14px"
-              line-height="20px"
-              color="#a63b00"
-              font-weight="500"
-              align="center"
-              >You received</mj-text
-            >
-            <mj-text
-              padding="4px 0px"
-              font-size="36px"
-              line-height="40px"
-              font-weight="700"
-              align="center"
-              >500</mj-text
-            >
-            <mj-text padding="12px 0px 16px" font-size="24px" line-height="32px" align="center"
-              >views</mj-text
-            >
-          </mj-column>
-        </mj-group>
+        <mj-column padding="0px">
+          <mj-table
+            padding="0px"
+            width="100%"
+            table-layout="auto"
+            cellpadding="0"
+            cellspacing="0"
+            color="#101828"
+            css-class="paper-activity-stats"
+          >
+            <tr>
+              <td style="width: 33.33333333333333%; text-align: center">
+                <p>You uploaded</p>
+                <p>25</p>
+                <p>documents</p>
+              </td>
+              <td style="width: 33.33333333333333%; text-align: center">
+                <p>You shared</p>
+                <p>50</p>
+                <p>links</p>
+              </td>
+              <td style="width: 33.33333333333333%; text-align: center">
+                <p>You received</p>
+                <p>500</p>
+                <p>views</p>
+              </td>
+            </tr>
+          </mj-table>
+        </mj-column>
       </mj-section>
     </mj-wrapper>
     <mj-section padding="0px">
@@ -297,7 +298,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           font-size="30px"
           line-height="36px"
           font-weight="500"
-          color="#1f2937"
+          color="#1e2939"
           align="center"
           css-class="reference-heading"
           ><h1>Your top document</h1></mj-text
@@ -365,7 +366,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text padding="0px 0px 16px" font-size="14px" line-height="20px" align="center"
           >September was your busiest month. What did you share that got so much attention?</mj-text
         >
-        <mj-divider border-color="#e4c5a0" border-width="1px" padding="24px 0px" />
+        <mj-divider border-color="#eaeaea" border-width="1px" padding="8px 0px 8.04px" />
         <mj-text
           padding="20px 0px 0px"
           font-size="12px"
@@ -438,7 +439,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         >
       </mj-column>
     </mj-section>
-    <mj-section padding="24px 0px">
+    <mj-section padding="40px 0px 24px">
       <mj-column padding="0px">
         <mj-text padding="0px 0px 16px" font-size="20px" line-height="32px" align="center"
           >We're excited to support you next year!<br />Happy Holidays from the Papermark team
@@ -458,7 +459,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           >Share your stats</mj-button
         >
         <mj-text
-          padding="0px 0px 16px"
+          padding="0px"
           font-size="14px"
           line-height="20px"
           align="center"

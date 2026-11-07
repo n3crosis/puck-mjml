@@ -51,6 +51,9 @@
     </mj-style>
     <mj-style>
       @media only screen and (max-width: 600px) {
+        .arcane-tips-section > table > tbody > tr > td {
+          padding-top: 88px !important;
+        }
         .arcane-inset > table > tbody > tr > td {
           padding-left: 24px !important;
           padding-right: 24px !important;
@@ -159,12 +162,13 @@
           />
         </mj-column>
       </mj-section>
-      <mj-section padding="152px 40px 0px" css-class="arcane-inset arcane-mobile-top">
+      <mj-section padding="152px 40px 0px" css-class="arcane-inset arcane-tips-section">
         <mj-column padding="0px" vertical-align="top">
           <mj-text
             font-family="Instrument Serif, Georgia, Times New Roman, serif"
             font-size="72px"
             font-weight="400"
+            text-transform="capitalize"
             line-height="1"
             letter-spacing="-0.52px"
             color="#FCF3ED"

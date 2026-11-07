@@ -1,0 +1,50 @@
+import { Render, type Data } from "@puckeditor/core";
+import { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import { createEmailConfig } from "../../../src/config";
+import { compileEmail } from "../../../src/export";
+import { fromMjml } from "../../../src/import";
+import "../../../src/style.css";
+
+const asset = (name: string) => `${location.origin}/tests/browser/fixtures/fonts/${name}.woff`;
+const face = (family: string, font: string, weight: string) =>
+  `@font-face{font-family:'${family}';font-style:normal;font-weight:${weight};src:url('${asset(font)}') format('woff');}`;
+const body = (family: string) =>
+  [400, 420, 450, 600]
+    .map(
+      (weight) =>
+        `<mj-text css-class="weight-${weight}" font-family="${family}, monospace" font-size="20px" line-height="24px" font-weight="${weight}" padding="0px">Hamburg</mj-text>`,
+    )
+    .join("");
+const source = (kind: string) => `<mjml><mj-head>
+${kind === "first" || kind === "other" ? '<mj-font name="Probe" href="https://fonts.example.test/variable.css" />' : ""}
+<mj-style>${kind === "first" ? face("Probe", "static-400", "400") + face("Probe", "static-600", "600") : kind === "other" ? face("Probe", "other-400", "400") : kind === "head" ? face("Head Only", "static-400", "400") : ""}</mj-style>
+</mj-head><mj-body width="500px"><mj-section padding="0px"><mj-column padding="0px">${body(kind === "head" ? "Head Only" : kind === "implicit" ? "Roboto" : "Probe")}</mj-column></mj-section></mj-body></mjml>`;
+const documents = Object.fromEntries(
+  ["first", "other", "head", "implicit"].map((name) => [name, fromMjml(source(name)).document]),
+);
+const config = createEmailConfig();
+function Fixture() {
+  const [html, setHtml] = useState("");
+  useEffect(() => {
+    void compileEmail(documents.first, { allowRawHtml: true }).then((result) =>
+      setHtml(result.html),
+    );
+  }, []);
+  return (
+    <>
+      {Object.entries(documents).map(([name, document]) => (
+        <section key={name} aria-label={`${name} canvas`}>
+          <Render config={config} data={document as Data} />
+        </section>
+      ))}
+      <iframe
+        id="compiled"
+        title="Compiled font reference"
+        srcDoc={html}
+        style={{ width: 500, height: 180, border: 0 }}
+      />
+    </>
+  );
+}
+createRoot(document.getElementById("root")!).render(<Fixture />);

@@ -18,7 +18,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       }
       .stack-heart > div {
         display: inline-block;
-        max-width: min-content;
+        width: max-content;
         border: 1px solid #d6d9dc;
         border-radius: 1px;
         padding: 4px 6px 3px;
@@ -26,10 +26,13 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       .stack-tips ul {
         margin: 0;
       }
-      .stack-tips li p {
+      .stack-tips li {
         margin: 0 0 16px;
       }
-      .stack-tips li:last-child p {
+      .stack-tips li p {
+        margin: 0;
+      }
+      .stack-tips li:last-child {
         margin-bottom: 0;
       }
       .community-rich-0 a:nth-of-type(1) {

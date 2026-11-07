@@ -28,9 +28,9 @@ function declarations(value: string | undefined) {
 }
 
 function textStyle($: CheerioAPI, text: string, original = false) {
-  const elements = $(original ? "p,h1,h2" : "div")
+  const elements = $(original ? "p,h1,h2" : "div,p")
     .filter((_index, node) => normalize($(node).text()) === text)
-    .filter((_index, node) => original || $(node).find("div").length === 0);
+    .filter((_index, node) => original || $(node).find("div,p").length === 0);
   expect(elements, text).toHaveLength(1);
   return declarations(elements.attr("style"));
 }
@@ -260,16 +260,20 @@ describe.each([false, true])("Community pixel design, editor round trip: %s", (r
       expect(declarations($(selector).attr("style"))["vertical-align"]).toBe("middle");
     }
     const heart = textStyle(original, "<3", true);
+    expect(heart["max-width"]).toBe("min-content");
     expect(ruleStyle($, ".stack-heart > div")).toMatchObject({
-      "max-width": heart["max-width"],
+      // Source min-content relied on its p sizing context. MJML's div wraps
+      // between the two glyphs, so preserve the observed single-line chip.
+      width: "max-content",
       display: "inline-block",
       padding: "4px 6px 3px",
       "border-radius": heart["border-radius"],
     });
     const firstTip = original("li p").first();
     expect(declarations(firstTip.attr("style"))["margin-bottom"]).toBe("16px");
-    expect(ruleStyle($, ".stack-tips li p").margin).toBe("0 0 16px");
-    expect(ruleStyle($, ".stack-tips li:last-child p")["margin-bottom"]).toBe("0");
+    expect(ruleStyle($, ".stack-tips li").margin).toBe("0 0 16px");
+    expect(ruleStyle($, ".stack-tips li p").margin).toBe("0");
+    expect(ruleStyle($, ".stack-tips li:last-child")["margin-bottom"]).toBe("0");
   });
 
   it("retains Airbnb's original desktop content width with safe mobile gutters", async () => {
@@ -368,19 +372,24 @@ describe.each([false, true])("Community pixel design, editor round trip: %s", (r
     ]) {
       const expected = textStyle(original, text, true);
       const actual = textStyle($, text);
-      expect(family(actual["font-family"]), text).toBe(family(sourceFont));
+      const inheritedFont = declarations($(".paper-activity-stats > table").attr("style"))[
+        "font-family"
+      ];
+      expect(family(actual["font-family"] ?? inheritedFont), text).toBe(family(sourceFont));
       const size = pixels(expected["font-size"]);
       expect(pixels(actual["font-size"]), text).toBe(size);
       expect(pixels(actual["line-height"], size), text).toBeCloseTo(
         pixels(expected["line-height"], size),
       );
     }
-    const columns = $(".paper-activity-stats > div");
+    const table = $(".paper-activity-stats > table");
+    expect(declarations(table.attr("style"))["table-layout"]).toBe("auto");
+    const columns = table.find("> tbody > tr > td");
     expect(columns).toHaveLength(3);
     columns.each((_index, node) => {
       expect(declarations($(node).attr("style"))).toMatchObject({
-        display: "inline-block",
-        width: "33.333%",
+        width: "33.33333333333333%",
+        "text-align": "center",
       });
     });
     expect(columns.map((_index, node) => normalize($(node).text())).get()).toEqual([

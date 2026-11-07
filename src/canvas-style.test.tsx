@@ -76,7 +76,10 @@ describe("scoped custom CSS on the canvas", () => {
     const scope = [...root.classList].find((name) => name.startsWith("pm-canvas-"))!;
     expect(root.getAttribute("style")).toContain(`font-family:"Inter-${scope}"`);
     // Fonts load on the client only; server rendering never fetches.
-    expect(canvas.querySelector("style[data-pm-canvas-fonts]")).toBeNull();
+    expect(
+      canvas.querySelector("style[data-pm-canvas-fonts]")?.getAttribute("data-pm-font-status"),
+    ).toBe("loading");
+    expect(canvas.querySelector("style[data-pm-canvas-fonts]")?.textContent).toBe("");
   });
 
   it("aliases native font-family attributes on canvas content", () => {

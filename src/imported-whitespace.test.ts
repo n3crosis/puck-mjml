@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { fromMjml } from "./import";
 import { compileEmail, toMjml } from "./export";
 import { importedRichText } from "./imported-content";
-import { normalizeImportedWhitespace } from "./imported-whitespace";
+import { hasSourceWhitespaceStyles, normalizeImportedWhitespace } from "./imported-whitespace";
 import { sanitizeDocumentRichText } from "./normalize";
 import type { EmailBlock, EmailDocument } from "./types";
 
@@ -145,6 +145,24 @@ describe("imported HTML whitespace", () => {
   const files = readdirSync(templates, { recursive: true, encoding: "utf8" }).filter((file) =>
     file.endsWith(".mjml"),
   );
+  it("keeps Stack Overflow's intrinsic chip sizing from disabling ordinary text normalization", () => {
+    const source = readFileSync(
+      new URL("Community/newsletters/stack-overflow-tips.mjml", templates),
+      "utf8",
+    );
+    expect(source).toMatch(/\.stack-heart > div\s*\{[^}]*width:\s*max-content/);
+    expect(hasSourceWhitespaceStyles(source)).toBe(false);
+    const { document, warnings } = fromMjml(source);
+    expect(warnings).toEqual([]);
+    const intro = textBlocks(document).find((block) =>
+      String(block.props.content).includes("With more than 18 million questions"),
+    )!;
+    expect(load(String(intro.props.content)).root().text()).toBe(
+      "With more than 18 million questions, it's possible that someone has already provided a solution to the problem you're facing.",
+    );
+    // Native editor text collapses source indentation; retained export stays exact.
+    expect(importedRichText(intro.props)).toMatch(/provided a\s*\n\s+solution/);
+  });
   it("covers all 62 canonical files", () => expect(files).toHaveLength(62));
   it.each(files)("removes source indentation from ordinary editable text in %s", (file) => {
     const { document, warnings } = fromMjml(readFileSync(new URL(file, templates), "utf8"));

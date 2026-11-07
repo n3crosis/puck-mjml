@@ -12,7 +12,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-text padding="0px" />
     </mj-attributes>
     <mj-style>
-      .vercel-invite-details b {
+      .vercel-invite-details b,
+      .vercel-invite-details strong {
         color: #000000;
         font-weight: 400;
       }

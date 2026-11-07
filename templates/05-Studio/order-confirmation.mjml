@@ -16,6 +16,77 @@
       name="Geist"
       href="https://fonts.googleapis.com/css2?family=Geist:wght@400;450;500;600;700&amp;display=swap"
     />
+    <mj-style>
+      /* Exact registrations from the pinned TechFonts component.
+         Preserve the original Inter 400/450 mapping and Geist v4 face. */
+      @font-face {
+        font-family: "Geist";
+        font-style: normal;
+        font-weight: 400;
+        mso-font-alt: "Arial";
+        src: url(https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2) format("woff2");
+      }
+      @font-face {
+        font-family: "Geist";
+        font-style: normal;
+        font-weight: 450;
+        mso-font-alt: "Arial";
+        src: url(https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2) format("woff2");
+      }
+      @font-face {
+        font-family: "Geist";
+        font-style: normal;
+        font-weight: 500;
+        mso-font-alt: "Arial";
+        src: url(https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2) format("woff2");
+      }
+      @font-face {
+        font-family: "Geist";
+        font-style: normal;
+        font-weight: 600;
+        mso-font-alt: "Arial";
+        src: url(https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2) format("woff2");
+      }
+      @font-face {
+        font-family: "Geist";
+        font-style: normal;
+        font-weight: 700;
+        mso-font-alt: "Arial";
+        src: url(https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2) format("woff2");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 400;
+        mso-font-alt: "Arial";
+        src: url(https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuOKfMZg.ttf)
+          format("truetype");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 450;
+        mso-font-alt: "Arial";
+        src: url(https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuOKfMZg.ttf)
+          format("truetype");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 500;
+        mso-font-alt: "Arial";
+        src: url(https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZg.ttf)
+          format("truetype");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 600;
+        mso-font-alt: "Arial";
+        src: url(https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYMZg.ttf)
+          format("truetype");
+      }
+    </mj-style>
     <mj-attributes>
       <mj-all font-family="Inter, Arial, sans-serif" />
     </mj-attributes>
@@ -112,7 +183,7 @@
           font-family="Inter, Arial, sans-serif"
           font-size="15px"
           font-weight="500"
-          line-height="1.6"
+          line-height="1.2"
           letter-spacing="-0.042px"
           border="1px solid #E8E9E9"
           border-radius="8px"

@@ -28,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ## MJML
 
-The native attribute catalog and canvas social-network presets are derived from the installed MJML compiler and pinned [MJML source](https://github.com/mjmlio/mjml/tree/1c434fcbfd042ddfcb9fa4e0496f7eedf1d90bc7/packages). MJML is also bundled for browser compilation. The published `mjml-browser` package contains prebundled third-party code without a complete embedded license manifest. The [pinned compiler supplement](docs/third-party/mjml-browser.json) preserves verified upstream dependency license texts as a conservative superset, with its scope and remaining provenance limits recorded explicitly. It is not an exact enumeration of the opaque upstream bundle.
+The native attribute catalog, canvas social-network presets, default web-font registry, and section/wrapper background-position parsing are derived from the installed MJML compiler and pinned [MJML source](https://github.com/mjmlio/mjml/tree/1c434fcbfd042ddfcb9fa4e0496f7eedf1d90bc7/packages). MJML is also bundled for browser compilation. The published `mjml-browser` package contains prebundled third-party code without a complete embedded license manifest. The [pinned compiler supplement](docs/third-party/mjml-browser.json) preserves verified upstream dependency license texts as a conservative superset, with its scope and remaining provenance limits recorded explicitly. It is not an exact enumeration of the opaque upstream bundle.
 
 The MIT License (MIT)
 

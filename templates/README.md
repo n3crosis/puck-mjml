@@ -26,10 +26,12 @@ All 62 canonical sources are included, plus the blank document in the picker. Ex
 
 - Preserve the official family and filename: `02-Matte/welcome.mjml`, or `Community/magic-links/linear-login-code.mjml`.
 - Keep every document self-contained, with `mjml`, `mj-head`, `mj-title`, `mj-preview`, and `mj-body`. Use native MJML components for layout and editable content.
-- Keep fonts in `mj-font`, styling in `mj-style`, and responsive rules beside the email they affect. Normal HTML fragments in text or table content are permitted; do not wrap a compiled HTML email in `mj-raw`.
+- Keep hosted font stylesheet imports in `mj-font`, exact static `@font-face` registrations and other styling in `mj-style`, and responsive rules beside the email they affect. Normal HTML fragments in text or table content are permitted; do not wrap a compiled HTML email in `mj-raw`.
 - Include the pinned upstream URL and attribution in the opening XML comment. The manifest's `file` is relative to this directory; `upstreamPath` is relative to the upstream repository.
 - Use public upstream preview data, not real account information. These are examples, not send-ready production emails. Replace demo destinations, addresses, dates, receipt data, and copy before sending.
 - Images use `https://demo.react.email/static/`; web fonts use Google Fonts. They require network access and are not bundled. Host your own authorized assets for production. System-font fallbacks remain available when clients block web fonts.
+
+Barebone preserves the original combination of a variable Inter stylesheet and three later static faces for declared weights 400, 500, and 600. Studio restores its nine exact Geist and Inter registrations, including the original shared binary for Inter 400/450. The exact font file and registration order affect line wrapping; matching only the family and numeric weight is not enough. Keep the source descriptors rather than changing heading widths to compensate for another font binary. Healthy imported stylesheets remain fallbacks, with exact static faces later in the cascade. Original references with unavailable font URLs remain unchanged as evidence; a port should not reproduce a failed download.
 
 The MIT copyright and license text are preserved in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Brand names and artwork are demonstration material, not an endorsement. Historical sample prices and policy text are not current offers or advice.
 

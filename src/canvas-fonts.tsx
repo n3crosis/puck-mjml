@@ -10,6 +10,7 @@ export interface FontImport {
 export interface FontCssResult {
   css: string;
   notes: string[];
+  failures?: string[];
 }
 
 export interface FontCssResponse {
@@ -76,6 +77,13 @@ export function transformFontCss(
   }
   const keepFontFace = (rule: AtRule): boolean => {
     if (!matchesFamily(rule, options.family)) return false;
+    let hasSource = false;
+    rule.walkDecls("src", (declaration) => {
+      if (declaration.value.trim()) hasSource = true;
+    });
+    // The browser ignores source-less faces. A same-family static head face
+    // must not hide an import that can never register.
+    if (!hasSource) return false;
     rule.walkDecls((declaration) => {
       const property = declaration.prop.toLowerCase();
       if (property === "font-family") {
@@ -151,30 +159,35 @@ export async function loadFontCss(
   const fetcher = options.fetcher ?? ((url) => fetch(url));
   const notes: string[] = [];
   const css: string[] = [];
+  const failures: string[] = [];
   const entries = Array.isArray(imports) ? imports : [];
   for (const entry of entries) {
     const name = (entry as FontImport)?.name;
     const href = httpUrl((entry as FontImport)?.href);
     if (typeof name !== "string" || !name.trim() || !href) {
       notes.push("A web font entry is incomplete and was not loaded.");
+      failures.push("A web font entry is incomplete and was not loaded.");
       continue;
     }
     const family = name.trim();
-    const alias = aliases[familyKey(family)] ?? family;
+    const key = familyKey(family);
+    const alias = Object.hasOwn(aliases, key) ? aliases[key] : family;
     try {
       const stylesheet = await fetchFontCss(href, fetcher);
       const transformed = transformFontCss(stylesheet, { family, alias, baseUrl: href });
       css.push(transformed.css);
       notes.push(...transformed.notes);
+      if (!transformed.css) failures.push(...transformed.notes);
     } catch (error) {
       notes.push(
         `Web font CSS for "${family}" could not be loaded (${
           error instanceof Error ? error.message : "network error"
         }); the canvas falls back to the remaining font stack.`,
       );
+      failures.push(notes[notes.length - 1]);
     }
   }
-  return { css: css.filter(Boolean).join("\n"), notes };
+  return { css: css.filter(Boolean).join("\n"), notes, failures };
 }
 
 /**
@@ -184,8 +197,15 @@ export async function loadFontCss(
  * removes the injected style element, and results are never applied after
  * the canvas is gone.
  */
-export function useCanvasFonts(imports: unknown, aliases: FontAliasMap): { css: string } {
-  const [loaded, setLoaded] = useState<FontCssResult | null>(null);
+export function useCanvasFonts(
+  imports: unknown,
+  aliases: FontAliasMap,
+): {
+  css: string;
+  status: "idle" | "loading" | "ready" | "error";
+  failures: string[];
+} {
+  const [loaded, setLoaded] = useState<(FontCssResult & { key: string }) | null>(null);
   const key = (() => {
     try {
       return JSON.stringify({ imports: imports ?? [], aliases });
@@ -195,6 +215,11 @@ export function useCanvasFonts(imports: unknown, aliases: FontAliasMap): { css: 
   })();
   useEffect(() => {
     let cancelled = false;
+    if (key === "{}") {
+      const message = "Canvas font imports could not be read and were not applied.";
+      setLoaded({ key, css: "", notes: [message], failures: [message] });
+      return;
+    }
     const parsed = JSON.parse(key) as { imports: FontImport[]; aliases: FontAliasMap };
     if (!parsed.imports?.length) {
       setLoaded(null);
@@ -202,10 +227,11 @@ export function useCanvasFonts(imports: unknown, aliases: FontAliasMap): { css: 
     }
     loadFontCss(parsed.imports, parsed.aliases ?? {})
       .then((result) => {
-        if (!cancelled) setLoaded(result);
+        if (!cancelled) setLoaded({ ...result, key });
       })
-      .catch(() => {
-        if (!cancelled) setLoaded(null);
+      .catch((error) => {
+        const message = `Canvas font CSS could not be loaded (${error instanceof Error ? error.message : "unknown error"}).`;
+        if (!cancelled) setLoaded({ key, css: "", notes: [message], failures: [message] });
       });
     return () => {
       cancelled = true;
@@ -214,5 +240,17 @@ export function useCanvasFonts(imports: unknown, aliases: FontAliasMap): { css: 
   useEffect(() => {
     if (loaded?.notes.length) reportCanvasNotes(loaded.notes);
   }, [loaded]);
-  return { css: loaded?.css ?? "" };
+  const current = loaded?.key === key ? loaded : null;
+  return {
+    css: current?.css ?? "",
+    status:
+      !Array.isArray(imports) || !imports.length
+        ? "idle"
+        : current
+          ? current.failures?.length
+            ? "error"
+            : "ready"
+          : "loading",
+    failures: current?.failures ?? [],
+  };
 }

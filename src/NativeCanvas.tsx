@@ -13,6 +13,7 @@ import type { TableProps } from "./table";
 import { resolveImportedAttributes } from "./import-inheritance";
 import { hasImportedRichTextWrapper, importedRichText } from "./imported-content";
 import { NativeItems } from "./NativeItems";
+import { nativeBackgroundStyle } from "./native-background";
 import {
   NativeLayoutContext,
   NativeLayoutData,
@@ -81,18 +82,9 @@ const outerStyle = (a: NativeCanvasAttributes): CSSProperties => ({
   backgroundColor: a["container-background-color"],
   textAlign: a.align as CSSProperties["textAlign"],
 });
-const backgroundFillStyle = (a: NativeCanvasAttributes): CSSProperties => ({
-  backgroundColor: a["background-color"],
-  backgroundImage: a["background-url"] ? `url("${a["background-url"]}")` : undefined,
-  backgroundPosition: a["background-position"],
-  backgroundPositionX: a["background-position-x"],
-  backgroundPositionY: a["background-position-y"],
-  backgroundSize: a["background-size"],
-  backgroundRepeat: a["background-repeat"] as CSSProperties["backgroundRepeat"],
-});
-const backgroundStyle = (a: NativeCanvasAttributes): CSSProperties => ({
+const backgroundStyle = (a: NativeCanvasAttributes, section = true): CSSProperties => ({
   ...nativeBoxStyle(a),
-  ...backgroundFillStyle(a),
+  ...nativeBackgroundStyle(a, section),
 });
 
 function LayoutBox({
@@ -122,7 +114,7 @@ function LayoutBox({
     <div
       className={classes(`pm-${kind} pm-native-full-width`, a)}
       style={{
-        ...backgroundFillStyle(a),
+        ...nativeBackgroundStyle(a),
         // Full-width sections inside a wrapper fill that wrapper's content box.
         // Only body children extend past the centered email to the canvas edges.
         width: insideWrapper ? "100%" : "100cqw",
@@ -378,7 +370,7 @@ function NativeBlockView({
         <div
           className={classes("pm-hero", a)}
           style={{
-            ...backgroundStyle(a),
+            ...backgroundStyle(a, false),
             backgroundSize: "cover",
             minHeight: a.mode === "fixed-height" ? a.height : undefined,
             boxSizing: "border-box",

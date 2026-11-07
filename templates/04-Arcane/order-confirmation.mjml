@@ -80,7 +80,7 @@
             line-height="1"
             letter-spacing="-0.52px"
             color="#FCF3ED"
-            padding="0px"
+            padding="16px 0px 0px"
             align="left"
             css-class="arcane-narrow"
             >Your order has been placed</mj-text
@@ -92,7 +92,7 @@
             line-height="1.5"
             letter-spacing="0.25px"
             color="#EFE1D8"
-            padding="44px 0px 0px"
+            padding="32px 0px 0px"
             align="left"
             css-class="arcane-narrow"
             >Your order #1234567890 has been confirmed!</mj-text

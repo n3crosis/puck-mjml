@@ -186,7 +186,9 @@ describe("Community ports against emitted React Email HTML", () => {
         .map((_, node) => original(node).text())
         .toArray(),
     );
-    expect(css).toMatch(/\.vercel-invite-details b\s*\{\s*color:\s*#000000;\s*font-weight:\s*400/);
+    expect(css).toMatch(
+      /\.vercel-invite-details b\s*,\s*\.vercel-invite-details strong\s*\{\s*color:\s*#000000;\s*font-weight:\s*400/,
+    );
   });
 
   it("matches Amazon's inherited 24px leading and actual star size without losing readable mobile stacking", () => {

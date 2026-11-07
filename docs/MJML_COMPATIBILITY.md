@@ -40,7 +40,33 @@ Text and Button expose font family, size, weight, line-height multipliers, and l
 
 ## Custom CSS and web fonts
 
-Document custom CSS and web fonts apply to both the compiled email and the editing canvas. Each canvas instance scopes custom CSS under its own root class: `html`, `body`, and `:root` map to the canvas root, other rules become canvas descendants, and selectors that could match host-page siblings of the canvas (for example `body + .promo`) are dropped with a console note. `@media`, `@supports`, and `@container` groups are preserved, `@keyframes` and `@font-face` registrations are namespaced per editor instance, and `@layer` rules are applied without layer semantics. `@import` and other global at-rules are not applied on the canvas and are reported once per note in the console. Web font stylesheets are fetched on the client after mount, keep only the `@font-face` rules of the declared families (resolving relative font URLs), and register them under per-instance aliases so concurrent editors cannot override each other's fonts; until a stylesheet loads, or if it fails because of network or CORS restrictions, the canvas renders with the remaining font stack. The `font` shorthand is not rewritten to per-instance font aliases; use `font-family` declarations when aliases are needed. The canvas also adapts physical padding declarations (`padding`, `padding-top`, `padding-right`, `padding-bottom`, and `padding-left`) from the exact selector shape `.intro > table > tbody > tr > td`, with one plain class name. Renderer-owned markers identify the equivalent padding box for ordinary sections/wrappers and columns with resolved padding, including inherited zero; gutter columns target their inner box, not the gutter. The original scoped rules, selector specificity, conditional groups, and authored table matches remain intact. This bounded adapter excludes full-width or background-image sections/wrappers, columns without resolved padding, compound/pseudo/attribute selectors, nested rules, and rules containing `all`. A separate image adapter supports the exact selector `.image table`, with one plain class name, and literal `width: 100% !important` declarations. Non-important width rules are left unadapted rather than raised above the native anchor’s inline width. It targets only renderer-marked native image sizing anchors beneath that class, preserving the original scoped rule, importance, specificity, and authored-table matches. Other width values, width resets, maximum widths, and arbitrary generated-table selectors are not adapted; a rule containing any other width declaration, nesting, or `all` is excluded. The compiled email preview remains the rendering reference; arbitrary table-structure CSS parity is not implied.
+Document custom CSS and web fonts apply to both the compiled email and the editing canvas, subject to the boundaries below. The compiled email preview remains the rendering reference; arbitrary generated-table CSS parity is not implied.
+
+### CSS scope and registrations
+
+Each canvas instance scopes custom CSS under its own root class. `html`, `body`, and `:root` map to the canvas root; other rules become canvas descendants. Selectors that could match host-page siblings of the canvas, such as `body + .promo`, are dropped with a console note.
+
+- `@media`, `@supports`, and `@container` groups are preserved.
+- `@keyframes` and `@font-face` registrations are namespaced per editor instance.
+- `@layer` rules are applied without layer semantics.
+- `@import` and other global at-rules are not applied on the canvas and are reported once per note in the console.
+
+### Web fonts
+
+Web font stylesheets are fetched on the client after mount. The canvas keeps only the `@font-face` rules of the declared families, resolves relative font URLs, and registers per-instance aliases so concurrent editors cannot override each other's fonts. Until a stylesheet loads, or if it fails because of network or CORS restrictions, the canvas renders with the remaining font stack.
+
+The same alias map covers native typography and custom head-only `@font-face` registrations. Imported font CSS is inserted before document CSS, so later static faces retain their original precedence even when an imported stylesheet arrives asynchronously. Replacing a font import clears stale CSS immediately; an old request cannot overwrite the new document.
+
+The canvas also resolves MJML 5.4.1's five built-in font families: Open Sans, Droid Sans, Lato, Roboto, and Ubuntu. It requests only families used in this canvas's rendered inline font stacks or inline `mj-style` declarations. Explicit `mj-font` entries take precedence, including differently cased names. Ordinary head-only CSS does not trigger an implicit import. Matching uses complete family names rather than copying the compiler's unused substring matches, such as loading Roboto for Roboto Slab.
+
+The `font` shorthand is not rewritten to per-instance font aliases; use `font-family` declarations when aliases are needed. Safe rich-text HTML does not preserve arbitrary inline font-family styles; use the native typography controls or scoped document CSS. Trusted HTML continues to use a source placeholder on the canvas rather than executing imported markup.
+
+### Generated-table selector adapters
+
+The native canvas uses editable HTML rather than reproducing every table in MJML's compiled output. Two bounded adapters support common template rules while preserving the original scoped rule, specificity, conditional groups, importance, and authored-table matches:
+
+- **Padding:** physical `padding` declarations and their four longhands from the exact selector shape `.intro > table > tbody > tr > td`, with one plain class name. Renderer-owned markers identify the equivalent padding box for ordinary sections/wrappers and columns with resolved padding, including inherited zero. Gutter columns target their inner box, not the gutter. Full-width or background-image sections/wrappers, columns without resolved padding, compound/pseudo/attribute selectors, nested rules, and rules containing `all` are excluded.
+- **Image expansion:** literal `width: 100% !important` declarations from the exact selector `.image table`, with one plain class name. The rule targets only renderer-marked native image sizing anchors beneath that class. Non-important widths are left unadapted rather than raised above the native anchor's inline width. Other width values, resets, maximum widths, and arbitrary generated-table selectors are not adapted. Rules containing another width declaration, nesting, or `all` are excluded.
 
 ## Tailwind utilities
 

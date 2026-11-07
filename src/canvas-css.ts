@@ -9,6 +9,8 @@ export type CanvasStyleSheet = { css: unknown; inline?: unknown };
 export interface ScopedCss {
   css: string;
   notes: string[];
+  /** Includes head-only @font-face registrations, for native inline typography. */
+  fontAliases: FontAliasMap;
 }
 
 const scopeIdent = /^(?:pm-canvas-)?[a-z0-9-]+$/i;
@@ -64,6 +66,24 @@ export const familyKey = (name: string) => name.replace(/\s+/g, " ").trim().toLo
 const aliasIdent = (name: string) => name.replace(/[^a-zA-Z0-9-]+/g, "");
 const aliasFor = (name: string, scope: string) => `${aliasIdent(name) || "font"}-${scope}`;
 
+/** Distinct families such as "OpenSans" and "Open Sans" must not share a face. */
+function registerFontAlias(name: string, scope: string, aliases: FontAliasMap): void {
+  const key = familyKey(name);
+  if (!key || Object.hasOwn(aliases, key)) return;
+  const used = new Set(Object.values(aliases).map(familyKey));
+  let alias = aliasFor(name, scope);
+  let suffix = 2;
+  while (used.has(familyKey(alias)))
+    alias = aliasFor(`${aliasIdent(name) || "font"}-${suffix++}`, scope);
+  // CSS family names may legally coincide with Object.prototype property names.
+  Object.defineProperty(aliases, key, {
+    value: alias,
+    enumerable: true,
+    writable: true,
+    configurable: true,
+  });
+}
+
 /** Build a per-instance alias for every declared font family so registrations never collide. */
 export function createFontAliases(names: string[], scope: string): FontAliasMap {
   if (!scopeIdent.test(scope)) return {};
@@ -72,9 +92,7 @@ export function createFontAliases(names: string[], scope: string): FontAliasMap 
     if (typeof name !== "string") continue;
     const trimmed = name.trim();
     if (!trimmed) continue;
-    const key = familyKey(trimmed);
-    if (!key || aliases[key]) continue;
-    aliases[key] = aliasFor(trimmed, scope);
+    registerFontAlias(trimmed, scope, aliases);
   }
   return aliases;
 }
@@ -120,7 +138,8 @@ export function aliasFontFamilyList(value: string, aliases: FontAliasMap): strin
     .map((part) => {
       const trimmed = part.trim();
       const quoted = trimmed.match(/^(['"])(.*)\1$/s);
-      const alias = aliases[familyKey(quoted ? quoted[2] : trimmed)];
+      const key = familyKey(quoted ? quoted[2] : trimmed);
+      const alias = Object.hasOwn(aliases, key) ? aliases[key] : undefined;
       return alias ? `"${alias}"` : part;
     })
     .join(",");
@@ -461,8 +480,8 @@ function collectGlobalRegistrations(root: Root, state: ScopeState): void {
           family = familyKey(rawFamily);
         }
       });
-      if (family && rawFamily && !state.aliases[family]) {
-        state.aliases[family] = aliasFor(rawFamily, state.scope);
+      if (family && rawFamily) {
+        registerFontAlias(rawFamily, state.scope, state.aliases);
       }
     } else if (kind === "keyframes") {
       const name = atRule.params.trim();
@@ -492,7 +511,11 @@ export function scopeDocumentCss(
 ): ScopedCss {
   const notes: string[] = [];
   if (!scopeIdent.test(options.scope)) {
-    return { css: "", notes: ["Canvas scope is invalid; custom CSS was not applied."] };
+    return {
+      css: "",
+      notes: ["Canvas scope is invalid; custom CSS was not applied."],
+      fontAliases: {},
+    };
   }
   const state: ScopeState = {
     scope: options.scope,
@@ -520,7 +543,7 @@ export function scopeDocumentCss(
     scopeGroup(root, state, label);
     return root.toString();
   });
-  return { css: css.join("\n"), notes };
+  return { css: css.join("\n"), notes, fontAliases: state.aliases };
 }
 
 const reportedNotes = new Set<string>();

@@ -16,11 +16,13 @@ import { NativeCanvasProvider, createCanvasScope, getCanvasElement } from "./nat
 import {
   aliasFontFamilyList,
   createFontAliases,
+  familyKey,
   reportCanvasNotes,
   scopeDocumentCss,
   type FontAliasMap,
 } from "./canvas-css";
 import { useCanvasFonts } from "./canvas-fonts";
+import { mjmlDefaultFonts, useImplicitCanvasFonts } from "./canvas-font-resolver";
 import {
   resolveTailwindScript,
   mountTailwindCanvas,
@@ -118,24 +120,34 @@ export function EmailCanvas({
   };
   const importsKey = stableKey(imports);
   const stylesKey = stableKey(stylesheets);
-  const aliases = useMemo<FontAliasMap>(
+  const importedAliases = useMemo<FontAliasMap>(
     () =>
       createFontAliases(
-        imports
-          .map((entry) => (entry as { name?: unknown })?.name)
-          .filter((name): name is string => typeof name === "string"),
+        [
+          ...imports
+            .map((entry) => (entry as { name?: unknown })?.name)
+            .filter((name): name is string => typeof name === "string"),
+          ...mjmlDefaultFonts.map(({ name }) => name),
+        ],
         scope,
       ),
     [importsKey, scope],
   );
   const scopedCss = useMemo(
-    () => scopeDocumentCss(stylesheets, { scope, fontAliases: aliases }),
-    [stylesKey, scope, aliases],
+    () => scopeDocumentCss(stylesheets, { scope, fontAliases: importedAliases }),
+    [stylesKey, scope, importedAliases],
   );
+  const aliases = scopedCss.fontAliases;
   useEffect(() => {
     if (scopedCss.notes.length) reportCanvasNotes(scopedCss.notes);
   }, [scopedCss]);
-  const fonts = useCanvasFonts(imports, aliases);
+  const implicit = useImplicitCanvasFonts(canvasRef, imports, aliases, stylesheets);
+  const fonts = useCanvasFonts([...imports, ...implicit.imports], aliases);
+  const importedFamilies = [...imports, ...implicit.imports]
+    .map((entry) => (entry as { name?: unknown })?.name)
+    .filter((name): name is string => typeof name === "string")
+    .map((name) => aliases[familyKey(name)])
+    .filter(Boolean);
   const tailwindRuntime = useContext(TailwindRuntimeContext);
   const tailwindScriptSrc = resolveTailwindScript(tailwind, tailwindRuntime);
   const [tailwindCss, setTailwindCss] = useState("");
@@ -170,6 +182,11 @@ export function EmailCanvas({
     <div
       ref={canvasRef}
       className={`pm-canvas ${scope}`}
+      data-pm-canvas-font-status={implicit.settled ? fonts.status : "loading"}
+      data-pm-canvas-font-families={JSON.stringify(importedFamilies)}
+      data-pm-canvas-font-errors={
+        fonts.failures.length ? JSON.stringify(fonts.failures) : undefined
+      }
       lang={normalizeEmailLanguage(lang)}
       dir={normalizeEmailDirection(dir)}
       style={
@@ -183,8 +200,12 @@ export function EmailCanvas({
       }
     >
       {tailwindCss ? <style data-pm-tailwind-css={scope}>{tailwindCss}</style> : null}
+      {fonts.status !== "idle" ? (
+        <style data-pm-canvas-fonts={scope} data-pm-font-status={fonts.status}>
+          {fonts.css}
+        </style>
+      ) : null}
       {scopedCss.css ? <style data-pm-canvas-css={scope}>{scopedCss.css}</style> : null}
-      {fonts.css ? <style data-pm-canvas-fonts={scope}>{fonts.css}</style> : null}
       <style data-pm-responsive={scope}>{mobileStyles}</style>
       <div
         className={["pm-email", bodyClass].filter(Boolean).join(" ")}

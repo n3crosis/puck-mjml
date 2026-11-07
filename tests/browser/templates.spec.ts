@@ -23,6 +23,7 @@ import {
   imageFailures,
   observeResources,
   waitForFontRegistrations,
+  waitForCanvasFontCss,
   type DeclaredFont,
   type ExpectedCanvasFont,
 } from "./font-evidence";
@@ -143,6 +144,13 @@ async function fontEvidence(
         element.ownerDocument.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'),
         (link) => link.href,
       ),
+      canvasFontCss: Array.from(element.ownerDocument.querySelectorAll(".pm-canvas"), (canvas) => ({
+        scope: Array.from(canvas.classList).find((name) => name.startsWith("pm-canvas-")),
+        status: canvas.getAttribute("data-pm-canvas-font-status"),
+        errors: canvas.getAttribute("data-pm-canvas-font-errors"),
+        importedCssBytes:
+          canvas.querySelector("style[data-pm-canvas-fonts]")?.textContent?.length ?? 0,
+      })),
     }))),
   };
 }
@@ -159,7 +167,9 @@ async function checkArtwork(
 ) {
   const errors: string[] = [];
   try {
-    await waitForFontRegistrations(expected, () => fontFaces(page.locator("body")));
+    const body = page.locator("body");
+    if (await body.locator(".pm-canvas").count()) await waitForCanvasFontCss(body, expected);
+    await waitForFontRegistrations(expected, () => fontFaces(body));
   } catch (failure) {
     errors.push(failure instanceof Error ? failure.message : String(failure));
   }

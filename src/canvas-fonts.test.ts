@@ -79,6 +79,16 @@ describe("web font stylesheet transformation", () => {
     expect(result.css).toContain('url("https://other.example.com/x.woff2")');
   });
 
+  it("rejects source-less faces instead of treating invalid CSS as a registered import", () => {
+    const result = transformFontCss("@font-face {font-family: X; font-weight: 100 900;}", {
+      family: "X",
+      alias: "X-alias",
+      baseUrl: "https://fonts.example/x.css",
+    });
+    expect(result.css).toBe("");
+    expect(result.notes).toHaveLength(1);
+  });
+
   it("reports when the family is not declared in the stylesheet", () => {
     const result = transformFontCss("@font-face { font-family: Y; src: url(y.woff2); }", {
       family: "X",

@@ -332,6 +332,32 @@ describe("font alias helpers", () => {
     });
   });
 
+  it("keeps colliding sanitized family names distinct across imported and head-only faces", () => {
+    const aliases = createFontAliases(
+      ["Open Sans", "OpenSans", "OpenSans-2", "constructor", "__proto__"],
+      "pm-canvas-test",
+    );
+    expect(new Set(Object.values(aliases)).size).toBe(5);
+    expect(aliases.constructor).toBe("constructor-pm-canvas-test");
+    expect(aliases.__proto__).toBe("proto-pm-canvas-test");
+    const result = scopeCss(
+      [
+        stylesheet(
+          "@font-face {font-family: Open_Sans; src:url(head.woff);} .copy {font-family:Open_Sans, OpenSans, 'Open Sans';}",
+        ),
+      ],
+      aliases,
+    );
+    expect(new Set(Object.values(result.fontAliases)).size).toBe(6);
+    expect(result.fontAliases.open_sans).not.toBe(aliases["open sans"]);
+    expect(result.fontAliases.open_sans).not.toBe(aliases.opensans);
+    expect(result.css).toContain(result.fontAliases.open_sans);
+    expect(aliasFontFamilyList("constructor, __proto__, unknown", aliases)).toBe(
+      '"constructor-pm-canvas-test","proto-pm-canvas-test", unknown',
+    );
+    expect(aliasFontFamilyList("constructor, toString", {})).toBe("constructor, toString");
+  });
+
   it("rejects invalid scopes", () => {
     expect(createFontAliases(["Inter"], "bad scope!")).toEqual({});
   });

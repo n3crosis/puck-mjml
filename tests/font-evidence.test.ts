@@ -9,6 +9,8 @@ import {
   missingFontRegistrations,
   observeResources,
   waitForFontRegistrations,
+  waitForImportedFontCss,
+  type CanvasFontCssEvidence,
   type FontFaceEvidence,
 } from "./browser/font-evidence";
 
@@ -75,6 +77,122 @@ describe("browser font-readiness evidence", () => {
     await waiting;
     expect(settled).toBe(true);
     expect(read.mock.calls.length).toBeGreaterThan(1);
+  });
+
+  it("waits for delayed imported CSS even when matching static faces are already registered", async () => {
+    vi.useFakeTimers();
+    const registered = expected.map(({ alias }) => face(alias, "loaded"));
+    expect(missingFontRegistrations(expected, registered)).toEqual([]);
+    let state: CanvasFontCssEvidence[] = [
+      { scope: "pm-canvas-test", status: "loading", css: "", errors: null },
+    ];
+    let settled = false;
+    const pending = waitForImportedFontCss(expected, async () => state, 1000).then(() => {
+      settled = true;
+    });
+    await vi.advanceTimersByTimeAsync(150);
+    expect(settled).toBe(false);
+    state = [
+      {
+        scope: "pm-canvas-test",
+        status: "ready",
+        css: expected
+          .map(({ alias }) => `@font-face{font-family:"${alias}";font-weight:100 900}`)
+          .join(""),
+        errors: null,
+      },
+    ];
+    await vi.advanceTimersByTimeAsync(50);
+    await pending;
+    expect(settled).toBe(true);
+  });
+
+  it("rejects a different editor's CSS and waits for implicit-only discovery", async () => {
+    await expect(
+      waitForImportedFontCss(
+        expected,
+        async () => [
+          {
+            scope: "pm-canvas-other",
+            status: "ready",
+            css: expected.map(({ alias }) => `font-family:"${alias}"`).join(""),
+            errors: null,
+          },
+        ],
+        0,
+      ),
+    ).rejects.toThrow("did not settle");
+    await expect(
+      waitForImportedFontCss(
+        [],
+        async () => [{ scope: "pm-canvas-test", status: "loading", css: "", errors: null }],
+        0,
+      ),
+    ).rejects.toThrow("did not settle");
+    await expect(
+      waitForImportedFontCss(
+        [],
+        async () => [{ scope: "pm-canvas-test", status: "idle", css: "", errors: null }],
+        0,
+      ),
+    ).resolves.toBeUndefined();
+  });
+
+  it("requires implicit imported aliases to register even without explicit mj-font expectations", async () => {
+    await expect(
+      waitForImportedFontCss(
+        [],
+        async () => [
+          {
+            scope: "pm-canvas-test",
+            status: "ready",
+            css: '@font-face{font-family:"Roboto-pm-canvas-test"}',
+            errors: null,
+            missingAliases: ["Roboto-pm-canvas-test"],
+          },
+        ],
+        0,
+      ),
+    ).rejects.toThrow("unregistered imported aliases: Roboto-pm-canvas-test");
+  });
+
+  it("reports settled import errors immediately instead of accepting head faces or timing out", async () => {
+    const read = vi.fn(async () => [
+      { scope: "pm-canvas-test", status: "error", css: "", errors: "HTTP 503 for Inter" },
+    ]);
+    await expect(waitForImportedFontCss(expected, read)).rejects.toThrow("HTTP 503 for Inter");
+    expect(read).toHaveBeenCalledTimes(1);
+  });
+
+  it("records implicit default stylesheet fetch and failure evidence, including redirects", () => {
+    const page = new EventEmitter();
+    const snapshot = observeResources(page as unknown as Page, []);
+    const original = {
+      url: () => "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700",
+      redirectedFrom: () => null,
+    };
+    const request = {
+      url: () => "https://cdn.example/roboto.css",
+      resourceType: () => "fetch",
+      redirectedFrom: () => original,
+      failure: () => ({ errorText: "net::ERR_FAILED" }),
+    };
+    page.emit("response", {
+      url: request.url,
+      request: () => request,
+      status: () => 503,
+      ok: () => false,
+    });
+    page.emit("requestfailed", request);
+    const result = snapshot();
+    expect(result.fontAndStylesheetResponses[0]).toMatchObject({
+      implicitFontStylesheet: true,
+      declaredFontStylesheet: false,
+      status: 503,
+    });
+    const failures = fontFailures([], [], result);
+    expect(failures.stylesheetTransport.httpErrors).toHaveLength(1);
+    expect(failures.stylesheetTransport.failedRequests).toHaveLength(1);
   });
 
   it("reports the family, alias, and stylesheet when CSS never registers", async () => {

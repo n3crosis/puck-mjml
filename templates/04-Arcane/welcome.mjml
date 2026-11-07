@@ -153,6 +153,7 @@
             font-family="Instrument Serif, Georgia, Times New Roman, serif"
             font-size="72px"
             font-weight="400"
+            text-transform="capitalize"
             line-height="1"
             letter-spacing="-0.52px"
             color="#FCF3ED"

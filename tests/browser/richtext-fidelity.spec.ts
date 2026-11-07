@@ -141,7 +141,29 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       }
       for (const value of await values.all()) {
         await expect(value).toHaveCSS("font-size", "12px");
-        await expect(value).toHaveCSS("text-align", "left");
+        // Chromium can report logical start after inheriting a native table
+        // alignment hint. Check both its direction and physical text position,
+        // rather than imposing an inline CSS value that changes TH defaults.
+        await expect(value).toHaveCSS("text-align", /^(left|start)$/);
+        await expect(value).toHaveCSS("direction", "ltr");
+        await expect
+          .poll(() =>
+            value.evaluate((paragraph) => {
+              const range = paragraph.ownerDocument.createRange();
+              range.selectNodeContents(paragraph);
+              const first = Array.from(range.getClientRects()).find(
+                (rect) => rect.width > 0 && rect.height > 0,
+              );
+              if (!first) return Number.POSITIVE_INFINITY;
+              const style = paragraph.ownerDocument.defaultView!.getComputedStyle(paragraph);
+              const left =
+                paragraph.getBoundingClientRect().left +
+                Number.parseFloat(style.borderLeftWidth) +
+                Number.parseFloat(style.paddingLeft);
+              return Math.abs(first.left - left);
+            }),
+          )
+          .toBeLessThanOrEqual(1);
       }
       await expect(canvas.locator(".apple-invoice a:not([href])")).toHaveCount(2);
     };

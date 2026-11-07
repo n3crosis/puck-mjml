@@ -90,7 +90,8 @@
       .collage-confirm-narrow > div {
         max-width: 490px;
       }
-      .collage-confirm-rule p {
+      .collage-confirm-rule p,
+      .collage-confirm-rule hr {
         max-width: 490px;
         margin-left: 0;
       }
@@ -445,7 +446,13 @@
         css-class="collage-confirm-rule"
       >
         <mj-column>
-          <mj-divider border-color="#D8E1D4" border-width="1px" width="100%" padding="0px" />
+          <mj-divider
+            border-color="#D8E1D4"
+            border-width="1px"
+            width="100%"
+            align="left"
+            padding="0px"
+          />
         </mj-column>
       </mj-section>
       <mj-section
@@ -503,7 +510,13 @@
         css-class="collage-confirm-rule"
       >
         <mj-column>
-          <mj-divider border-color="#D8E1D4" border-width="1px" width="100%" padding="0px" />
+          <mj-divider
+            border-color="#D8E1D4"
+            border-width="1px"
+            width="100%"
+            align="left"
+            padding="0px"
+          />
         </mj-column>
       </mj-section>
       <mj-section

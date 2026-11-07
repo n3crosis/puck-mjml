@@ -9,6 +9,34 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
       name="Inter"
       href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap"
     />
+    <mj-style>
+      /* Exact static registrations from the pinned BarebonesFonts component.
+         Keep the original declared weights, including the 400 face URL. */
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 400;
+        mso-font-alt: "Arial";
+        src: url("https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuOKfMZg.ttf")
+          format("truetype");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 500;
+        mso-font-alt: "Arial";
+        src: url("https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZg.ttf")
+          format("truetype");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 600;
+        mso-font-alt: "Arial";
+        src: url("https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYMZg.ttf")
+          format("truetype");
+      }
+    </mj-style>
     <mj-attributes
       ><mj-all font-family="Inter, Arial, sans-serif" /><mj-section padding="0px" /><mj-column
         padding="0px" /><mj-text padding="0px" /><mj-image padding="0px" /><mj-button
@@ -34,6 +62,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
       .bare-heading-copy > div {
         max-width: 422px;
         margin: 0 auto;
+      }
+      .bare-feature-description > div {
+        max-width: 420px;
       }
       .bare-app-copy > div {
         max-width: 420px;
@@ -190,7 +221,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             letter-spacing="-0.084px"
             color="#14171E"
             align="left"
-            padding="0px 0px 24px"
+            padding="0px 0px 16px"
             css-class="bare-feature-copy"
             padding-top="16px"
             padding-left="8px"
@@ -204,7 +235,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 32px"
-            css-class="bare-feature-copy"
+            css-class="bare-feature-copy bare-feature-description"
             padding-left="8px"
             padding-right="8px"
             >Ship updates in smaller, safer steps: clearer defaults, fewer clicks, and less context
@@ -237,7 +268,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             letter-spacing="-0.084px"
             color="#14171E"
             align="left"
-            padding="0px 0px 24px"
+            padding="0px 0px 16px"
             css-class="bare-feature-copy"
             padding-top="16px"
             padding-left="8px"
@@ -251,7 +282,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 32px"
-            css-class="bare-feature-copy"
+            css-class="bare-feature-copy bare-feature-description"
             padding-left="8px"
             padding-right="8px"
             >Ship updates in smaller, safer steps: clearer defaults, fewer clicks, and less context
@@ -410,7 +441,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             letter-spacing="-0.084px"
             color="#14171E"
             align="left"
-            padding="0px 0px 24px"
+            padding="0px 0px 16px"
             css-class="bare-feature-copy"
             padding-top="16px"
             padding-left="8px"
@@ -424,7 +455,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#43454B"
             align="left"
             padding="0px 0px 32px"
-            css-class="bare-feature-copy"
+            css-class="bare-feature-copy bare-feature-description"
             padding-left="8px"
             padding-right="8px"
             >Ship updates in smaller, safer steps: clearer defaults, fewer clicks, and less context

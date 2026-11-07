@@ -10,6 +10,34 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
       name="Inter"
       href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap"
     />
+    <mj-style>
+      /* Exact static registrations from the pinned BarebonesFonts component.
+         Keep the original declared weights, including the 400 face URL. */
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 400;
+        mso-font-alt: "Arial";
+        src: url("https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuOKfMZg.ttf")
+          format("truetype");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 500;
+        mso-font-alt: "Arial";
+        src: url("https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZg.ttf")
+          format("truetype");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 600;
+        mso-font-alt: "Arial";
+        src: url("https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYMZg.ttf")
+          format("truetype");
+      }
+    </mj-style>
     <mj-attributes
       ><mj-all font-family="Inter, Arial, sans-serif" /><mj-section padding="0px" /><mj-column
         padding="0px" /><mj-text padding="0px" /><mj-image padding="0px" /><mj-button
@@ -72,12 +100,16 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
       }
     </mj-style>
     <mj-style inline="inline">
+      .bare-step-slot {
+        width: 52px !important;
+        flex-basis: 52px !important;
+      }
       .bare-step-body {
-        width: calc(100% - 40px) !important;
-        flex-basis: calc(100% - 40px) !important;
+        width: calc(100% - 52px) !important;
+        flex-basis: calc(100% - 52px) !important;
       }
       .bare-step-number p {
-        margin: 0;
+        margin: 0 auto;
         width: 28px;
         box-sizing: border-box;
         border: 1px solid #e4e4e7;
@@ -270,7 +302,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         border-radius="0px"
         css-class="bare-card-section bare-card-inset"
         ><mj-group width="100%"
-          ><mj-column width="40px" padding="0px 12px 0px 0px" css-class="bare-step-slot"
+          ><mj-column width="52px" padding="0px 12px 0px 0px" css-class="bare-step-slot"
             ><mj-text
               font-size="14px"
               font-weight="400"
@@ -282,7 +314,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
               css-class="bare-step-number"
               ><p>1</p></mj-text
             ></mj-column
-          ><mj-column width="464px" padding="0px 32px 0px 0px" css-class="bare-step-body"
+          ><mj-column width="452px" padding="0px 32px 0px 0px" css-class="bare-step-body"
             ><mj-text
               font-size="16px"
               font-weight="600"
@@ -312,7 +344,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         border-radius="0px"
         css-class="bare-card-section bare-card-inset"
         ><mj-group width="100%"
-          ><mj-column width="40px" padding="0px 12px 0px 0px" css-class="bare-step-slot"
+          ><mj-column width="52px" padding="0px 12px 0px 0px" css-class="bare-step-slot"
             ><mj-text
               font-size="14px"
               font-weight="400"
@@ -324,7 +356,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
               css-class="bare-step-number"
               ><p>2</p></mj-text
             ></mj-column
-          ><mj-column width="464px" padding="0px 32px 0px 0px" css-class="bare-step-body"
+          ><mj-column width="452px" padding="0px 32px 0px 0px" css-class="bare-step-body"
             ><mj-text
               font-size="16px"
               font-weight="600"
@@ -354,7 +386,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         border-radius="0px"
         css-class="bare-card-section bare-card-inset"
         ><mj-group width="100%"
-          ><mj-column width="40px" padding="0px 12px 0px 0px" css-class="bare-step-slot"
+          ><mj-column width="52px" padding="0px 12px 0px 0px" css-class="bare-step-slot"
             ><mj-text
               font-size="14px"
               font-weight="400"
@@ -366,7 +398,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
               css-class="bare-step-number"
               ><p>3</p></mj-text
             ></mj-column
-          ><mj-column width="464px" padding="0px 32px 0px 0px" css-class="bare-step-body"
+          ><mj-column width="452px" padding="0px 32px 0px 0px" css-class="bare-step-body"
             ><mj-text
               font-size="16px"
               font-weight="600"

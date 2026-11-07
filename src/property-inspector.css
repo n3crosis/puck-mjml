@@ -1,0 +1,106 @@
+.pm-properties {
+  min-width: 0;
+  color: #263446;
+  font-size: 12px;
+}
+.pm-property-section {
+  border-bottom: 1px solid #e4e8ee;
+}
+.pm-property-section:not(:has(.pm-property-row:not(:empty))) {
+  display: none;
+}
+.pm-property-heading {
+  margin: 0;
+  font-size: inherit;
+}
+.pm-property-heading > button {
+  display: flex;
+  width: 100%;
+  min-height: 34px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 0;
+  background: #f8fafc;
+  color: #344256;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.pm-property-heading > button:hover {
+  background: #f0f4f8;
+}
+.pm-property-heading > button:focus-visible {
+  outline: 2px solid #456ad2;
+  outline-offset: -2px;
+}
+.pm-property-heading svg {
+  flex: none;
+  transition: transform 120ms ease;
+}
+.pm-property-heading [aria-expanded="false"] svg {
+  transform: rotate(-90deg);
+}
+.pm-property-body {
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px 12px;
+}
+.pm-property-body[hidden] {
+  display: none;
+}
+.pm-property-row,
+.pm-property-ungrouped {
+  min-width: 0;
+}
+.pm-property-row:empty {
+  display: none;
+}
+.pm-editor .pm-properties .pm-property-row > [class*="_PuckFields-field_"] {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+.pm-property-label {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  font: inherit;
+}
+.pm-property-label-text {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  min-width: 0;
+  color: #576477;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+.pm-property-row--inline .pm-property-label {
+  grid-template-columns: minmax(88px, 0.9fr) minmax(0, 1.3fr);
+  align-items: center;
+  gap: 10px;
+}
+.pm-property-readonly {
+  display: inline-flex;
+  flex: none;
+  color: #8994a4;
+}
+.pm-properties :where(input, select, textarea) {
+  min-width: 0;
+}
+.pm-properties :where([class*="_InputWrapper_"]) + :where([class*="_InputWrapper_"]) {
+  margin-top: 8px;
+}
+.pm-properties .pm-property-row--inline :where([class*="_InputWrapper_"]) {
+  margin: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pm-property-heading svg {
+    transition: none;
+  }
+}

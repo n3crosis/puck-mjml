@@ -1,0 +1,68 @@
+.pm-table-resize {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.pm-table-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  transform: translateX(-50%);
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  pointer-events: auto;
+  outline: 0;
+}
+.pm-table-resize-handle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 5px;
+  width: 2px;
+  background: #456ad280;
+}
+.pm-table-resize-grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+  border: 1px solid #456ad2;
+  border-radius: 4px;
+  background: #fff;
+  color: #456ad2;
+  pointer-events: none;
+}
+.pm-table-resize-handle:is(:hover, :focus-visible, [data-resizing])::before {
+  background: #456ad2;
+  box-shadow: 0 0 0 1px #456ad240;
+}
+.pm-table-resize-handle:focus-visible .pm-table-resize-grip {
+  outline: 2px solid #456ad2;
+  outline-offset: 2px;
+}
+.pm-table-resize-value {
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: #263446;
+  color: #fff;
+  white-space: nowrap;
+  font:
+    11px/1.4 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  pointer-events: none;
+}

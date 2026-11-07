@@ -1,0 +1,53 @@
+/* Canvas-structure adaptations for the Collage sample.
+   Document web fonts now load automatically from the document's font imports,
+   and document custom CSS is applied scoped to the canvas. These rules adapt
+   compiled-email selectors that use the MJML table structure to the canvas's
+   div structure, so they remain example-specific. */
+.pm-canvas .collage-space .pm-spacer {
+  background: transparent;
+  border: 0;
+}
+.pm-canvas .collage-updates-title > * {
+  max-width: 400px;
+}
+.pm-canvas .collage-updates-description > * {
+  max-width: 479px;
+}
+.pm-canvas .collage-update-description > * {
+  max-width: 380px;
+}
+.pm-canvas .collage-footer-copy > * {
+  max-width: 320px;
+}
+.pm-canvas .collage-unsubscribe > * {
+  max-width: 169px;
+}
+@media (max-width: 600px) {
+  .pm-canvas .collage-intro {
+    padding: 40px 24px 56px !important;
+  }
+  .pm-canvas .collage-features {
+    padding: 16px 24px 64px !important;
+  }
+  .pm-canvas .collage-feature-first {
+    padding: 0 0 40px !important;
+  }
+  .pm-canvas .collage-feature-second {
+    padding: 0 !important;
+  }
+  .pm-canvas .collage-updates-heading {
+    padding: 64px 24px 0 !important;
+  }
+  .pm-canvas .collage-updates-list {
+    padding: 56px 24px 36px !important;
+  }
+  .pm-canvas .collage-updates-row {
+    padding: 0 24px !important;
+  }
+  .pm-canvas .collage-updates-end {
+    padding: 0 24px 64px !important;
+  }
+  .pm-canvas .collage-cta {
+    padding: 40px 24px 0 !important;
+  }
+}

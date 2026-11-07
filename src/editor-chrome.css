@@ -1,0 +1,81 @@
+/* Scope compact chrome to the editor; email content keeps its document styles. */
+.pm-editor {
+  --puck-field-font-size: 12px;
+  --puck-field-label-font-size: 12px;
+  --puck-field-label-font-weight: 500;
+  --puck-field-label-space-y: 5px;
+  --puck-field-space-y: 5px;
+  --puck-field-space-x: 8px;
+  --puck-field-space-surface-y: 8px;
+  --puck-field-space-surface-x: 8px;
+  --puck-field-radius: 5px;
+  --puck-field-color-border: #dce1e7;
+  --puck-field-color-bg: #ffffff;
+  --puck-field-color-text: #263244;
+  --puck-font-size-xxxs: 11px;
+  --puck-font-size-xxs: 12px;
+  --puck-font-size-xs: 13px;
+  --puck-font-size-s: 15px;
+  --puck-space-chrome-gutter: 10px;
+  --puck-drawer-space: 10px;
+  --puck-drawer-category-space: 6px;
+  --puck-drawer-category-font-size: 10px;
+  --puck-outline-font-size: 12px;
+  --puck-outline-space-indent: 12px;
+  --puck-iconbutton-space: 5px;
+}
+.pm-editor :where([class*="_PuckHeader-title_"]) h1 {
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+.pm-editor :where([class*="_PuckHeader-tools_"]) {
+  gap: 8px;
+}
+.pm-editor :where([class*="_FieldsPlugin-header_"], [class*="_SidebarSection-title_"]) {
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.pm-editor :where([class*="_Input-input_"]) {
+  min-height: 28px;
+  line-height: 16px;
+}
+.pm-editor :where([class*="_Input-select_"]) select {
+  padding-inline-end: 26px;
+}
+.pm-editor :where([class*="_Input-selectIcon_"]) {
+  right: 8px;
+  width: 12px;
+  height: 12px;
+}
+.pm-editor :where([class*="_ArrayFieldItem-summary_"]) {
+  min-height: 30px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+.pm-editor :where([class*="_ArrayField-addButton_"]) {
+  min-height: 28px;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+.pm-editor .pm-preview-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 20px;
+}
+.pm-preview-button svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+@media (min-width: 1000px) {
+  .pm-editor > .Puck {
+    --puck-user-sidebar-left-width: 216px;
+    --puck-user-sidebar-right-width: 304px;
+  }
+}

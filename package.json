@@ -1,0 +1,72 @@
+{
+  "name": "puck-mjml",
+  "version": "0.1.0",
+  "description": "A Puck powered visual editor for MJML email",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build && tsc -p tsconfig.build.json",
+    "build:demo": "vite build --mode demo --base=./",
+    "catalog": "bun scripts/regenerate-native-catalog.ts",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint src demo vite.config.ts",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun run test",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "cheerio": "^1.2.0",
+    "mjml-browser": "^5.4.1",
+    "postcss": "8.5.31",
+    "sanitize-html": "^2.17.0"
+  },
+  "devDependencies": {
+    "@puckeditor/core": "^0.23.0",
+    "@tailwindcss/browser": "^4.3.3",
+    "@tiptap/core": "3.32.0",
+    "@tiptap/extension-document": "3.32.0",
+    "@tiptap/extension-link": "3.32.0",
+    "@tiptap/extension-paragraph": "3.32.0",
+    "@tiptap/extension-text": "3.32.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/sanitize-html": "^2.16.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "happy-dom": "20.14.6",
+    "oxfmt": "^0.74.0",
+    "oxlint": "^1.89.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.0.0",
+    "vitest": "^4.1.11"
+  },
+  "peerDependencies": {
+    "@puckeditor/core": "^0.23.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "packageManager": "bun@1.4.2"
+}

@@ -1,0 +1,567 @@
+@import "./example.css";
+@import "./fields.css";
+@import "./editor-chrome.css";
+@import "./property-inspector.css";
+@import "./attribute-editor.css";
+@import "./color-input.css";
+@import "./block-palette.css";
+@import "./editor-overlays.css";
+@import "./email-outline.css";
+@import "./table-editor.css";
+@import "./spacing-overlay.css";
+@import "./table-resize.css";
+
+.pm-editor {
+  height: 100%;
+  min-height: 620px;
+  display: flex;
+  flex-direction: column;
+  background: #f6f7f9;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+.pm-preview-button,
+.pm-preview-actions button {
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  background: #fff;
+  color: #1f2937;
+  padding: 8px 13px;
+  font: inherit;
+  cursor: pointer;
+}
+.pm-preview-button:hover,
+.pm-preview-actions button:hover {
+  background: #f3f4f6;
+}
+.pm-editor > .Puck {
+  flex: 1;
+  min-height: 0;
+}
+.pm-editor :where([class*="_PuckHeader-inner_"]) {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+.pm-editor :where([class*="_PuckHeader-title_"]) {
+  min-width: 0;
+  overflow: hidden;
+}
+.pm-editor :where([class*="_PuckHeader-title_"]) h1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pm-preview-button {
+  flex: none;
+  white-space: nowrap;
+  font-size: 13px;
+  line-height: 20px;
+  padding: 8px 12px;
+}
+/* Puck's built-in menu retains sidebar and history behavior on narrower screens. */
+@media (min-width: 638px) and (max-width: 1000px) {
+  .pm-editor--custom-header [class*="_PuckLayout-header_"] {
+    overflow: visible;
+  }
+  .pm-editor--custom-header :where([class*="_PuckHeader-menuButton_"]) {
+    display: block;
+  }
+  .pm-editor--custom-header :where([class*="_MenuBar_"]) {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 8px 16px;
+    margin-top: 1px;
+    border-bottom: 1px solid var(--puck-color-border);
+  }
+  .pm-editor--custom-header :where([class*="_MenuBar--menuOpen_"]) {
+    display: block;
+  }
+  .pm-editor--custom-header :where([class*="_MenuBar-inner_"]) {
+    flex-wrap: wrap;
+  }
+}
+.pm-canvas {
+  min-height: 100vh;
+  padding: 34px 16px;
+}
+.pm-email {
+  margin: 0 auto;
+}
+.pm-section,
+.pm-wrapper {
+  box-sizing: border-box;
+  direction: ltr;
+}
+.pm-columns {
+  display: grid;
+  gap: 0;
+}
+.pm-columns-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.pm-columns-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.pm-flex-section > div,
+.pm-flex-group > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.pm-flex-column,
+.pm-flex-group,
+.pm-native-column {
+  min-width: 0;
+  box-sizing: border-box;
+}
+.pm-native-column-content {
+  box-sizing: border-box;
+}
+.pm-carousel-main {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.pm-carousel-thumbnails {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pm-carousel-thumbnails img {
+  width: 52px;
+  height: 36px;
+  object-fit: cover;
+}
+.pm-text {
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.pm-text p {
+  margin: 0;
+}
+.pm-text h1,
+.pm-text h2,
+.pm-text h3,
+.pm-text h4,
+.pm-text h5,
+.pm-text h6 {
+  margin: 0 0 0.5em;
+  font-weight: bold;
+}
+.pm-text p:last-child,
+.pm-text h1:last-child,
+.pm-text h2:last-child,
+.pm-text h3:last-child,
+.pm-text h4:last-child,
+.pm-text h5:last-child,
+.pm-text h6:last-child {
+  margin-bottom: 0;
+}
+.pm-text h1 {
+  font-size: 1.7em;
+  line-height: 1.15;
+}
+.pm-text h2 {
+  font-size: 1.3em;
+  line-height: 1.2;
+}
+.pm-text h3,
+.pm-text h4,
+.pm-text h5,
+.pm-text h6 {
+  line-height: inherit;
+}
+.pm-text h3 {
+  font-size: 1.17em;
+}
+.pm-text h4 {
+  font-size: 1em;
+}
+.pm-text h5 {
+  font-size: 0.83em;
+}
+.pm-text h6 {
+  font-size: 0.67em;
+}
+/* Source fields for CSS and trusted HTML render as dark code blocks. */
+.pm-code {
+  display: block;
+  width: 100%;
+  min-height: 96px;
+  box-sizing: border-box;
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #24344d;
+  border-radius: 6px;
+  background: #0b1220;
+  color: #d7e2f2;
+  font:
+    12px/1.6 ui-monospace,
+    "SF Mono",
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    "Liberation Mono",
+    monospace;
+  tab-size: 2;
+  resize: vertical;
+}
+.pm-code:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+  border-color: #3b82f6;
+}
+.pm-code:disabled {
+  opacity: 0.6;
+}
+.pm-richtext-toolbar [data-puck-rte-menu] {
+  flex-wrap: wrap;
+  max-width: min(560px, calc(100vw - 48px));
+}
+/* Keep inline formatting in Puck's dark action bar. Every flex level can
+   shrink and wrap, so a narrow table or column never widens its overlay. */
+.pm-richtext-toolbar--inline {
+  position: relative;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  border-radius: 4px;
+  background: var(--puck-actionbar-color-bg, #181818);
+  color: #fff;
+}
+.pm-richtext-toolbar--inline [data-puck-rte-menu] {
+  flex-wrap: wrap;
+  gap: 2px;
+  max-width: 100%;
+  min-width: 0;
+}
+/* Flatten only the inline control groups so individual buttons can wrap,
+   including the link form. The full sidebar menu retains its groups. */
+.pm-richtext-toolbar--inline [data-puck-rte-menu] > div {
+  display: contents;
+}
+:where([class*="_DraggableComponent-actions_"]) {
+  max-width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.pm-selection-actions {
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+  flex: 0 1 auto;
+  box-sizing: border-box;
+}
+.pm-selection-actions:not([data-placement]) {
+  visibility: hidden;
+}
+.pm-selection-actions > :where([class*="_ActionBar_"]),
+.pm-selection-actions :where([class*="_ActionBar-group_"]) {
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+.pm-selection-actions > :where([class*="_ActionBar_"]) {
+  padding: 4px;
+  gap: 2px;
+  border-radius: 6px;
+  background: #181818;
+  box-shadow: 0 2px 8px #0002;
+}
+.pm-selection-actions :where([class*="_ActionBar-label_"]) {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+.pm-richtext-toolbar--inline .pm-richtext-link {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+}
+.pm-richtext-link {
+  flex-basis: 100%;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  background: #fff;
+  color: #1f2937;
+  font-size: 13px;
+}
+.pm-richtext-link label {
+  display: grid;
+  gap: 5px;
+}
+.pm-richtext-link input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 7px 9px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  font: inherit;
+}
+.pm-richtext-link-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pm-richtext-link-actions button {
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  padding: 5px 9px;
+  background: #fff;
+  color: #1f2937;
+  font: inherit;
+  cursor: pointer;
+}
+.pm-richtext-link-actions button:hover {
+  background: #f3f4f6;
+}
+.pm-richtext-link small {
+  color: #b91c1c;
+}
+.pm-image img {
+  height: auto;
+  vertical-align: middle;
+}
+.pm-image {
+  line-height: 0;
+}
+.pm-image a {
+  display: inline-block;
+  max-width: 100%;
+}
+.pm-image-empty {
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  padding: 26px 10px;
+  color: #64748b;
+  background: #f8fafc;
+}
+.pm-button {
+  display: inline-block;
+  vertical-align: middle;
+}
+.pm-button-block {
+  font-size: 0;
+  line-height: 0;
+}
+.pm-social-item {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  color: inherit;
+  text-decoration: none;
+}
+.pm-social-icon {
+  display: inline-flex;
+  flex: none;
+  line-height: 0;
+}
+.pm-social-icon img {
+  display: block;
+  object-fit: contain;
+}
+.pm-social-label {
+  padding-left: 10px;
+}
+.pm-spacer {
+  background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 4px, #fff 4px, #fff 8px);
+  border: 1px dashed #cbd5e1;
+}
+.pm-link-list {
+  padding: 12px;
+  color: #2563eb;
+}
+.pm-link-list span {
+  display: inline-block;
+  margin: 0 7px;
+  text-decoration: underline;
+}
+.pm-table {
+  background: transparent;
+}
+.pm-table th,
+.pm-table td {
+  padding: 0;
+  border: 0;
+  text-align: left;
+}
+.pm-hero {
+  position: relative;
+  overflow: hidden;
+}
+.pm-hero-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.pm-hero-content {
+  position: relative;
+  z-index: 1;
+}
+.pm-accordion details {
+  border: 1px solid #d1d5db;
+  background: #fff;
+}
+.pm-accordion details + details {
+  border-top: 0;
+}
+.pm-accordion summary {
+  padding: 12px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pm-accordion details > div {
+  padding: 0 16px 12px;
+}
+.pm-raw {
+  padding: 12px;
+  border: 1px dashed #a8a29e;
+  background: #fafaf9;
+  color: #57534e;
+  display: grid;
+  gap: 4px;
+}
+.pm-raw code {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+.pm-field {
+  display: grid;
+  gap: 6px;
+}
+.pm-field label {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+}
+.pm-field input[type="url"] {
+  padding: 5px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pm-upload {
+  position: relative;
+  text-align: center;
+  padding: 5px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.pm-upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+}
+.pm-field small {
+  color: #b91c1c;
+}
+.pm-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #17212fbb;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+.pm-preview-dialog {
+  width: min(1100px, 100%);
+  height: min(850px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px #0004;
+}
+.pm-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  gap: 20px;
+}
+.pm-preview-header > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+.pm-preview-header span {
+  font-size: 12px;
+  color: #6b7280;
+}
+.pm-preview-actions {
+  display: flex;
+  gap: 6px;
+}
+.pm-preview-actions button[aria-pressed="true"] {
+  background: #eef2ff;
+  border-color: #6366f1;
+  color: #3730a3;
+}
+.pm-preview-stage {
+  flex: 1;
+  min-height: 0;
+  background: #e9edf2;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+.pm-preview-stage iframe {
+  height: 100%;
+  border: 0;
+  background: #fff;
+  box-shadow: 0 8px 28px #0002;
+  transition: width 0.2s ease;
+}
+.pm-preview-desktop {
+  width: min(100%, 800px);
+}
+.pm-preview-mobile {
+  width: min(100%, 390px);
+}
+.pm-preview-status,
+.pm-preview-error {
+  margin: 20px;
+}
+.pm-preview-error,
+.pm-preview-errors {
+  color: #991b1b;
+  background: #fef2f2;
+  padding: 10px 20px;
+}
+.pm-preview-errors ul {
+  margin: 5px 0;
+  padding-left: 22px;
+}
+@media (max-width: 600px) {
+  .pm-preview-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .pm-preview-stage {
+    padding: 10px;
+  }
+}

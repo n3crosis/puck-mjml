@@ -1,0 +1,8 @@
+/* Puck draws inline-edit hover/focus portals with a 2px outline and +2px
+   offset, spilling 4px outside zero-padding text blocks. Draw that same
+   stroke inside the portal; leave its contents and floating tools unclipped. */
+[data-puck-entry][data-puck-preview-mode="edit"]
+  .pm-canvas
+  [data-puck-overlay-portal]:is(:hover, :focus-within) {
+  outline-offset: -2px;
+}

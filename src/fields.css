@@ -1,0 +1,71 @@
+/* Compact source controls stay scoped to editor fields, not email content. */
+.pm-source-value {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  background: #fff;
+  color: #1f2937;
+  font: inherit;
+}
+.pm-field-toggle,
+.pm-field .pm-field-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+.pm-field-toggle input {
+  margin: 0;
+  flex: none;
+}
+.pm-field-help {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.pm-field.pm-source-field {
+  gap: 6px;
+}
+.pm-code-field {
+  min-width: 0;
+}
+.pm-code-tools {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-bottom: 3px;
+}
+.pm-code-tools button {
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #64748b;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.pm-code-tools button:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #334155;
+}
+.pm-code-tools button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.pm-code-field .pm-code {
+  min-height: 72px;
+  margin: 0;
+  padding: 8px;
+  line-height: 1.5;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+  tab-size: 2;
+}

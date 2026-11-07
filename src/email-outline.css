@@ -1,0 +1,13 @@
+.pm-outline {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.pm-outline :where([class*="_OutlineHeader_"]) {
+  padding: 8px 12px;
+}
+.pm-outline :where([class*="_LayerTree-zoneTitle_"]) {
+  font-size: 11px;
+}

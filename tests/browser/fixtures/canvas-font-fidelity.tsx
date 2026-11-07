@@ -1,6 +1,10 @@
 import { Render, type Data } from "@puckeditor/core";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { flushSync } from "react-dom";
+import { EmailCanvas } from "../../../src/EmailCanvas";
+import { inspectCanvasFontInputs } from "../../../src/canvas-font-inputs";
+import { getCanvasElement, useNativeCanvasScope } from "../../../src/native-canvas-context";
 import { createEmailConfig } from "../../../src/config";
 import { compileEmail } from "../../../src/export";
 import { fromMjml } from "../../../src/import";
@@ -47,4 +51,56 @@ function Fixture() {
     </>
   );
 }
-createRoot(document.getElementById("root")!).render(<Fixture />);
+declare global {
+  interface Window {
+    fontTransitionSnapshot?: ReturnType<typeof inspectCanvasFontInputs>;
+  }
+}
+function ChangingCopy() {
+  const [family, setFamily] = useState("Ubuntu");
+  const scope = useNativeCanvasScope();
+  const node = getCanvasElement(
+    "mj-text",
+    { mjmlAttributes: [{ name: "font-family", value: family }] },
+    scope,
+  )!;
+  return (
+    <>
+      <p
+        className="transition-copy"
+        style={{
+          fontFamily: node.attributes["font-family"],
+          fontSize: 20,
+          fontWeight: 400,
+          margin: 0,
+        }}
+      >
+        Hamburg
+      </p>
+      {["Roboto", "Arial"].map((name) => (
+        <button
+          key={name}
+          onClick={(event) => {
+            const canvas = event.currentTarget.closest(".pm-canvas")!;
+            flushSync(() => setFamily(name));
+            window.fontTransitionSnapshot = inspectCanvasFontInputs(canvas, true);
+          }}
+        >
+          Set font {name}
+        </button>
+      ))}
+    </>
+  );
+}
+function TransitionFixture() {
+  return (
+    <section aria-label="transition canvas">
+      <EmailCanvas>
+        <ChangingCopy />
+      </EmailCanvas>
+    </section>
+  );
+}
+createRoot(document.getElementById("root")!).render(
+  new URLSearchParams(location.search).has("transition") ? <TransitionFixture /> : <Fixture />,
+);

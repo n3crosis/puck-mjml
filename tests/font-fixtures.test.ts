@@ -3,9 +3,11 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const directory = new URL("./browser/fixtures/fonts/", import.meta.url);
-const manifest: { generator: string; files: Record<string, string> } = JSON.parse(
-  readFileSync(new URL("manifest.json", directory), "utf8"),
-);
+const manifest: {
+  generator: string;
+  variableAdvanceUnits: Record<string, number>;
+  files: Record<string, string>;
+} = JSON.parse(readFileSync(new URL("manifest.json", directory), "utf8"));
 
 describe("original typography probe assets", () => {
   it("records reproducible generated WOFF binaries and a source generator", () => {
@@ -20,6 +22,13 @@ describe("original typography probe assets", () => {
       const bytes = readFileSync(new URL(name, directory));
       expect(bytes.subarray(0, 4).toString()).toBe("wOFF");
       expect(createHash("sha256").update(bytes).digest("hex")).toBe(hash);
+    }
+  });
+
+  it("keeps intermediate-weight advances on integer pixels at the browser fixture size", () => {
+    expect(manifest.variableAdvanceUnits).toEqual({ "420": 2100, "450": 2250 });
+    for (const advance of Object.values(manifest.variableAdvanceUnits)) {
+      expect(((advance * 20) / 1000) % 1).toBe(0);
     }
   });
 

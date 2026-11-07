@@ -65,6 +65,13 @@ describe("canvas overflow evidence", () => {
       "text outside email: This week: #CodePenChallenge: Cubes",
     );
   });
+  it("retains raw hanging-space evidence without treating it as a visible glyph", () => {
+    const geometry = codePen();
+    geometry.rawText = [{ label: "hanging space", x: 724, y: 315, width: 4, height: 18 }];
+    expect(canvasOverflowFailures(geometry)).toEqual([]);
+    geometry.text.push({ label: "visible glyph", x: 724, y: 315, width: 4, height: 18 });
+    expect(canvasOverflowFailures(geometry)).toContain("text outside email: visible glyph");
+  });
   it("does not accept a normal element masquerading as background bleed", () => {
     const geometry = codePen();
     geometry.boxes[0].fullWidth = false;

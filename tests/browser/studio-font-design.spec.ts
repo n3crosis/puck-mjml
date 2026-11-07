@@ -3,6 +3,7 @@ import { expect, test, type Locator } from "@playwright/test";
 import { inspectArtwork } from "./artwork-evidence";
 import { waitForCanvasFontCss } from "./font-evidence";
 import { loadReactEmailReference } from "./reference-document";
+import { readVisibleTextFragments, visibleTextLineBounds } from "./text-line-geometry";
 
 test.describe.configure({ timeout: 120_000 });
 
@@ -11,17 +12,14 @@ const introduction =
 const heading = "Why your finger is the calmest screen";
 
 async function textMetrics(locator: Locator) {
-  return locator.evaluate((element) => {
+  const metrics = await locator.evaluate((element) => {
     const box = element.getBoundingClientRect();
     const style = getComputedStyle(element);
     const family = style.fontFamily.split(",")[0].replace(/["']/g, "").trim();
-    const range = element.ownerDocument.createRange();
-    range.selectNodeContents(element);
     return {
       x: box.x,
       width: box.width,
       height: box.height,
-      glyphLineWidths: Array.from(range.getClientRects(), (rectangle) => rectangle.width),
       loadedFaces: Array.from(element.ownerDocument.fonts)
         .filter(
           (face) =>
@@ -32,6 +30,10 @@ async function textMetrics(locator: Locator) {
         .map(({ weight, status }) => ({ weight, status })),
     };
   });
+  return {
+    ...metrics,
+    glyphLines: visibleTextLineBounds(await locator.evaluate(readVisibleTextFragments)),
+  };
 }
 
 for (const width of [800, 390]) {
@@ -93,10 +95,12 @@ for (const width of [800, 390]) {
           for (const dimension of ["x", "width", "height"] as const) {
             expect(actual[dimension]).toBeCloseTo(original[dimension], 1);
           }
-          expect(actual.glyphLineWidths).toHaveLength(original.glyphLineWidths.length);
-          actual.glyphLineWidths.forEach((value, index) =>
-            expect(value).toBeCloseTo(original.glyphLineWidths[index], 1),
-          );
+          expect(actual.glyphLines).toHaveLength(original.glyphLines.length);
+          actual.glyphLines.forEach((line, index) => {
+            for (const edge of ["left", "right", "top", "bottom"] as const) {
+              expect(line[edge]).toBeCloseTo(original.glyphLines[index][edge], 1);
+            }
+          });
           expect(actual.loadedFaces).toContainEqual({
             weight: text === introduction ? "450" : "700",
             status: "loaded",

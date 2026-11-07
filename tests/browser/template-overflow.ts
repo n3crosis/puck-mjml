@@ -12,6 +12,8 @@ export type CanvasGeometry = {
   email: HorizontalBox;
   boxes: CanvasBox[];
   text: (HorizontalBox & { label: string })[];
+  /** Unfiltered browser ranges, including collapsed/hanging whitespace. */
+  rawText?: (HorizontalBox & { label: string })[];
 };
 
 // Self-contained so Playwright can execute the function in the actual iframe.
@@ -45,6 +47,7 @@ export function measureCanvasGeometry(email: Element): CanvasGeometry {
       : element.scrollWidth - element.clientWidth,
   }));
   const text: CanvasGeometry["text"] = [];
+  const rawText: CanvasGeometry["text"] = [];
   const walker = document.createTreeWalker(email, view.NodeFilter.SHOW_TEXT);
   while (walker.nextNode()) {
     const node = walker.currentNode;
@@ -53,16 +56,46 @@ export function measureCanvasGeometry(email: Element): CanvasGeometry {
     if (parent.closest("style,script")) continue;
     const range = document.createRange();
     range.selectNodeContents(node);
-    for (const bounds of range.getClientRects()) {
+    const label = node.textContent.trim().slice(0, 120);
+    const originalRects = Array.from(range.getClientRects());
+    for (const bounds of originalRects) {
       if (!bounds.width || !bounds.height) continue;
-      text.push({
+      rawText.push({
         x: bounds.x,
         y: bounds.y,
         width: bounds.width,
         height: bounds.height,
-        label: node.textContent.trim().slice(0, 120),
+        label,
       });
     }
+    // CSS normal/nowrap/pre-line collapses ASCII whitespace; pre-wrap hangs
+    // trailing spaces outside a line without painting glyphs or causing scroll
+    // overflow. Chromium still reports rectangles for those spaces. Measure
+    // actual non-space spans, then merge their rectangles by line. Keep all
+    // ranges for pre/break-spaces or unknown modes, and retain NBSP/Unicode
+    // spacing characters. Never exempt a subtree, a glyph, or an image.
+    const whiteSpace = view.getComputedStyle(parent).whiteSpace;
+    const rectangles: HorizontalBox[] = [];
+    if (["normal", "nowrap", "pre-line", "pre-wrap"].includes(whiteSpace)) {
+      for (const match of node.textContent.matchAll(/[^ \t\n\f\r]+/g)) {
+        range.setStart(node, match.index!);
+        range.setEnd(node, match.index! + match[0].length);
+        rectangles.push(...Array.from(range.getClientRects()));
+      }
+    } else rectangles.push(...originalRects);
+    const lines = new Map<string, HorizontalBox>();
+    for (const bounds of rectangles) {
+      if (!bounds.width || !bounds.height) continue;
+      const key = `${bounds.y}:${bounds.height}`;
+      const previous = lines.get(key);
+      const x = Math.min(previous?.x ?? bounds.x, bounds.x);
+      const right = Math.max(
+        previous ? previous.x + previous.width : bounds.x + bounds.width,
+        bounds.x + bounds.width,
+      );
+      lines.set(key, { x, y: bounds.y, width: right - x, height: bounds.height });
+    }
+    text.push(...Array.from(lines.values(), (bounds) => ({ ...bounds, label })));
   }
   return {
     viewport: view.innerWidth,
@@ -71,6 +104,7 @@ export function measureCanvasGeometry(email: Element): CanvasGeometry {
     email: box(email),
     boxes,
     text,
+    rawText,
   };
 }
 

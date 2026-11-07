@@ -183,6 +183,7 @@ export function EmailCanvas({
       ref={canvasRef}
       className={`pm-canvas ${scope}`}
       data-pm-canvas-font-status={implicit.settled ? fonts.status : "loading"}
+      data-pm-canvas-font-inputs={implicit.fingerprint}
       data-pm-canvas-font-families={JSON.stringify(importedFamilies)}
       data-pm-canvas-font-errors={
         fonts.failures.length ? JSON.stringify(fonts.failures) : undefined

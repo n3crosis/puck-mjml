@@ -7,6 +7,7 @@ import {
   type FontAliasMap,
 } from "./canvas-css";
 import type { FontImport } from "./canvas-fonts";
+import { inspectCanvasFontInputs } from "./canvas-font-inputs";
 
 /** MJML 5.4.1's default font registry (mjml-core/src/index.js). */
 export const mjmlDefaultFonts: readonly FontImport[] = [
@@ -74,8 +75,12 @@ export function useImplicitCanvasFonts(
   explicit: unknown,
   aliases: FontAliasMap,
   stylesheets: CanvasStyleSheet[],
-): { imports: FontImport[]; settled: boolean } {
-  const [observed, setObserved] = useState<{ key: string; imports: FontImport[] } | null>(null);
+): { imports: FontImport[]; settled: boolean; fingerprint?: string } {
+  const [observed, setObserved] = useState<{
+    key: string;
+    imports: FontImport[];
+    fingerprint: string;
+  } | null>(null);
   let key: string;
   try {
     key = JSON.stringify({ explicit, aliases, inline: inlineStyleFontFamilies(stylesheets) });
@@ -91,20 +96,18 @@ export function useImplicitCanvasFonts(
       inline: string[];
     };
     const refresh = () => {
-      const elements = [canvas, ...canvas.querySelectorAll<HTMLElement>("[style]")];
-      const families = elements
-        .filter((element) => element.closest(".pm-canvas") === canvas)
-        .map((element) => element.style.fontFamily)
-        .filter(Boolean);
+      const { families, fingerprint } = inspectCanvasFontInputs(canvas)[0];
       const next = resolveImplicitFontImports(
         [...families, ...options.inline],
         options.explicit,
         options.aliases,
       );
       setObserved((previous) =>
-        previous?.key === key && JSON.stringify(previous.imports) === JSON.stringify(next)
+        previous?.key === key &&
+        previous.fingerprint === fingerprint &&
+        JSON.stringify(previous.imports) === JSON.stringify(next)
           ? previous
-          : { key, imports: next },
+          : { key, imports: next, fingerprint },
       );
     };
     refresh();
@@ -120,5 +123,9 @@ export function useImplicitCanvasFonts(
     return () => observer.disconnect();
   }, [canvasRef, key]);
   // Never expose a prior document's defaults while the new canvas is inspected.
-  return { imports: observed?.key === key ? observed.imports : [], settled: observed?.key === key };
+  return {
+    imports: observed?.key === key ? observed.imports : [],
+    settled: observed?.key === key,
+    fingerprint: observed?.key === key ? observed.fingerprint : undefined,
+  };
 }

@@ -156,6 +156,20 @@ describe("browser font-readiness evidence", () => {
     ).rejects.toThrow("unregistered imported aliases: Roboto-pm-canvas-test");
   });
 
+  it("does not accept a stale idle marker or report a stale error before current inputs are observed", async () => {
+    for (const status of ["idle", "error"]) {
+      await expect(
+        waitForImportedFontCss(
+          [],
+          async () => [
+            { scope: "pm-canvas-test", status, css: "", errors: "old error", inputsCurrent: false },
+          ],
+          0,
+        ),
+      ).rejects.toThrow("current inline font families have not been observed");
+    }
+  });
+
   it("reports settled import errors immediately instead of accepting head faces or timing out", async () => {
     const read = vi.fn(async () => [
       { scope: "pm-canvas-test", status: "error", css: "", errors: "HTTP 503 for Inter" },

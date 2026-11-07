@@ -50,6 +50,13 @@ async function paperSourceGeometry(root: Locator) {
   return root.evaluate((element) => {
     const normalize = (text: string | null | undefined) =>
       (text ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+    const renderedText = (node: Element) => {
+      // BR separates words visually even when the source has no adjacent space.
+      // Clone only for matching; geometry still comes from the untouched DOM.
+      const clone = node.cloneNode(true) as Element;
+      clone.querySelectorAll("br").forEach((br) => br.replaceWith(" "));
+      return normalize(clone.textContent);
+    };
     const targets = [
       "Papermark",
       "2024 in review",
@@ -75,9 +82,7 @@ async function paperSourceGeometry(root: Locator) {
     const nodes = Array.from(element.querySelectorAll("p,h1,h2,a,div"));
     return targets.flatMap((text) => {
       const matching = nodes.filter(
-        (node) =>
-          normalize(node.textContent) === normalize(text) &&
-          node.getBoundingClientRect().height > 0,
+        (node) => renderedText(node) === normalize(text) && node.getBoundingClientRect().height > 0,
       );
       const leaves = matching.filter(
         (node) => !matching.some((child) => child !== node && node.contains(child)),

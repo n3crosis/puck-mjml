@@ -13,6 +13,7 @@ from fontTools.designspaceLib import AxisDescriptor, DesignSpaceDocument, Source
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.varLib import build
+from fontTools.varLib.instancer import instantiateVariableFont
 
 OUTPUT = Path(__file__).resolve().parents[1] / "tests/browser/fixtures/fonts"
 CHARACTERS = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -78,7 +79,7 @@ def main():
         axis.name, axis.tag = "Weight", "wght"
         axis.minimum, axis.default, axis.maximum = 100, 100, 900
         designspace.addAxis(axis)
-        for weight, width in [(100, 600), (900, 1000)]:
+        for weight, width in [(100, 500), (900, 4500)]:
             path = work / f"master-{weight}.ttf"
             make_master(path, "VariableProbe", weight, width)
             source = SourceDescriptor()
@@ -94,10 +95,15 @@ def main():
         fix_timestamp(font)
         font.flavor = "woff"
         font.save(OUTPUT / "variable.woff")
+    variable_advances = {
+        str(weight): instantiateVariableFont(font, {"wght": weight}, inplace=False)["hmtx"]["H"][0]
+        for weight in (420, 450)
+    }
     manifest = {
         "generator": "scripts/generate-font-test-fixtures.py",
         "fontToolsVersion": "4.61.1",
         "license": "MIT; original rectangle glyphs, no third-party font data",
+        "variableAdvanceUnits": variable_advances,
         "files": {
             path.name: hashlib.sha256(path.read_bytes()).hexdigest()
             for path in sorted(OUTPUT.glob("*.woff"))

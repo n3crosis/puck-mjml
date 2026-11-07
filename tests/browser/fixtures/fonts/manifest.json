@@ -2,10 +2,14 @@
   "generator": "scripts/generate-font-test-fixtures.py",
   "fontToolsVersion": "4.61.1",
   "license": "MIT; original rectangle glyphs, no third-party font data",
+  "variableAdvanceUnits": {
+    "420": 2100,
+    "450": 2250
+  },
   "files": {
     "other-400.woff": "1d8d64f9d59bf9b55584bf16bf0caad3d474488a1db6895f37e50f06d5d2b5e5",
     "static-400.woff": "63a28b0bcdd30055024899056419a6577733ee3a2d800268e01ecdd6fa81c0d5",
     "static-600.woff": "bf0e40e3d42277de6fcda26277c9edd1a991a30f954d64c863de671d4ccd19c2",
-    "variable.woff": "4c3fe0d77dfe9d3c046c70bb4cdf6c168d7c477e68d9b9127760877850ff6fee"
+    "variable.woff": "621c10a774af92c6e86d5be3684201c391da26d486afdd405d550a78aa5725b2"
   }
 }

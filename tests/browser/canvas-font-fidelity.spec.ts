@@ -1,5 +1,15 @@
 import { expect, test, type Locator } from "@playwright/test";
-import { fontFailures, observeResources, waitForCanvasFontCss } from "./font-evidence";
+import {
+  fontFailures,
+  observeResources,
+  waitForCanvasFontCss,
+  waitForImportedFontCss,
+} from "./font-evidence";
+import { readFileSync } from "node:fs";
+
+const fontManifest: { variableAdvanceUnits: Record<string, number> } = JSON.parse(
+  readFileSync(new URL("./fixtures/fonts/manifest.json", import.meta.url), "utf8"),
+);
 
 async function textWidth(locator: Locator) {
   return locator.evaluate((element) => {
@@ -19,7 +29,7 @@ async function textWidth(locator: Locator) {
 for (const viewport of [800, 390]) {
   test(`delayed imports preserve static and variable typography across editors at ${viewport}px`, async ({
     page,
-  }) => {
+  }, testInfo) => {
     await page.setViewportSize({ width: viewport, height: 1000 });
     const resources = observeResources(page, [
       { family: "Probe", stylesheetUrl: "https://fonts.example.test/variable.css" },
@@ -72,14 +82,37 @@ for (const viewport of [800, 390]) {
     const compiled = page.frameLocator("#compiled");
     await expect(compiled.locator(".weight-400")).toBeAttached();
     await compiled.locator("body").evaluate((element) => element.ownerDocument.fonts.ready);
-    for (const [weight, width] of [
-      [400, 56],
-      [420, 106.4],
-      [450, 108.5],
-      [600, 70],
-    ]) {
-      expect(await textWidth(first.locator(`.weight-${weight}`))).toBeCloseTo(width, 1);
-      expect(await textWidth(compiled.locator(`.weight-${weight}`))).toBeCloseTo(width, 1);
+    const typography = await Promise.all(
+      [400, 420, 450, 600].map(async (weight) => ({
+        weight,
+        canvas: await textWidth(first.locator(`.weight-${weight}`)),
+        compiled: await textWidth(compiled.locator(`.weight-${weight}`)),
+        canvasWeight: await first
+          .locator(`.weight-${weight}`)
+          .evaluate((element) => getComputedStyle(element).fontWeight),
+        compiledWeight: await compiled
+          .locator(`.weight-${weight} > div`)
+          .evaluate((element) => getComputedStyle(element).fontWeight),
+      })),
+    );
+    // Collect both representations before any numeric assertion, so failures
+    // cannot hide the corresponding compiled measurement in the trace.
+    await testInfo.attach("font-typography.json", {
+      body: JSON.stringify({ viewport, typography }, null, 2),
+      contentType: "application/json",
+    });
+    const expectedWidths: Record<number, number> = {
+      400: 56,
+      420: (7 * fontManifest.variableAdvanceUnits["420"] * 20) / 1000,
+      450: (7 * fontManifest.variableAdvanceUnits["450"] * 20) / 1000,
+      600: 70,
+    };
+    for (const { weight, canvas, compiled, canvasWeight, compiledWeight } of typography) {
+      expect(canvasWeight).toBe(String(weight));
+      expect(compiledWeight).toBe(String(weight));
+      expect(canvas).toBeCloseTo(compiled, 1);
+      expect(canvas).toBeCloseTo(expectedWidths[weight], 1);
+      expect(compiled).toBeCloseTo(expectedWidths[weight], 1);
     }
     expect(await textWidth(other.locator(".weight-400"))).toBeCloseTo(112, 1);
     expect(await textWidth(head.locator(".weight-400"))).toBeCloseTo(56, 1);
@@ -149,4 +182,63 @@ test("a failed implicit CSS request is captured separately and rejects readiness
       ({ implicitFontStylesheet, status }) => implicitFontStylesheet && status === 503,
     ),
   ).toBe(true);
+});
+
+test("child-only font changes cannot reuse the previous ready snapshot before observation", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const delayed = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const requests: string[] = [];
+  await page.route("https://fonts.googleapis.com/**", async (route) => {
+    const family = new URL(route.request().url()).searchParams.get("family")!.split(":")[0];
+    requests.push(family);
+    if (family === "Roboto") await delayed;
+    const asset = family === "Roboto" ? "other-400" : "static-400";
+    await route.fulfill({
+      contentType: "text/css",
+      headers: { "access-control-allow-origin": "*" },
+      body: `@font-face{font-family:'${family}';font-style:normal;font-weight:400;src:url('http://127.0.0.1:4173/tests/browser/fixtures/fonts/${asset}.woff') format('woff');}`,
+    });
+  });
+  await page.goto("/tests/browser/fixtures/canvas-font-fidelity.html?transition=1", {
+    waitUntil: "domcontentloaded",
+  });
+  const canvas = page.getByRole("region", { name: "transition canvas" });
+  await waitForCanvasFontCss(canvas);
+  await page.evaluate(() => document.fonts.ready);
+  expect(await textWidth(canvas.locator(".transition-copy"))).toBeCloseTo(56, 1);
+  await page.getByRole("button", { name: "Set font Roboto" }).click();
+  const immediate = await page.evaluate(() => window.fontTransitionSnapshot!);
+  expect(immediate[0]).toMatchObject({ status: "ready", inputsCurrent: false });
+  expect(immediate[0].families.some((family) => family.startsWith("Roboto-"))).toBe(true);
+  await expect(waitForImportedFontCss([], async () => immediate, 0)).rejects.toThrow(
+    "current inline font families have not been observed",
+  );
+  await expect(canvas.locator(".pm-canvas")).toHaveAttribute(
+    "data-pm-canvas-font-status",
+    "loading",
+  );
+  const waiting = waitForCanvasFontCss(canvas);
+  expect(
+    await Promise.race([
+      waiting.then(() => "early"),
+      new Promise((resolve) => setTimeout(() => resolve("pending"), 100)),
+    ]),
+  ).toBe("pending");
+  release();
+  await waiting;
+  await page.evaluate(() => document.fonts.ready);
+  expect(await textWidth(canvas.locator(".transition-copy"))).toBeCloseTo(112, 1);
+  await page.getByRole("button", { name: "Set font Arial" }).click();
+  const removal = await page.evaluate(() => window.fontTransitionSnapshot!);
+  expect(removal[0].inputsCurrent).toBe(false);
+  await expect(waitForImportedFontCss([], async () => removal, 0)).rejects.toThrow(
+    "not been observed",
+  );
+  await waitForCanvasFontCss(canvas);
+  await expect(canvas.locator(".pm-canvas")).toHaveAttribute("data-pm-canvas-font-status", "idle");
+  expect(requests).toEqual(["Ubuntu", "Roboto"]);
 });

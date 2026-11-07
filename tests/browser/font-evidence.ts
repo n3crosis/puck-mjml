@@ -2,6 +2,7 @@ import type { Locator, Page, Request } from "@playwright/test";
 import { load } from "cheerio";
 import { createFontAliases, familyKey } from "../../src/canvas-css";
 import { mjmlDefaultFonts } from "../../src/canvas-font-resolver";
+import { inspectCanvasFontInputs } from "../../src/canvas-font-inputs";
 
 export type DeclaredFont = { family: string; stylesheetUrl: string };
 export type ExpectedCanvasFont = DeclaredFont & { alias: string };
@@ -17,6 +18,7 @@ export type CanvasFontCssEvidence = {
   css: string;
   errors: string | null;
   missingAliases?: string[];
+  inputsCurrent?: boolean;
 };
 
 /** Static head faces must not satisfy readiness for a pending imported face. */
@@ -28,7 +30,9 @@ export async function waitForImportedFontCss(
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     const styles = await readStyles();
-    const failed = styles.filter(({ status }) => status === "error");
+    const failed = styles.filter(
+      ({ status, inputsCurrent }) => status === "error" && inputsCurrent !== false,
+    );
     if (failed.length) {
       throw new Error(
         `Canvas font CSS failed: ${failed.map(({ scope, errors }) => `${scope}: ${errors ?? "unknown import failure"}`).join("; ")}`,
@@ -46,14 +50,17 @@ export async function waitForImportedFontCss(
     const unregistered = styles.flatMap(({ missingAliases }) => missingAliases ?? []);
     if (
       styles.length &&
-      styles.every(({ status }) => status === "ready" || status === "idle") &&
+      styles.every(
+        ({ status, inputsCurrent }) =>
+          inputsCurrent !== false && (status === "ready" || status === "idle"),
+      ) &&
       !missing.length &&
       !unregistered.length
     )
       return;
     if (Date.now() >= deadline) {
       throw new Error(
-        `Canvas imported font CSS did not settle${missing.length ? `: ${missing.map(({ family, stylesheetUrl }) => `${family} (${stylesheetUrl})`).join(", ")}` : ""}${unregistered.length ? `; unregistered imported aliases: ${unregistered.join(", ")}` : ""}`,
+        `Canvas imported font CSS did not settle${styles.some(({ inputsCurrent }) => inputsCurrent === false) ? "; current inline font families have not been observed" : ""}${missing.length ? `: ${missing.map(({ family, stylesheetUrl }) => `${family} (${stylesheetUrl})`).join(", ")}` : ""}${unregistered.length ? `; unregistered imported aliases: ${unregistered.join(", ")}` : ""}`,
       );
     }
     await new Promise((resolve) => setTimeout(resolve, Math.min(50, deadline - Date.now())));
@@ -68,36 +75,7 @@ export async function waitForCanvasFontCss(
 ): Promise<void> {
   await waitForImportedFontCss(
     expected,
-    () =>
-      root.evaluate((element) => {
-        const enclosing = element.closest<HTMLElement>(".pm-canvas");
-        const canvases = enclosing
-          ? [enclosing]
-          : Array.from(element.querySelectorAll<HTMLElement>(".pm-canvas"));
-        return canvases.map((canvas) => {
-          const scope =
-            Array.from(canvas.classList).find((name) => name.startsWith("pm-canvas-")) ?? "";
-          const normalize = (name: string) =>
-            name
-              .replace(/^(['"])(.*)\1$/, "$2")
-              .replace(/\s+/g, " ")
-              .trim()
-              .toLowerCase();
-          const registered = new Set(
-            Array.from(canvas.ownerDocument.fonts, ({ family }) => normalize(family)),
-          );
-          const families = JSON.parse(
-            canvas.getAttribute("data-pm-canvas-font-families") ?? "[]",
-          ) as string[];
-          return {
-            scope,
-            status: canvas.getAttribute("data-pm-canvas-font-status"),
-            css: canvas.querySelector(`style[data-pm-canvas-fonts="${scope}"]`)?.textContent ?? "",
-            errors: canvas.getAttribute("data-pm-canvas-font-errors"),
-            missingAliases: families.filter((family) => !registered.has(normalize(family))),
-          };
-        });
-      }),
+    () => root.evaluate(inspectCanvasFontInputs, true),
     timeoutMs,
   );
 }

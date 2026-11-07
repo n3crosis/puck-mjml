@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ChangeEvent } from "react";
+import { useId, useLayoutEffect, useRef, useState, type ChangeEvent } from "react";
 import { readNativeAttributes } from "./native-attributes";
 import {
   IMAGE_UPLOAD_ACCEPT,
@@ -22,6 +22,10 @@ export function ImageSourceField({
   readOnly?: boolean;
   allowLocalImages?: boolean;
 }) {
+  // Puck mounts hidden and visible field instances with the same supplied id.
+  // Labels and help text must belong to this rendered instance, not its sibling.
+  const instanceId = useId();
+  const inputId = `${id}-${instanceId}`;
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const request = useRef(0);
@@ -75,13 +79,13 @@ export function ImageSourceField({
       if (token === request.current) setBusy(false);
     }
   };
-  const description = `${id}-upload-help`;
-  const errorId = `${id}-upload-error`;
+  const description = `${inputId}-upload-help`;
+  const errorId = `${inputId}-upload-error`;
   return (
     <div className="pm-field" aria-busy={busy}>
-      <label htmlFor={id}>Image URL</label>
+      <label htmlFor={inputId}>Image URL</label>
       <input
-        id={id}
+        id={inputId}
         type="url"
         value={String(value ?? "")}
         readOnly={readOnly}

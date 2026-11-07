@@ -1,6 +1,7 @@
 <!--
   Adapted from React Email (MIT, Copyright 2024 Plus Five Five, Inc).
   https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/subscription-update.tsx
+  Accessibility adaptation: footer description uses darker muted green #5F7458 (5.09:1 on white).
   Canonical editable MJML source. See ../README.md and ../../THIRD_PARTY_NOTICES.md.
 -->
 <mjml lang="en" dir="ltr" owa="none">
@@ -236,7 +237,7 @@
       >
         <mj-column>
           <mj-text
-            color="#869C7F"
+            color="#5F7458"
             font-size="13px"
             font-family="Inter, Arial, sans-serif"
             font-weight="300"

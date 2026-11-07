@@ -364,3 +364,49 @@ describe("upload validation races", () => {
     expect(change).toHaveBeenCalledExactlyOnceWith("https://example.com/newest.png");
   });
 });
+
+describe("duplicate Puck field instances", () => {
+  it("keeps labels, help, and errors associated with their own hidden or visible instance", async () => {
+    mount();
+    const upload = vi.fn().mockRejectedValue(new Error("Visible upload failed"));
+    const change = vi.fn();
+    const view = () => (
+      <>
+        <div hidden data-instance="hidden">
+          <ImageSourceField id="image-1_custom_src" value="old" onChange={change} upload={upload} />
+        </div>
+        <div data-instance="visible">
+          <ImageSourceField id="image-1_custom_src" value="old" onChange={change} upload={upload} />
+        </div>
+      </>
+    );
+    act(() => root.render(view()));
+    const copies = Array.from(container.querySelectorAll<HTMLElement>("[data-instance]"));
+    const inputs = copies.map((copy) => copy.querySelector<HTMLInputElement>('input[type="url"]')!);
+    const ids = inputs.map((input) => input.id);
+    expect(new Set(ids).size).toBe(2);
+    for (let index = 0; index < copies.length; index++) {
+      const label = copies[index].querySelector<HTMLLabelElement>("label")!;
+      expect(label.control).toBe(inputs[index]);
+      expect(inputs[index].labels).toContain(label);
+      const helpId = inputs[index].getAttribute("aria-describedby")!;
+      expect(copies[index].querySelector(".pm-upload-help")!.id).toBe(helpId);
+      expect(document.getElementById(helpId)?.closest("[data-instance]")).toBe(copies[index]);
+    }
+    const visibleFile = copies[1].querySelector<HTMLInputElement>('input[type="file"]')!;
+    Object.defineProperty(visibleFile, "files", {
+      configurable: true,
+      value: [new File([pngImageBytes()], "image.png", { type: "image/png" })],
+    });
+    await act(async () => visibleFile.dispatchEvent(new Event("change", { bubbles: true })));
+    expect(copies[0].querySelector('[role="alert"]')).toBeNull();
+    const error = copies[1].querySelector('[role="alert"]')!;
+    expect(error.textContent).toBe("Visible upload failed");
+    expect(visibleFile.getAttribute("aria-describedby")!.split(" ")).toContain(error.id);
+    expect(document.getElementById(error.id)).toBe(error);
+    act(() => root.render(view()));
+    expect(
+      copies.map((copy) => copy.querySelector<HTMLInputElement>('input[type="url"]')!.id),
+    ).toEqual(ids);
+  });
+});

@@ -23,6 +23,7 @@ test("CSS editor has stable controlled typing, indentation, completion, history,
   await expect(source).toHaveJSProperty("textContent", ".card {\n    color: blue;\n}");
   await editor.press("Shift+Tab");
   await expect(source).toHaveJSProperty("textContent", ".card {\n  color: blue;\n}");
+  await expect(editor).toBeFocused();
   await editor.press("Control+z");
   await expect(source).toHaveJSProperty("textContent", ".card {\n    color: blue;\n}");
   await editor.press("Control+Shift+z");
@@ -90,14 +91,25 @@ test("Custom CSS uses CodeMirror in the real Puck field and preserves edited sou
       '<mjml><mj-head><mj-style>.card{color:red}</mj-style></mj-head><mj-body><mj-section><mj-column><mj-text css-class="card">CSS example</mj-text></mj-column></mj-section></mj-body></mjml>',
     ),
   });
-  const field = page.locator('[data-property-name="headStyles"]');
-  await field.locator('[class*="_ArrayFieldItem-summary_"]').click();
+  // File selection precedes async import and Puck remounting. Confirm the
+  // imported document, rather than accidentally editing the prior template.
+  await expect(page.getByRole("combobox", { name: "Email template" })).toHaveValue("imported");
+  await expect(
+    page.frameLocator("#preview-frame").getByText("CSS example", { exact: true }),
+  ).toBeVisible();
+  // Puck keeps an inactive Fields plugin mounted in the left sidebar. Assert
+  // one visible inspector instead of picking the first of its two DOM copies.
+  const field = page.locator('[data-property-name="headStyles"]:visible');
+  await expect(field).toHaveCount(1);
+  const style = field.getByRole("button", { name: /^CSS 1 \(head\)/ });
+  await expect(style).toHaveCount(1);
+  await style.click();
   const editor = field.getByRole("textbox", { name: "CSS", exact: true });
   await expect(editor).toBeVisible();
   await expect(field.locator(".cm-lineNumbers")).toBeVisible();
   await editor.fill(".card{color:blue}");
   await expect(editor).toBeFocused();
-  await page.getByRole("button", { name: "Format CSS", exact: true }).click();
+  await field.getByRole("button", { name: "Format CSS", exact: true }).click();
   await page.getByRole("button", { name: "Export email" }).click();
   await page.getByRole("button", { name: "MJML", exact: true }).click();
   const download = page.waitForEvent("download");

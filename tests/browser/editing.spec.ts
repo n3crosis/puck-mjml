@@ -25,6 +25,9 @@ async function dragBlock(page: Page, source: Locator, target: Locator) {
   await page.mouse.move(end.x, end.y, { steps: 30 });
   // A final in-slot move lets nested collision detection replace the root zone.
   await page.mouse.move(end.x + 2, end.y + 2, { steps: 2 });
+  // Puck debounces entry into nested areas. Release only once it confirms this
+  // slot is the insertion target, rather than dropping while the root is active.
+  await expect(target.locator(":scope > [data-puck-line-placeholder]")).toBeVisible();
   await page.mouse.up();
 }
 
@@ -35,7 +38,9 @@ test.afterEach(async ({ page }, testInfo) => {
   await testInfo.attach("Editor at failure", { path, contentType: "image/png" });
 });
 
-test("preview closes with Escape while its isolated email iframe has focus", async ({ page }) => {
+test("isolated preview preserves pointer interaction and returns keyboard focus for Escape", async ({
+  page,
+}) => {
   await page.goto("/");
   const opener = page.getByRole("button", { name: "Preview email" });
   await opener.click();
@@ -43,9 +48,42 @@ test("preview closes with Escape while its isolated email iframe has focus", asy
   await expect(dialog).toBeVisible();
   const iframe = page.locator('iframe[title="Rendered email"]');
   await expect(iframe).toHaveAttribute("sandbox", "");
+  await expect(iframe).toHaveAttribute("tabindex", "-1");
+  await expect(
+    dialog.getByText("Keyboard focus stays on preview controls", { exact: false }),
+  ).toBeVisible();
   const rendered = page.frameLocator('iframe[title="Rendered email"]');
-  await rendered.getByText("Monthly roundup", { exact: true }).click();
-  await expect(iframe).toBeFocused();
+  const close = dialog.getByRole("button", { name: "Close preview" });
+  await close.focus();
+  const heading = rendered.getByText("Monthly roundup", { exact: true });
+  await heading.click();
+  await expect(close).toBeFocused();
+  await heading.dblclick();
+  await expect(close).toBeFocused();
+  await expect
+    .poll(() =>
+      rendered
+        .locator("body")
+        .evaluate((body) => body.ownerDocument.getSelection()?.toString().length ?? 0),
+    )
+    .toBeGreaterThan(0);
+  // The frame remains pointer-interactive; the guard never uses pointer-events
+  // or inert to hide the email from hit testing, selection, or wheel scrolling.
+  const beforeScroll = await rendered
+    .locator("body")
+    .evaluate((body) => body.ownerDocument.scrollingElement!.scrollTop);
+  await heading.hover();
+  await page.mouse.wheel(0, 300);
+  await expect
+    .poll(() =>
+      rendered.locator("body").evaluate((body) => body.ownerDocument.scrollingElement!.scrollTop),
+    )
+    .toBeGreaterThan(beforeScroll);
+  await expect(close).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(dialog.getByRole("button", { name: "Responsive", exact: true })).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(close).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await expect(opener).toBeFocused();

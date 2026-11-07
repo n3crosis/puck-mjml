@@ -18,7 +18,7 @@ export function usePreviewFocus(
     const controls = () =>
       [
         ...dialog.querySelectorAll<HTMLElement>(
-          'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), iframe, [tabindex="0"]',
+          'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), iframe:not([tabindex="-1"]), [tabindex="0"]',
         ),
       ].filter(
         (element) =>
@@ -27,8 +27,34 @@ export function usePreviewFocus(
       );
     const first = () => controls()[0] ?? dialog;
     const focusInside = () => first().focus({ preventScroll: true });
+    let lastControl: HTMLElement | null = null;
+    const view = document.defaultView;
+    let focusTimer: number | undefined;
+    // Keyboard events in an opaque-origin iframe cannot reach this document.
+    // Preserve the sandbox and pointer interaction, but keep keyboard focus on
+    // the preview controls. Only explicitly marked visual-preview frames opt in.
+    const returnFromPreviewFrame = () => {
+      if (focusTimer !== undefined) view?.clearTimeout(focusTimer);
+      focusTimer = view?.setTimeout(() => {
+        focusTimer = undefined;
+        const active = document.activeElement;
+        if (
+          !dialog.isConnected ||
+          !active?.matches("iframe[data-preview-keep-control-focus]") ||
+          !dialog.contains(active)
+        )
+          return;
+        const target = lastControl && controls().includes(lastControl) ? lastControl : first();
+        target.focus({ preventScroll: true });
+      }, 0);
+    };
     const contain = (event: FocusEvent) => {
       const target = event.target as HTMLElement | null;
+      if (target?.matches("iframe[data-preview-keep-control-focus]")) {
+        returnFromPreviewFrame();
+        return;
+      }
+      if (target && controls().includes(target)) lastControl = target;
       if (target?.dataset?.previewFocusGuard === "start")
         (controls().at(-1) ?? dialog).focus({ preventScroll: true });
       else if (target?.dataset?.previewFocusGuard === "end" || (target && !dialog.contains(target)))
@@ -46,9 +72,12 @@ export function usePreviewFocus(
     focusInside();
     document.addEventListener("focusin", contain);
     document.addEventListener("keydown", cycle);
+    view?.addEventListener("blur", returnFromPreviewFrame);
     return () => {
       document.removeEventListener("focusin", contain);
       document.removeEventListener("keydown", cycle);
+      view?.removeEventListener("blur", returnFromPreviewFrame);
+      if (focusTimer !== undefined) view?.clearTimeout(focusTimer);
       if (modal?.open) modal.close();
       const target = restoreRef?.current ?? previous;
       if (target?.isConnected) target.focus({ preventScroll: true });

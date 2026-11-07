@@ -240,63 +240,71 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         >
       </mj-column>
     </mj-section>
-    <mj-section padding="20px 2px 22px">
-      <mj-column padding="0px 2px" width="25%">
-        <mj-image
-          src="https://demo.react.email/static/nike-recomendation-1.png"
-          alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
-          align="left"
-          padding="0px"
-        />
-        <mj-text padding="12px 10px 0px" font-size="15px" line-height="1" font-weight="500"
-          >USWNT 2022/23 Stadium Home</mj-text
-        >
-        <mj-text padding="4px 10px 0px" font-size="15px" line-height="1" color="#747474"
-          >Women's Nike Dri-FIT Soccer Jersey</mj-text
-        >
-      </mj-column>
-      <mj-column padding="0px 2px" width="25%">
-        <mj-image
-          src="https://demo.react.email/static/nike-recomendation-2.png"
-          alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
-          align="left"
-          padding="0px"
-        />
-        <mj-text padding="12px 10px 0px" font-size="15px" line-height="1" font-weight="500"
-          >Brazil 2022/23 Stadium Goalkeeper</mj-text
-        >
-        <mj-text padding="4px 10px 0px" font-size="15px" line-height="1" color="#747474"
-          >Men's Nike Dri-FIT Short-Sleeve Football Shirt</mj-text
-        >
-      </mj-column>
-      <mj-column padding="0px 2px" width="25%">
-        <mj-image
-          src="https://demo.react.email/static/nike-recomendation-4.png"
-          alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
-          align="left"
-          padding="0px"
-        />
-        <mj-text padding="12px 10px 0px" font-size="15px" line-height="1" font-weight="500"
-          >FFF</mj-text
-        >
-        <mj-text padding="4px 10px 0px" font-size="15px" line-height="1" color="#747474"
-          >Women's Soccer Jacket</mj-text
-        >
-      </mj-column>
-      <mj-column padding="0px 2px" width="25%">
-        <mj-image
-          src="https://demo.react.email/static/nike-recomendation-4.png"
-          alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
-          align="left"
-          padding="0px"
-        />
-        <mj-text padding="12px 10px 0px" font-size="15px" line-height="1" font-weight="500"
-          >FFF</mj-text
-        >
-        <mj-text padding="4px 10px 0px" font-size="15px" line-height="1" color="#747474"
-          >Women's Nike Pre-Match Football Top</mj-text
-        >
-      </mj-column>
+    <mj-section padding="20px 14px 0px" css-class="nike-recommendations">
+      <mj-group width="50%" css-class="nike-recommendation-pair">
+        <mj-column padding="0px 6px 24px" width="50%" css-class="nike-recommendation-card">
+          <mj-image
+            src="https://demo.react.email/static/nike-recomendation-1.png"
+            alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
+            align="left"
+            fluid-on-mobile="true"
+            padding="0px"
+          />
+          <mj-text padding="12px 4px 0px" font-size="15px" line-height="1.4" font-weight="500"
+            >USWNT 2022/23 Stadium Home</mj-text
+          >
+          <mj-text padding="4px 4px 0px" font-size="15px" line-height="1.4" color="#747474"
+            >Women's Nike Dri-FIT Soccer Jersey</mj-text
+          >
+        </mj-column>
+        <mj-column padding="0px 6px 24px" width="50%" css-class="nike-recommendation-card">
+          <mj-image
+            src="https://demo.react.email/static/nike-recomendation-2.png"
+            alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
+            align="left"
+            fluid-on-mobile="true"
+            padding="0px"
+          />
+          <mj-text padding="12px 4px 0px" font-size="15px" line-height="1.4" font-weight="500"
+            >Brazil 2022/23 Stadium Goalkeeper</mj-text
+          >
+          <mj-text padding="4px 4px 0px" font-size="15px" line-height="1.4" color="#747474"
+            >Men's Nike Dri-FIT Short-Sleeve Football Shirt</mj-text
+          >
+        </mj-column>
+      </mj-group>
+      <mj-group width="50%" css-class="nike-recommendation-pair">
+        <mj-column padding="0px 6px 24px" width="50%" css-class="nike-recommendation-card">
+          <mj-image
+            src="https://demo.react.email/static/nike-recomendation-4.png"
+            alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
+            align="left"
+            fluid-on-mobile="true"
+            padding="0px"
+          />
+          <mj-text padding="12px 4px 0px" font-size="15px" line-height="1.4" font-weight="500"
+            >FFF</mj-text
+          >
+          <mj-text padding="4px 4px 0px" font-size="15px" line-height="1.4" color="#747474"
+            >Women's Soccer Jacket</mj-text
+          >
+        </mj-column>
+        <mj-column padding="0px 6px 24px" width="50%" css-class="nike-recommendation-card">
+          <mj-image
+            src="https://demo.react.email/static/nike-recomendation-4.png"
+            alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
+            align="left"
+            fluid-on-mobile="true"
+            padding="0px"
+          />
+          <mj-text padding="12px 4px 0px" font-size="15px" line-height="1.4" font-weight="500"
+            >FFF</mj-text
+          >
+          <mj-text padding="4px 4px 0px" font-size="15px" line-height="1.4" color="#747474"
+            >Women's Nike Pre-Match Football Top</mj-text
+          >
+        </mj-column>
+      </mj-group>
     </mj-section>
     <mj-section padding="0px">
       <mj-column padding="0px">

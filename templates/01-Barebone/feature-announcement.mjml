@@ -15,6 +15,10 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         font-family="Inter, Arial, sans-serif"
     /></mj-attributes>
     <mj-style inline="inline">
+      .bare-app-icon {
+        width: 56px !important;
+        max-width: 56px !important;
+      }
       .bare-footer-copy > div {
         max-width: 280px;
         margin: 0 auto;
@@ -366,7 +370,12 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         background-color="#F3F4F6"
         border-radius="10px 10px 0px 0px"
         css-class="bare-card-section"
-        ><mj-column width="56px" padding="12px" background-color="#000000" border-radius="12px"
+        ><mj-column
+          width="56px"
+          padding="12px"
+          background-color="#000000"
+          border-radius="12px"
+          css-class="bare-app-icon"
           ><mj-image
             src="https://demo.react.email/static/shared/logo-white.png"
             alt=""

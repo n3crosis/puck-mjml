@@ -1,8 +1,9 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import { thirdPartyNotices } from "./scripts/third-party-notices";
 
 export default defineConfig(({ command, mode }) => ({
-  plugins: [react()],
+  plugins: [react(), thirdPartyNotices()],
   test: { exclude: ["tests/browser/**", "node_modules/**", "dist/**", "demo-dist/**"] },
   build:
     command === "build" && mode === "demo"

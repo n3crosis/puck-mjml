@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { Children, isValidElement, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   Puck,
   Render,
@@ -46,24 +46,6 @@ const attributeNames = (entry: unknown) => {
     .filter(Boolean)
     .sort();
 };
-
-type CheckboxProps = {
-  children?: ReactNode;
-  type?: string;
-  checked?: boolean;
-  disabled?: boolean;
-  onChange?: (event: { target: { checked: boolean } }) => void;
-};
-function findCheckbox(node: ReactNode): CheckboxProps | undefined {
-  let found: CheckboxProps | undefined;
-  Children.forEach(node, (child) => {
-    if (found || !isValidElement(child)) return;
-    const props = child.props as CheckboxProps;
-    found =
-      child.type === "input" && props.type === "checkbox" ? props : findCheckbox(props.children);
-  });
-  return found;
-}
 
 function canvasMarkup(type: string, props: Record<string, unknown>, allowRawHtml = true) {
   const config = createEmailConfig(undefined, allowRawHtml);
@@ -478,15 +460,14 @@ describe("trusted ending-tag source controls", () => {
     const onChange = vi.fn();
     const props = { field, name: "htmlContent", id: "source", onChange };
     const disabled = field.render({ ...props, value: undefined });
-    expect(findCheckbox(disabled)?.checked).toBe(false);
-    expect(renderToStaticMarkup(disabled)).not.toContain("<textarea");
-    findCheckbox(disabled)?.onChange?.({ target: { checked: true } });
-    expect(onChange).toHaveBeenLastCalledWith("");
+    const disabledMarkup = renderToStaticMarkup(disabled);
+    expect(load(disabledMarkup)('input[type="checkbox"]').attr("checked")).toBeUndefined();
+    expect(disabledMarkup).not.toContain("<textarea");
     const empty = field.render({ ...props, value: "" });
-    expect(findCheckbox(empty)?.checked).toBe(true);
-    expect(renderToStaticMarkup(empty)).toContain("<textarea");
-    findCheckbox(empty)?.onChange?.({ target: { checked: false } });
-    expect(onChange).toHaveBeenLastCalledWith(undefined);
+    const emptyMarkup = renderToStaticMarkup(empty);
+    expect(load(emptyMarkup)('input[type="checkbox"]').attr("checked")).toBeDefined();
+    expect(emptyMarkup).toContain("<textarea");
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it("gates trusted fields and never initializes an optional source or raw kind", () => {

@@ -34,6 +34,10 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         color: #004dcf;
         text-decoration: underline;
       }
+      .google-play-social-icons {
+        width: 96px !important;
+        max-width: 100%;
+      }
     </mj-style>
   </mj-head>
   <mj-body width="600px" background-color="#dbddde">
@@ -128,41 +132,42 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           >
         </mj-column>
       </mj-section>
-      <mj-section padding="0px 20px" background-color="#f0fcff">
-        <mj-column padding="0px 4px 0px 0px" width="6%">
-          <mj-image
-            src="https://demo.react.email/static/google-play-chat.png"
-            alt=""
-            width="28px"
-            height="28px"
-            align="left"
-            padding="0px"
-            href="https://notifications.google.com"
-          />
-        </mj-column>
-        <mj-column padding="0px 4px 0px 0px" width="6%">
-          <mj-image
-            src="https://demo.react.email/static/google-play-icon.png"
-            alt=""
-            width="28px"
-            height="28px"
-            align="left"
-            padding="0px"
-            href="https://notifications.google.com"
-          />
-        </mj-column>
-        <mj-column padding="0px 4px 0px 0px" width="6%">
-          <mj-image
-            src="https://demo.react.email/static/google-play-academy.png"
-            alt=""
-            width="28px"
-            height="28px"
-            align="left"
-            padding="0px"
-            href="https://notifications.google.com"
-          />
-        </mj-column>
-        <mj-column padding="0px" width="82%"> </mj-column>
+      <mj-section padding="0px 20px" background-color="#f0fcff" text-align="left">
+        <mj-group width="96px" css-class="google-play-social-icons">
+          <mj-column padding="0px 4px 0px 0px" width="32px">
+            <mj-image
+              src="https://demo.react.email/static/google-play-chat.png"
+              alt=""
+              width="28px"
+              height="28px"
+              align="left"
+              padding="0px"
+              href="https://notifications.google.com"
+            />
+          </mj-column>
+          <mj-column padding="0px 4px 0px 0px" width="32px">
+            <mj-image
+              src="https://demo.react.email/static/google-play-icon.png"
+              alt=""
+              width="28px"
+              height="28px"
+              align="left"
+              padding="0px"
+              href="https://notifications.google.com"
+            />
+          </mj-column>
+          <mj-column padding="0px 4px 0px 0px" width="32px">
+            <mj-image
+              src="https://demo.react.email/static/google-play-academy.png"
+              alt=""
+              width="28px"
+              height="28px"
+              align="left"
+              padding="0px"
+              href="https://notifications.google.com"
+            />
+          </mj-column>
+        </mj-group>
       </mj-section>
       <mj-section padding="0px" background-color="#f0fcff">
         <mj-column padding="0px">

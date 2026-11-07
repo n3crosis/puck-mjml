@@ -1,3 +1,4 @@
+import { useId } from "react";
 import {
   AutoField,
   createUsePuck,
@@ -82,8 +83,10 @@ function OrderedAccordionChildren({
   ...props
 }: Parameters<CustomField<unknown>["render"]>[0] & { array: ArrayField }) {
   const { name: fieldName, ...autoFieldProps } = props;
+  const instanceId = useId();
+  const toggleId = `${props.id}-${instanceId}-enabled`;
   const enabled = Array.isArray(props.value);
-  const locks = usePuck((state) => state.selectedItem?.readOnly ?? {});
+  const locks = usePuck((state) => state.selectedItem?.readOnly) ?? {};
   const selected = usePuck((state) => state.selectedItem?.props);
   const canEdit = usePuck((state) =>
     state.selectedItem ? state.getPermissions({ item: state.selectedItem }).edit : false,
@@ -121,9 +124,9 @@ function OrderedAccordionChildren({
   };
   return (
     <div className="pm-field">
-      <label htmlFor={`${props.id}-enabled`} className="pm-field-toggle">
+      <label htmlFor={toggleId} className="pm-field-toggle">
         <input
-          id={`${props.id}-enabled`}
+          id={toggleId}
           type="checkbox"
           checked={enabled}
           disabled={structureLocked}
@@ -204,6 +207,7 @@ function ContextAttributeEditor({
   dynamicTag,
   ...props
 }: Parameters<typeof NativeAttributeEditor>[0] & { dynamicTag: boolean | string }) {
+  const instanceId = useId();
   const resolvedTag = usePuck((state) =>
     typeof dynamicTag === "string"
       ? nativeEntryTagFromPath(state.selectedItem?.props, props.name, dynamicTag)
@@ -221,6 +225,7 @@ function ContextAttributeEditor({
   return (
     <NativeAttributeEditor
       {...props}
+      id={`${props.id}-${instanceId}`}
       tag={resolvedTag || tag}
       readOnly={props.readOnly || !canEdit}
       readOnlyFields={readOnlyFields}
@@ -291,48 +296,59 @@ export function TrustedHtmlPreview({
   );
 }
 
+function OptionalSourceField({
+  id,
+  value,
+  onChange,
+  readOnly,
+  label,
+  multiline,
+}: Parameters<CustomField<unknown>["render"]>[0] & { label: string; multiline: boolean }) {
+  const instanceId = useId();
+  const sourceId = `${id}-${instanceId}`;
+  const enabled = typeof value === "string";
+  return (
+    <div className="pm-field pm-source-field">
+      <label htmlFor={`${sourceId}-enabled`} className="pm-field-toggle">
+        <input
+          id={`${sourceId}-enabled`}
+          type="checkbox"
+          checked={enabled}
+          disabled={readOnly}
+          onChange={(event) => onChange(event.target.checked ? "" : undefined)}
+        />
+        {label}
+      </label>
+      {enabled &&
+        (multiline ? (
+          <CodeArea
+            id={sourceId}
+            value={value}
+            disabled={readOnly}
+            ariaLabel={label}
+            onChange={onChange}
+          />
+        ) : (
+          <input
+            id={sourceId}
+            type="text"
+            value={value}
+            disabled={readOnly}
+            onChange={(event) => onChange(event.target.value)}
+            aria-label={label}
+            className="pm-source-value"
+          />
+        ))}
+    </div>
+  );
+}
+
 function optionalSourceField(visible: boolean, label: string, multiline: boolean): Field {
   return {
     type: "custom",
     label,
     visible,
-    render: ({ id, value, onChange, readOnly }) => {
-      const enabled = typeof value === "string";
-      return (
-        <div className="pm-field pm-source-field">
-          <label htmlFor={`${id}-enabled`} className="pm-field-toggle">
-            <input
-              id={`${id}-enabled`}
-              type="checkbox"
-              checked={enabled}
-              disabled={readOnly}
-              onChange={(event) => onChange(event.target.checked ? "" : undefined)}
-            />
-            {label}
-          </label>
-          {enabled &&
-            (multiline ? (
-              <CodeArea
-                id={id}
-                value={value}
-                disabled={readOnly}
-                ariaLabel={label}
-                onChange={onChange}
-              />
-            ) : (
-              <input
-                id={id}
-                type="text"
-                value={value}
-                disabled={readOnly}
-                onChange={(event) => onChange(event.target.value)}
-                aria-label={label}
-                className="pm-source-value"
-              />
-            ))}
-        </div>
-      );
-    },
+    render: (props) => <OptionalSourceField {...props} label={label} multiline={multiline} />,
   };
 }
 

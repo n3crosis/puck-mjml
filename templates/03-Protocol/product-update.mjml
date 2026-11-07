@@ -407,7 +407,7 @@
       </mj-column>
     </mj-section>
     <mj-section
-      background-color="#ffffff"
+      background-color="#131313"
       padding="48px 24px 64px"
       css-class="dither-update-blog-row"
     >

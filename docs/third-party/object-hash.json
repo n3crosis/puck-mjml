@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "component": {
+    "name": "object-hash",
+    "version": "3.0.0",
+    "bundlePath": "node_modules/object-hash/dist/object_hash.js",
+    "bundleSha256": "3bb38b9ae6002158700d776f34a2ebd2225f1bb1f41d9e91e286d69cf85bec98"
+  },
+  "scope": {
+    "kind": "opaque-prebundle-audit",
+    "description": "The distributed Browserify bundle has numbered modules and require maps but no source map or embedded package version identifiers. The object-hash package license is verified locally; embedded third-party license completeness is not established.",
+    "limitations": [
+      "Require maps identify buffer, base64-js, ieee754, crypto (historical crypto-browserify layout), and a process shim under internal key lYpoI2. Exact dependency versions and historical copyright/license texts remain unverified.",
+      "The MJML manifest includes verified licenses for newer browser polyfill releases. Those entries do not establish the versions or historical license notices for this separate prebundle."
+    ]
+  },
+  "moduleMaps": [
+    "{buffer:3,crypto:5,lYpoI2:11}",
+    "{buffer:3,lYpoI2:11}",
+    "{\"base64-js\":2,buffer:3,ieee754:10,lYpoI2:11}",
+    "{buffer:3,lYpoI2:11}",
+    "{\"./md5\":6,\"./rng\":7,\"./sha\":8,\"./sha256\":9,buffer:3,lYpoI2:11}",
+    "{\"./helpers\":4,buffer:3,lYpoI2:11}",
+    "{buffer:3,lYpoI2:11}",
+    "{\"./helpers\":4,buffer:3,lYpoI2:11}",
+    "{\"./helpers\":4,buffer:3,lYpoI2:11}",
+    "{buffer:3,lYpoI2:11}",
+    "{buffer:3,lYpoI2:11}"
+  ],
+  "packages": [
+    {
+      "name": "object-hash",
+      "version": "3.0.0",
+      "declaredLicense": "MIT",
+      "licenseFiles": [
+        {
+          "path": "node_modules/object-hash/LICENSE",
+          "sha256": "ea9e6806c48a8a043ad8f2446527dc860617068265cffbef3efa4aaba39f18d8",
+          "text": "The MIT License (MIT)\n\nCopyright (c) 2014 object-hash contributors\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n"
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "name": "object-hash browser prebundle embedded dependencies",
+      "reason": "Historical embedded versions and complete corresponding license texts have not been reconstructed; module-map names alone are insufficient proof."
+    }
+  ]
+}

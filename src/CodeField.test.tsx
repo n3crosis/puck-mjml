@@ -101,3 +101,35 @@ describe("code area source fields", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 });
+
+describe("duplicate source field instances", () => {
+  it("keeps expand controls local and IDs stable across host updates", () => {
+    const changes = [vi.fn(), vi.fn()];
+    const view = (source = "<p>Initial</p>") => (
+      <>
+        {changes.map((onChange, index) => (
+          <div hidden={index === 0} key={index} data-source-copy={index}>
+            <CodeArea id="shared-source" ariaLabel="HTML" value={source} onChange={onChange} />
+          </div>
+        ))}
+      </>
+    );
+    mountElement(view());
+    const copies = [...container!.querySelectorAll<HTMLElement>("[data-source-copy]")];
+    const areas = copies.map((copy) => copy.querySelector<HTMLTextAreaElement>("textarea")!);
+    const ids = areas.map((area) => area.id);
+    copies.forEach((copy, index) => {
+      const toggle = copy.querySelector<HTMLButtonElement>("button")!;
+      expect(document.getElementById(toggle.getAttribute("aria-controls")!)).toBe(areas[index]);
+    });
+    expect(new Set(ids).size).toBe(2);
+    act(() => copies[1].querySelector<HTMLButtonElement>("button")!.click());
+    expect(areas[0].getAttribute("rows")).toBe("4");
+    expect(areas[1].getAttribute("rows")).toBe("16");
+    act(() => root!.render(view("<p>Host update</p>")));
+    expect([...container!.querySelectorAll("textarea")]).toEqual(areas);
+    expect(areas.map((area) => area.id)).toEqual(ids);
+    expect(areas.map((area) => area.value)).toEqual(["<p>Host update</p>", "<p>Host update</p>"]);
+    expect(changes.every((change) => change.mock.calls.length === 0)).toBe(true);
+  });
+});

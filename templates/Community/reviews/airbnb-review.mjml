@@ -1,6 +1,7 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reviews/airbnb-review.tsx
-Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
+Intentional readability improvement over upstream: horizontal gutters keep mobile copy off the screen edges. -->
 <mjml>
   <mj-head>
     <mj-title>Read Alex&#x27;s review</mj-title>
@@ -37,7 +38,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     </mj-style>
   </mj-head>
   <mj-body width="580px" background-color="#ffffff">
-    <mj-section padding="20px 0px 48px">
+    <mj-section padding="20px 24px 48px" css-class="airbnb-content">
       <mj-column padding="0px">
         <mj-image
           src="https://demo.react.email/static/airbnb-logo.png"

@@ -1,6 +1,7 @@
 <!--
   Adapted from React Email (MIT, Copyright 2024 Plus Five Five, Inc).
   https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/welcome.tsx
+  Accessibility adaptation: helper copy uses existing fg-3 #818181 (4.77:1 on #131313).
   Canonical editable MJML source. See ../README.md and ../../THIRD_PARTY_NOTICES.md.
 -->
 <mjml lang="en" dir="ltr" owa="none">
@@ -241,7 +242,7 @@
     >
       <mj-column>
         <mj-text
-          color="#4A4A4A"
+          color="#818181"
           font-size="11px"
           font-family="Inter, Arial, sans-serif"
           font-weight="300"

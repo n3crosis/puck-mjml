@@ -26,6 +26,8 @@ At tablet widths, opening Blocks/Outline or Fields closes the other sidebar to p
 
 Root settings include email language/direction, legacy Outlook web layout, mobile breakpoint, hosted web fonts, custom CSS, and generated HTML attributes. The preview compiles the current document with MJML. Responsive mode fits the available space up to 800px; Mobile caps it at 390px. Both shrink on narrower screens, so use a wider screen to inspect desktop email layout.
 
+The rendered preview remains in an opaque-origin, script-disabled iframe. Pointer interaction and mouse/touch scrolling are available, while keyboard focus stays on the preview controls so Escape can close it. Keyboard navigation inside the rendered email is not available in this modal; download HTML from Export for standalone keyboard inspection.
+
 ## Importing MJML
 
 `fromMjml(source)` parses an MJML document into `{ document, warnings }`, where `document` is an editable `EmailDocument` and `warnings` lists anything the document model cannot represent.

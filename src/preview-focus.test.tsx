@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { act, StrictMode, useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { usePreviewFocus } from "./preview-focus";
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 it("moves focus inside, cycles both ways, prevents focus escape and restores the opener", () => {
@@ -97,5 +97,110 @@ it("opens a native modal and releases it on cleanup, including StrictMode replay
   } finally {
     act(() => root.unmount());
     container.remove();
+  }
+});
+
+it("returns visual-preview iframe focus to the last control and skips it in keyboard cycles", () => {
+  vi.useFakeTimers();
+  const container = document.createElement("div");
+  document.body.append(container);
+  const root = createRoot(container);
+  function View() {
+    const ref = useRef<HTMLElement>(null);
+    usePreviewFocus(true, ref);
+    return (
+      <section ref={ref} tabIndex={-1}>
+        <button id="first">Responsive</button>
+        <button id="last">Close</button>
+        <iframe
+          title="Rendered email"
+          srcDoc="<p>Visual preview</p>"
+          sandbox=""
+          tabIndex={-1}
+          data-preview-keep-control-focus=""
+        />
+      </section>
+    );
+  }
+  try {
+    act(() => root.render(<View />));
+    const first = container.querySelector<HTMLButtonElement>("#first")!;
+    const last = container.querySelector<HTMLButtonElement>("#last")!;
+    const frame = container.querySelector("iframe")!;
+    last.focus();
+    frame.focus();
+    window.dispatchEvent(new Event("blur"));
+    act(() => vi.runAllTimers());
+    expect(document.activeElement).toBe(last);
+    expect(frame.getAttribute("sandbox")).toBe("");
+    last.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }),
+    );
+    expect(document.activeElement).toBe(first);
+    first.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true }),
+    );
+    expect(document.activeElement).toBe(last);
+    // Repeated pointer focus does not create a focus loop or change its target.
+    frame.focus();
+    window.dispatchEvent(new Event("blur"));
+    act(() => vi.runAllTimers());
+    expect(document.activeElement).toBe(last);
+    expect(vi.getTimerCount()).toBe(0);
+  } finally {
+    act(() => root.unmount());
+    container.remove();
+    vi.useRealTimers();
+  }
+});
+
+it("cancels a pending iframe focus return on unmount and leaves unmarked frames alone", () => {
+  vi.useFakeTimers();
+  const container = document.createElement("div");
+  document.body.append(container);
+  const root = createRoot(container);
+  function View({ open }: { open: boolean }) {
+    const ref = useRef<HTMLElement>(null);
+    const opener = useRef<HTMLButtonElement>(null);
+    usePreviewFocus(open, ref, opener);
+    return (
+      <>
+        <button ref={opener}>Preview</button>
+        {open && (
+          <section ref={ref} tabIndex={-1}>
+            <button>Close</button>
+            <iframe title="Unmarked content" srcDoc="<p>Ordinary frame</p>" />
+            <iframe
+              title="Rendered email"
+              srcDoc="<p>Visual preview</p>"
+              sandbox=""
+              tabIndex={-1}
+              data-preview-keep-control-focus=""
+            />
+          </section>
+        )}
+      </>
+    );
+  }
+  try {
+    act(() => root.render(<View open />));
+    const ordinary = container.querySelector<HTMLIFrameElement>('[title="Unmarked content"]')!;
+    ordinary.focus();
+    window.dispatchEvent(new Event("blur"));
+    act(() => vi.runAllTimers());
+    expect(document.activeElement).toBe(ordinary);
+    const guarded = container.querySelector<HTMLIFrameElement>('[title="Rendered email"]')!;
+    guarded.focus();
+    window.dispatchEvent(new Event("blur"));
+    act(() => root.render(<View open={false} />));
+    const opener = container.querySelector("button")!;
+    expect(document.activeElement).toBe(opener);
+    act(() => vi.runAllTimers());
+    expect(document.activeElement).toBe(opener);
+    expect(vi.getTimerCount()).toBe(0);
+  } finally {
+    act(() => root.unmount());
+    container.remove();
+    vi.useRealTimers();
   }
 });

@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Puck, createUsePuck, type Data, type Plugin, type Overrides } from "@puckeditor/core";
+import {
+  Puck,
+  createUsePuck,
+  type Data,
+  type Plugin,
+  type Overrides,
+  type Viewports,
+} from "@puckeditor/core";
 import { EyeIcon } from "@phosphor-icons/react/dist/csr/Eye";
 import { ExportIcon } from "@phosphor-icons/react/dist/csr/Export";
 import { EmailExportDialog } from "./EmailExportDialog";
@@ -21,6 +28,12 @@ const fingerprint = (value: EmailDocument) => JSON.stringify(value);
 // Puck otherwise creates a new empty plugin array when host props update,
 // rebuilding slot renderers and unmounting focused inline text editors.
 const editorPlugins: Plugin[] = [];
+// Changing this reference reruns Puck's viewport initialization, which replaces
+// its sole history snapshot before the first debounced edit is committed.
+const editorViewports: Viewports = [
+  { width: 800, label: "Desktop" },
+  { width: 390, label: "Mobile" },
+];
 const usePuck = createUsePuck();
 
 // Retain Puck's native controls while giving tablet canvases room to work.
@@ -221,10 +234,7 @@ export function EmailEditor({
               headerActions: renderHeaderActions,
             }}
             headerTitle={headerTitle}
-            viewports={[
-              { width: 800, label: "Desktop" },
-              { width: 390, label: "Mobile" },
-            ]}
+            viewports={editorViewports}
           />
         </div>
         {exportDocument && (
@@ -290,6 +300,10 @@ export function EmailEditor({
                   </button>
                 </div>
               </header>
+              <p className="pm-preview-help">
+                Scroll the email with your mouse or touch. Keyboard focus stays on preview controls
+                so Escape can close the preview.
+              </p>
               {compiling && <p className="pm-preview-status">Rendering preview…</p>}
               {previewError && (
                 <p className="pm-preview-error" role="alert">
@@ -314,6 +328,8 @@ export function EmailEditor({
                   <iframe
                     title="Rendered email"
                     sandbox=""
+                    tabIndex={-1}
+                    data-preview-keep-control-focus=""
                     srcDoc={compiled.html}
                     className={
                       previewWidth === "mobile" ? "pm-preview-mobile" : "pm-preview-desktop"

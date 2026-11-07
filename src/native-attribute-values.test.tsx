@@ -252,37 +252,49 @@ describe("catalog-aware native attribute values", () => {
       ),
     );
     const query = <T extends Element>(selector: string) => container!.querySelector<T>(selector)!;
-    const changeSelect = (id: string, value: string) =>
+    const changeSelect = (label: string, value: string) =>
       act(() => {
-        query<HTMLSelectElement>(`select#${id}`).value = value;
-        query<HTMLSelectElement>(`select#${id}`).dispatchEvent(
+        query<HTMLSelectElement>(`select[aria-label="${label}"]`).value = value;
+        query<HTMLSelectElement>(`select[aria-label="${label}"]`).dispatchEvent(
           new Event("change", { bubbles: true }),
         );
       });
-    changeSelect("attributes-0-name", "fluid-on-mobile");
-    expect(query<HTMLSelectElement>("select#attributes-0-value").value).toBe("left");
-    changeSelect("attributes-0-value", "true");
+    changeSelect("Attribute 1", "fluid-on-mobile");
+    expect(query<HTMLSelectElement>('select[aria-label="Value for fluid-on-mobile"]').value).toBe(
+      "left",
+    );
+    changeSelect("Value for fluid-on-mobile", "true");
     expect(entry!.value).toBe("true");
     expect(readNativeAttributes("mj-image", [entry!])).toEqual({ "fluid-on-mobile": "true" });
     act(() =>
       query<HTMLInputElement>('input[aria-label="Template value for attribute 1"]').click(),
     );
-    expect(query("select#attributes-0-value")).toBeNull();
+    expect(query('select[aria-label="Value for fluid-on-mobile"]')).toBeNull();
     const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
     act(() => {
-      setValue.call(query("input#attributes-0-value"), "{{ fluid }}");
-      query("input#attributes-0-value").dispatchEvent(new Event("input", { bubbles: true }));
+      setValue.call(query('input[aria-label="Value for fluid-on-mobile"]'), "{{ fluid }}");
+      query('input[aria-label="Value for fluid-on-mobile"]').dispatchEvent(
+        new Event("input", { bubbles: true }),
+      );
     });
     expect(entry!.value).toBe("{{ fluid }}");
     act(() =>
       query<HTMLInputElement>('input[aria-label="Template value for attribute 1"]').click(),
     );
-    expect(query<HTMLSelectElement>("select#attributes-0-value").value).toBe("{{ fluid }}");
+    expect(query<HTMLSelectElement>('select[aria-label="Value for fluid-on-mobile"]').value).toBe(
+      "{{ fluid }}",
+    );
     act(() => query<HTMLInputElement>('input[aria-label="Inherit attribute 1"]').click());
-    expect(query<HTMLInputElement>(".pm-attribute-value").value).toBe("Inherited");
-    expect(query<HTMLInputElement>(".pm-attribute-value").disabled).toBe(true);
+    expect(query<HTMLInputElement>('input[aria-label="Value for fluid-on-mobile"]').value).toBe(
+      "Inherited",
+    );
+    expect(query<HTMLInputElement>('input[aria-label="Value for fluid-on-mobile"]').disabled).toBe(
+      true,
+    );
     act(() => query<HTMLInputElement>('input[aria-label="Inherit attribute 1"]').click());
-    expect(query<HTMLSelectElement>("select#attributes-0-value").value).toBe("{{ fluid }}");
+    expect(query<HTMLSelectElement>('select[aria-label="Value for fluid-on-mobile"]').value).toBe(
+      "{{ fluid }}",
+    );
     expect(entry!.value).toBe("{{ fluid }}");
   });
 });

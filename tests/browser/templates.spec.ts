@@ -129,6 +129,15 @@ for (const fixture of fixtures.templates) {
           { message: `${fixture.file} ${mode} overflow` },
         )
         .toBeLessThanOrEqual(1);
+      if (/^01-Barebone\/(welcome|product-update|feature-announcement)\.mjml$/.test(fixture.file)) {
+        const tile = frame.locator(".bare-app-icon");
+        await expect(tile).toHaveCount(1);
+        await expect
+          .poll(async () => tile.evaluate((node) => node.getBoundingClientRect().width), {
+            message: `${fixture.file} ${mode} app tile stays compact`,
+          })
+          .toBeCloseTo(56, 0);
+      }
     }
     if (screenshotTemplates.has(fixture.file)) {
       const html = await page

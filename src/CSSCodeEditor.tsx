@@ -63,7 +63,7 @@ export function CSSCodeEditor({
   onChange: (value: string) => void;
 }) {
   const generatedId = useId();
-  const editorId = id ?? generatedId;
+  const editorId = `${id ?? "pm-css"}-${generatedId}`;
   const helpId = `${editorId}-help`;
   const source = typeof value === "string" ? value : "";
   const [expanded, setExpanded] = useState(false);
@@ -99,6 +99,15 @@ export function CSSCodeEditor({
           closeBrackets(),
           autocompletion(),
           configuration.history.of(history()),
+          // CodeMirror groups delete.dedent with adjacent changes by default.
+          // Isolate both indent directions so Tab followed by Shift+Tab does
+          // not collapse into a no-op history entry or absorb nearby typing.
+          EditorState.transactionExtender.of((transaction) =>
+            transaction.docChanged &&
+            (transaction.isUserEvent("input.indent") || transaction.isUserEvent("delete.dedent"))
+              ? { annotations: isolateHistory.of("full") }
+              : null,
+          ),
           keymap.of([
             ...completionKeymap,
             ...closeBracketsKeymap,

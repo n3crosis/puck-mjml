@@ -78,31 +78,51 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       .community-rich-13 a:nth-of-type(1) {
         text-decoration: underline;
       }
+      .apple-wallet-cta {
+        width: 220px !important;
+        max-width: 100%;
+      }
+      @media only screen and (max-width: 479px) {
+        .apple-item-icon {
+          width: 20% !important;
+        }
+        .apple-item-icon img {
+          height: auto !important;
+        }
+        .apple-item-description {
+          width: 64% !important;
+        }
+        .apple-item-price {
+          width: 16% !important;
+        }
+      }
     </mj-style>
   </mj-head>
   <mj-body width="660px" background-color="#ffffff">
-    <mj-section padding="20px 0px 0px">
-      <mj-column padding="0px" width="50%">
-        <mj-image
-          src="https://demo.react.email/static/apple-logo.png"
-          alt="Apple Logo"
-          width="42px"
-          height="42px"
-          align="left"
-          padding="0px"
-        />
-      </mj-column>
-      <mj-column padding="0px" width="50%">
-        <mj-text
-          padding="16px 0px"
-          font-size="32px"
-          line-height="24px"
-          font-weight="300"
-          color="#888888"
-          align="right"
-          >Receipt</mj-text
-        >
-      </mj-column>
+    <mj-section padding="20px 20px 0px">
+      <mj-group width="100%" css-class="apple-header-row">
+        <mj-column padding="0px" width="50%" vertical-align="middle">
+          <mj-image
+            src="https://demo.react.email/static/apple-logo.png"
+            alt="Apple Logo"
+            width="42px"
+            height="42px"
+            align="left"
+            padding="0px"
+          />
+        </mj-column>
+        <mj-column padding="0px" width="50%" vertical-align="middle">
+          <mj-text
+            padding="16px 0px"
+            font-size="32px"
+            line-height="24px"
+            font-weight="300"
+            color="#888888"
+            align="right"
+            >Receipt</mj-text
+          >
+        </mj-column>
+      </mj-group>
     </mj-section>
     <mj-section padding="0px">
       <mj-column padding="0px">
@@ -173,64 +193,68 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         >
       </mj-column>
     </mj-section>
-    <mj-section padding="15px 0px 0px">
-      <mj-column padding="0px 0px 0px 20px" width="13%">
-        <mj-image
-          src="https://demo.react.email/static/apple-hbo-max-icon.jpeg"
-          alt="HBO Max"
-          width="64px"
-          height="64px"
-          align="left"
-          padding="0px"
-          border-radius="14px"
-          border="1px solid #f2f2f2"
-        />
-      </mj-column>
-      <mj-column padding="0px 0px 0px 22px" width="72%">
-        <mj-text padding="0px" font-size="12px" line-height="1.4" font-weight="600"
-          >HBO Max: Stream TV &amp; Movies</mj-text
-        >
-        <mj-text padding="0px" font-size="12px" line-height="1.4" color="#666666"
-          >HBO Max Ad-Free (Monthly)<br />Renews Aug 20, 2023</mj-text
-        >
-        <mj-text padding="0px" font-size="12px" line-height="1.5" css-class="community-rich-3"
-          ><a href="https://www.apple.com/">Write a Review</a> |
-          <a href="https://www.apple.com/">Report a Problem</a>
-        </mj-text>
-      </mj-column>
-      <mj-column padding="0px 20px 0px 0px" width="15%">
-        <mj-text padding="0px" font-size="12px" line-height="24px" font-weight="600" align="right"
-          >$14.99</mj-text
-        >
-      </mj-column>
+    <mj-section padding="15px 20px 0px">
+      <mj-group width="100%" css-class="apple-item-row">
+        <mj-column padding="0px" width="14%" css-class="apple-item-icon">
+          <mj-image
+            src="https://demo.react.email/static/apple-hbo-max-icon.jpeg"
+            alt="HBO Max"
+            width="64px"
+            height="64px"
+            align="left"
+            padding="0px"
+            border-radius="14px"
+            border="1px solid #f2f2f2"
+          />
+        </mj-column>
+        <mj-column padding="0px 12px" width="72%" css-class="apple-item-description">
+          <mj-text padding="0px" font-size="12px" line-height="1.4" font-weight="600"
+            >HBO Max: Stream TV &amp; Movies</mj-text
+          >
+          <mj-text padding="0px" font-size="12px" line-height="1.4" color="#666666"
+            >HBO Max Ad-Free (Monthly)<br />Renews Aug 20, 2023</mj-text
+          >
+          <mj-text padding="0px" font-size="12px" line-height="1.5" css-class="community-rich-3"
+            ><a href="https://www.apple.com/">Write a Review</a> |
+            <a href="https://www.apple.com/">Report a Problem</a>
+          </mj-text>
+        </mj-column>
+        <mj-column padding="0px" width="14%" css-class="apple-item-price">
+          <mj-text padding="0px" font-size="12px" line-height="24px" font-weight="600" align="right"
+            >$14.99</mj-text
+          >
+        </mj-column>
+      </mj-group>
     </mj-section>
     <mj-section padding="0px">
       <mj-column padding="0px">
         <mj-divider border-color="#eeeeee" border-width="1px" padding="30px 0px 0px" />
       </mj-column>
     </mj-section>
-    <mj-section padding="0px">
-      <mj-column padding="0px" width="85%" vertical-align="middle">
-        <mj-text
-          padding="0px 30px"
-          font-size="10px"
-          line-height="1.5"
-          color="#666666"
-          font-weight="600"
-          align="right"
-          >TOTAL</mj-text
-        >
-      </mj-column>
-      <mj-column padding="0px" width="15%" border-left="1px solid #eeeeee">
-        <mj-text
-          padding="16px 20px 16px 0px"
-          font-size="16px"
-          line-height="1.5"
-          font-weight="600"
-          align="right"
-          >$14.99</mj-text
-        >
-      </mj-column>
+    <mj-section padding="0px 20px">
+      <mj-group width="100%" css-class="apple-total-row">
+        <mj-column padding="0px" width="80%" vertical-align="middle">
+          <mj-text
+            padding="0px 30px"
+            font-size="10px"
+            line-height="1.5"
+            color="#666666"
+            font-weight="600"
+            align="right"
+            >TOTAL</mj-text
+          >
+        </mj-column>
+        <mj-column padding="0px" width="20%" border-left="1px solid #eeeeee">
+          <mj-text
+            padding="16px 0px"
+            font-size="16px"
+            line-height="1.5"
+            font-weight="600"
+            align="right"
+            >$14.99</mj-text
+          >
+        </mj-column>
+      </mj-group>
     </mj-section>
     <mj-section padding="0px">
       <mj-column padding="0px">
@@ -254,23 +278,24 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       </mj-column>
     </mj-section>
     <mj-section padding="0px">
-      <mj-column padding="0px" width="30%"> </mj-column>
-      <mj-column padding="0px" width="7%">
-        <mj-image
-          src="https://demo.react.email/static/apple-wallet.png"
-          alt="Apple Wallet"
-          width="28px"
-          height="28px"
-          align="right"
-          padding="0px 8px 0px 0px"
-          href="https://www.apple.com/"
-        />
-      </mj-column>
-      <mj-column padding="0px" width="63%" vertical-align="middle">
-        <mj-text padding="0px" font-size="14px" line-height="1.5" css-class="community-rich-5"
-          ><a href="https://www.apple.com/">Apply and use in minutes</a>
-        </mj-text>
-      </mj-column>
+      <mj-group width="220px" css-class="apple-wallet-cta">
+        <mj-column padding="0px" width="16%" vertical-align="middle">
+          <mj-image
+            src="https://demo.react.email/static/apple-wallet.png"
+            alt="Apple Wallet"
+            width="28px"
+            height="28px"
+            align="right"
+            padding="0px 7px 0px 0px"
+            href="https://www.apple.com/"
+          />
+        </mj-column>
+        <mj-column padding="0px" width="84%" vertical-align="middle">
+          <mj-text padding="0px" font-size="14px" line-height="1.5" css-class="community-rich-5"
+            ><a href="https://www.apple.com/">Apply and use in minutes</a>
+          </mj-text>
+        </mj-column>
+      </mj-group>
     </mj-section>
     <mj-section padding="0px">
       <mj-column padding="0px">

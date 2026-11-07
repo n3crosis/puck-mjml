@@ -18,7 +18,7 @@ export function CodeArea(props: CodeAreaProps) {
 
 function SourceArea({ id, value, disabled, rows = 4, ariaLabel, onChange }: CodeAreaProps) {
   const generatedId = useId();
-  const areaId = id ?? generatedId;
+  const areaId = `${id ?? "pm-source"}-${generatedId}`;
   const [expanded, setExpanded] = useState(false);
   const source = typeof value === "string" ? value : "";
   const reportChange = (next: string) => {

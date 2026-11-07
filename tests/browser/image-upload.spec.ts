@@ -2,6 +2,20 @@ import { expect, test, type Page } from "@playwright/test";
 import { PNG_IMAGE_SOURCE } from "../fixtures/images";
 
 const png = Buffer.from(PNG_IMAGE_SOURCE.split(",")[1], "base64");
+async function chooseVisibleUpload(
+  page: Page,
+  file: { name: string; mimeType: string; buffer: Buffer },
+) {
+  // Puck also mounts hidden field instances. Exercise the visible native picker
+  // a user can click, rather than setting files on a hidden backing input.
+  const upload = page.locator(".pm-upload").filter({ visible: true });
+  await expect(upload).toHaveCount(1);
+  await expect(upload).toBeVisible();
+  const chooser = page.waitForEvent("filechooser");
+  await upload.click();
+  await (await chooser).setFiles(file);
+}
+
 async function openImageField(page: Page) {
   await page.goto("/");
   const source = new URL("/fixture-image.png", page.url()).href;
@@ -17,7 +31,10 @@ async function openImageField(page: Page) {
   });
   const image = page.frameLocator("#preview-frame").locator(".pm-image").first();
   await image.click();
-  await expect(page.getByLabel("Image URL", { exact: true })).toBeVisible();
+  const url = page.getByRole("textbox", { name: "Image URL", exact: true });
+  await expect(url).toBeVisible();
+  await page.getByText("Image URL", { exact: true }).filter({ visible: true }).click();
+  await expect(url).toBeFocused();
   return image.locator("img");
 }
 
@@ -28,10 +45,10 @@ test("local demo uploads render, export with a warning, and reimport without hos
   await expect(
     page.getByText("Image uploads stay in this browser draft.", { exact: false }),
   ).toBeVisible();
-  await page
-    .getByLabel("Upload image", { exact: true })
-    .setInputFiles({ name: "pixel.png", mimeType: "image/png", buffer: png });
-  await expect(page.getByLabel("Image URL", { exact: true })).toHaveValue(PNG_IMAGE_SOURCE);
+  await chooseVisibleUpload(page, { name: "pixel.png", mimeType: "image/png", buffer: png });
+  await expect(page.getByRole("textbox", { name: "Image URL", exact: true })).toHaveValue(
+    PNG_IMAGE_SOURCE,
+  );
   await expect(image).toHaveAttribute("src", PNG_IMAGE_SOURCE);
   await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBe(1);
 
@@ -71,19 +88,19 @@ test("unsupported uploads show an accessible error and preserve the editable hos
 }) => {
   const image = await openImageField(page);
   const original = await image.getAttribute("src");
-  await page.getByLabel("Upload image", { exact: true }).setInputFiles({
+  await chooseVisibleUpload(page, {
     name: "script.svg",
     mimeType: "image/svg+xml",
     buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"/>'),
   });
   await expect(page.getByRole("alert")).toContainText("SVG is not supported");
-  await expect(page.getByLabel("Image URL", { exact: true })).toHaveValue(original!);
+  await expect(page.getByRole("textbox", { name: "Image URL", exact: true })).toHaveValue(
+    original!,
+  );
   await expect(image).toHaveAttribute("src", original!);
-  await page
-    .getByLabel("Upload image", { exact: true })
-    .setInputFiles({ name: "pixel.png", mimeType: "image/png", buffer: png });
+  await chooseVisibleUpload(page, { name: "pixel.png", mimeType: "image/png", buffer: png });
   await expect(image).toHaveAttribute("src", PNG_IMAGE_SOURCE);
-  await page.getByLabel("Image URL", { exact: true }).fill(original!);
+  await page.getByRole("textbox", { name: "Image URL", exact: true }).fill(original!);
   await expect(image).toHaveAttribute("src", original!);
   await expect(page.getByRole("alert")).toHaveCount(0);
 });

@@ -28,13 +28,18 @@ test("Puck drag handle reorders nested email blocks and preserves undo/redo", as
     destination.y + destination.height - 2,
     { steps: 30 },
   );
+  await expect(
+    frame.locator('[data-puck-dropzone$=":column"] > [data-puck-line-placeholder]'),
+  ).toBeVisible();
   await page.mouse.up();
   await expect.poll(order).toEqual(["Second block", "First block", "Third block"]);
-  const document = await page.getByLabel("Host document").textContent();
-  expect(document!.indexOf("Second block")).toBeLessThan(document!.indexOf("First block"));
+  const hostDocument = page.getByLabel("Host document");
+  await expect(hostDocument).toContainText(/Second block.*First block.*Third block/);
   await page.getByRole("button", { name: /^undo$/i }).click();
   await expect.poll(order).toEqual(["First block", "Second block", "Third block"]);
+  await expect(hostDocument).toContainText(/First block.*Second block.*Third block/);
   await page.getByRole("button", { name: /^redo$/i }).click();
   await expect.poll(order).toEqual(["Second block", "First block", "Third block"]);
+  await expect(hostDocument).toContainText(/Second block.*First block.*Third block/);
   expect(errors).toEqual([]);
 });

@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { load } from "cheerio";
+import { parse } from "postcss";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { fromMjml } from "../import";
 import { toMjml } from "../export";
@@ -31,6 +32,32 @@ describe("canonical Barebone MJML ports", () => {
         .sort(),
     ).toEqual(names.map((name) => `${name}.mjml`).sort());
   });
+  it.each(["welcome", "product-update", "feature-announcement"])(
+    "%s keeps its 56px app tile compact below the mobile breakpoint",
+    async (name) => {
+      const source = readFileSync(new URL(`${name}.mjml`, folder), "utf8");
+      const imported = fromMjml(source);
+      expect(imported.warnings).toEqual([]);
+      const { default: mjml } = await import("mjml-browser");
+      for (const input of [source, toMjml(imported.document)]) {
+        const result = await mjml(input, { validationLevel: "strict" });
+        expect(result.errors).toEqual([]);
+        const $ = load(result.html);
+        const tile = $(".bare-app-icon");
+        expect(tile).toHaveLength(1);
+        const declarations = parse(`tile { ${tile.attr("style")} }`);
+        for (const property of ["width", "max-width"]) {
+          const found: string[] = [];
+          declarations.walkDecls(property, (declaration) => {
+            found.push(declaration.value);
+          });
+          // MJML inlines the winning declaration and removes its redundant !important.
+          expect(found.at(-1)).toBe("56px");
+        }
+        expect(tile.find("img").attr("width")).toBe("32");
+      }
+    },
+  );
   it.each(names)("%s preserves safe editable content, images, and links", async (name) => {
     const source = readFileSync(new URL(`${name}.mjml`, folder), "utf8");
     expect(source).toContain("674d8ec2804b86be5d99156383fb1810179847bf");

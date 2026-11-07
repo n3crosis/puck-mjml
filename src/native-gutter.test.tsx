@@ -59,7 +59,7 @@ describe("native MJML 5 gutters", () => {
     const canvas = render(document);
     const columns = canvas.querySelectorAll(".pm-native-column");
     expect(columns).toHaveLength(2);
-    expect(style(columns[0])).toContain("flex-basis:50%");
+    expect(style(columns[0])).toContain("width:48.333333%");
     expect(style(columns[0])).toContain("padding:0 1.666667% 0 0%");
     expect(style(columns[1])).toContain("padding:0 0% 0 1.666667%");
     expect(style(columns[0])).toContain("--pm-gutter-mobile-padding:0% 0 1.666667% 0");
@@ -69,7 +69,7 @@ describe("native MJML 5 gutters", () => {
     expect(style(inner)).toContain("background-color:navy");
     expect(style(inner)).toContain("padding:8px");
     expect(canvas.querySelector("style[data-pm-responsive]")?.textContent).toContain(
-      ".pm-native-gutter-stacked { padding: var(--pm-gutter-mobile-padding) !important; }",
+      ".pm-native-gutter-stacked) { padding: var(--pm-gutter-mobile-padding) !important; }",
     );
     const email = await compileEmail(document);
     expect(email.errors).toEqual([]);
@@ -80,9 +80,9 @@ describe("native MJML 5 gutters", () => {
   });
 
   it.each([
-    ["ltr", "21px", "301px", "299px", "0 11px 0 0px", "0 0px 0 10px"],
-    ["rtl", "21px", "301px", "299px", "0 0px 0 11px", "0 10px 0 0px"],
-    ["ltr", "21.5px", "301px", "300px", "0 11px 0 0px", "0 0px 0 11px"],
+    ["ltr", "21px", "290px", "289px", "0 11px 0 0px", "0 0px 0 10px"],
+    ["rtl", "21px", "290px", "289px", "0 0px 0 11px", "0 10px 0 0px"],
+    ["ltr", "21.5px", "290px", "289px", "0 11px 0 0px", "0 0px 0 10px"],
   ])(
     "matches rounded pixel widths and %s gutter edges for %s",
     async (direction, gutter, firstWidth, lastWidth, firstPadding, lastPadding) => {
@@ -98,8 +98,8 @@ describe("native MJML 5 gutters", () => {
         }),
       ]);
       const canvas = render(document);
-      expect(style(canvas.querySelector(".first"))).toContain(`flex-basis:${firstWidth}`);
-      expect(style(canvas.querySelector(".last"))).toContain(`flex-basis:${lastWidth}`);
+      expect(style(canvas.querySelector(".first"))).toContain(`width:${firstWidth}`);
+      expect(style(canvas.querySelector(".last"))).toContain(`width:${lastWidth}`);
       expect(style(canvas.querySelector(".first"))).toContain(`padding:${firstPadding}`);
       expect(style(canvas.querySelector(".last"))).toContain(`padding:${lastPadding}`);
       const email = await compileEmail(document);
@@ -178,9 +178,65 @@ describe("native MJML 5 gutters", () => {
       }),
     ]);
     const canvas = render(document, true);
-    expect(style(canvas.querySelector(".pm-flex-column"))).toContain("flex-basis:48.333333%");
+    expect(style(canvas.querySelector(".pm-flex-column"))).toContain("width:43.333333%");
     const email = await compileEmail(document, { allowRawHtml: true });
     expect(email.errors).toEqual([]);
     expect(email.html).toContain("mj-column-per-43-333333");
   });
+});
+
+describe("native fractional gutter units and clamping", () => {
+  it.each([
+    ["21.5px", "50%", "48.25%", "1.75%"],
+    ["5.5%", "50%", "47.25%", "2.75%"],
+    ["0.9px", "50%", "50%", "0%"],
+    ["0.9%", "50%", "49.55%", "0.45%"],
+    ["5.5%", "300px", "284px", "17px"],
+    ["800px", "50%", "0%", "66.666667%"],
+    ["150%", "50%", "0%", "75%"],
+  ])(
+    "matches compiler %s gutter with %s columns",
+    async (gutter, width, expectedWidth, paddingRight) => {
+      const document = documentWith([
+        block("Section", "section", {
+          mjmlAttributes: values({ gutter, padding: "0px" }),
+          columns: ["first", "last"].map((id) =>
+            block("Column", id, {
+              mjmlAttributes: values({ width, "css-class": id }),
+              content: [copy(`${id}-copy`)],
+            }),
+          ),
+        }),
+      ]);
+      const canvas = render(document);
+      expect(style(canvas.querySelector(".first"))).toContain(`width:${expectedWidth}`);
+      expect(style(canvas.querySelector(".first"))).toContain(
+        `padding:0 ${paddingRight} 0 0${width.endsWith("%") ? "%" : "px"}`,
+      );
+      const result = await compileEmail(document);
+      expect(result.errors).toEqual([]);
+      const compiled = parse(result.html);
+      const className = [...compiled.querySelector(".first")!.classList].find((name) =>
+        /^mj-column-(px|per)-/.test(name),
+      )!;
+      expect(result.html).toContain(
+        `.${className} { width:${expectedWidth} !important; max-width: ${expectedWidth}; }`,
+      );
+    },
+  );
+
+  it.each(["-1px", "-0.5%"])(
+    "rejects negative gutter %s rather than emitting invalid widths",
+    async (gutter) => {
+      const document = documentWith([
+        block("Section", "section", {
+          mjmlAttributes: values({ gutter }),
+          columns: [block("Column", "column", { content: [] })],
+        }),
+      ]);
+      await expect(compileEmail(document)).rejects.toThrow(/gutter|invalid|value/i);
+      // Invalid drafts remain on the normal editable fallback path.
+      expect(render(document).querySelector(".pm-flex-column")).not.toBeNull();
+    },
+  );
 });

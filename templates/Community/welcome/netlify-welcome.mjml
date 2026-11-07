@@ -19,6 +19,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       }
     </mj-style>
     <mj-style>
+      body {
+        padding: 8px !important;
+      }
       p {
         margin: 0;
       }

@@ -166,7 +166,7 @@
             padding="18px 0px 0px"
             css-class="pm-email-text"
           >
-            <p>Thank you for signing up for Collage.</p>
+            <p>Thank you for signing up for Collage</p>
           </mj-text>
           <mj-text
             color="#194A07"

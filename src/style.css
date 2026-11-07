@@ -136,6 +136,54 @@
 .pm-native-column-content {
   box-sizing: border-box;
 }
+/* Native MJML rows use inline formatting. Keep the legacy flex renderer above. */
+.pm-native-inline-section > div,
+.pm-native-inline-group > div {
+  display: block;
+}
+/* The per-editor public onAction bridge activates every destination before
+   pointer hit-testing and keeps this preview until Puck finishes drop/cancel.
+   Mixed-baseline rows top-align only while a drag preview is active. */
+.pm-native-inline-section > [data-pm-native-dragging="true"],
+.pm-native-inline-group > [data-pm-native-dragging="true"] {
+  display: flex !important;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: var(--pm-native-drag-justify, flex-start);
+}
+.pm-native-inline-section > [data-pm-native-dragging="true"][data-pm-native-drag-axis="y"] {
+  flex-direction: column;
+}
+[data-pm-native-dragging="true"] > .pm-native-inline-column,
+[data-pm-native-dragging="true"] > .pm-native-inline-group {
+  flex-shrink: 0;
+}
+.pm-native-inline-column,
+.pm-native-inline-group {
+  display: inline-block;
+}
+.pm-native-inline-column.pm-native-gutter {
+  box-sizing: content-box;
+}
+.pm-native-column-table,
+.pm-native-content-table {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+  border-spacing: 0;
+}
+.pm-native-column-cell,
+.pm-native-content-cell {
+  display: table-cell;
+}
+/* Source previews and empty-image prompts are editor UI, not email text. */
+.pm-native-inline-section .pm-raw,
+.pm-native-inline-column .pm-raw,
+.pm-native-inline-column .pm-image-empty {
+  font-size: 12px;
+  line-height: 1.5;
+}
 .pm-carousel-main {
   display: block;
   max-width: 100%;

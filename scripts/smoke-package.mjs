@@ -120,9 +120,17 @@ function verifyEditorExports(api, entry) {
   if (entry.includes("/core.")) {
     assert.equal(api.EmailEditor, undefined);
     assert.equal(api.emailFieldTypes, undefined);
+    assert.equal(api.createNativeDragPreview, undefined);
+    assert.equal(api.NativeDragPreviewProvider, undefined);
     return;
   }
   assert.equal(typeof api.createEmailConfig, "function");
+  assert.equal(typeof api.createNativeDragPreview, "function");
+  assert.equal(typeof api.NativeDragPreviewProvider, "function");
+  const dragPreview = api.createNativeDragPreview();
+  assert.equal(typeof dragPreview.onAction, "function");
+  dragPreview.onAction({}, { ui: { isDragging: true } });
+  dragPreview.reset();
   assert.equal(typeof api.emailFieldTypes.array, "function");
   assert.equal(typeof api.emailFieldTypes.object, "function");
   assert.equal(api.emailTemplates.length, 63);

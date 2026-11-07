@@ -103,7 +103,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         margin: 0;
         width: 24px;
         height: 24px;
-        box-sizing: border-box;
+        box-sizing: content-box;
         border: 1px solid #e4e4e7;
         border-radius: 50%;
         font-size: 1px;

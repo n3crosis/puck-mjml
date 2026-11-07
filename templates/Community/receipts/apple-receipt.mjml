@@ -10,6 +10,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-text padding="0px" />
     </mj-attributes>
     <mj-style>
+      body {
+        padding: 8px !important;
+      }
       p {
         margin: 0;
       }
@@ -99,7 +102,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     </mj-style>
   </mj-head>
   <mj-body width="660px" background-color="#ffffff">
-    <mj-section padding="20px 20px 0px">
+    <mj-section padding="20px 0px 0px">
       <mj-group width="100%" css-class="apple-header-row">
         <mj-column padding="0px" width="50%" vertical-align="middle">
           <mj-image

@@ -41,6 +41,13 @@
       }
     </mj-style>
     <mj-style>
+      /* The source keeps artwork at 178px and lets the copy fill the row. */
+      @media only screen and (min-width: 601px) {
+        .arcane-cart-details {
+          width: calc(100% - 178px) !important;
+          max-width: calc(100% - 178px) !important;
+        }
+      }
       @media only screen and (max-width: 600px) {
         .arcane-cart-copy > div {
           max-width: none !important;
@@ -54,6 +61,13 @@
         }
         .arcane-mobile-bottom > table > tbody > tr > td {
           padding-bottom: 40px !important;
+        }
+        .arcane-cart-cta > table > tbody > tr > td {
+          padding-top: 40px !important;
+          padding-bottom: 40px !important;
+        }
+        .arcane-cart-review > table > tbody > tr > td {
+          padding-top: 120px !important;
         }
         .arcane-mobile-text > table > tbody > tr > td {
           padding-top: 24px !important;
@@ -78,7 +92,7 @@
   </mj-head>
   <mj-body width="640px" background-color="#FFFFFF" css-class="arcane-email">
     <mj-wrapper padding="0px" background-color="#300610">
-      <mj-section padding="40px 40px 24px" css-class="arcane-inset">
+      <mj-section padding="40px 40px 24px" css-class="arcane-header">
         <mj-column padding="0px" vertical-align="top">
           <mj-image
             src="https://demo.react.email/static/shared/logo-white.png"
@@ -123,7 +137,7 @@
         </mj-column>
       </mj-section>
       <mj-section padding="0px 40px 36px" css-class="arcane-inset">
-        <mj-column width="31.785714%" padding="0px" vertical-align="middle">
+        <mj-column width="178px" padding="0px" vertical-align="middle">
           <mj-image
             src="https://demo.react.email/static/skin/skin-image-2.png"
             width="178px"
@@ -134,10 +148,10 @@
           />
         </mj-column>
         <mj-column
-          width="68.214286%"
+          width="382px"
           padding="0px 0px 0px 36px"
           vertical-align="middle"
-          css-class="arcane-mobile-text"
+          css-class="arcane-mobile-text arcane-cart-details"
         >
           <mj-text
             font-family="Instrument Serif, Georgia, Times New Roman, serif"
@@ -177,7 +191,7 @@
         </mj-column>
       </mj-section>
       <mj-section padding="0px 40px 0px" css-class="arcane-inset">
-        <mj-column width="31.785714%" padding="0px" vertical-align="middle">
+        <mj-column width="178px" padding="0px" vertical-align="middle">
           <mj-image
             src="https://demo.react.email/static/skin/skin-image-3.png"
             width="178px"
@@ -188,10 +202,10 @@
           />
         </mj-column>
         <mj-column
-          width="68.214286%"
+          width="382px"
           padding="0px 0px 0px 36px"
           vertical-align="middle"
-          css-class="arcane-mobile-text"
+          css-class="arcane-mobile-text arcane-cart-details"
         >
           <mj-text
             font-family="Instrument Serif, Georgia, Times New Roman, serif"
@@ -230,7 +244,7 @@
           >
         </mj-column>
       </mj-section>
-      <mj-section padding="48px 40px 56px" css-class="arcane-inset">
+      <mj-section padding="48px 40px 56px" css-class="arcane-inset arcane-cart-cta">
         <mj-column padding="0px" vertical-align="top">
           <mj-text
             font-family="Inter, Arial, sans-serif"
@@ -246,7 +260,7 @@
           </mj-text>
         </mj-column>
       </mj-section>
-      <mj-section padding="72px 40px 0px" css-class="arcane-inset arcane-mobile-top">
+      <mj-section padding="72px 40px 0px" css-class="arcane-inset arcane-cart-review">
         <mj-column padding="0px" vertical-align="top">
           <mj-text
             font-family="Instrument Serif, Georgia, Times New Roman, serif"
@@ -276,7 +290,7 @@
             line-height="1.5"
             letter-spacing="-0.176px"
             color="#300610"
-            padding="0px"
+            padding="16px 0px 0px"
             align="center"
             >Join us on the journey</mj-text
           >

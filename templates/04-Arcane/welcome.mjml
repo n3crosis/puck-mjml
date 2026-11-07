@@ -62,6 +62,12 @@
           padding-top: 24px !important;
           padding-bottom: 24px !important;
         }
+        .arcane-feature-after-image > table > tbody > tr > td {
+          padding-top: 56px !important;
+        }
+        .arcane-feature-before-image > table > tbody > tr > td {
+          padding-bottom: 56px !important;
+        }
         .arcane-feature-image > table > tbody > tr > td {
           padding-left: 0px !important;
           padding-right: 0px !important;
@@ -76,7 +82,7 @@
           width: 100% !important;
         }
         .arcane-join-section > table > tbody > tr > td {
-          padding-top: 48px !important;
+          padding-top: 128px !important;
           padding-bottom: 40px !important;
         }
       }
@@ -179,7 +185,7 @@
           width="50%"
           padding="40px 0px 40px 24px"
           vertical-align="top"
-          css-class="arcane-mobile-text arcane-feature-text"
+          css-class="arcane-mobile-text arcane-feature-text arcane-feature-after-image"
         >
           <mj-text
             font-family="Inter, Arial, sans-serif"
@@ -223,7 +229,7 @@
           width="50%"
           padding="40px 24px 40px 0px"
           vertical-align="top"
-          css-class="arcane-mobile-text arcane-feature-text"
+          css-class="arcane-mobile-text arcane-feature-text arcane-feature-before-image"
         >
           <mj-text
             font-family="Inter, Arial, sans-serif"
@@ -286,7 +292,7 @@
             line-height="1.5"
             letter-spacing="-0.176px"
             color="#300610"
-            padding="0px"
+            padding="16px 0px 0px"
             align="center"
             >Join us on the journey</mj-text
           >

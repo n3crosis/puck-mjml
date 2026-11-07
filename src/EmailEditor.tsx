@@ -16,6 +16,7 @@ import { SelectionActionBar } from "./SelectionActionBar";
 import { EditorComponentOverlay } from "./EditorComponentOverlay";
 import { emailFieldTypes } from "./editor-field-types";
 import { PropertyFieldLabel, PropertyInspector } from "./PropertyInspector";
+import { createNativeDragPreview, NativeDragPreviewProvider } from "./native-drag-preview";
 import { createEmailConfig } from "./config";
 import { compileEmail } from "./export";
 import { sanitizeDocumentRichText } from "./normalize";
@@ -81,6 +82,8 @@ export function EmailEditor({
   headerActions,
   className,
 }: EmailEditorProps) {
+  const dragPreview = useMemo(createNativeDragPreview, []);
+  useEffect(() => () => dragPreview.reset(), [dragPreview]);
   const [editorData, setEditorData] = useState(() => sanitizeDocumentRichText(value));
   const [editorKey, setEditorKey] = useState(0);
   const [previewDocument, setPreviewDocument] = useState<EmailDocument | null>(null);
@@ -136,6 +139,7 @@ export function EmailEditor({
     const normalizedCurrent = sanitizeDocumentRichText(currentData.current);
     // Equivalent host input must not remount Puck or clear its undo history.
     if (fingerprint(next) !== fingerprint(normalizedCurrent)) {
+      dragPreview.reset();
       currentData.current = next;
       setEditorData(next);
       setEditorKey((key) => key + 1);
@@ -232,29 +236,32 @@ export function EmailEditor({
           inert={previewOpen || Boolean(exportDocument) || undefined}
           style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
         >
-          <Puck
-            key={editorKey}
-            config={config}
-            plugins={editorPlugins}
-            dnd={{ enableDragHandle: true }}
-            height="100%"
-            data={editorData as Data}
-            onChange={handleChange}
-            onPublish={onPublish ? (data) => onPublish(data as EmailDocument) : undefined}
-            overrides={{
-              puck: ResponsiveEditorLayout,
-              drawerItem: BlockPaletteItem,
-              outline: EmailOutline,
-              actionBar: SelectionActionBar,
-              componentOverlay: EditorComponentOverlay,
-              fieldTypes: emailFieldTypes,
-              fields: PropertyInspector,
-              fieldLabel: PropertyFieldLabel,
-              headerActions: renderHeaderActions,
-            }}
-            headerTitle={headerTitle}
-            viewports={editorViewports}
-          />
+          <NativeDragPreviewProvider bridge={dragPreview}>
+            <Puck
+              key={editorKey}
+              config={config}
+              plugins={editorPlugins}
+              dnd={{ enableDragHandle: true }}
+              height="100%"
+              data={editorData as Data}
+              onChange={handleChange}
+              onAction={dragPreview.onAction}
+              onPublish={onPublish ? (data) => onPublish(data as EmailDocument) : undefined}
+              overrides={{
+                puck: ResponsiveEditorLayout,
+                drawerItem: BlockPaletteItem,
+                outline: EmailOutline,
+                actionBar: SelectionActionBar,
+                componentOverlay: EditorComponentOverlay,
+                fieldTypes: emailFieldTypes,
+                fields: PropertyInspector,
+                fieldLabel: PropertyFieldLabel,
+                headerActions: renderHeaderActions,
+              }}
+              headerTitle={headerTitle}
+              viewports={editorViewports}
+            />
+          </NativeDragPreviewProvider>
         </div>
         {exportDocument && (
           <EmailExportDialog

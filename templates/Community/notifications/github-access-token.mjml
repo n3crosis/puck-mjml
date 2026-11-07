@@ -12,6 +12,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-text padding="0px" />
     </mj-attributes>
     <mj-style>
+      body {
+        padding: 8px !important;
+      }
       p {
         margin: 0;
       }
@@ -25,6 +28,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         text-decoration: none;
       }
       .github-security-links a {
+        font-size: 12px;
         color: #0366d6;
         text-decoration: none;
       }
@@ -41,20 +45,20 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           align="left"
           padding="0px"
         />
-        <mj-text padding="24px 0px" font-size="24px" line-height="1.25"
+        <mj-text padding="16px 0px" font-size="24px" line-height="1.25"
           ><strong>@alanturing</strong>, a personal access was created on your account.</mj-text
         >
       </mj-column>
     </mj-section>
     <mj-section padding="24px" border="1px solid #dedede" border-radius="5px">
       <mj-column padding="0px">
-        <mj-text padding="0px 0px 10px" font-size="14px" line-height="1.5"
+        <mj-text padding="0px 0px 10px" font-size="14px" line-height="24px"
           >Hey <strong>alanturing</strong>!</mj-text
         >
         <mj-text
           padding="0px 0px 10px"
           font-size="14px"
-          line-height="1.5"
+          line-height="24px"
           css-class="github-token-note"
           >A fine-grained personal access token (<a>resend</a>) was recently added to your
           account.</mj-text
@@ -75,8 +79,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-column padding="0px">
         <mj-text
           padding="16px 0px"
-          font-size="12px"
-          line-height="1.5"
+          font-size="14px"
+          line-height="24px"
           align="center"
           color="#0366d6"
           css-class="github-security-links"

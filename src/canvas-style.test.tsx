@@ -53,7 +53,7 @@ describe("scoped custom CSS on the canvas", () => {
     const root = canvas.querySelector(".pm-canvas")!;
     const scope = [...root.classList].find((name) => name.startsWith("pm-canvas-"))!;
     const custom = canvas.querySelector(`style[data-pm-canvas-css="${scope}"]`)!.textContent;
-    expect(custom).toContain(`.${scope} { padding: 0 16px !important; }`);
+    expect(custom).toContain(`.${scope}:is(body, *) { padding: 0 16px !important; }`);
     expect(custom).toContain(`.${scope} .card { box-shadow: 0 1px #000; }`);
     expect(custom).toContain(`.${scope} .card { padding: 0 !important; }`);
   });

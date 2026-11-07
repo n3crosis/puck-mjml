@@ -1,6 +1,11 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { waitForCanvasFontCss } from "./font-evidence";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import {
+  measurePaperSourceGeometry,
+  paperGeometryDifferences,
+  type PaperGeometry,
+} from "./community-source-geometry";
 import { loadReactEmailReference } from "./reference-document";
 
 const templates = [
@@ -46,103 +51,115 @@ async function cells(table: Locator) {
   );
 }
 
-async function paperSourceGeometry(root: Locator) {
-  return root.evaluate((element) => {
-    const normalize = (text: string | null | undefined) =>
-      (text ?? "").replace(/\s+/g, " ").trim().toLowerCase();
-    const renderedText = (node: Element) => {
-      // BR separates words visually even when the source has no adjacent space.
-      // Clone only for matching; geometry still comes from the untouched DOM.
-      const clone = node.cloneNode(true) as Element;
-      clone.querySelectorAll("br").forEach((br) => br.replaceWith(" "));
-      return normalize(clone.textContent);
-    };
-    const targets = [
-      "Papermark",
-      "2024 in review",
-      "Your Year with Papermark",
-      "Viewers spent",
-      "Your activity",
-      "You uploaded",
-      "25",
-      "documents",
-      "Your top document",
-      "Your most active month",
-      "September",
-      "You're in the top",
-      "95%",
-      "of sharers on Papermark",
-      "Your documents were viewed from",
-      "Your documents get attention from all over the world!",
-      "We're excited to support you next year! Happy Holidays from the Papermark team :)",
-      "Share your stats",
-      "Go to your dashboard",
-    ];
-    const offset = element.matches(".pm-canvas") ? element.getBoundingClientRect() : { x: 0, y: 0 };
-    const nodes = Array.from(element.querySelectorAll("p,h1,h2,a,div,.pm-button"));
-    return targets.flatMap((text) => {
-      const matching = nodes.filter(
-        (node) => renderedText(node) === normalize(text) && node.getBoundingClientRect().height > 0,
+type PaperRepresentation = {
+  geometry: PaperGeometry;
+  cells: Awaited<ReturnType<typeof cells>>;
+  layout: string;
+  overflow: number;
+  fonts: { status: string; faces: { family: string; weight: string; status: string }[] };
+};
+type PaperCapture = {
+  mode: string;
+  width: number;
+  original: PaperRepresentation;
+  compiled: PaperRepresentation;
+  canvas: PaperRepresentation;
+};
+async function capturePaper(root: Locator, table: Locator): Promise<PaperRepresentation> {
+  return {
+    geometry: await root.evaluate(measurePaperSourceGeometry),
+    cells: await cells(table),
+    layout: await table.evaluate((node) => getComputedStyle(node).tableLayout),
+    ...(await root.evaluate((node) => ({
+      overflow:
+        node.ownerDocument.documentElement.scrollWidth - node.ownerDocument.defaultView!.innerWidth,
+      fonts: {
+        status: node.ownerDocument.fonts.status,
+        faces: Array.from(node.ownerDocument.fonts, ({ family, weight, status }) => ({
+          family,
+          weight,
+          status,
+        })),
+      },
+    }))),
+  };
+}
+function paperTableDifferences(capture: PaperCapture): string[] {
+  const failures: string[] = [];
+  const check = (valid: boolean, message: string) => {
+    if (!valid) failures.push(`${capture.mode}: ${message}`);
+  };
+  for (const [name, actual] of Object.entries({
+    original: capture.original,
+    compiled: capture.compiled,
+    canvas: capture.canvas,
+  })) {
+    check(actual.layout === "auto", `${name} table layout ${actual.layout}, expected auto`);
+    check(actual.overflow <= 1, `${name} document overflow ${actual.overflow}`);
+    check(actual.cells.length === 3, `${name} cell count ${actual.cells.length}, expected 3`);
+    for (let i = 0; i < actual.cells.length; i++) {
+      const expected = capture.original.cells[i];
+      if (!expected) continue;
+      const column = actual.cells[i];
+      check(
+        Math.abs(column.width - expected.width) < 0.5,
+        `${name} cell ${i} width ${column.width}, original ${expected.width}`,
       );
-      const leaves = matching.filter(
-        (node) => !matching.some((child) => child !== node && node.contains(child)),
+      check(
+        Math.abs(column.x - expected.x) <= 1,
+        `${name} cell ${i} x ${column.x}, original ${expected.x}`,
       );
-      return leaves.flatMap((node, occurrence) => {
-        const range = node.ownerDocument.createRange();
-        range.selectNodeContents(node);
-        const geometry = (
-          bounds: { x: number; y: number; width: number; height: number },
-          kind: "text" | "button",
-        ) => ({
-          text,
-          occurrence,
-          kind,
-          x: bounds.x - offset.x,
-          y: bounds.y - offset.y,
-          width: bounds.width,
-          height: bounds.height,
-        });
-        if (text !== "Share your stats") return [geometry(range.getBoundingClientRect(), "text")];
-
-        // The original/compiled surface is an anchor; the editor surface is
-        // span.pm-button with an inline-editing span inside it. A range over
-        // the parent div includes the 48px padded surface, and a range over
-        // the inner span's parent includes its line box. Compare actual text
-        // nodes separately from the equivalent complete button surfaces.
-        const walker = node.ownerDocument.createTreeWalker(node, NodeFilter.SHOW_TEXT);
-        const glyphs: DOMRect[] = [];
-        while (walker.nextNode()) {
-          const child = walker.currentNode;
-          const value = child.textContent ?? "";
-          const start = value.search(/\S/);
-          if (start < 0) continue;
-          range.setStart(child, start);
-          range.setEnd(child, value.trimEnd().length);
-          glyphs.push(...Array.from(range.getClientRects()));
-        }
-        const x = Math.min(...glyphs.map((bounds) => bounds.x));
-        const y = Math.min(...glyphs.map((bounds) => bounds.y));
-        return [
-          geometry(
-            {
-              x,
-              y,
-              width: Math.max(...glyphs.map((bounds) => bounds.right)) - x,
-              height: Math.max(...glyphs.map((bounds) => bounds.bottom)) - y,
-            },
-            "text",
-          ),
-          geometry(node.getBoundingClientRect(), "button"),
-        ];
-      });
-    });
-  });
+      check(
+        column.paragraphs.length === 3,
+        `${name} cell ${i} paragraph count ${column.paragraphs.length}, expected 3`,
+      );
+      for (let j = 0; j < column.paragraphs.length; j++) {
+        const paragraph = column.paragraphs[j],
+          source = expected.paragraphs[j];
+        if (!source) continue;
+        for (const property of ["text", "height", "size", "leading"] as const)
+          check(
+            paragraph[property] === source[property],
+            `${name} cell ${i} paragraph ${j} ${property}: ${paragraph[property]}, original ${source[property]}`,
+          );
+        check(
+          paragraph.height === [20, 40, 32][j],
+          `${name} cell ${i} paragraph ${j} source line height changed`,
+        );
+        check(
+          Math.abs(paragraph.y - source.y) <= 1,
+          `${name} cell ${i} paragraph ${j} y ${paragraph.y}, original ${source.y}`,
+        );
+      }
+    }
+    if (actual.cells.length === 3) {
+      if (capture.width === 390) {
+        check(
+          actual.cells[0].width > actual.cells[1].width &&
+            actual.cells[0].width > actual.cells[2].width,
+          `${name} lost source mobile intrinsic column redistribution`,
+        );
+      } else
+        check(
+          Math.abs(actual.cells[0].width - actual.cells[2].width) < 1,
+          `${name} desktop columns are not equal`,
+        );
+      const lines = actual.cells.flatMap(({ paragraphs }) =>
+        paragraphs[2] ? [paragraphs[2].y] : [],
+      );
+      check(
+        lines.length === 3 && Math.max(...lines) - Math.min(...lines) < 1,
+        `${name} statistics row does not remain aligned`,
+      );
+    }
+  }
+  return failures;
 }
 
 for (const [name, id, selector] of templates) {
   test(`${name} retains source intrinsic layout in compiled and actual editor at both widths`, async ({
     page,
-  }) => {
+  }, testInfo) => {
     test.setTimeout(90_000);
     await page.setViewportSize({ width: 1600, height: 1000 });
     await page.goto("/");
@@ -151,6 +168,19 @@ for (const [name, id, selector] of templates) {
     await expect(canvas.locator(selector)).toBeVisible();
     const email = await page.context().newPage();
     const original = name === "papermark" ? await page.context().newPage() : null;
+    const paperCaptures: PaperCapture[] = [];
+    const paperFailures: string[] = [];
+    let attached = false;
+    const attachEvidence = async () => {
+      if (name !== "papermark" || attached) return;
+      const path = testInfo.outputPath("papermark-source-geometry.json");
+      writeFileSync(
+        path,
+        JSON.stringify({ captures: paperCaptures, failures: paperFailures }, null, 2),
+      );
+      await testInfo.attach("papermark-source-geometry", { path, contentType: "application/json" });
+      attached = true;
+    };
     try {
       if (original)
         await loadReactEmailReference(
@@ -183,60 +213,25 @@ for (const [name, id, selector] of templates) {
         if (name === "papermark") {
           await original!.setViewportSize({ width, height: 900 });
           await original!.evaluate(() => document.fonts.ready);
-          const sourceGeometry = await paperSourceGeometry(original!.locator("body"));
-          expect(sourceGeometry.filter(({ kind }) => kind === "button")).toHaveLength(2);
-          for (const root of [email.locator("body"), canvas.locator(".pm-canvas")]) {
-            const geometry = await paperSourceGeometry(root);
-            expect(
-              geometry.map(({ text, occurrence, kind }) => ({ text, occurrence, kind })),
-            ).toEqual(
-              sourceGeometry.map(({ text, occurrence, kind }) => ({ text, occurrence, kind })),
-            );
-            for (let i = 0; i < geometry.length; i++) {
-              const message = `${mode} ${geometry[i].text} #${geometry[i].occurrence} ${geometry[i].kind} source geometry`;
-              for (const key of ["x", "y", "width", "height"] as const)
-                expect(
-                  Math.abs(geometry[i][key] - sourceGeometry[i][key]),
-                  `${message} ${key}`,
-                ).toBeLessThanOrEqual(1);
-            }
-          }
-          const compiled = email.locator(`${selector} > table`);
-          const live = canvas.locator(`${selector} > table`);
-          await expect(compiled).toHaveCSS("table-layout", "auto");
-          await expect(live).toHaveCSS("table-layout", "auto");
-          const expected = await cells(compiled),
-            actual = await cells(live);
-          expect(actual).toHaveLength(3);
-          expect(expected).toHaveLength(3);
-          for (let i = 0; i < 3; i++) {
-            expect(actual[i].width).toBeCloseTo(expected[i].width, 0);
-            expect(
-              actual[i].paragraphs.map(({ text, height, size, leading }) => ({
-                text,
-                height,
-                size,
-                leading,
-              })),
-            ).toEqual(
-              expected[i].paragraphs.map(({ text, height, size, leading }) => ({
-                text,
-                height,
-                size,
-                leading,
-              })),
-            );
-            expect(actual[i].paragraphs.map(({ height }) => height)).toEqual([20, 40, 32]);
-          }
-          if (width === 390) {
-            // Source auto-layout redistribution, not three fixed equal columns.
-            expect(actual[0].width).toBeGreaterThan(actual[1].width);
-            expect(actual[0].width).toBeGreaterThan(actual[2].width);
-          } else {
-            expect(Math.abs(actual[0].width - actual[2].width)).toBeLessThan(1);
-          }
-          const lines = actual.map(({ paragraphs }) => paragraphs[2].y);
-          expect(Math.max(...lines) - Math.min(...lines)).toBeLessThan(1);
+          // Capture every target and all three representations at both widths
+          // before any geometry assertion. A mismatch must not hide later data.
+          const sourceTable = original!
+            .locator("p")
+            .filter({ hasText: /^You uploaded$/ })
+            .locator("xpath=ancestor::table[1]");
+          paperCaptures.push({
+            mode,
+            width,
+            original: await capturePaper(original!.locator("body"), sourceTable),
+            compiled: await capturePaper(
+              email.locator("body"),
+              email.locator(`${selector} > table`),
+            ),
+            canvas: await capturePaper(
+              canvas.locator(".pm-canvas"),
+              canvas.locator(`${selector} > table`),
+            ),
+          });
         } else if (name === "stack") {
           for (const root of [email, canvas]) {
             const chip = root.locator(".stack-heart > div");
@@ -260,15 +255,37 @@ for (const [name, id, selector] of templates) {
             }
           }
         }
-        for (const root of [email, canvas]) {
-          expect(
-            await root
-              .locator("html")
-              .evaluate((node) => node.scrollWidth - node.ownerDocument.defaultView!.innerWidth),
-          ).toBeLessThanOrEqual(1);
+        if (name !== "papermark")
+          for (const root of [email, canvas]) {
+            expect(
+              await root
+                .locator("html")
+                .evaluate((node) => node.scrollWidth - node.ownerDocument.defaultView!.innerWidth),
+            ).toBeLessThanOrEqual(1);
+          }
+      }
+      if (name === "papermark") {
+        for (const capture of paperCaptures) {
+          for (const representation of ["compiled", "canvas"] as const)
+            paperFailures.push(
+              ...paperGeometryDifferences(
+                capture.original.geometry,
+                capture[representation].geometry,
+                `${capture.mode} ${representation}`,
+              ),
+            );
+          paperFailures.push(...paperTableDifferences(capture));
         }
+        if (paperCaptures.length !== 2)
+          paperFailures.push(`Captured ${paperCaptures.length} widths, expected 2`);
+        await attachEvidence();
+        expect(
+          paperFailures,
+          "All Papermark source geometry discrepancies; see attached complete evidence",
+        ).toEqual([]);
       }
     } finally {
+      await attachEvidence();
       await original?.close();
       await email.close();
     }

@@ -110,6 +110,10 @@
     </mj-style>
     <mj-style>
       @media only screen and (max-width: 600px) {
+        .studio-review-section > table > tbody > tr > td {
+          padding-left: 16px !important;
+          padding-right: 16px !important;
+        }
         .studio-product-image {
           width: 80px !important;
           max-width: 80px !important;
@@ -117,10 +121,6 @@
         .studio-product-copy {
           width: calc(100% - 80px) !important;
           max-width: calc(100% - 80px) !important;
-        }
-        .studio-product-wrap > table > tbody > tr > td {
-          padding-left: 24px !important;
-          padding-right: 24px !important;
         }
         .studio-mobile-inset > table > tbody > tr > td {
           padding-left: 24px !important;
@@ -145,7 +145,7 @@
         />
       </mj-column>
     </mj-section>
-    <mj-section padding="0px 48px 64px" background-color="#F6F6F6" css-class="studio-mobile-inset">
+    <mj-section padding="0px 48px 64px" background-color="#F6F6F6">
       <mj-column padding="0px" vertical-align="top">
         <mj-text
           font-family="Geist, Inter, Arial, sans-serif"
@@ -254,7 +254,11 @@
         >
       </mj-column>
     </mj-section>
-    <mj-section padding="40px 32px 0px" background-color="#F6F6F6" css-class="studio-mobile-inset">
+    <mj-section
+      padding="40px 32px 0px"
+      background-color="#F6F6F6"
+      css-class="studio-review-section"
+    >
       <mj-column
         padding="80px 48px"
         vertical-align="top"

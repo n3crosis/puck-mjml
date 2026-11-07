@@ -62,7 +62,7 @@ const alignmentCases = (["Section", "Section2"] as const).flatMap((type) => [
 describe("native section alignment", () => {
   it.each(alignmentCases)(
     "aligns %s columns in %s layout to physical %s",
-    async (type, direction, textAlign, justifyContent) => {
+    async (type, direction, textAlign, _justifyContent) => {
       const common = {
         cssClass: "aligned-section",
         mjmlAttributes: attributes({ direction, "text-align": textAlign }),
@@ -100,10 +100,12 @@ describe("native section alignment", () => {
       const row = canvas.querySelector(
         type === "Section2" ? ".pm-native-columns" : ".pm-flex-section > div",
       );
-      expect(style(row, "justify-content")).toBe(justifyContent);
+      expect(style(row, "text-align")).toBe(textAlign);
+      expect(style(row, "display")).toBe("block");
+      expect(style(row, "font-size")).toBe("0");
       expect(style(canvas.querySelector(".aligned-section"), "direction")).toBe(direction);
-      expect(style(canvas.querySelector(".first-column"), "flex-basis")).toBe("20%");
-      expect(style(canvas.querySelector(".second-column"), "flex-basis")).toBe("30%");
+      expect(style(canvas.querySelector(".first-column"), "width")).toBe("20%");
+      expect(style(canvas.querySelector(".second-column"), "width")).toBe("30%");
       const result = await compileEmail(document);
       expect(result.errors).toEqual([]);
       const compiled = parse(result.html);
@@ -120,7 +122,7 @@ describe("native section alignment", () => {
     ["rtl", "flex-end"],
   ])(
     "keeps a %s group's contents left-aligned independently of its section",
-    async (direction, justifyContent) => {
+    async (direction, _justifyContent) => {
       const document = documentWith(
         block("Section", "section", {
           mjmlAttributes: attributes({ "text-align": "right", direction: "rtl" }),
@@ -135,12 +137,8 @@ describe("native section alignment", () => {
         }),
       );
       const canvas = render(document);
-      expect(style(canvas.querySelector(".pm-flex-section > div"), "justify-content")).toBe(
-        "flex-start",
-      );
-      expect(style(canvas.querySelector(".aligned-group > div"), "justify-content")).toBe(
-        justifyContent,
-      );
+      expect(style(canvas.querySelector(".pm-flex-section > div"), "text-align")).toBe("right");
+      expect(style(canvas.querySelector(".aligned-group > div"), "text-align")).toBe("left");
       const result = await compileEmail(document);
       expect(result.errors).toEqual([]);
       const group = parse(result.html).querySelector(".aligned-group");
@@ -180,7 +178,7 @@ describe("native automatic layout widths", () => {
       );
       const canvas = render(document, true);
       for (const name of ["outer-column", "automatic-group", "group-first", "group-second"]) {
-        expect(style(canvas.querySelector(`.${name}`), "flex-basis")).toBe("50%");
+        expect(style(canvas.querySelector(`.${name}`), "width")).toBe("50%");
       }
       const result = await compileEmail(document, { allowRawHtml: true });
       expect(result.errors).toEqual([]);

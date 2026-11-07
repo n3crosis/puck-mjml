@@ -1,8 +1,10 @@
 import {
   createContext,
+  forwardRef,
   useContext,
   type ComponentType,
   type CSSProperties,
+  type HTMLAttributes,
   type ReactNode,
   type Ref,
 } from "react";
@@ -20,13 +22,16 @@ import {
   columnGutter,
   columnContentWidth,
   defaultLayoutWidth,
+  columnWidthStyle,
   layoutContentWidth,
   layoutPaddingWidth,
   layoutWidth,
   useLayoutChildren,
   useLayoutRootProps,
   useLayoutBlockProps,
+  useNativeLayoutMode,
 } from "./native-layout-context";
+import { useNativeDragPreviewBridge, useNativeDragRowRef } from "./native-drag-preview";
 import {
   NativeCanvasContext,
   getCanvasElement,
@@ -75,6 +80,7 @@ function NativeRootView({ root: Root, props }: { root: ComponentType<Props>; pro
   return <Root {...canvasProps(props, source)} />;
 }
 const WrapperContentContext = createContext(false);
+const ColumnContentContext = createContext(false);
 const classes = (name: string, attributes: NativeCanvasAttributes) =>
   [name, attributes["css-class"]].filter(Boolean).join(" ");
 const outerStyle = (a: NativeCanvasAttributes): CSSProperties => ({
@@ -101,7 +107,7 @@ function LayoutBox({
     return (
       <div
         className={classes(`pm-${kind}`, a)}
-        data-pm-mjml-padding={a["background-url"] ? undefined : "self"}
+        data-pm-mjml-padding={a["background-url"] ? "background" : "self"}
         style={{ ...backgroundStyle(a), textAlign: a["text-align"] as CSSProperties["textAlign"] }}
       >
         {children}
@@ -138,27 +144,67 @@ function LayoutBox({
     </div>
   );
 }
-function slot(props: Props, name: string, minEmptyHeight: number, style?: CSSProperties) {
-  const Slot = props[name] as ComponentType<{ minEmptyHeight: number; style?: CSSProperties }>;
-  return Slot ? <Slot minEmptyHeight={minEmptyHeight} style={style} /> : null;
+const NativeRowElement = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  function NativeRowElement({ style, ...props }, ref) {
+    // Puck reads the nearest dir attribute for drag orientation; CSS direction
+    // alone is insufficient. Keep group content direction off its draggable box.
+    return <div {...props} ref={ref} style={style} dir={style?.direction} />;
+  },
+);
+function slot(
+  props: Props,
+  name: string,
+  minEmptyHeight: number,
+  style?: CSSProperties,
+  row?: { ref: Ref<HTMLDivElement>; dynamic: boolean },
+) {
+  const Slot = props[name] as ComponentType<{
+    minEmptyHeight: number;
+    style?: CSSProperties;
+    ref?: Ref<HTMLDivElement>;
+    as?: typeof NativeRowElement;
+    collisionAxis?: "dynamic";
+  }>;
+  return Slot ? (
+    <Slot
+      minEmptyHeight={minEmptyHeight}
+      style={style}
+      {...(row
+        ? {
+            ref: row.ref,
+            as: NativeRowElement,
+            collisionAxis: row.dynamic ? ("dynamic" as const) : undefined,
+          }
+        : {})}
+    />
+  ) : null;
 }
-function horizontalAlignment(
-  align: string | undefined,
-  direction: string | undefined,
-): CSSProperties["justifyContent"] {
-  if (align === "center") return "center";
-  return (align === "right") !== (direction === "rtl") ? "flex-end" : "flex-start";
+/** MJML aligns inline boxes in a zero-font-size line, not against the tallest sibling. */
+function rowStyle(a: NativeCanvasAttributes, flex = false): CSSProperties {
+  const justify =
+    a["text-align"] === "center" || !a["text-align"]
+      ? "center"
+      : (a["text-align"] === "right") !== (a.direction === "rtl")
+        ? "flex-end"
+        : "flex-start";
+  return {
+    display: flex ? "flex" : "block",
+    flexWrap: flex ? "wrap" : undefined,
+    alignItems: flex ? "flex-start" : undefined,
+    justifyContent: flex ? justify : undefined,
+    fontSize: 0,
+    textAlign: (a["text-align"] || "center") as CSSProperties["textAlign"],
+    direction: a.direction as CSSProperties["direction"],
+    "--pm-native-drag-justify": justify,
+  } as CSSProperties;
 }
-function columnStyle(a: NativeCanvasAttributes, fallbackWidth?: string): CSSProperties {
+function columnStyle(a: NativeCanvasAttributes): CSSProperties {
   return {
     ...nativeBoxStyle(a),
-    flexBasis: a.width || fallbackWidth,
-    alignSelf:
-      a["vertical-align"] === "middle"
-        ? "center"
-        : a["vertical-align"] === "bottom"
-          ? "flex-end"
-          : "flex-start",
+    fontSize: 0,
+    textAlign: "left",
+    direction: (a.direction || "ltr") as CSSProperties["direction"],
+    verticalAlign: (a["vertical-align"] || "top") as CSSProperties["verticalAlign"],
   };
 }
 function ColumnBox({
@@ -178,7 +224,18 @@ function ColumnBox({
 }) {
   const layout = useContext(NativeLayoutContext);
   const gutter = columnGutter(a, layout, id);
-  const style = columnStyle(a, fallbackWidth || defaultLayoutWidth(layout));
+  const flex = useNativeLayoutMode() === "flex";
+  const style = {
+    ...columnStyle(a),
+    alignSelf: flex
+      ? a["vertical-align"] === "middle"
+        ? "center"
+        : a["vertical-align"] === "bottom"
+          ? "flex-end"
+          : "flex-start"
+      : undefined,
+    ...columnWidthStyle(a.width || fallbackWidth || defaultLayoutWidth(layout), layout, !a.width),
+  };
   // MJML only renders the inner column box when padding is present, including
   // an explicit zero or a value inherited from a class/component default.
   const hasPadding = [
@@ -190,7 +247,15 @@ function ColumnBox({
   ].some((name) => a[name] !== undefined);
   const content = (
     <NativeLayoutContext.Provider value={{ width: columnContentWidth(a, layout) }}>
-      <div style={hasPadding ? nativeBoxStyle(a, "inner-") : undefined}>{children}</div>
+      <div style={hasPadding ? nativeBoxStyle(a, "inner-") : undefined}>
+        {/* A column's compiled table exports its first row's baseline. Keep the
+            Puck slot as a block inside a cell so empty heights and drag refs survive. */}
+        <div className="pm-native-column-table">
+          <div className="pm-native-column-cell">
+            <ColumnContentContext.Provider value={true}>{children}</ColumnContentContext.Provider>
+          </div>
+        </div>
+      </div>
     </NativeLayoutContext.Provider>
   );
   return gutter ? (
@@ -198,10 +263,14 @@ function ColumnBox({
       ref={dragRef}
       data-pm-mjml-padding={hasPadding ? "child" : undefined}
       className={classes(
-        `${className} pm-native-gutter${gutter.grouped ? "" : " pm-native-gutter-stacked"}`,
+        `${className} pm-native-inline-column pm-native-gutter${gutter.grouped ? "" : " pm-native-gutter-stacked"}`,
         a,
       )}
-      style={{ ...gutter.style, alignSelf: style.alignSelf }}
+      style={{
+        ...columnStyle({ direction: a.direction, "vertical-align": a["vertical-align"] }),
+        ...gutter.style,
+        alignSelf: style.alignSelf,
+      }}
     >
       <div
         className="pm-native-column-content"
@@ -214,7 +283,7 @@ function ColumnBox({
   ) : (
     <div
       ref={dragRef}
-      className={classes(className, a)}
+      className={classes(`${className} pm-native-inline-column`, a)}
       data-pm-mjml-padding={hasPadding ? "self" : undefined}
       style={style}
     >
@@ -259,6 +328,12 @@ function NativeBlockView({
 }): ReactNode {
   const puck = props.puck as { dragRef?: Ref<HTMLDivElement>; isEditing?: boolean } | undefined;
   const layout = useContext(NativeLayoutContext);
+  const flex = useNativeLayoutMode() === "flex";
+  const bridge = useNativeDragPreviewBridge();
+  const rowRef = useNativeDragRowRef(
+    name === "Group" ? "group" : "section",
+    Boolean(puck?.isEditing),
+  );
   const children = useLayoutChildren(props.id, "columns");
   const siblings = children.map((child) => ({
     id: String(child.props.id),
@@ -285,9 +360,10 @@ function NativeBlockView({
       return (
         <LayoutBox kind="section" attributes={a}>
           <NativeLayoutContext.Provider value={sectionLayout}>
-            <div className="pm-flex-section">
-              {slot(props, "columns", 100, {
-                justifyContent: horizontalAlignment(a["text-align"], a.direction),
+            <div className="pm-flex-section pm-native-inline-section" dir={a.direction}>
+              {slot(props, "columns", 100, rowStyle(a, flex), {
+                ref: rowRef,
+                dynamic: Boolean(bridge && puck?.isEditing),
               })}
             </div>
           </NativeLayoutContext.Provider>
@@ -309,12 +385,7 @@ function NativeBlockView({
           >
             <div
               className={`pm-columns pm-columns-${columns.length} pm-native-columns`}
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                alignItems: "flex-start",
-                justifyContent: horizontalAlignment(a["text-align"], a.direction),
-              }}
+              style={rowStyle(a, flex)}
             >
               {columns.map((prefix) => (
                 <ImplicitColumn key={prefix} props={props} prefix={prefix} count={columns.length} />
@@ -339,11 +410,23 @@ function NativeBlockView({
       return (
         <div
           ref={puck?.dragRef}
-          className={classes("pm-flex-group", a)}
+          className={classes("pm-flex-group pm-native-inline-group", a)}
           style={{
             ...nativeStyle(a, ["background-color", "direction"]),
-            flexBasis: a.width || defaultLayoutWidth(layout),
-            alignSelf: columnStyle(a).alignSelf,
+            ...columnWidthStyle(a.width || defaultLayoutWidth(layout), layout),
+            fontSize: 0,
+            lineHeight: 0,
+            textAlign: "left",
+            // Unlike columns, mj-group has no default vertical-align. Omission
+            // must retain CSS baseline, including author styles that set it.
+            verticalAlign: a["vertical-align"] as CSSProperties["verticalAlign"],
+            alignSelf: flex
+              ? a["vertical-align"] === "middle"
+                ? "center"
+                : a["vertical-align"] === "bottom"
+                  ? "flex-end"
+                  : "flex-start"
+              : undefined,
           }}
         >
           <NativeLayoutContext.Provider
@@ -359,8 +442,9 @@ function NativeBlockView({
               siblings,
             }}
           >
-            {slot(props, "columns", 80, {
-              justifyContent: horizontalAlignment("left", a.direction),
+            {slot(props, "columns", 80, rowStyle({ ...a, "text-align": "left" }, flex), {
+              ref: rowRef,
+              dynamic: Boolean(bridge && puck?.isEditing),
             })}
           </NativeLayoutContext.Provider>
         </div>
@@ -508,9 +592,11 @@ function NativeBlockView({
       return (
         <div
           className={classes("pm-spacer", a)}
-          style={{ ...outerStyle(a), height: a.height }}
+          style={{ ...outerStyle(a), height: a.height, lineHeight: a.height, fontSize: 0 }}
           aria-label="Spacer"
-        />
+        >
+          {"\u200a"}
+        </div>
       );
     case "Divider":
       return (
@@ -611,6 +697,16 @@ function NativeBlock({
       (Array.isArray(props[`${prefix}Attributes`]) &&
         (props[`${prefix}Attributes`] as unknown[]).length > 0),
   );
+  const hasNativeLayoutChildren = (blocks: typeof childBlocks): boolean =>
+    blocks.some(
+      (child) =>
+        (child.type === "Column" || child.type === "Group") &&
+        (hasNativeCanvasOptions(child.props, parent) ||
+          (Array.isArray(child.props.columns) &&
+            hasNativeLayoutChildren(child.props.columns as typeof childBlocks))),
+    );
+  const nativeLayout =
+    (name === "Section" || name === "Group") && hasNativeLayoutChildren(childBlocks);
   const hasNestedAttributes = ["links", "items", "images"].some(
     (key) =>
       Array.isArray(props[key]) &&
@@ -631,12 +727,14 @@ function NativeBlock({
     (name !== "Image" &&
       !hasNativeCanvasOptions(props, parent) &&
       !hasImplicitAttributes &&
-      !hasNestedAttributes) ||
+      !hasNestedAttributes &&
+      !nativeLayout) ||
     name === "Raw" ||
     props.htmlContent !== undefined
   )
     return fallback();
   const node = getCanvasElement(nativeComponentTags[name], props, parent);
+  if (node && nativeLayout) node.scope.enabled = true;
   if (!node) return fallback();
   return (
     <NativeCanvasContext.Provider value={node.scope}>
@@ -648,6 +746,20 @@ function NativeBlock({
         scope={node.scope}
       />
     </NativeCanvasContext.Provider>
+  );
+}
+/** Each compiled column component occupies its own table row. A first spacer
+ * must expose its own baseline instead of borrowing a later text line. */
+function NativeCanvasComponent(props: Parameters<typeof NativeBlock>[0]) {
+  const inColumn = useContext(ColumnContentContext);
+  const content = <NativeBlock {...props} />;
+  if (!inColumn || props.name === "Raw") return content;
+  return (
+    <div className="pm-native-content-table">
+      <div className="pm-native-content-cell">
+        <ColumnContentContext.Provider value={false}>{content}</ColumnContentContext.Provider>
+      </div>
+    </div>
   );
 }
 export function withNativeCanvas(config: Config): Config {
@@ -670,7 +782,7 @@ export function withNativeCanvas(config: Config): Config {
         {
           ...component,
           render: (props: Props) => (
-            <NativeBlock
+            <NativeCanvasComponent
               name={name}
               props={props}
               fallback={component.render as ComponentType<Props>}

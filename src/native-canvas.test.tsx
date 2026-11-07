@@ -166,7 +166,7 @@ describe("native canvas and compiled email parity", () => {
       expect(style(email.html, `.${name} div`, "color")).toBe(color);
       expect(style(email.html, `.${name} div`, "font-size")).toBe(size);
     }
-    expect(style(canvas, ".pm-native-columns", "display")).toBe("flex");
+    expect(style(canvas, ".pm-native-columns", "display")).toBe("block");
   });
 
   it("uses native group and flexible-column widths and inner boxes", async () => {
@@ -197,9 +197,9 @@ describe("native canvas and compiled email parity", () => {
     const canvas = render(document);
     const email = await compileEmail(document);
     expect(email.errors).toEqual([]);
-    expect(style(canvas, ".native-group", "flex-basis")).toBe("72%");
-    expect(style(canvas, ".native-column", "flex-basis")).toBe("37%");
-    expect(style(canvas, ".native-column", "align-self")).toBe("flex-end");
+    expect(style(canvas, ".native-group", "width")).toBe("72%");
+    expect(style(canvas, ".native-column", "width")).toBe("37%");
+    expect(style(canvas, ".native-column", "vertical-align")).toBe("bottom");
     expect(style(canvas, ".native-column > div", "background-color")).toBe("#abcdef");
     expect(style(canvas, ".native-column > div", "border")).toBe("2px dotted navy");
     expect(email.mjml).toContain('<mj-group width="72%" css-class="native-group">');
@@ -355,7 +355,7 @@ describe("native canvas and compiled email parity", () => {
     const canvasCss = parse(canvas).querySelector(
       `style[data-pm-canvas-css="${scope}"]`,
     )!.textContent!;
-    expect(canvasCss).toContain(`.${scope} { background: pink; }`);
+    expect(canvasCss).toContain(`.${scope}:is(body, *) { background: pink; }`);
     expect(canvasCss).toContain(`.${scope} .host-chrome { display: none; }`);
     // An unscoped rule would reach the host page's own .host-chrome element.
     expect(canvasCss.replaceAll(`.${scope} .host-chrome`, "")).not.toContain(".host-chrome");

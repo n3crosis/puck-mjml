@@ -99,6 +99,12 @@
         max-width: 420px;
         margin: 0 auto;
       }
+      .studio-summary td:nth-child(2) {
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 24px;
+        letter-spacing: -0.042px;
+      }
       .studio-footer-copy > div {
         max-width: 320px;
         margin: 0 auto;

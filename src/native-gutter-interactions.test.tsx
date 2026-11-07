@@ -87,15 +87,15 @@ describe("native gutter editing", () => {
     const snapshot = () =>
       columns().map((column) => ({
         name: [...column.classList].find((name) => name.startsWith("column-")),
-        basis: column.style.flexBasis,
+        width: column.style.width,
         left: column.style.paddingLeft,
         right: column.style.paddingRight,
         mobile: column.style.getPropertyValue("--pm-gutter-mobile-padding"),
       }));
     expect(api).toBeDefined();
     expect(snapshot()).toEqual([
-      { name: "column-a", basis: "200px", left: "0px", right: "9px", mobile: "0% 0 1.5% 0" },
-      { name: "column-b", basis: "200px", left: "9px", right: "0px", mobile: "1.5% 0 0% 0" },
+      { name: "column-a", width: "191px", left: "0px", right: "9px", mobile: "0% 0 1.5% 0" },
+      { name: "column-b", width: "191px", left: "9px", right: "0px", mobile: "1.5% 0 0% 0" },
     ]);
 
     await edit(() =>
@@ -108,9 +108,9 @@ describe("native gutter editing", () => {
       }),
     );
     expect(snapshot()).toEqual([
-      { name: "column-a", basis: "197px", left: "0px", right: "9px", mobile: "0% 0 1.5% 0" },
-      { name: "column-c", basis: "206px", left: "9px", right: "9px", mobile: "1.5% 0 1.5% 0" },
-      { name: "column-b", basis: "197px", left: "9px", right: "0px", mobile: "1.5% 0 0% 0" },
+      { name: "column-a", width: "188px", left: "0px", right: "9px", mobile: "0% 0 1.5% 0" },
+      { name: "column-c", width: "188px", left: "9px", right: "9px", mobile: "1.5% 0 1.5% 0" },
+      { name: "column-b", width: "188px", left: "9px", right: "0px", mobile: "1.5% 0 0% 0" },
     ]);
 
     await edit(() =>
@@ -122,19 +122,19 @@ describe("native gutter editing", () => {
       }),
     );
     const reordered = snapshot();
-    expect(reordered.map(({ name, basis }) => [name, basis])).toEqual([
-      ["column-a", "197px"],
-      ["column-b", "206px"],
-      ["column-c", "197px"],
+    expect(reordered.map(({ name, width }) => [name, width])).toEqual([
+      ["column-a", "188px"],
+      ["column-b", "188px"],
+      ["column-c", "188px"],
     ]);
     expect(reordered[2].right).toBe("0px");
     expect(reordered[2].mobile).toBe("1.5% 0 0% 0");
 
     await edit(() => api!.dispatch({ type: "remove", index: 0, zone: "section:columns" }));
     const removed = snapshot();
-    expect(removed.map(({ name, basis }) => [name, basis])).toEqual([
-      ["column-b", "200px"],
-      ["column-c", "200px"],
+    expect(removed.map(({ name, width }) => [name, width])).toEqual([
+      ["column-b", "191px"],
+      ["column-c", "191px"],
     ]);
     expect(removed[0].left).toBe("0px");
     expect(removed[0].mobile).toBe("0% 0 1.5% 0");

@@ -257,7 +257,7 @@ describe.each([false, true])(
     it.each([
       ["welcome", "circle"],
       ["product-update", "square"],
-    ])("%s retains24px decorative geometry without spoken glyphs", async (name, shape) => {
+    ])("%s retains 24px decorative content size without spoken glyphs", async (name, shape) => {
       const reference = original(name);
       const { $, document } = await compile(name, roundTrip);
       const originals = reference("span").filter((_index, node) => {
@@ -272,7 +272,7 @@ describe.each([false, true])(
         expect(declarations($(node).attr("style"))).toMatchObject({
           width: "24px",
           height: "24px",
-          "box-sizing": "border-box",
+          "box-sizing": "content-box",
           border: "1px solid #e4e4e7",
           "border-radius": shape === "circle" ? "50%" : "8px",
         });

@@ -51,7 +51,7 @@
   </mj-head>
   <mj-body width="640px" background-color="#FFFFFF" css-class="arcane-email">
     <mj-wrapper padding="0px" background-color="#300610">
-      <mj-section padding="40px 40px 24px" css-class="arcane-inset">
+      <mj-section padding="40px 40px 24px" css-class="arcane-header">
         <mj-column padding="0px" vertical-align="top">
           <mj-image
             src="https://demo.react.email/static/shared/logo-white.png"

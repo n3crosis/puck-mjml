@@ -119,8 +119,8 @@ describe("native canvas padding targets", () => {
   it.each([
     ["mj-section", 'full-width="full-width"'],
     ["mj-wrapper", 'full-width="full-width"'],
-    ["mj-section", 'background-url="https://example.com/background.png"'],
-    ["mj-wrapper", 'background-url="https://example.com/background.png"'],
+    ["mj-section", 'full-width="full-width" background-url="https://example.com/background.png"'],
+    ["mj-wrapper", 'full-width="full-width" background-url="https://example.com/background.png"'],
   ])("does not mark %s with structurally different %s", async (tag, attributes) => {
     const column = "<mj-column><mj-text>Hello</mj-text></mj-column>";
     const content = tag === "mj-wrapper" ? `<mj-section>${column}</mj-section>` : column;

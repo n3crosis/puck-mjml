@@ -50,10 +50,13 @@ describe("document responsive layout", () => {
       expect(html).toContain(`class="pm-canvas ${scope}"`);
       expect(css).toContain(`@media (width < ${index === 0 ? 480 : 720}px)`);
       expect(css).not.toContain(`.${styles[1 - index][1]}`);
-      const selectors = css.match(/\.[^{}]+(?=\s*\{)/g) ?? [];
+      const selectors = css.match(/(?:\.[^{}]+|:where\([^{}]+)(?=\s*\{)/g) ?? [];
       for (const selectorList of selectors) {
         for (const selector of selectorList.split(",")) {
-          expect(selector.trim().startsWith(`.${scope} `)).toBe(true);
+          expect(
+            selector.trim().startsWith(`.${scope} `) ||
+              selector.trim().startsWith(`:where(.${scope} `),
+          ).toBe(true);
         }
       }
     }
@@ -63,9 +66,11 @@ describe("document responsive layout", () => {
     const html = renderToStaticMarkup(renderDocument(600));
     expect(html).toContain(".pm-columns-2");
     expect(html).toContain(".pm-columns-3 { grid-template-columns: 1fr; }");
-    expect(html).toContain(".pm-flex-section > div > .pm-flex-column");
     expect(html).toContain(
-      ".pm-flex-section > div > .pm-flex-group { flex-basis: 100% !important; }",
+      ".pm-flex-section:not(.pm-native-inline-section) > div > .pm-flex-column",
+    );
+    expect(html).toContain(
+      ".pm-flex-section:not(.pm-native-inline-section) > div > .pm-flex-group { flex-basis: 100% !important; }",
     );
     expect(html).not.toContain(".pm-flex-group > div > .pm-flex-column");
     const stylesheet = readFileSync(new URL("./style.css", import.meta.url), "utf8");

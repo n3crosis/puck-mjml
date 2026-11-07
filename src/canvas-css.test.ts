@@ -87,7 +87,7 @@ describe("native MJML padding aliases", () => {
   it.each([
     "table > tbody > tr > td",
     ".inset table td",
-    ".inset > div > table > tbody > tr > td",
+    ".inset > div > div > table > tbody > tr > td",
     ".inset > table > tbody > tr > td:first-child",
     ".inset:hover > table > tbody > tr > td",
     ".inset.more > table > tbody > tr > td",
@@ -146,10 +146,10 @@ describe("scoped canvas CSS selectors", () => {
         "body { padding: 0 16px !important; } html body .x { color: red; } :root { --brand: navy; } body > .card { margin: 0; }",
       ),
     ]);
-    expect(result.css).toContain(".pm-canvas-test { padding: 0 16px !important; }");
-    expect(result.css).toContain(".pm-canvas-test .x { color: red; }");
-    expect(result.css).toContain(".pm-canvas-test { --brand: navy; }");
-    expect(result.css).toContain(".pm-canvas-test > .card { margin: 0; }");
+    expect(result.css).toContain(".pm-canvas-test:is(body, *) { padding: 0 16px !important; }");
+    expect(result.css).toContain(".pm-canvas-test:is(html, *):is(body, *) .x { color: red; }");
+    expect(result.css).toContain(".pm-canvas-test:is(:root, *) { --brand: navy; }");
+    expect(result.css).toContain(".pm-canvas-test:is(body, *) > .card { margin: 0; }");
     expect(result.notes).toEqual([]);
   });
 
@@ -157,8 +157,8 @@ describe("scoped canvas CSS selectors", () => {
     const result = scopeCss([
       stylesheet(":root::before { content: ''; } body[dir=rtl] .x { float: right; }"),
     ]);
-    expect(result.css).toContain(".pm-canvas-test::before { content: ''; }");
-    expect(result.css).toContain(".pm-canvas-test[dir=rtl] .x { float: right; }");
+    expect(result.css).toContain(".pm-canvas-test:is(:root, *)::before { content: ''; }");
+    expect(result.css).toContain(".pm-canvas-test:is(body, *)[dir=rtl] .x { float: right; }");
   });
 
   it("drops selectors that escape the canvas through sibling combinators", () => {

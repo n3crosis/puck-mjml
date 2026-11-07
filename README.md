@@ -66,6 +66,31 @@ The host owns persistence. Replacing `value` with a different document resets un
 
 See [Image uploads](docs/IMAGE_UPLOADS.md) for provider-independent host wiring, validation, and the demo’s local-only embedded images. Local demo assets are not hosted; many email clients block them.
 
+### Custom Puck hosts and native layout
+
+`EmailEditor` automatically uses MJML's inline alignment for native columns. Read-only `<Render config={createEmailConfig()} ... />` also uses inline layout without extra setup.
+
+A custom editable `<Puck>` host keeps the previous flex-column preview unless it opts into the public drag-preview bridge. Puck 0.24's insertion markers understand flex/grid geometry, so the bridge temporarily uses flex during a drag and restores inline layout when Puck finishes the drop or cancellation. Mixed vertical alignments may shift during the drag preview; final document geometry is unchanged. The bridge is per editor and does not use global iframe queries or bypass drag permissions.
+
+```tsx
+import { useEffect, useMemo } from "react";
+import { Puck } from "@puckeditor/core";
+import { createEmailConfig, createNativeDragPreview, NativeDragPreviewProvider } from "puck-mjml";
+
+function CustomEditor({ document, onChange }) {
+  const config = useMemo(() => createEmailConfig(), []);
+  const bridge = useMemo(createNativeDragPreview, []);
+  useEffect(() => () => bridge.reset(), [bridge]);
+  return (
+    <NativeDragPreviewProvider bridge={bridge}>
+      <Puck config={config} data={document} onChange={onChange} onAction={bridge.onAction} />
+    </NativeDragPreviewProvider>
+  );
+}
+```
+
+Keep one bridge per editor. If a host already handles `onAction`, call `bridge.onAction(action, newState)` synchronously from that callback. Call `bridge.reset()` before replacing the editor instance/source during a drag. Row orientation is sampled at drag start; changing the viewport or column widths during an active drag is not supported. Bridge state is isolated, but it does not fix Puck 0.24's upstream global pointer/iframe lookup limitations when multiple editors share a page. Mounted read-only Render previews remain inline even inside the provider. The bridge belongs to the browser package entry; `puck-mjml/core` remains independent of React and Puck.
+
 ### Import and export
 
 Every `EmailEditor` includes **Export** beside **Preview**. Switch between read-only HTML and MJML source, then download `email.html` or `email.mjml`. HTML uses the actual MJML compiler, with loading, validation warnings, and retryable compilation errors; MJML can be downloaded while HTML compiles. Export runs locally, uses the editor's trust options, and does not publish, save, or change your document or undo history. Host `headerActions` remain available for other controls.

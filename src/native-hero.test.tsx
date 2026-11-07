@@ -141,7 +141,7 @@ describe("native group vertical alignment", () => {
     ["top", "flex-start"],
     ["middle", "center"],
     ["bottom", "flex-end"],
-  ])("aligns %s groups alongside a taller column", async (verticalAlign, alignSelf) => {
+  ])("aligns %s groups alongside a taller column", async (verticalAlign, _alignSelf) => {
     const document = documentWith([
       block("Section", "section", {
         columns: [
@@ -166,7 +166,9 @@ describe("native group vertical alignment", () => {
       }),
     ]);
     const canvas = render(document);
-    expect(styles(canvas.querySelector(".aligned-group"))).toContain(`align-self:${alignSelf}`);
+    expect(styles(canvas.querySelector(".aligned-group"))).toContain(
+      `vertical-align:${verticalAlign}`,
+    );
     const email = await compileEmail(document);
     expect(email.errors).toEqual([]);
     expect(styles(parse(email.html).querySelector(".aligned-group"))).toContain(

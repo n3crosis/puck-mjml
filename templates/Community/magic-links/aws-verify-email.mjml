@@ -12,6 +12,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-text padding="0px" color="#333333" />
     </mj-attributes>
     <mj-style>
+      body {
+        padding: 8px !important;
+      }
       p {
         margin: 0;
       }

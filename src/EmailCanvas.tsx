@@ -165,13 +165,24 @@ export function EmailCanvas({
   }, [tailwindScriptSrc, scope]);
   const emailWidthStyle = typeof emailWidth === "number" ? `${emailWidth}px` : emailWidth;
   const aliasedCanvasFont = aliasFontFamilyList(canvasFont, aliases);
+  // MJML's desktop width class also supplies a normal max-width. Emit this
+  // before authored CSS at equivalent scoped class specificity, so a normal
+  // author max-width can replace the cap without affecting mobile widths.
+  const desktopWidthStyles = `@media (width >= ${responsiveWidth}) {
+.${scope} .pm-native-inline-column,
+.${scope} .pm-native-inline-group { max-width: var(--pm-native-desktop-width); }
+}`;
   const mobileStyles = `.${scope} .pm-native-navbar-trigger { display: none; }
 @media (width < ${responsiveWidth}) {
+.${scope} .pm-native-inline-section > div { --pm-native-empty-drag-axis: y; }
 .${scope} .pm-columns-2, .${scope} .pm-columns-3 { grid-template-columns: 1fr; }
-.${scope} .pm-flex-section > div > .pm-flex-column,
-.${scope} .pm-flex-section > div > .pm-flex-group { flex-basis: 100% !important; }
-.${scope} .pm-native-columns > .pm-native-column { flex-basis: 100% !important; }
-.${scope} .pm-native-gutter-stacked { padding: var(--pm-gutter-mobile-padding) !important; }
+.${scope} .pm-flex-section:not(.pm-native-inline-section) > div > .pm-flex-column,
+.${scope} .pm-flex-section:not(.pm-native-inline-section) > div > .pm-flex-group { flex-basis: 100% !important; }
+:where(.${scope} .pm-native-inline-section > div > .pm-native-inline-column),
+:where(.${scope} .pm-native-inline-section > div > .pm-native-inline-group),
+:where(.${scope} .pm-native-columns > .pm-native-column) { width: 100% !important; }
+:where(.${scope} .pm-native-inline-group > div > .pm-native-inline-column) { width: var(--pm-group-column-width) !important; }
+:where(.${scope} .pm-native-gutter-stacked) { padding: var(--pm-gutter-mobile-padding) !important; }
 .${scope} .pm-native-image-fluid > a { width: 100% !important; }
 .${scope} .pm-native-navbar-trigger { display: block; }
 .${scope} .pm-native-navbar[data-native-navbar-open="false"] > .pm-native-navbar-links { display: none; }
@@ -183,8 +194,8 @@ export function EmailCanvas({
       ref={canvasRef}
       className={`pm-canvas ${scope}`}
       data-pm-canvas-font-status={implicit.settled ? fonts.status : "loading"}
-      data-pm-canvas-font-inputs={implicit.fingerprint}
       data-pm-canvas-font-families={JSON.stringify(importedFamilies)}
+      data-pm-canvas-font-inputs={implicit.fingerprint}
       data-pm-canvas-font-errors={
         fonts.failures.length ? JSON.stringify(fonts.failures) : undefined
       }
@@ -206,6 +217,7 @@ export function EmailCanvas({
           {fonts.css}
         </style>
       ) : null}
+      <style data-pm-native-widths={scope}>{desktopWidthStyles}</style>
       {scopedCss.css ? <style data-pm-canvas-css={scope}>{scopedCss.css}</style> : null}
       <style data-pm-responsive={scope}>{mobileStyles}</style>
       <div

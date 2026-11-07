@@ -100,6 +100,14 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
       }
     </mj-style>
     <mj-style inline="inline">
+      /* The source images fill fractional-width table cells. MJML's pixel
+         image table would otherwise round each alternating row down. */
+      .bare-alternating-image table {
+        width: 100% !important;
+      }
+      .bare-alternating-column a {
+        text-decoration: none;
+      }
       .bare-step-slot {
         width: 52px !important;
         flex-basis: 52px !important;
@@ -123,7 +131,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         margin: 0;
         width: 24px;
         height: 24px;
-        box-sizing: border-box;
+        box-sizing: content-box;
         border: 1px solid #e4e4e7;
         border-radius: 8px;
         font-size: 1px;
@@ -415,7 +423,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
               letter-spacing="-0.048px"
               color="#43454B"
               align="left"
-              padding="0px 0px 36px"
+              padding="0px 0px 40px"
               >Invite teammates so everyone sees the same improvements and clear next
               steps.</mj-text
             ></mj-column
@@ -590,6 +598,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         border-radius="0px"
         css-class="bare-card-section bare-card-inset"
         ><mj-column
+          vertical-align="middle"
           width="48%"
           padding="0px 20px 36px 0px"
           css-class="bare-alternating-column bare-alternating-first"
@@ -597,10 +606,15 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             src="https://demo.react.email/static/barebones/barebones-image-2.png"
             alt=""
             width="311px"
+            css-class="bare-alternating-image"
             padding="0px 0px 0px"
             border-radius="12px"
             fluid-on-mobile="true" /></mj-column
-        ><mj-column width="52%" padding="0px 0px 36px 0px" css-class="bare-alternating-column"
+        ><mj-column
+          vertical-align="middle"
+          width="52%"
+          padding="0px 0px 36px 0px"
+          css-class="bare-alternating-column"
           ><mj-text
             font-size="16px"
             font-weight="420"
@@ -628,7 +642,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#14171E"
             align="left"
             padding="0px 0px 0px"
-            ><a href="https://example.com/">Learn about Pro</a></mj-text
+            ><a href="https://example.com/" target="_blank" rel="noopener noreferrer"
+              >Learn about Pro</a
+            ></mj-text
           ></mj-column
         ></mj-section
       >
@@ -638,6 +654,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         border-radius="0px"
         css-class="bare-card-section bare-card-inset"
         ><mj-column
+          vertical-align="middle"
           width="52%"
           padding="0px 20px 36px 0px"
           css-class="bare-alternating-column bare-alternating-first"
@@ -668,13 +685,20 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#14171E"
             align="left"
             padding="0px 0px 0px"
-            ><a href="https://example.com/">Learn about Pro</a></mj-text
+            ><a href="https://example.com/" target="_blank" rel="noopener noreferrer"
+              >Learn about Pro</a
+            ></mj-text
           ></mj-column
-        ><mj-column width="48%" padding="0px 0px 36px 0px" css-class="bare-alternating-column"
+        ><mj-column
+          vertical-align="middle"
+          width="48%"
+          padding="0px 0px 36px 0px"
+          css-class="bare-alternating-column"
           ><mj-image
             src="https://demo.react.email/static/barebones/barebones-image-2.png"
             alt=""
             width="311px"
+            css-class="bare-alternating-image"
             padding="0px 0px 0px"
             border-radius="12px"
             fluid-on-mobile="true" /></mj-column
@@ -685,6 +709,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         border-radius="0px 0px 10px 10px"
         css-class="bare-card-section bare-card-end bare-card-inset"
         ><mj-column
+          vertical-align="middle"
           width="48%"
           padding="0px 20px 0px 0px"
           css-class="bare-alternating-column bare-alternating-first"
@@ -692,10 +717,15 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             src="https://demo.react.email/static/barebones/barebones-image-2.png"
             alt=""
             width="311px"
+            css-class="bare-alternating-image"
             padding="0px 0px 0px"
             border-radius="12px"
             fluid-on-mobile="true" /></mj-column
-        ><mj-column width="52%" padding="0px 0px 0px 0px" css-class="bare-alternating-column"
+        ><mj-column
+          vertical-align="middle"
+          width="52%"
+          padding="0px 0px 0px 0px"
+          css-class="bare-alternating-column"
           ><mj-text
             font-size="16px"
             font-weight="420"
@@ -723,7 +753,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#14171E"
             align="left"
             padding="0px 0px 0px"
-            ><a href="https://example.com/">Learn about Pro</a></mj-text
+            ><a href="https://example.com/" target="_blank" rel="noopener noreferrer"
+              >Learn about Pro</a
+            ></mj-text
           ></mj-column
         ></mj-section
       >

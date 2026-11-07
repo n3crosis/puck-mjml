@@ -126,7 +126,12 @@
       </mj-section>
       <mj-section padding="0px 40px" css-class="arcane-inset">
         <mj-group width="100%" vertical-align="middle">
-          <mj-column width="68px" padding="0px" vertical-align="top" css-class="arcane-order-image">
+          <mj-column
+            width="68px"
+            padding="0px"
+            vertical-align="middle"
+            css-class="arcane-order-image"
+          >
             <mj-image
               src="https://demo.react.email/static/skin/skin-image-2.png"
               width="68px"
@@ -166,14 +171,20 @@
           </mj-column>
         </mj-group>
       </mj-section>
-      <mj-section padding="18px 40px" css-class="arcane-inset">
+      <mj-section padding="18px 40px" css-class="arcane-inset arcane-order-divider">
         <mj-column padding="0px" vertical-align="top">
           <mj-divider border-color="#3D151D" border-width="1px" padding="0px" />
+          <mj-spacer height="22.5px" padding="0px" />
         </mj-column>
       </mj-section>
       <mj-section padding="0px 40px" css-class="arcane-inset">
         <mj-group width="100%" vertical-align="middle">
-          <mj-column width="68px" padding="0px" vertical-align="top" css-class="arcane-order-image">
+          <mj-column
+            width="68px"
+            padding="0px"
+            vertical-align="middle"
+            css-class="arcane-order-image"
+          >
             <mj-image
               src="https://demo.react.email/static/skin/skin-image-3.png"
               width="68px"
@@ -213,7 +224,7 @@
           </mj-column>
         </mj-group>
       </mj-section>
-      <mj-section padding="88px 40px 56px" css-class="arcane-inset">
+      <mj-section padding="64px 40px 56px" css-class="arcane-inset arcane-order-summary-section">
         <mj-column padding="0px" vertical-align="top">
           <mj-table
             padding="0px"

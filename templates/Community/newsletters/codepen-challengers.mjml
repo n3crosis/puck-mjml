@@ -334,24 +334,26 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         </mj-column>
       </mj-section>
     </mj-wrapper>
-    <mj-section padding="30px" background-color="#f5d247">
-      <mj-column padding="0px">
-        <mj-text padding="0px" font-size="18px" line-height="1.5" css-class="community-rich-3"
-          ><strong>To participate:</strong> <a>Create a Pen →</a> and tag it
-          <a><strong>codepenchallenge</strong></a> and <a><strong>cpc-cubes</strong></a
-          >. We'll be watching and gathering the Pens into a Collection, and sharing on
-          <a>Twitter</a> and <a>Instagram</a> (Use the #CodePenChallenge tag on Twitter and
-          Instagram as well).</mj-text
-        >
-      </mj-column>
-    </mj-section>
+    <mj-wrapper padding="16px 0px" css-class="codepen-participation-margins">
+      <mj-section padding="30px" background-color="#f5d247" css-class="codepen-participation">
+        <mj-column padding="0px">
+          <mj-text padding="0px" font-size="18px" line-height="1.5" css-class="community-rich-3"
+            ><strong>To participate:</strong> <a>Create a Pen →</a> and tag it
+            <a><strong>codepenchallenge</strong></a> and <a><strong>cpc-cubes</strong></a
+            >. We'll be watching and gathering the Pens into a Collection, and sharing on
+            <a>Twitter</a> and <a>Instagram</a> (Use the #CodePenChallenge tag on Twitter and
+            Instagram as well).</mj-text
+          >
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
     <mj-section padding="0px 14px" background-color="#ffffff" css-class="codepen-cards">
       <mj-column padding="0px 10px" width="50%">
         <mj-text padding="16px 0px" font-size="18px" line-height="1.1" font-weight="900"
           >IDEAS!</mj-text
         >
         <mj-text
-          padding="20px"
+          padding="20px 20px 36px"
           font-size="13px"
           line-height="24px"
           container-background-color="#fff4c8"
@@ -362,7 +364,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         >
         <mj-spacer height="20px" />
         <mj-text
-          padding="20px"
+          padding="20px 20px 36px"
           font-size="13px"
           line-height="24px"
           container-background-color="#fff4c8"
@@ -374,7 +376,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         </mj-text>
         <mj-spacer height="20px" />
         <mj-text
-          padding="20px"
+          padding="20px 20px 36px"
           font-size="13px"
           line-height="24px"
           container-background-color="#fff4c8"
@@ -391,7 +393,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           >RESOURCES!</mj-text
         >
         <mj-text
-          padding="20px"
+          padding="20px 20px 36px"
           font-size="13px"
           line-height="24px"
           container-background-color="#d9f6ff"
@@ -402,7 +404,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         >
         <mj-spacer height="20px" />
         <mj-text
-          padding="20px"
+          padding="20px 20px 36px"
           font-size="13px"
           line-height="24px"
           container-background-color="#d9f6ff"
@@ -413,7 +415,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         >
         <mj-spacer height="20px" />
         <mj-text
-          padding="20px"
+          padding="20px 20px 36px"
           font-size="13px"
           line-height="24px"
           container-background-color="#d9f6ff"

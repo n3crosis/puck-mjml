@@ -198,7 +198,7 @@ function rewriteRule(rule: Rule | AtRule, state: ScopeState, label: string): voi
     if (child.type === "decl") {
       rewriteDeclaration(child, state);
     } else if (child.type === "rule") {
-      rewriteRule(child, state, label);
+      rewriteNestedRule(child, state, label);
     } else if (child.type === "atrule") {
       rewriteNestedAtRule(child, state, label);
     }
@@ -220,7 +220,8 @@ function rewriteNestedAtRule(atRule: AtRule, state: ScopeState, label: string): 
       const children = atRule.nodes?.slice() ?? [];
       atRule.replaceWith(...children);
       for (const child of children) {
-        if (child.type === "rule" || child.type === "atrule") rewriteRule(child, state, label);
+        if (child.type === "rule") rewriteNestedRule(child, state, label);
+        else if (child.type === "atrule") rewriteNestedAtRule(child, state, label);
       }
       state.notes.push(
         `${label} uses @layer; layer semantics are not preserved on the canvas, but its rules are applied.`,
@@ -300,28 +301,117 @@ function tokenizeSelector(
 }
 
 /**
+ * Keep a bounded subset of native CSS nesting whose subject cannot leave the
+ * scoped parent. A descendant may select its siblings, but the parent itself
+ * may not: it can be the canvas root. Embedded/functional & forms need a fuller
+ * selector analysis and are deliberately not made forgiving or reinterpreted.
+ */
+function nestedSelectorList(selector: string): string[] | undefined {
+  // The lightweight tokenizer does not model CSS escapes, comments, or column
+  // combinators. Refuse them here instead of misclassifying a nesting boundary.
+  if (/\\|\/\*|\*\/|\|\|/.test(selector)) return undefined;
+  const selectors: string[] = [];
+  const brackets: string[] = [];
+  let quote = "";
+  let start = 0;
+  for (let index = 0; index < selector.length; index += 1) {
+    const character = selector[index];
+    if (quote) {
+      if (character === quote) quote = "";
+    } else if (character === '"' || character === "'") {
+      quote = character;
+    } else if (character === "(" || character === "[") {
+      brackets.push(character);
+    } else if (character === ")" || character === "]") {
+      if (brackets.pop() !== (character === ")" ? "(" : "[")) return undefined;
+    } else if (character === "," && brackets.length === 0) {
+      const part = selector.slice(start, index).trim();
+      if (!part) return undefined;
+      selectors.push(part);
+      start = index + 1;
+    }
+  }
+  const last = selector.slice(start).trim();
+  if (quote || brackets.length || !last) return undefined;
+  selectors.push(last);
+  return selectors;
+}
+
+function isContainedNestedSelector(selector: string): boolean {
+  const trimmed = selector.trim();
+  const ampersands = trimmed.match(/&/g)?.length ?? 0;
+  if (ampersands > 1 || (ampersands === 1 && !trimmed.startsWith("&"))) return false;
+  const tokens = tokenizeSelector(ampersands ? trimmed : `& ${trimmed}`);
+  if (
+    !tokens ||
+    !tokens.compounds[0].startsWith("&") ||
+    (tokens.compounds[0].length > 1 && !/^[.#:[]/.test(tokens.compounds[0].slice(1))) ||
+    tokens.combinators.some((combinator) => ![" ", ">", "+", "~"].includes(combinator))
+  )
+    return false;
+  return tokens.combinators[0] !== "+" && tokens.combinators[0] !== "~";
+}
+
+function rewriteNestedRule(rule: Rule, state: ScopeState, label: string): void {
+  const raw = rule.raws.selector;
+  const selector = raw?.value === rule.selector ? raw.raw : rule.selector;
+  const selectors = nestedSelectorList(selector);
+  if (!selectors || selectors.some((selector) => !isContainedNestedSelector(selector))) {
+    state.notes.push(
+      `${label} nested selector "${selector}" is outside the supported canvas-safe nesting subset and was not applied.`,
+    );
+    // Drop the whole list, rather than making a previously invalid selector
+    // list valid by salvaging its other branches.
+    rule.remove();
+    return;
+  }
+  rewriteRule(rule, state, label);
+}
+
+/**
  * Scope one selector to the canvas. html, body, and :root map to the canvas
  * root; anything else becomes a descendant. Returns undefined when the selector
  * could still reach elements outside the canvas, which the caller drops.
  */
-function scopeSelector(selector: string, scope: string): string | undefined {
+function scopeSelector(selector: string, state: ScopeState, label: string): string | undefined {
+  const { scope } = state;
   const tokenized = tokenizeSelector(selector);
   if (!tokenized) return `.${scope} ${selector.trim()}`;
   const { compounds, combinators } = tokenized;
   let consumed = 0;
   let mapped = "";
+  const roots: string[] = [];
+  let suffix = "";
   while (consumed < compounds.length) {
     const match = compounds[consumed].match(rootCompound);
     const rest = match ? match[2] : "";
     if (!match || (rest !== "" && !/^[.:[]/.test(rest))) break;
     mapped = `.${scope}${rest}`;
+    roots.push(match[1].toLowerCase());
+    suffix = rest;
     consumed += 1;
   }
   if (consumed === 0) return `.${scope} ${selector.trim()}`;
-  if (consumed === compounds.length) return mapped;
   // A sibling of the canvas root lives on the host page, outside this canvas.
   const combinator = combinators[consumed - 1];
-  if (combinator === "+" || combinator === "~") return undefined;
+  if (consumed < compounds.length && (combinator === "+" || combinator === "~")) return undefined;
+  const simpleBodyChain =
+    consumed === 2 &&
+    /^(html|:root)$/i.test(compounds[0]) &&
+    roots[1] === "body" &&
+    (combinators[0] === " " || combinators[0] === ">");
+  if (consumed === 1 || simpleBodyChain) {
+    // Every ordinary selector gains one scope class. Retain the consumed root
+    // tokens' specificity as well, without adding matches: :is(token, *) is
+    // always true. Keep authored suffixes OUTSIDE the forgiving function so
+    // pseudo-elements and invalid selectors retain their existing behavior.
+    mapped = `.${scope}${roots.map((root) => `:is(${root}, *)`).join("")}${suffix}`;
+  } else {
+    state.notes.push(
+      `${label} root selector "${selector}" uses an unsupported html/body chain; its existing canvas mapping does not preserve specificity.`,
+    );
+  }
+  if (consumed === compounds.length) return mapped;
   const renderCombinator = (value: string) => (value === " " ? " " : ` ${value} `);
   const remainder = compounds
     .slice(consumed)
@@ -332,19 +422,29 @@ function scopeSelector(selector: string, scope: string): string | undefined {
   return mapped + remainder;
 }
 
-/** Only the ordinary MJML layout padding cell has a native canvas equivalent. */
+/**
+ * Only these exact MJML-generated padding cells have native equivalents.
+ * Background sections/wrappers add one div; full-width layouts add a different
+ * table hierarchy and deliberately receive neither of these renderer markers.
+ */
 function nativePaddingAlias(selector: string, scoped: string, scope: string): string | undefined {
   const tokens = tokenizeSelector(selector);
   if (
     !tokens ||
-    tokens.compounds.length !== 5 ||
     !/^\.[A-Za-z_][\w-]*$/.test(tokens.compounds[0]) ||
-    tokens.compounds.slice(1).join(" ").toLowerCase() !== "table tbody tr td" ||
     tokens.combinators.some((combinator) => combinator !== ">")
   )
     return undefined;
+  const chain = tokens.compounds.slice(1).join(" ").toLowerCase();
   const anchor = `.${scope} ${tokens.compounds[0]}`;
-  const target = `:where(${anchor}[data-pm-mjml-padding="self"], ${anchor}[data-pm-mjml-padding="child"] > [data-pm-mjml-padding-target])`;
+  let target: string;
+  if (chain === "table tbody tr td") {
+    target = `:where(${anchor}[data-pm-mjml-padding="self"], ${anchor}[data-pm-mjml-padding="child"] > [data-pm-mjml-padding-target])`;
+  } else if (chain === "div table tbody tr td") {
+    target = `:where(${anchor}[data-pm-mjml-padding="background"])`;
+  } else {
+    return undefined;
+  }
   // :is retains the original selector's specificity. The final :where limits
   // matches to renderer-owned targets, leaving authored table cells untouched.
   return `:is(${scoped}, ${target})${target}`;
@@ -374,7 +474,7 @@ function scopeRule(rule: Rule, state: ScopeState, label: string): void {
   const aliases: string[] = [];
   const imageAliases: string[] = [];
   for (const part of splitTopLevel(rule.selector, ",")) {
-    const selector = scopeSelector(part.trim(), state.scope);
+    const selector = scopeSelector(part.trim(), state, label);
     if (selector === undefined) {
       state.notes.push(
         `${label} selector "${part.trim()}" can match elements outside the canvas and was not applied.`,

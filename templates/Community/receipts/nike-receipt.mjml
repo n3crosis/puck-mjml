@@ -13,6 +13,9 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
       <mj-text padding="0px" />
     </mj-attributes>
     <mj-style>
+      body {
+        padding: 8px !important;
+      }
       p {
         margin: 0;
       }

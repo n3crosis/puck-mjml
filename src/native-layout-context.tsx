@@ -1,7 +1,11 @@
 import { createContext, useContext, useMemo, type CSSProperties, type ReactNode } from "react";
 import { createUsePuck, renderContext, type Data } from "@puckeditor/core";
 import type { EmailBlock } from "./types";
+import { useNativeDragPreviewBridge } from "./native-drag-preview";
 import type { NativeCanvasAttributes } from "./native-canvas-context";
+
+const NativeLayoutModeContext = createContext<"inline" | "flex">("inline");
+export const useNativeLayoutMode = () => useContext(NativeLayoutModeContext);
 
 const LayoutRootContext = createContext<Record<string, unknown> | undefined>(undefined);
 const LayoutDataContext = createContext(new Map<string, EmailBlock>());
@@ -40,10 +44,17 @@ function EditingLayoutData({ children }: { children: ReactNode }) {
 /** Public Puck data APIs keep sibling order current during editing and undo/redo. */
 export function NativeLayoutData({ editing, children }: { editing: boolean; children: ReactNode }) {
   const { data } = useContext(renderContext);
-  return editing ? (
-    <EditingLayoutData>{children}</EditingLayoutData>
-  ) : (
-    <LayoutData data={data}>{children}</LayoutData>
+  const bridge = useNativeDragPreviewBridge();
+  // Custom Puck editors keep the legacy flex interaction contract unless they
+  // opt into the synchronous public onAction bridge. Read-only Render needs none.
+  return (
+    <NativeLayoutModeContext.Provider value={editing && !bridge ? "flex" : "inline"}>
+      {editing ? (
+        <EditingLayoutData>{children}</EditingLayoutData>
+      ) : (
+        <LayoutData data={data}>{children}</LayoutData>
+      )}
+    </NativeLayoutModeContext.Provider>
   );
 }
 
@@ -93,7 +104,9 @@ export function layoutContentWidth(a: NativeCanvasAttributes, width: number): nu
 
 export function layoutWidth(width: string | undefined, parent: number, fallback: number): number {
   if (!width) return fallback;
-  return width.endsWith("%") ? (Number.parseFloat(width) * parent) / 100 : Number.parseFloat(width);
+  return width.endsWith("%")
+    ? (Number.parseFloat(width) * parent) / 100
+    : Number.parseInt(width, 10);
 }
 
 export function defaultLayoutWidth(scope: NativeLayoutScope): string {
@@ -119,6 +132,29 @@ export function ImplicitColumnWidth({ count, children }: { count: number; childr
   );
 }
 
+/** Pixel columns inside a group use percentages below the desktop breakpoint. */
+export function columnWidthStyle(
+  width: string,
+  scope: NativeLayoutScope,
+  automatic = false,
+): CSSProperties {
+  const percent = width.endsWith("%");
+  const desktop = percent ? width : `${Number.parseInt(width, 10)}px`;
+  return {
+    width: desktop,
+    "--pm-native-desktop-width": desktop,
+    ...(scope.grouped
+      ? {
+          "--pm-group-column-width": percent
+            ? automatic
+              ? `${Number.parseInt(width, 10)}%`
+              : width
+            : `${scope.width ? Number(((Number.parseInt(width, 10) / Math.trunc(scope.width)) * 100).toFixed(6)) : 0}%`,
+        }
+      : {}),
+  } as CSSProperties;
+}
+
 /** MJML 5 column gutters live outside the column's own box, in the width's unit. */
 export function columnGutter(
   a: NativeCanvasAttributes,
@@ -132,11 +168,16 @@ export function columnGutter(
   const nonRawCount = siblings.filter((entry) => !entry.raw).length || 1;
   const width = a.width || `${100 / nonRawCount}%`;
   const unit = width.endsWith("%") ? "%" : "px";
-  const sourceGutter = Number.parseFloat(scope.gutter) || 0;
+  // MJML truncates pixel gutters, but retains fractional percentage gutters.
+  const sourceGutter =
+    (scope.gutter.endsWith("%")
+      ? Number.parseFloat(scope.gutter)
+      : Number.parseInt(scope.gutter, 10)) || 0;
   const gutterPx = scope.gutter.endsWith("%") ? (sourceGutter * scope.width) / 100 : sourceGutter;
   const gutter = unit === "%" ? (gutterPx / scope.width) * 100 : gutterPx;
   const normalize = (value: number) => Number(value.toFixed(6));
-  const reduced = Math.max(0, normalize(Number.parseFloat(width) - (gutter * (count - 1)) / count));
+  const requestedWidth = unit === "%" ? Number.parseFloat(width) : Number.parseInt(width, 10);
+  const reduced = Math.max(0, normalize(requestedWidth - (gutter * (count - 1)) / count));
   const contentWidth =
     unit === "px"
       ? Math.floor(reduced) + (index < Math.round(count * (reduced - Math.floor(reduced))) ? 1 : 0)
@@ -150,8 +191,9 @@ export function columnGutter(
   const mobileHalf = normalize((gutterPx / scope.width) * 50);
   return {
     style: {
-      // flex-basis includes the outside gutter because canvas items use border-box.
-      flexBasis: `${normalize(contentWidth + left + right)}${unit}`,
+      // MJML's width excludes its outside gutter. Pixel group widths become
+      // percentages on mobile, while their outside pixel padding stays fixed.
+      ...columnWidthStyle(`${contentWidth}${unit}`, scope),
       padding: `0 ${normalize(right)}${unit} 0 ${normalize(left)}${unit}`,
       "--pm-gutter-mobile-padding": `${first ? 0 : mobileHalf}% 0 ${last ? 0 : mobileHalf}% 0`,
     } as CSSProperties,

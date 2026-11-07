@@ -12,6 +12,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-text padding="0px" />
     </mj-attributes>
     <mj-style>
+      body {
+        padding: 8px !important;
+      }
       p {
         margin: 0;
       }
@@ -95,6 +98,10 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
             a clarification, our enforcement standards and practices for this policy remain the
             same.</mj-text
           >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="16px 0px 0px 40px" css-class="google-play-exceptions">
+        <mj-column padding="0px">
           <mj-text
             padding="0px 0px 16px"
             font-size="14px"
@@ -109,6 +116,10 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
             factors and are bundled within the same package.
             <a href="https://notifications.google.com/">Learn more</a>
           </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding="16px 40px 0px" css-class="google-play-deadline">
+        <mj-column padding="0px">
           <mj-text padding="0px 0px 16px" font-size="14px" line-height="22px" color="#3c4043"
             >We're also extending the deadline to give you more time to adjust to these changes.
             Now, apps that target API level 29 or below will start experiencing reduced distribution
@@ -116,8 +127,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
             your app, you can request an extension to keep your app discoverable to all users until
             May 1, 2023.</mj-text
           >
-          <mj-divider border-color="#e8eaed" border-width="1px" padding="20px 0px" />
-          <mj-text padding="0px 0px 16px" font-size="14px" line-height="22px" color="#3c4043"
+          <mj-divider border-color="#e8eaed" border-width="1px" padding="4px 0px 20px" />
+          <mj-text padding="16px 0px 16px" font-size="14px" line-height="22px" color="#3c4043"
             >Thank you,</mj-text
           >
           <mj-text padding="0px 0px 16px" font-size="20px" line-height="22px" color="#3c4043"

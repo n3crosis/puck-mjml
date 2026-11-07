@@ -41,7 +41,7 @@ describe("host-approved Tailwind runtime", () => {
     expect(css).toContain("@keyframes pm-canvas-one-spin");
     expect(css).toContain("animation: pm-canvas-one-spin");
     expect(css).toContain("--animate-spin: pm-canvas-one-spin 1s");
-    expect(css).toContain(".pm-canvas-one { --color-red: red;");
+    expect(css).toContain(".pm-canvas-one:is(:root, *) { --color-red: red;");
   });
 });
 

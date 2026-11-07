@@ -44,6 +44,9 @@ Responsive adaptation: Keep the upstream desktop book/review row, but let it sta
       }
     </mj-style>
     <mj-style>
+      body {
+        padding: 8px !important;
+      }
       @media only screen and (max-width: 479px) {
         .amazon-review-copy > table > tbody > tr > td {
           padding-left: 0px !important;

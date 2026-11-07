@@ -1,0 +1,1695 @@
+{
+  "ref": "674d8ec2804b86be5d99156383fb1810179847bf",
+  "previewTimeZone": "UTC",
+  "templates": [
+    {
+      "file": "01-Barebone/activation.mjml",
+      "preview": "Confirm your email address",
+      "content": [
+        "Barebones",
+        "We're almost there!",
+        "Thank you for signing up for Barebones. To verify your account, we just need to confirm your email address.",
+        "Confirm email",
+        "If you didn't request this, please ignore this email.",
+        "Barebones is the catchy slogan that perfectly encapsulates the vision of our company.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Barebones marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-black.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "01-Barebone/feature-announcement.mjml",
+      "preview": "Release notes — Barebones",
+      "content": [
+        "Barebones",
+        "What's new from Barebones",
+        "Release Notes",
+        "Learn what's shipping this month, plus other Barebones updates below.",
+        "Hello feature. Goodbye old feature.",
+        "Ship updates in smaller, safer steps: clearer defaults, fewer clicks, and less context switching for your team.",
+        "Try it out",
+        "Hello feature. Goodbye old feature.",
+        "Ship updates in smaller, safer steps: clearer defaults, fewer clicks, and less context switching for your team.",
+        "Try it out",
+        "New ways to work",
+        "Automations that save real time",
+        "Bring your workflows into one place, cut manual handoffs, and give everyone the same source of truth.",
+        "A clearer view of what needs attention",
+        "Bring your workflows into one place, cut manual handoffs, and give everyone the same source of truth.",
+        "Hello feature. Goodbye old feature.",
+        "Ship updates in smaller, safer steps: clearer defaults, fewer clicks, and less context switching for your team.",
+        "Try it out",
+        "Start using Barebones The fastest, easiest way to use Barebones.",
+        "Go to Dashboard",
+        "Barebones is the catchy slogan that perfectly encapsulates the vision of our company.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Barebones marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-black.png",
+        "https://demo.react.email/static/barebones/barebones-image.png",
+        "https://demo.react.email/static/barebones/barebones-image-3.png",
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "01-Barebone/password-reset.mjml",
+      "preview": "Reset your password",
+      "content": [
+        "Barebones",
+        "Reset your password",
+        "Someone has requested a link to change your password, and you can do this through the link below.",
+        "Change password",
+        "If you didn't request this, please ignore this email. Your password won't change until you access the link above and create a new one.",
+        "Barebones is the catchy slogan that perfectly encapsulates the vision of our company.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Barebones marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-black.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "01-Barebone/product-update.mjml",
+      "preview": "Product update: what's new at Barebones",
+      "content": [
+        "Barebones",
+        "Product update",
+        "Here's what's new with Barebones",
+        "We shipped a new release with improvements to help you move faster and stay in sync. Open the dashboard to explore the full changelog.",
+        "View in dashboard",
+        "Starting is easy",
+        "1",
+        "Review the highlights",
+        "Skim what's new and jump straight to the features that matter for your team.",
+        "2",
+        "Try it when you're ready",
+        "Turn on new options on your timeline—no forced migration or downtime for your workflow.",
+        "3",
+        "Share with your team",
+        "Invite teammates so everyone sees the same improvements and clear next steps.",
+        "Explore updates",
+        "Some new things",
+        "Quality-of-life fixes",
+        "Expect faster load times, clearer status, and fewer clicks for everyday tasks. We also tightened the spots where teams tend to get stuck.",
+        "Under the hood",
+        "Expect faster load times, clearer status, and fewer clicks for everyday tasks. We also tightened the spots where teams tend to get stuck.",
+        "Explore updates",
+        "Some new things",
+        "Workflow improvements",
+        "Built for teams who need reliability at scale: clearer behavior, better defaults, and less back-and-forth to get work done.",
+        "Reporting & visibility",
+        "Built for teams who need reliability at scale: clearer behavior, better defaults, and less back-and-forth to get work done.",
+        "API & integrations",
+        "Built for teams who need reliability at scale: clearer behavior, better defaults, and less back-and-forth to get work done.",
+        "Some new things",
+        " ",
+        "These updates roll out gradually. Check your workspace to see what's available to you today.",
+        " ",
+        "These updates roll out gradually. Check your workspace to see what's available to you today.",
+        " ",
+        "These updates roll out gradually. Check your workspace to see what's available to you today.",
+        " ",
+        "These updates roll out gradually. Check your workspace to see what's available to you today.",
+        "Explore updates",
+        "Get the app. The fastest, easiest way to use Barebones.",
+        "App Store",
+        "Google Play",
+        "Barebones is the catchy slogan that perfectly encapsulates the vision of our company.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Barebones marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-black.png",
+        "https://demo.react.email/static/barebones/barebones-image.png",
+        "https://demo.react.email/static/barebones/barebones-image-2.png",
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "01-Barebone/subscription-confirmation.mjml",
+      "preview": "You're subscribed to Barebones Pro",
+      "content": [
+        "Barebones",
+        "You're subscribed",
+        "Hi Alex,  Thank you for subscribing to Barebones Pro. Your subscription is active—you now have access to everything included in your plan.",
+        "You're billed $29 per month. Your next charge is on April 22, 2026. You can update payment details or cancel anytime from your account.",
+        "Manage subscription",
+        "Questions about billing or your plan? Reply to this email—we're happy to help.",
+        "Barebones is the catchy slogan that perfectly encapsulates the vision of our company.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Barebones marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-black.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "01-Barebone/subscription-update.mjml",
+      "preview": "Your Barebones Pro subscription was updated",
+      "content": [
+        "Barebones",
+        "Your plan was updated",
+        "Hi Alex,  Your Barebones subscription has been updated. Here's a summary of your current plan and billing.",
+        "You're on Barebones Pro at $29 per month. Your next charge is on April 22, 2026. You can review invoices, update payment details, or change your plan from your account settings.",
+        "Manage subscription",
+        "Something look off? Reply to this email and we'll help sort it out.",
+        "Barebones is the catchy slogan that perfectly encapsulates the vision of our company.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Barebones marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-black.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "01-Barebone/text-only.mjml",
+      "preview": "A note from Barebones",
+      "content": [
+        "Barebones",
+        "A quick note from Barebones",
+        "This is the text-only layout: no hero image and no primary call-to-action. Use it for concise product notes, receipts, account updates, and other plain-language emails where the message should stay front and center.",
+        "Keep paragraphs short and focused so the content is easy to scan on mobile. If you need richer visuals or a conversion button, switch to another collage template.",
+        "Replace this placeholder copy by editing this template file directly.",
+        "Open your account",
+        "Thanks, The Barebones Team",
+        "Barebones is the catchy slogan that perfectly encapsulates the vision of our company.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Barebones marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-black.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "01-Barebone/welcome.mjml",
+      "preview": "Welcome aboard—Barebones",
+      "content": [
+        "Barebones",
+        "Thanks for joining us",
+        "Welcome to Barebones",
+        "You're all set. Open your dashboard to explore the basics, connect a few tools, and invite your team when you're ready.",
+        "Getting started",
+        "",
+        "Bring your team, tools, and workflows together in one place—with permissions that match how you work.",
+        "",
+        "Bring your team, tools, and workflows together in one place—with permissions that match how you work.",
+        "",
+        "Bring your team, tools, and workflows together in one place—with permissions that match how you work.",
+        "",
+        "Bring your team, tools, and workflows together in one place—with permissions that match how you work.",
+        "Open dashboard",
+        "Some new things",
+        "Team workspaces",
+        "Roles, guests, and access levels so the right people see the right work—without extra admin overhead.",
+        "Connect your stack",
+        "Plug in the apps your team already uses and keep updates flowing without jumping between tabs.",
+        "Explore features",
+        "Start using Barebones The fastest, easiest way to use Barebones.",
+        "Go to Dashboard",
+        "Barebones is the catchy slogan that perfectly encapsulates the vision of our company.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Barebones marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-black.png",
+        "https://demo.react.email/static/barebones/barebones-image.png",
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "02-Matte/activation.mjml",
+      "preview": "Confirm your email address",
+      "content": [
+        "Almost there",
+        "Thank you for signing up for Collage",
+        "To verify your account, we just need to confirm your email",
+        "Confirm Email",
+        "If you didn't create an account, you can safely ignore this email.",
+        "Collage is the workspace where your team keeps projects, context, and updates together—from first idea to launch.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Collage marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/collage/collage-image-1.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "02-Matte/feature-announcement.mjml",
+      "preview": "Something new is live in Collage",
+      "content": [
+        "Meet your next favorite feature",
+        "We're rolling out an update that makes Collage faster, clearer, and easier to use every day.",
+        "It's available now—open Collage to try it, or read on for what changed and why it matters.",
+        "Try it now",
+        "One workspace for the whole picture",
+        "Bring briefs, files, feedback, and status into Collage so your team spends less time chasing context across tools.",
+        "See what's new →",
+        "Faster by default",
+        "The new flow cuts steps in half so your team can publish changes without bouncing between screens.",
+        "See how it works →",
+        "Clearer for everyone",
+        "Permissions and activity are easier to read, so admins spend less time answering who changed this.",
+        "View the details →",
+        "Built from real feedback",
+        "Teams told us where Collage felt slow or opaque. This release tightens those loops so you spend less time coordinating and more time shipping.",
+        "Highlights from this release:",
+        "One place to review",
+        "A single summary screen shows status, owners, and next steps for each release.",
+        "Smarter notifications",
+        "You only get pinged when something needs your attention—not on every edit.",
+        "Works with your stack",
+        "Connects to the tools you already use so context stays in sync across teams.",
+        "Collage is the workspace where your team keeps projects, context, and updates together—from first idea to launch.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Collage marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/collage/collage-image-5.png",
+        "https://demo.react.email/static/collage/collage-image-6.png",
+        "https://demo.react.email/static/collage/collage-image-7.png",
+        "https://demo.react.email/static/collage/collage-image-9.png",
+        "https://demo.react.email/static/collage/collage-image-4.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "02-Matte/password-reset.mjml",
+      "preview": "Reset your password",
+      "content": [
+        "Reset your password",
+        "Someone requested a password reset for your Collage account. Use the button below to choose a new password.",
+        "Change password",
+        "If you didn't request this, please ignore this email. Your password won't change until you access the link above and create a new one.",
+        "Collage is the workspace where your team keeps projects, context, and updates together—from first idea to launch.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Collage marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/collage/collage-image-2.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "02-Matte/product-update.mjml",
+      "preview": "Your monthly Collage product updates",
+      "content": [
+        "Monthly roundup",
+        "Here's what shipped this month across Collage.",
+        "We focused on speed, collaboration, and control to help your team move from idea to launch faster.",
+        "Explore",
+        "Smarter Search",
+        "Search results are now grouped by intent and ranked by relevance, so teams find the right content faster.",
+        "Shared Workspaces",
+        "You can now organize projects into shared workspaces with clearer ownership and cleaner handoffs.",
+        "Something to be proud of",
+        "From quality-of-life fixes to major workflow improvements, this release is built around feedback from teams using Collage every day.",
+        "Here's the newest from the month:",
+        "New Help Center",
+        "A faster docs experience with guided setup, troubleshooting paths, and deeper API references.",
+        "Permissions",
+        "Granular role controls let admins manage access by workspace, project, and action.",
+        "New Discovery Tools",
+        "Saved views and smart filters make it easier to surface new ideas and high-signal activity.",
+        "Jump back into Collage",
+        "You're all set—open Collage to explore what's new and keep projects moving.",
+        "Open Collage",
+        "Collage is the workspace where your team keeps projects, context, and updates together—from first idea to launch.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Collage marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/collage/collage-image-5.png",
+        "https://demo.react.email/static/collage/collage-image-6.png",
+        "https://demo.react.email/static/collage/collage-image-7.png",
+        "https://demo.react.email/static/collage/collage-image-9.png",
+        "https://demo.react.email/static/collage/collage-image-8.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "02-Matte/subscription-confirmation.mjml",
+      "preview": "You're subscribed to Collage Pro",
+      "content": [
+        "Subscription confirmed",
+        "Hi Alex, thanks for subscribing to the Pro plan with Collage. Your subscription is active and you have access to everything included in your plan.",
+        "You're billed $29 per month. Your next charge is on April 22, 2026. You can update payment details or cancel anytime from your account.",
+        "Questions about billing or your plan? Reply to this email and we're happy to help.",
+        "Subtotal",
+        "$29.00",
+        "Tax",
+        "$0.00",
+        "Total",
+        "$29.00",
+        "Manage subscription",
+        "Get started",
+        "Set up your workspace",
+        "Complete the basics to get the most out of your account.",
+        "Invite your team",
+        "Collaboration works best when everyone's in.",
+        "Need help?",
+        "Find guides, tips, and best practices anytime, visit our Help Center.",
+        "Collage is the workspace where your team keeps projects, context, and updates together—from first idea to launch.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Collage marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/collage/collage-image-2.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "02-Matte/subscription-update.mjml",
+      "preview": "Your Collage plan renewed (Pro)",
+      "content": [
+        "Plan renewed",
+        "Hi Alex. Your Collage subscription renewed for another month. Here's a quick summary of your plan and billing.",
+        "You're on the Pro plan at $29 per month. Your next charge is on April 22, 2026. Review invoices, update payment details, or change plans anytime in your account.",
+        "Something look off? Reply to this email and we'll help sort it out.",
+        "Manage subscription",
+        "Collage is the workspace where your team keeps projects, context, and updates together—from first idea to launch.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Collage marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/collage/collage-image-2.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "02-Matte/text-only.mjml",
+      "preview": "A short note from the Collage team",
+      "content": [
+        "A note from us",
+        "We don't send long emails often—when we do, we want them to feel direct. No hero image, no noise: just a quick word from the team behind Collage.",
+        "We're building Collage so your team can keep projects, context, and updates in one place. If you've been in the product lately, thank you—what we hear from you shapes what we ship next.",
+        "Here's to fewer tabs and clearer handoffs. When you're ready to dive back in, we'll be there.",
+        "— The Collage team",
+        "Open your workspace",
+        "Collage is the workspace where your team keeps projects, context, and updates together—from first idea to launch.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Collage marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "02-Matte/welcome.mjml",
+      "preview": "Welcome to Collage",
+      "content": [
+        "Welcome to Collage",
+        "Thank you for signing up for Collage.",
+        "You're all set—explore what's new and get your first project going.",
+        "Explore",
+        "Your first week in Collage",
+        "Small steps add up. Use this short checklist to get comfortable—everything here is optional, but it helps you feel at home faster.",
+        "Here's what to try first:",
+        "Complete your profile",
+        "Add a photo and a short bio so teammates recognize you in comments and mentions.",
+        "Turn on notifications",
+        "Choose email or in-app alerts so you never miss a review request or deadline.",
+        "Browse templates",
+        "Starter layouts and snippets help your team ship polished work without reinventing the wheel.",
+        "Collage is the workspace where your team keeps projects, context, and updates together—from first idea to launch.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Collage marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/collage/collage-image-5.png",
+        "https://demo.react.email/static/collage/collage-image-9.png",
+        "https://demo.react.email/static/collage/collage-image-4.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "03-Protocol/activation.mjml",
+      "preview": "Confirm your email address",
+      "content": [
+        "almost there",
+        "Thank you for signing up for Dither.",
+        "To verify your account, we just need to confirm your email.",
+        "If you didn't create an account, you can safely ignore this email.",
+        "Confirm Email",
+        "Dither helps teams cut through noise—clear priorities, fewer tabs, and less busywork from idea to shipped work.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Dither marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/dither/dither-image-1.png",
+        "https://demo.react.email/static/shared/social-x-white.png",
+        "https://demo.react.email/static/shared/social-li-white.png",
+        "https://demo.react.email/static/shared/social-yt-white.png",
+        "https://demo.react.email/static/shared/social-gh-white.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "03-Protocol/feature-announcement.mjml",
+      "preview": "Meet Smart Tasks",
+      "content": [
+        "Meet a new way to manage work",
+        "Introducing Smart Tasks: a calmer way to organize work, surface what matters next, and keep your team aligned without the noise.",
+        "Explore Smart Tasks",
+        "Meet smart tasks",
+        "Auto-prioritization",
+        "All your tasks for the week are surfaced based on urgency and impact.",
+        "Less manual work",
+        "Fewer status updates, more automated work.",
+        "Clear focus",
+        "Always know what to do next—less thrash, more momentum.",
+        "Better alignment",
+        "Your team stays in sync automatically.",
+        "Smart Tasks analyzes your projects in real time and helps organize your workload automatically. As things change, your task list updates so you're always focused on what matters most.",
+        "\"Smart Tasks helps me know what to do next without thinking about it.\"",
+        "Alex, Product Designer at Studio",
+        "Try smart tasks",
+        "See how much easier work can be.",
+        "Explore Smart Tasks",
+        "Need help?",
+        "Find guides, tips, and best practices anytime, visit our Help Center.",
+        "Dither helps teams cut through noise—clear priorities, fewer tabs, and less busywork from idea to shipped work.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Dither marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/dither/dither-image-2.png",
+        "https://demo.react.email/static/shared/social-x-white.png",
+        "https://demo.react.email/static/shared/social-li-white.png",
+        "https://demo.react.email/static/shared/social-yt-white.png",
+        "https://demo.react.email/static/shared/social-gh-white.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "03-Protocol/password-reset.mjml",
+      "preview": "Reset your password",
+      "content": [
+        "password reset",
+        "We received a request to reset your password for Dither.",
+        "If you didn't request a reset, you can safely ignore this email.",
+        "Create New Password",
+        "Dither helps teams cut through noise—clear priorities, fewer tabs, and less busywork from idea to shipped work.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Dither marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/shared/social-x-white.png",
+        "https://demo.react.email/static/shared/social-li-white.png",
+        "https://demo.react.email/static/shared/social-yt-white.png",
+        "https://demo.react.email/static/shared/social-gh-white.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "03-Protocol/product-update.mjml",
+      "preview": "What's new in Dither",
+      "content": [
+        "THE WORK BEHIND THE WORK",
+        "Here from the Dither team.",
+        "This month was about making Dither feel smoother, faster, and easier to use in everyday work.",
+        "We shipped new features, improved key workflows, and made small but meaningful updates that reduce friction across the product.",
+        "A lot of our focus was on simplifying actions, improving performance, and responding to feedback from teams using the product day to day.",
+        "We're continuing to shape Dither around real workflows—not just features—so everything feels more connected and effortless over time.",
+        "WE LAUNCHED SMART TASKS",
+        "Auto-prioritization",
+        "All your tasks for the week are surfaced based on urgency and impact.",
+        "Smart Tasks analyzes your projects in real time and helps organize your workload automatically. As things change, your task list updates so you're always focused on what matters most.",
+        "READ MORE ON OUR BLOG",
+        "Less manual work",
+        "Fewer status updates, more automated work.",
+        "Less manual work",
+        "Fewer status updates, more automated work.",
+        "Need help?",
+        "Find guides, tips, and best practices anytime, visit our Help Center.",
+        "Dither helps teams cut through noise—clear priorities, fewer tabs, and less busywork from idea to shipped work.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Dither marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/dither/dither-image-6.png",
+        "https://demo.react.email/static/dither/dither-image-7.png",
+        "https://demo.react.email/static/dither/dither-image-4.png",
+        "https://demo.react.email/static/dither/dither-image-5.png",
+        "https://demo.react.email/static/shared/social-x-white.png",
+        "https://demo.react.email/static/shared/social-li-white.png",
+        "https://demo.react.email/static/shared/social-yt-white.png",
+        "https://demo.react.email/static/shared/social-gh-white.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "03-Protocol/subscription-confirmation.mjml",
+      "preview": "You're on Pro with Dither",
+      "content": [
+        "welcome to Pro",
+        "Thanks for starting your Pro subscription, Alex.",
+        "Your payment method has been charged. The next charge will be on April 22, 2026.",
+        "You can modify your payment method or cancel your subscription anytime by visiting the Dither billing settings page.",
+        "Open Dither",
+        "Get started",
+        "Set up your workspace",
+        "Complete the basics to get the most out of your account.",
+        "Invite your team",
+        "Collaboration works best when everyone's in.",
+        "Need help?",
+        "Find guides, tips, and best practices anytime, visit our Help Center.",
+        "Dither helps teams cut through noise—clear priorities, fewer tabs, and less busywork from idea to shipped work.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Dither marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/dither/dither-image-1.png",
+        "https://demo.react.email/static/shared/social-x-white.png",
+        "https://demo.react.email/static/shared/social-li-white.png",
+        "https://demo.react.email/static/shared/social-yt-white.png",
+        "https://demo.react.email/static/shared/social-gh-white.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "03-Protocol/subscription-update.mjml",
+      "preview": "Your Pro plan with Dither renewed",
+      "content": [
+        "Plan renewed",
+        "Hi Name Surname, your subscription has been renewed.",
+        "Your payment method has been charged. The next charge will be on Jun 15, 2026. You can modify your payment method or cancel your subscription anytime by visiting the Dither billing settings page.",
+        "Manage subscription",
+        "Dither helps teams cut through noise—clear priorities, fewer tabs, and less busywork from idea to shipped work.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Dither marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/shared/social-x-white.png",
+        "https://demo.react.email/static/shared/social-li-white.png",
+        "https://demo.react.email/static/shared/social-yt-white.png",
+        "https://demo.react.email/static/shared/social-gh-white.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "03-Protocol/text-only.mjml",
+      "preview": "A short note from the Dither team",
+      "content": [
+        "A note from us",
+        "We don't send long emails often. When we do, we keep them plain—no hero, no clutter—just a direct word from the team behind Dither.",
+        "We're building Dither so your team can see what matters, drop what doesn't, and ship without living in fifteen tabs. If you've been in the product lately, thank you—your feedback sharpens what we ship next.",
+        "Here's to clearer priorities and less noise. When you're ready to jump back in, we'll be there.",
+        "— The Dither team",
+        "Open Dither",
+        "Dither helps teams cut through noise—clear priorities, fewer tabs, and less busywork from idea to shipped work.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Dither marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/shared/social-x-white.png",
+        "https://demo.react.email/static/shared/social-li-white.png",
+        "https://demo.react.email/static/shared/social-yt-white.png",
+        "https://demo.react.email/static/shared/social-gh-white.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "03-Protocol/welcome.mjml",
+      "preview": "Welcome to Dither",
+      "content": [
+        "Welcome to Dither",
+        "You can start exploring right away, set up your workspace, and invite your team if you're working with others.",
+        "If you need help getting started, we've got you covered. Find guides, tips, and best practices anytime, visit our Help Center.",
+        "Get started",
+        "Set up your workspace",
+        "Complete the basics to get the most out of your account.",
+        "Invite your team",
+        "Collaboration works best when everyone's in.",
+        "Need help?",
+        "Find guides, tips, and best practices anytime, visit our Help Center.",
+        "Dither helps teams cut through noise—clear priorities, fewer tabs, and less busywork from idea to shipped work.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Dither marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/dither/dither-image-1.png",
+        "https://demo.react.email/static/shared/social-x-white.png",
+        "https://demo.react.email/static/shared/social-li-white.png",
+        "https://demo.react.email/static/shared/social-yt-white.png",
+        "https://demo.react.email/static/shared/social-gh-white.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "04-Arcane/abandoned-cart.mjml",
+      "preview": "Your Skin cart is waiting",
+      "content": [
+        "Pick up where you left off",
+        "Your cart still holds these formulas—checkout soon before limited stock or your hold window expires.",
+        "Daily C Serum",
+        "Brightening daytime serum—still in your cart. Finish checkout before we release the inventory hold.",
+        "$99",
+        "Overnight Repair Cream",
+        "Pairs with your morning serum for AM/PM balance. Limited batches move fast on restocks.",
+        "$99",
+        "Don’t take it from us",
+        "Join us on the journey",
+        "There's more ahead—new drops, member perks, and restock alerts. Explore what's new and stay in the loop while your cart is on hold.",
+        "Skin crafts thoughtful skincare—barrier-first formulas, honest labels, and routines you'll actually keep.",
+        "124 Mercantile Row, Studio 3 Los Angeles, CA, 90013",
+        "Unsubscribe from Skin marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/skin/skin-image-2.png",
+        "https://demo.react.email/static/skin/skin-image-3.png",
+        "https://demo.react.email/static/skin/social-x.png",
+        "https://demo.react.email/static/skin/social-li.png",
+        "https://demo.react.email/static/skin/social-yt.png",
+        "https://demo.react.email/static/skin/social-gh.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "04-Arcane/activation.mjml",
+      "preview": "Confirm your email address",
+      "content": [
+        "Almost there",
+        "Thank you for signing up for Skin.",
+        "To verify your account, we just need to confirm your email.",
+        "If you didn't create an account with Skin, you can ignore this email—your inbox won't be added to our list.",
+        "Skin crafts thoughtful skincare—barrier-first formulas, honest labels, and routines you'll actually keep.",
+        "124 Mercantile Row, Studio 3 Los Angeles, CA, 90013",
+        "Unsubscribe from Skin marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/skin/skin-image-1.png",
+        "https://demo.react.email/static/skin/social-x.png",
+        "https://demo.react.email/static/skin/social-li.png",
+        "https://demo.react.email/static/skin/social-yt.png",
+        "https://demo.react.email/static/skin/social-gh.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "04-Arcane/newsletter.mjml",
+      "preview": "The latest from Skin",
+      "content": [
+        "Newsletter",
+        "Hi there,",
+        "We're glad you're here. This is where we share routine notes, ingredient spotlights, and first word on drops—plus the occasional restock alert before shelves clear.",
+        "No inbox clutter—just emails when we have something worth your time. Thanks for letting us sit next to your morning serum and your evening wind-down.",
+        "Thanks for reading,   The Skin team",
+        "Tips and resources",
+        "1",
+        "Start with a patch test",
+        "Try new textures on a small area first, especially if you're rotating in actives or seasonal formulas.",
+        "2",
+        "Layer for your climate",
+        "Humidity, cold snaps, and travel all change how skin drinks product layers in heat, richer barriers when it's dry.",
+        "3",
+        "Track what works",
+        "Note how your skin feels after AM and PM routines so you can double down on what actually moves the needle.",
+        "“Shopping with Skin finally made my counter feel calm—every product earns its spot, and my skin stays predictable through travel and stress.”",
+        "Alex Morgan",
+        "Member since 2024",
+        "Most members say one or two routine swaps moved the needle more than a dozen impulse buys.",
+        "Peek behind the formulas—short guides, founder notes, and community answers so you shop for your skin, not the algorithm.",
+        "Skin crafts thoughtful skincare—barrier-first formulas, honest labels, and routines you'll actually keep.",
+        "124 Mercantile Row, Studio 3 Los Angeles, CA, 90013",
+        "Unsubscribe from Skin marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/skin/skin-image-4.png",
+        "https://demo.react.email/static/skin/skin-image-5.png",
+        "https://demo.react.email/static/skin/social-x.png",
+        "https://demo.react.email/static/skin/social-li.png",
+        "https://demo.react.email/static/skin/social-yt.png",
+        "https://demo.react.email/static/skin/social-gh.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "04-Arcane/order-confirmation.mjml",
+      "preview": "Your Skin order #1234567890 is confirmed",
+      "content": [
+        "Your order has been placed",
+        "Your order #1234567890 has been confirmed!",
+        "We'll send tracking as soon as your parcel leaves our studio, usually within one business day.",
+        "Daily C Serum",
+        "x1",
+        "Overnight Repair Cream",
+        "x1",
+        "Subtotal",
+        "$198.00",
+        "Tax",
+        "$16.00",
+        "Shipping",
+        "$0.00",
+        "Total",
+        "$214.00",
+        "Skin crafts thoughtful skincare—barrier-first formulas, honest labels, and routines you'll actually keep.",
+        "124 Mercantile Row, Studio 3 Los Angeles, CA, 90013",
+        "Unsubscribe from Skin marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/skin/skin-image-2.png",
+        "https://demo.react.email/static/skin/skin-image-3.png",
+        "https://demo.react.email/static/skin/social-x.png",
+        "https://demo.react.email/static/skin/social-li.png",
+        "https://demo.react.email/static/skin/social-yt.png",
+        "https://demo.react.email/static/skin/social-gh.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "04-Arcane/order-shipping.mjml",
+      "preview": "Your Skin order #1234567890 has shipped",
+      "content": [
+        "Your order has shipped",
+        "Order #1234567890 is on the way.",
+        "Track your shipment below, we'll email if the carrier reroutes or weather slows delivery.",
+        "Daily C Serum",
+        "x1",
+        "Overnight Repair Cream",
+        "x1",
+        "Common questions",
+        "Need to change ship date?",
+        "Sending to a new address?",
+        "Skin crafts thoughtful skincare—barrier-first formulas, honest labels, and routines you'll actually keep.",
+        "124 Mercantile Row, Studio 3 Los Angeles, CA, 90013",
+        "Unsubscribe from Skin marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/skin/skin-image-2.png",
+        "https://demo.react.email/static/skin/skin-image-3.png",
+        "https://demo.react.email/static/skin/social-x.png",
+        "https://demo.react.email/static/skin/social-li.png",
+        "https://demo.react.email/static/skin/social-yt.png",
+        "https://demo.react.email/static/skin/social-gh.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "04-Arcane/password-reset.mjml",
+      "preview": "Reset your password",
+      "content": [
+        "Reset your Password",
+        "We received a request to reset your password for Skin.",
+        "Use the link below to choose a new password. If you didn't request this, you can ignore this email.",
+        "Skin crafts thoughtful skincare—barrier-first formulas, honest labels, and routines you'll actually keep.",
+        "124 Mercantile Row, Studio 3 Los Angeles, CA, 90013",
+        "Unsubscribe from Skin marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/skin/social-x.png",
+        "https://demo.react.email/static/skin/social-li.png",
+        "https://demo.react.email/static/skin/social-yt.png",
+        "https://demo.react.email/static/skin/social-gh.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "04-Arcane/promo.mjml",
+      "preview": "Your Skin promo code",
+      "content": [
+        "Use code",
+        "SKIN15",
+        "Some new things",
+        "Bright morning serum",
+        "Stabilized vitamin C and humectants to wake up dull skin—smooth after cleansing, lock in with SPF for daytime.",
+        "Barrier night cream",
+        "Ceramides and peptides support overnight recovery when skin feels tight, flushed, or stressed by city air.",
+        "Join us on the journey",
+        "There's more ahead—new drops, member perks, and restock alerts. Explore what's new and stay in the loop while your cart is on hold.",
+        "Skin crafts thoughtful skincare—barrier-first formulas, honest labels, and routines you'll actually keep.",
+        "124 Mercantile Row, Studio 3 Los Angeles, CA, 90013",
+        "Unsubscribe from Skin marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/skin/skin-image-6.png",
+        "https://demo.react.email/static/skin/skin-image-7.png",
+        "https://demo.react.email/static/skin/social-x.png",
+        "https://demo.react.email/static/skin/social-li.png",
+        "https://demo.react.email/static/skin/social-yt.png",
+        "https://demo.react.email/static/skin/social-gh.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "04-Arcane/welcome.mjml",
+      "preview": "Welcome to Skin",
+      "content": [
+        "Welcome",
+        "Thank you for joining Skin. Your shelf just got a little smarter.",
+        "Unlock member perks, restock alerts, and checkout that remembers your routine.",
+        "Some new things",
+        "Build your ritual",
+        "Layer textures and finishes that match your routine—morning calm, evening wind-down, or both.",
+        "Restocks & drops",
+        "Members hear first when favorites return and limited runs go live—stay in the loop from day one.",
+        "Join us on the journey",
+        "There's more ahead—new drops, member perks, and restock alerts. Explore what's new and stay in the loop while your cart is on hold.",
+        "Skin crafts thoughtful skincare—barrier-first formulas, honest labels, and routines you'll actually keep.",
+        "124 Mercantile Row, Studio 3 Los Angeles, CA, 90013",
+        "Unsubscribe from Skin marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/shared/logo-white.png",
+        "https://demo.react.email/static/skin/skin-image-1.png",
+        "https://demo.react.email/static/skin/skin-image-6.png",
+        "https://demo.react.email/static/skin/skin-image-7.png",
+        "https://demo.react.email/static/skin/social-x.png",
+        "https://demo.react.email/static/skin/social-li.png",
+        "https://demo.react.email/static/skin/social-yt.png",
+        "https://demo.react.email/static/skin/social-gh.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "05-Studio/abandoned-cart.mjml",
+      "preview": "Your Halo ring cart is waiting",
+      "content": [
+        "Pick up where   you left off",
+        "Your cart still holds your Halo ring—we saved your size and finish. Check out soon before inventory shifts or your hold window expires.",
+        "Return to cart",
+        "Halo Ring 1",
+        "x1",
+        "Don't take it from us",
+        "★★★★★",
+        "“It's wild how fast Halo on my finger felt like calm help whenever my head was full and my hands were busy.”",
+        "Try your ring risk-free 30 days",
+        "Free shipping and easy returns",
+        "Two-year ring warranty included",
+        "Return to cart",
+        "Halo is the AI ring on your finger—easy shopping, clear shipping, and real support when you need it.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Halo marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/tech/logo-wordmark.png",
+        "https://demo.react.email/static/tech/tech-image.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "05-Studio/activation.mjml",
+      "preview": "Confirm your email address",
+      "content": [
+        "One last step",
+        "Thanks for creating your Halo account. To shop, track ring orders, and get updates, please confirm this email address.",
+        "Confirm Email",
+        "Halo is the AI ring on your finger—easy shopping, clear shipping, and real support when you need it.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Halo marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/tech/logo-wordmark.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "05-Studio/newsletter.mjml",
+      "preview": "The latest from Halo",
+      "content": [
+        "Why your finger is the calmest screen",
+        "We're glad you're here. This is our space for Halo ring drops, sizing tips, and the stories behind each batch—we share what we're building, what we're learning, and when limited finishes return.",
+        "No inbox noise—just emails when restocks land, firmware improves, or there's something meaningful for members. Thanks for reading; we're happy you're along for the journey.",
+        "Your personal AI companion, wrapped around your finger.",
+        "Halo learns how you shop, move, and focus—then surfaces gentle prompts, order updates, and wellness cues without another screen.",
+        "From the Halo journal",
+        "Pick the right ring size online",
+        "Use our printable sizer or visit a partner store so your Halo sits snug—returns are easier when the first fit is close.",
+        "Keep your AI assistant subtle",
+        "Toggle haptics and voice replies in the app so meetings stay quiet while you still get the nudges that matter.",
+        "Intelligence that doesn't demand attention.",
+        "Shop your finish and size—we'll confirm inventory and ship fast.",
+        "Shop Halo",
+        "Halo is the AI ring on your finger—easy shopping, clear shipping, and real support when you need it.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Halo marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/tech/tech-image-2.png",
+        "https://demo.react.email/static/tech/tech-image-3.png",
+        "https://demo.react.email/static/tech/tech-image-4.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "05-Studio/order-confirmation.mjml",
+      "preview": "Your Halo ring order #1234567890 is confirmed",
+      "content": [
+        "Your order has been placed",
+        "Order #1234567890 is locked in—we're prepping your Halo rings for shipment and will email the moment they leave our warehouse.",
+        "Tracking lands in your inbox as soon as the carrier scans the package.",
+        "Track your order →",
+        "Halo Ring 1",
+        "x1",
+        "Subtotal",
+        "$198.00",
+        "Tax",
+        "$16.00",
+        "Shipping",
+        "$0.00",
+        "Total",
+        "$214.00",
+        "Halo is the AI ring on your finger—easy shopping, clear shipping, and real support when you need it.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Halo marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/tech/logo-wordmark.png",
+        "https://demo.react.email/static/tech/tech-image.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "05-Studio/order-shipping.mjml",
+      "preview": "Your Halo ring order #1234567890 has shipped",
+      "content": [
+        "Your order has shipped",
+        "Order #1234567890 with your Halo ring is on the way. Tap track below—we'll ping you if delivery details shift.",
+        "Track your order →",
+        "Halo Ring 1",
+        "x1",
+        "After dispatch we can’t edit items, but you can follow or reroute delivery through the carrier’s tools anytime.",
+        "Common questions",
+        "When will my ring arrive?",
+        "Most domestic Halo orders land in 3–5 business days after the carrier scan—watch your tracking link for live updates.",
+        "Need a different size?",
+        "Start an exchange from your order page within 30 days. We’ll help you resize or swap finishes while stock allows.",
+        "Is my shipment protected?",
+        "Every ring ships insured with signature options in select regions—check tracking for delivery preferences.",
+        "Can I change the address?",
+        "Contact support fast if the package hasn’t left our hub; once it’s moving, carriers require you to redirect with them.",
+        "More",
+        "Halo is the AI ring on your finger—easy shopping, clear shipping, and real support when you need it.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Halo marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/tech/logo-wordmark.png",
+        "https://demo.react.email/static/tech/tech-image.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "05-Studio/password-reset.mjml",
+      "preview": "Reset your password",
+      "content": [
+        "Reset your password",
+        "We got a request to reset your Halo store password. If that wasn't you, ignore this—your ring orders stay secure.",
+        "Create New Password",
+        "Halo is the AI ring on your finger—easy shopping, clear shipping, and real support when you need it.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Halo marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/tech/logo-wordmark.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "05-Studio/promo.mjml",
+      "preview": "Your Halo promo code",
+      "content": [
+        "Black Friday Sale: Save up to $80 on Halo",
+        "Save on the ring that keeps you clear",
+        "Save up to $80",
+        "Limited time only",
+        "★★★★★",
+        "“It's wild how fast Halo on my finger felt like calm help whenever my head was full and my hands were busy.”",
+        "Try your ring risk-free 30 days",
+        "Free shipping and easy returns",
+        "Two-year ring warranty included",
+        "Shop Black Friday Sale",
+        "Halo is the AI ring on your finger—easy shopping, clear shipping, and real support when you need it.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Halo marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/tech/logo-wordmark.png",
+        "https://demo.react.email/static/tech/tech-image-5.png",
+        "https://demo.react.email/static/tech/tech-image-6.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "05-Studio/welcome.mjml",
+      "preview": "Welcome to Halo",
+      "content": [
+        "Welcome to Halo—set up your ring in minutes",
+        "Meet the ring that thinks with you",
+        "Discover Halo",
+        "Hands-free help from day one",
+        "Your personal AI companion, wrapped around your finger.",
+        "More than jewelry—it's a quiet AI partner on your hand that reads your rhythm, anticipates needs, and smooths your day without another screen to manage.",
+        "Voice-free smarts live in the ring: subtle taps, gentle haptics, and answers when you ask—no feeds, no glare, no friction at checkout or on the go.",
+        "Subtle cues, smarter suggestions, all-day comfort on your finger.",
+        "Explore",
+        "Halo is the AI ring on your finger—easy shopping, clear shipping, and real support when you need it.",
+        "123 Market Street, Floor 1 Tech City, CA, 94102",
+        "Unsubscribe from Halo marketing emails."
+      ],
+      "images": [
+        "https://demo.react.email/static/tech/logo-wordmark.png",
+        "https://demo.react.email/static/tech/tech-image-5.png",
+        "https://demo.react.email/static/tech/tech-image-6.png",
+        "https://demo.react.email/static/shared/social-x-black.png",
+        "https://demo.react.email/static/shared/social-in-black.png",
+        "https://demo.react.email/static/shared/social-yt-black.png",
+        "https://demo.react.email/static/shared/social-gh-black.png"
+      ],
+      "links": ["https://example.com/"]
+    },
+    {
+      "file": "Community/magic-links/aws-verify-email.mjml",
+      "preview": "AWS Email Verification",
+      "content": [
+        "Verify your email address",
+        "Thanks for starting the new AWS account creation process. We want to make sure it's really you. Please enter the following verification code when prompted. If you don't want to create an account, you can ignore this message.",
+        "Verification code",
+        "596853",
+        "(This code is valid for 10 minutes)",
+        "Amazon Web Services will never email you and ask you to disclose or verify your password, credit card, or banking account number.",
+        "This message was produced and distributed by Amazon Web Services, Inc., 410 Terry Ave. North, Seattle, WA 98109. © 2022, Amazon Web Services, Inc.. All rights reserved. AWS is a registered trademark of Amazon.com, Inc. View our privacy policy."
+      ],
+      "images": ["https://demo.react.email/static/aws-logo.png"],
+      "links": ["https://amazon.com"]
+    },
+    {
+      "file": "Community/magic-links/linear-login-code.mjml",
+      "preview": "Your login code for Linear",
+      "content": [
+        "Your login code for Linear",
+        "Login to Linear",
+        "This link and code will only be valid for the next 5 minutes. If the link does not work, you can use the login verification code directly:",
+        "tt226-5398x"
+      ],
+      "images": ["https://demo.react.email/static/linear-logo.png"],
+      "links": ["https://linear.app"]
+    },
+    {
+      "file": "Community/magic-links/notion-magic-link.mjml",
+      "preview": "Log in with this magic link",
+      "content": [
+        "Login",
+        "Or, copy and paste this temporary login code:",
+        "sparo-ndigo-amurt-secan",
+        "If you didn't try to login, you can safely ignore this email.",
+        "Hint: You can set a permanent password in Settings & members → My account.",
+        "Notion.so, the all-in-one-workspace for your notes, tasks, wikis, and databases."
+      ],
+      "images": ["https://demo.react.email/static/notion-logo.png"],
+      "links": ["https://notion.so"]
+    },
+    {
+      "file": "Community/magic-links/plaid-verify-identity.mjml",
+      "preview": "",
+      "content": [
+        "Verify Your Identity",
+        "Enter the following code to finish linking Venmo.",
+        "144833",
+        "Not expecting this email?",
+        "Contact login@plaid.com if you did not request this code.",
+        "Securely powered by Plaid."
+      ],
+      "images": ["https://demo.react.email/static/plaid-logo.png"],
+      "links": ["mailto:login@plaid.com"]
+    },
+    {
+      "file": "Community/magic-links/raycast-magic-link.mjml",
+      "preview": "Log in with this magic link.",
+      "content": [
+        "🪄 Your magic link",
+        "👉 Click here to sign in 👈",
+        "If you didn't request this, please ignore this email.",
+        "Best, - Raycast Team",
+        "Raycast Technologies Inc.",
+        "2093 Philadelphia Pike #3222, Claymont, DE 19703"
+      ],
+      "images": ["https://demo.react.email/static/raycast-logo.png"],
+      "links": ["https://raycast.com"]
+    },
+    {
+      "file": "Community/magic-links/slack-confirm.mjml",
+      "preview": "Confirm your email address",
+      "content": [
+        "Confirm your email address",
+        "Your confirmation code is below - enter it in your open browser window and we'll help you get signed in.",
+        "DJZ-TLX",
+        "If you didn't request this email, there's nothing to worry about, you can safely ignore it.",
+        "©2022 Slack Technologies, LLC, a Salesforce company.  500 Howard Street, San Francisco, CA 94105, USA   All rights reserved."
+      ],
+      "images": [
+        "https://demo.react.email/static/slack-logo.png",
+        "https://demo.react.email/static/slack-twitter.png",
+        "https://demo.react.email/static/slack-facebook.png",
+        "https://demo.react.email/static/slack-linkedin.png"
+      ],
+      "links": [
+        "/",
+        "https://slackhq.com",
+        "https://slack.com/legal",
+        "https://slack.com/help",
+        "https://slack.com/community"
+      ]
+    },
+    {
+      "file": "Community/newsletters/codepen-challengers.mjml",
+      "preview": "#CodePenChallenge: Cubes",
+      "content": [
+        "View this Challenge on CodePen",
+        "This week: #CodePenChallenge: Cubes",
+        "Cubes",
+        "The Shape challenge continues!",
+        "Last week, we kicked things off with round shapes. We \"rounded\" up the Pens from week one in our #CodePenChallenge: Round collection.",
+        "This week, we move on to cubes 🧊",
+        "Creating cubes in the browser is all about mastery of illusion. Take control of perspective and shadows and you can make the magic of 3D on a flat screen 🧙",
+        "This week is a fun chance to work on your CSS shape-building skills, or dig into a 3D JavaScript library like Three.js.",
+        "This week's starter template features an ice cube emoji to help inspire a \"cool\" idea for your Pen. As always, the template is just a jumping off point. Feel free to incorporate the 🧊 in your creation, add more elements, or freeze it out completely and start over from scratch!",
+        "💪 Your Challenge: create a Pen that includes cube shapes.",
+        "CodePen PRO combines a bunch of features that can help any front-end designer or developer at any experience level.",
+        "Learn More",
+        "To participate: Create a Pen → and tag it codepenchallenge and cpc-cubes. We'll be watching and gathering the Pens into a Collection, and sharing on Twitter and Instagram (Use the #CodePenChallenge tag on Twitter and Instagram as well).",
+        "IDEAS!",
+        "This week we move from 2 dimensions to three! Maybe you could exercise your perspective in CSS to create a 3D cube. Or, you can try out creating 3D shapes in JavaScript, using WebGL or building a Three.js scene.",
+        "There's more to cubes than just six square sides. There are variations on the cube that could be fun to play with this week: cuboid shapes are hexahedrons with faces that aren't always squares. And if you want to really push the boundaries of shape, consider the 4 dimensional tesseract!",
+        "Here's a mind-bending idea that can combine the round shapes from week one with this week's cube theme: Spherical Cubes 😳 Solving longstanding mathematical mysteries is probably outside the scope of a CodePen challenge, but you could use front-end tools to explore fitting spheres into cubes, or vice-versa.",
+        "RESOURCES!",
+        "Learn all about How CSS Perspective Works and how to build a 3D CSS cube from scratch in Amit Sheen's in-depth tutorial for CSS-Tricks. Or, check out stunning examples of WebGL cubes from Matthias Hurrle: Just Ice and Posing.",
+        "Want to go beyond the square cube? Draw inspiration from EntropyReversed's Pulsating Tesseract, Josetxu's Rainbow Cuboid Loader, or Ana Tudor's Pure CSS cuboid jellyfish.",
+        "Did that spherical cubes concept pique your interest? Explore Ryan Mulligan's Cube Sphere, Munir Safi's 3D Sphere to Cube Animation With Virtual Trackball and Ana Tudor's Infinitely unpack prism for more mindbending cube concepts that test the boundaries of how shapes interact with each other.",
+        "Go to Challenge Page",
+        "You can adjust your email preferences any time, or instantly opt out of emails of this kind. Need help with anything? Hit up support."
+      ],
+      "images": [
+        "https://demo.react.email/static/codepen-challengers.png",
+        "https://demo.react.email/static/codepen-cube.png",
+        "https://demo.react.email/static/codepen-pro.png"
+      ],
+      "links": []
+    },
+    {
+      "file": "Community/newsletters/google-play-policy-update.mjml",
+      "preview": "Google Play developers",
+      "content": [
+        "DEVELOPER UPDATE",
+        "Hello Google Play Developer,",
+        "We strive to make Google Play a safe and trusted experience for users.",
+        "We've added clarifications to our Target API Level policy. Because this is a clarification, our enforcement standards and practices for this policy remain the same.",
+        "We're noting exceptions to the Target API Level policy, which can be found in our updated Help Center article.These exceptions include permanently private apps and apps that target automotive or wearables form factors and are bundled within the same package. Learn more",
+        "We're also extending the deadline to give you more time to adjust to these changes. Now, apps that target API level 29 or below will start experiencing reduced distribution starting Jan 31, 2023 instead of Nov 1, 2022. If you need more time to update your app, you can request an extension to keep your app discoverable to all users until May 1, 2023.",
+        "Thank you,",
+        "The Google Play team",
+        "Connect with us",
+        "© 2022 Google LLC 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA",
+        "You have received this mandatory email service announcement to update you about important changes to your Google Play Developer account."
+      ],
+      "images": [
+        "https://demo.react.email/static/google-play-header.png",
+        "https://demo.react.email/static/google-play-logo.png",
+        "https://demo.react.email/static/google-play-chat.png",
+        "https://demo.react.email/static/google-play-icon.png",
+        "https://demo.react.email/static/google-play-academy.png",
+        "https://demo.react.email/static/google-play-footer.png"
+      ],
+      "links": ["https://notifications.google.com"]
+    },
+    {
+      "file": "Community/newsletters/stack-overflow-tips.mjml",
+      "preview": "Stack overflow tips for searching",
+      "content": [
+        "Find what you want, faster",
+        "Tips and tricks for searching on Stack Overflow",
+        "Searching for solutions",
+        "With more than 18 million questions, it's possible that someone has already provided a solution to the problem you're facing. ",
+        "Use the search bar at the top of the page to find what you need",
+        "Here are a few simple search tips to get you started:",
+        "To find a specific phrase, enter it in quotes: \"local storage\"",
+        "To find a specific phrase, enter it in quotes: \"local storage\"",
+        "To search within specific tag(s), enter them in square brackets: [javascript]",
+        "To search within specific tag(s), enter them in square brackets: [javascript]",
+        "Combine them to get even more precise results - [javascript] \"local storage\" searches for the phrase “local storage” in questions that have the [javascript] tag",
+        "Combine them to get even more precise results - [javascript] \"local storage\" searches for the phrase “local storage” in questions that have the [javascript] tag",
+        "The more information you can put in the search bar, the more likely you will be to either find the answer you need or feel confident that no one else has asked the question before.",
+        "Take a break and read about the worst coder in the world",
+        "You're receiving this email because your Stack Overflow activity triggered this tip or reminder.",
+        "Stack Overflow, 110 William Street, 28th Floor, New York, NY 10038",
+        "<3"
+      ],
+      "images": [
+        "https://demo.react.email/static/stack-overflow-logo.png",
+        "https://demo.react.email/static/stack-overflow-header.png",
+        "https://demo.react.email/static/stack-overflow-logo-sm.png"
+      ],
+      "links": ["https://stackoverflow.blog/2019/10/22/", "/"]
+    },
+    {
+      "file": "Community/notifications/github-access-token.mjml",
+      "preview": "A fine-grained personal access token has been added to your account",
+      "content": [
+        "@alanturing, a personal access was created on your account.",
+        "Hey alanturing!",
+        "A fine-grained personal access token (resend) was recently added to your account.",
+        "View your token",
+        "Your security audit log ・ Contact support",
+        "GitHub, Inc. ・88 Colin P Kelly Jr Street ・San Francisco, CA 94107"
+      ],
+      "images": ["https://demo.react.email/static/github.png"],
+      "links": []
+    },
+    {
+      "file": "Community/notifications/papermark-year-in-review.mjml",
+      "preview": "See your stats from 2024",
+      "content": [
+        "Papermark",
+        "2024 in review",
+        "Your Year with Papermark",
+        "What a year it's been! Let's take a look at how you've used Papermark to share your important documents.",
+        "Viewers spent",
+        "1234",
+        "minutes on your documents",
+        "That's a lot of engagement! Your documents are resonating with your visitors.",
+        "Your activity",
+        "You uploaded",
+        "25",
+        "documents",
+        "You shared",
+        "50",
+        "links",
+        "You received",
+        "500",
+        "views",
+        "Your top document",
+        "\"Q4 Financial Report\"",
+        "150 views",
+        "This document really caught your visitor's attention!",
+        "Your most active month",
+        "September",
+        "with 200 views",
+        "September was your busiest month. What did you share that got so much attention?",
+        "You're in the top",
+        "95%",
+        "of sharers on Papermark",
+        "You're one of our most active users. Thank you for sharing with Papermark!",
+        "Your documents were viewed from",
+        "United States",
+        "United Kingdom",
+        "Germany",
+        "Japan",
+        "Your documents get attention from all over the world!",
+        "We're excited to support you next year!  Happy Holidays from the Papermark team :)"
+      ],
+      "images": [],
+      "links": ["https://www.papermark.com"]
+    },
+    {
+      "file": "Community/notifications/vercel-invite-user.mjml",
+      "preview": "Join Alan on Vercel",
+      "content": [
+        "Join Enigma on Vercel",
+        "Hello alanturing,",
+        "Alan (alan.turing@example.com) has invited you to the Enigma team on Vercel.",
+        "Join the team",
+        "or copy and paste this URL into your browser: https://vercel.com",
+        "This invitation was intended for alanturing. This invite was sent from 204.13.186.218 located in São Paulo, Brazil. If you were not expecting this invitation, you can ignore this email. If you are concerned about your account's safety, please reply to this email to get in touch with us."
+      ],
+      "images": [
+        "https://demo.react.email/static/vercel-logo.png",
+        "https://demo.react.email/static/vercel-user.png",
+        "https://demo.react.email/static/vercel-arrow.png",
+        "https://demo.react.email/static/vercel-team.png"
+      ],
+      "links": ["mailto:alan.turing@example.com", "https://vercel.com"]
+    },
+    {
+      "file": "Community/notifications/yelp-recent-login.mjml",
+      "preview": "Yelp recent login",
+      "content": [
+        "Hi Alan,",
+        "We noticed a recent login to your Yelp account.",
+        "Time: September 7, 2022 at 10:58 AM",
+        "Device: Chrome on Mac OS X",
+        "Location: Upland, California, United States",
+        "*Approximate geographic location based on IP address:47.149.53.167",
+        "If this was you, there's nothing else you need to do.",
+        "If this wasn't you or if you have additional questions, please see our support page.",
+        "Learn More",
+        "© 2022 | Yelp Inc., 350 Mission Street, San Francisco, CA 94105, U.S.A. | www.yelp.com"
+      ],
+      "images": [
+        "https://demo.react.email/static/yelp-logo.png",
+        "https://demo.react.email/static/yelp-header.png",
+        "https://demo.react.email/static/yelp-footer.png"
+      ],
+      "links": []
+    },
+    {
+      "file": "Community/receipts/apple-receipt.mjml",
+      "preview": "Apple Receipt",
+      "content": [
+        "Receipt",
+        "Save 3% on all your Apple purchases with Apple Card.1 Apply and use in minutes2",
+        "APPLE ID",
+        "INVOICE DATE",
+        "18 Jan 2023",
+        "ORDER ID",
+        "DOCUMENT NO.",
+        "186623754793",
+        "BILLED TO",
+        "Visa .... 7461 (Apple Pay)",
+        "Alan Turing",
+        "2125 Chestnut St",
+        "San Francisco, CA 94123",
+        "USA",
+        "App Store",
+        "HBO Max: Stream TV & Movies",
+        "HBO Max Ad-Free (Monthly)",
+        "Renews Aug 20, 2023",
+        "$14.99",
+        "TOTAL",
+        "$14.99",
+        "Save 3% on all your Apple purchases.",
+        "1. 3% savings is earned as Daily Cash and is transferred to your Apple Cash card when transactions post to your Apple Card account. If you do not have an Apple Cash card, Daily Cash can be applied by you as a credit on your statement balance. 3% is the total amount of Daily Cash earned for these purchases. See the Apple Card Customer Agreement for more details on Daily Cash and qualifying transactions.",
+        "2. Subject to credit approval.",
+        "To access and use all the features of Apple Card, you must add Apple Card to Wallet on an iPhone or iPad with iOS or iPadOS 13.2 or later. Update to the latest version of iOS or iPadOS by going to Settings > General > Software Update. Tap Download and Install.",
+        "Available for qualifying applicants in the United States.",
+        "Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch.",
+        "If you reside in the US territories, please call Goldman Sachs at 877-255-5923 with questions about Apple Card.",
+        "Privacy: We use a Subscriber ID to provide reports to developers.",
+        "Get help with subscriptions and purchases.Visit Apple Support.",
+        "Learn how to manage your password preferences for iTunes, Apple Books, and App Store purchases.",
+        " You have the option to stop receiving email receipts for your subscription renewals. If you have opted out, you can still view your receipts in your account under Purchase History. To manage receipts or to opt in again, go to Account Settings.",
+        "Account Settings • Terms of Sale • Privacy Policy ",
+        "Copyright © 2023 Apple Inc.   All rights reserved"
+      ],
+      "images": [
+        "https://demo.react.email/static/apple-logo.png",
+        "https://demo.react.email/static/apple-hbo-max-icon.jpeg",
+        "https://demo.react.email/static/apple-card-icon.png",
+        "https://demo.react.email/static/apple-wallet.png"
+      ],
+      "links": [
+        "https://www.apple.com/apple-card/",
+        "https://www.apple.com/",
+        "https://www.apple.com/legal/privacy/",
+        "https://www.apple.com/legal/"
+      ]
+    },
+    {
+      "file": "Community/receipts/nike-receipt.mjml",
+      "preview": "Get your order summary, estimated delivery date and more",
+      "content": [
+        "Tracking Number",
+        "1ZV218970300071628",
+        "It's On Its Way.",
+        "Your order is on its way. Use the link above to track its progress.",
+        "We´ve also charged your payment method for the cost of your order and will be removing any authorization holds. For payment details, please visit your Orders page on Nike.com or in the Nike app.",
+        "Shipping to: Alan Turing",
+        "2125 Chestnut St, San Francisco, CA 94123",
+        "Brazil 2022/23 Stadium Away Women's Nike Dri-FIT Soccer Jersey",
+        "Size L (12–14)",
+        "Order Number",
+        "C0106373851",
+        "Order Date",
+        "Sep 22, 2022",
+        "Top Picks For You",
+        "USWNT 2022/23 Stadium Home",
+        "Women's Nike Dri-FIT Soccer Jersey",
+        "Brazil 2022/23 Stadium Goalkeeper",
+        "Men's Nike Dri-FIT Short-Sleeve Football Shirt",
+        "FFF",
+        "Women's Soccer Jacket",
+        "FFF",
+        "Women's Nike Pre-Match Football Top",
+        "Get Help",
+        "1-800-806-6453",
+        "4 am - 11 pm PT",
+        "Nike.com",
+        "Web Version",
+        "Privacy Policy",
+        "Please contact us if you have any questions. (If you reply to this email, we won't be able to see it.)",
+        "© 2022 Nike, Inc. All Rights Reserved.",
+        "NIKE, INC. One Bowerman Drive, Beaverton, Oregon 97005, USA."
+      ],
+      "images": [
+        "https://demo.react.email/static/nike-logo.png",
+        "https://demo.react.email/static/nike-product.png",
+        "https://demo.react.email/static/nike-recomendation-1.png",
+        "https://demo.react.email/static/nike-recomendation-2.png",
+        "https://demo.react.email/static/nike-recomendation-4.png",
+        "https://demo.react.email/static/nike-phone.png"
+      ],
+      "links": ["https://www.nike.com/"]
+    },
+    {
+      "file": "Community/reset-password/dropbox-reset-password.mjml",
+      "preview": "Dropbox reset your password",
+      "content": [
+        "Hi Alan,",
+        "Someone recently requested a password change for your Dropbox account. If this was you, you can set a new password here:",
+        "Reset password",
+        "If you don't want to change your password or didn't request this, just ignore and delete this message.",
+        "To keep your account secure, please don't forward this email to anyone. See our Help Center for more security tips.",
+        "Happy Dropboxing!"
+      ],
+      "images": ["https://demo.react.email/static/dropbox-logo.png"],
+      "links": ["https://www.dropbox.com"]
+    },
+    {
+      "file": "Community/reset-password/twitch-reset-password.mjml",
+      "preview": "You updated the password for your Twitch account",
+      "content": [
+        "Hi alanturing,",
+        "You updated the password for your Twitch account on Jun 23, 2022, 4:06:00 PM. If this was you, then no further action is required.",
+        "However if you did NOT perform this password change, please reset your account password immediately.",
+        "Remember to use a password that is both strong and unique to your Twitch account. To learn more about how to create a strong and unique password, click here.",
+        "Still have questions? Please contact Twitch Support",
+        "Thanks, Twitch Support Team",
+        "© 2022 Twitch, All Rights Reserved  350 Bush Street, 2nd Floor, San Francisco, CA, 94104 - USA"
+      ],
+      "images": [
+        "https://demo.react.email/static/twitch-logo.png",
+        "https://demo.react.email/static/twitch-icon-twitter.png",
+        "https://demo.react.email/static/twitch-icon-facebook.png"
+      ],
+      "links": ["https://www.twitch.tv"]
+    },
+    {
+      "file": "Community/reviews/airbnb-review.mjml",
+      "preview": "Read Alex's review",
+      "content": [
+        "Here's what Alex wrote",
+        "“Alan was a great guest! Easy communication, the apartment was left\n    in great condition, very polite, and respectful of all house rules.\n    He’s welcome back anytime and would easily recommend him to any\n    host!”",
+        "Now that the review period is over, we've posted Alex's review to your Airbnb profile.",
+        "While it's too late to write a review of your own, you can send your feedback to Alex using your Airbnb message thread.",
+        "Send My Feedback",
+        "Common questions",
+        "How do reviews work?",
+        "How do star ratings work?",
+        "Can I leave a review after 14 days?",
+        "Airbnb, Inc., 888 Brannan St, San Francisco, CA 94103"
+      ],
+      "images": [
+        "https://demo.react.email/static/airbnb-logo.png",
+        "https://demo.react.email/static/airbnb-review-user.jpg"
+      ],
+      "links": ["https://www.airbnb.com"]
+    },
+    {
+      "file": "Community/reviews/amazon-review.mjml",
+      "preview": "Amazon Review",
+      "content": [
+        "Your opinion is important!",
+        "Alan Turing, do you have a moment? We would like to know if everything went well for you. Take a moment to review your most recent purchases.",
+        "14 Habits of Highly Productive Developers (English Edition)",
+        "Start with rating this product",
+        "Your reviews will be posted on Amazon using your public name.Check your public name.",
+        "How about evaluating a previous purchase? View more",
+        "Customer reviews must adhere to the Community Guidelines .",
+        "We hope this message was helpful to you. However, if you prefer not to receive this type of communication from Amazon.com at alanturing@gmail.com , click here .",
+        "Please note that product prices and availability are subject to change.",
+        "© 2023 Amazon.com, Inc. or its affiliates. Amazon and all associated marks are trademarks of Amazon.com, Inc. or its affiliates.",
+        "Reference: 706784740"
+      ],
+      "images": [
+        "https://demo.react.email/static/amazon-prime-logo.png",
+        "https://demo.react.email/static/amazon-book.jpg",
+        "https://demo.react.email/static/amazon-rating.gif",
+        "https://demo.react.email/static/amazon-logo.png",
+        "https://demo.react.email/static/amazon-instagram.jpg",
+        "https://demo.react.email/static/amazon-facebook.jpg",
+        "https://demo.react.email/static/amazon-twitter.jpg"
+      ],
+      "links": ["https://www.amazon.com"]
+    },
+    {
+      "file": "Community/welcome/koala-welcome.mjml",
+      "preview": "The sales intelligence platform that helps you uncover qualified leads.",
+      "content": [
+        "Hi Alan,",
+        "Welcome to Koala, the sales intelligence platform that helps you uncover qualified leads and close deals faster.",
+        "Get started",
+        "Best, The Koala team",
+        "470 Noor Ave STE B #1148, South San Francisco, CA 94080"
+      ],
+      "images": ["https://demo.react.email/static/koala-logo.png"],
+      "links": ["https://getkoala.com"]
+    },
+    {
+      "file": "Community/welcome/netlify-welcome.mjml",
+      "preview": "Netlify Welcome",
+      "content": [
+        "Welcome to Netlify",
+        "Congratulations! You're joining over 3 million developers around the world who use Netlify to build and ship sites, stores, and apps.",
+        "Here's how to get started:",
+        "Deploy your first project. Connect to Git, choose a template, or manually deploy a project you've been working on locally.",
+        "Check your deploy logs. Find out what's included in your build and watch for errors or failed deploys. Learn how to read your deploy logs.",
+        "Choose an integration. Quickly discover, connect, and configure the right tools for your project with 150+ integrations to choose from. Explore the Integrations Hub.",
+        "Set up a custom domain. You can register a new domain and buy it through Netlify or assign a domain you already own to your site. Add a custom domain.",
+        "Go to your dashboard",
+        "Netlify, 44 Montgomery Street, Suite 300 San Francisco, CA"
+      ],
+      "images": ["https://demo.react.email/static/netlify-logo.png"],
+      "links": ["https://www.netlify.com"]
+    },
+    {
+      "file": "Community/welcome/stripe-welcome.mjml",
+      "preview": "You're now ready to make live transactions with Stripe!",
+      "content": [
+        "Thanks for submitting your account information. You're now ready to make live transactions with Stripe!",
+        "You can view your payments and a variety of other information about your account right from your dashboard.",
+        "View your Stripe Dashboard",
+        "If you haven't finished your integration, you might find our docs handy.",
+        "Once you're ready to start accepting payments, you'll just need to use your live API keys instead of your test API keys. Your account can simultaneously be used for both test and live requests, so you can continue testing while accepting live payments. Check out our tutorial about account basics.",
+        "Finally, we've put together a quick checklist to ensure your website conforms to card network standards.",
+        "We'll be here to help you with any step along the way. You can find answers to most questions and get in touch with us on our support site.",
+        "— The Stripe team",
+        "Stripe, 354 Oyster Point Blvd, South San Francisco, CA 94080"
+      ],
+      "images": ["https://demo.react.email/static/stripe-logo.png"],
+      "links": [
+        "https://dashboard.stripe.com/login",
+        "https://docs.stripe.com/dashboard/basics",
+        "https://dashboard.stripe.com/login?redirect=%2Fapikeys",
+        "https://docs.stripe.com/get-started/checklist/website",
+        "https://support.stripe.com"
+      ]
+    }
+  ]
+}

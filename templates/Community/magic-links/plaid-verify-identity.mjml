@@ -1,0 +1,109 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/magic-links/plaid-verify-identity.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>Verify Your Identity</mj-title>
+    <mj-preview>Verify Your Identity</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="HelveticaNeue,Helvetica,Arial,sans-serif" />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .plaid-card {
+        box-shadow: 0 4px 6px rgba(20, 50, 70, 0.2);
+      }
+      .community-rich-0 em:nth-of-type(1) {
+        font-style: normal;
+        display: block;
+        background-color: #f2f2f2;
+        border-radius: 4px;
+        padding: 8px;
+      }
+      .community-rich-1 a:nth-of-type(1) {
+        color: #444444;
+        text-decoration: underline;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="360px" background-color="#ffffff">
+    <mj-section
+      padding="68px 0px 130px"
+      background-color="#ffffff"
+      border="1px solid #eeeeee"
+      border-radius="4px"
+      css-class="plaid-card"
+    >
+      <mj-column padding="0px">
+        <mj-image
+          src="https://demo.react.email/static/plaid-logo.png"
+          alt="Plaid"
+          width="212px"
+          height="88px"
+          align="center"
+          padding="0px"
+        />
+        <mj-text
+          padding="16px 8px 8px"
+          font-size="11px"
+          line-height="1.5"
+          color="#0a85ea"
+          font-weight="700"
+          align="center"
+          text-transform="uppercase"
+          >Verify Your Identity</mj-text
+        >
+        <mj-text padding="0px" font-size="20px" line-height="24px" font-weight="500" align="center"
+          >Enter the following code to finish linking Venmo.</mj-text
+        >
+        <mj-text
+          padding="16px 40px 14px"
+          font-size="32px"
+          line-height="40px"
+          font-weight="700"
+          letter-spacing="6px"
+          align="center"
+          css-class="community-rich-0"
+          ><em>144833</em>
+        </mj-text>
+        <mj-text
+          padding="0px 40px"
+          font-size="15px"
+          line-height="23px"
+          color="#444444"
+          align="center"
+          >Not expecting this email?</mj-text
+        >
+        <mj-text
+          padding="0px 40px"
+          font-size="15px"
+          line-height="23px"
+          color="#444444"
+          align="center"
+          css-class="community-rich-1"
+          >Contact <a href="mailto:login@plaid.com">login@plaid.com</a> if you did not request this
+          code.</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-text
+          padding="20px 0px 0px"
+          font-size="12px"
+          line-height="1.5"
+          font-weight="800"
+          align="center"
+          text-transform="uppercase"
+          >Securely powered by Plaid.</mj-text
+        >
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AutoField, createUsePuck, type ArrayField, type Field } from "@puckeditor/core";
 import { ColumnsPlusRightIcon } from "@phosphor-icons/react/dist/csr/ColumnsPlusRight";
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/csr/ArrowUp";
@@ -9,6 +9,8 @@ import { MinusIcon } from "@phosphor-icons/react/dist/csr/Minus";
 import { PlusIcon } from "@phosphor-icons/react/dist/csr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/csr/Trash";
 import { newTableCell } from "./TableBlock";
+import { isReadOnlyPath } from "./field-permissions";
+import { PermissionField } from "./FieldPermissions";
 import { PropertyFieldLabel } from "./PropertyInspector";
 import { sanitizeEmailRichText } from "./richtext";
 import { normalizeTableRows, type TableCell, type TableProps, type TableRow } from "./table";
@@ -99,12 +101,6 @@ function hasRowSpans(rows: TableRow[]) {
   return rows.some((row) => row.cells.some((cell) => (cell.rowSpan ?? 1) !== 1));
 }
 
-// Wildcards follow Puck's nested field paths, e.g. bodyRows[*].cells[*].content.
-function pathMatches(pattern: string, path: string) {
-  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "\\d+");
-  return new RegExp(`^${escaped}(?:$|[.\\[])`).test(path);
-}
-
 function TableEditor({ field }: { field: ArrayField<TableRow[]> }) {
   const api = usePuck((state) => state);
   const item = api.selectedItem;
@@ -141,8 +137,7 @@ function TableEditor({ field }: { field: ArrayField<TableRow[]> }) {
       : undefined;
   const canEdit = Boolean(api.getPermissions({ item }).edit);
   const locks = Object.entries(item.readOnly ?? {}).filter(([, locked]) => locked);
-  const isLocked = (path: string) =>
-    !canEdit || locks.some(([pattern]) => pathMatches(pattern, path));
+  const isLocked = (path: string) => !canEdit || isReadOnlyPath(path, item.readOnly ?? {});
   const structureLocked = (group: RowGroup) =>
     isLocked(group) ||
     locks.some(([path]) => path.startsWith(`${group}[`) || path.startsWith(`${group}.`));
@@ -516,16 +511,16 @@ function TableEditor({ field }: { field: ArrayField<TableRow[]> }) {
 export function TableArrayField({
   field,
   children,
-}: {
-  field: { type: string } & Pick<Field, "metadata">;
-  children: ReactNode;
-}) {
+  ...props
+}: Parameters<typeof PermissionField>[0]) {
   const id = usePuck((state) => state.selectedItem?.props.id);
   if (field.type === "array" && field.metadata?.tableEditorPart)
     return <span hidden data-pm-table-field-hidden />;
   return field.type === "array" && field.metadata?.tableEditor ? (
     <TableEditor key={id} field={field as ArrayField<TableRow[]>} />
   ) : (
-    <>{children}</>
+    <PermissionField {...props} field={field}>
+      {children}
+    </PermissionField>
   );
 }

@@ -1,6 +1,5 @@
 import {
   createProtocolActivationDocument,
-  createProtocolDitherFontsDocument,
   createProtocolFeatureAnnouncementDocument,
   createProtocolPasswordResetDocument,
   createProtocolProductUpdateDocument,
@@ -19,4 +18,3 @@ checkTemplate("Protocol product update", createProtocolProductUpdateDocument);
 checkTemplate("Protocol subscription confirmation", createProtocolSubscriptionConfirmationDocument);
 checkTemplate("Protocol subscription update", createProtocolSubscriptionUpdateDocument);
 checkTemplate("Protocol text only", createProtocolTextOnlyDocument);
-checkTemplate("Protocol dither fonts", createProtocolDitherFontsDocument);

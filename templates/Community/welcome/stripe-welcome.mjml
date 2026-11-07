@@ -1,0 +1,134 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/welcome/stripe-welcome.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>Welcome to Stripe</mj-title>
+    <mj-preview>You&#x27;re now ready to make live transactions with Stripe!</mj-preview>
+    <mj-attributes>
+      <mj-all
+        font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&#x27;Helvetica Neue&#x27;,sans-serif"
+      />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .community-rich-0 a:nth-of-type(1) {
+        color: #556cd6;
+        text-decoration: underline;
+      }
+      .community-rich-1 a:nth-of-type(1) {
+        color: #556cd6;
+        text-decoration: underline;
+      }
+      .community-rich-1 a:nth-of-type(2) {
+        color: #556cd6;
+        text-decoration: underline;
+      }
+      .community-rich-3 a:nth-of-type(1) {
+        color: #556cd6;
+        text-decoration: underline;
+      }
+      .community-rich-4 a:nth-of-type(1) {
+        color: #556cd6;
+        text-decoration: underline;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="600px" background-color="#f6f9fc">
+    <mj-section padding="20px 48px 48px" background-color="#ffffff">
+      <mj-column padding="0px">
+        <mj-image
+          src="https://demo.react.email/static/stripe-logo.png"
+          alt="Stripe"
+          width="49px"
+          height="21px"
+          align="left"
+          padding="0px"
+        />
+        <mj-divider border-color="#e6ebf1" border-width="1px" padding="20px 0px" />
+        <mj-text padding="0px 0px 16px" font-size="16px" line-height="24px" color="#525f7f"
+          >Thanks for submitting your account information. You're now ready to make live
+          transactions with Stripe!</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="16px" line-height="24px" color="#525f7f"
+          >You can view your payments and a variety of other information about your account right
+          from your dashboard.</mj-text
+        >
+        <mj-button
+          href="https://dashboard.stripe.com/login"
+          align="center"
+          padding="0px 0px 16px"
+          inner-padding="10px"
+          border-radius="3px"
+          font-size="16px"
+          background-color="#656ee8"
+          color="#ffffff"
+          font-weight="700"
+          width="100%"
+          >View your Stripe Dashboard</mj-button
+        >
+        <mj-divider border-color="#e6ebf1" border-width="1px" padding="20px 0px" />
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="16px"
+          line-height="24px"
+          color="#525f7f"
+          css-class="community-rich-0"
+          >If you haven't finished your integration, you might find our
+          <a href="https://docs.stripe.com/dashboard/basics">docs</a> handy.</mj-text
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="16px"
+          line-height="24px"
+          color="#525f7f"
+          css-class="community-rich-1"
+          >Once you're ready to start accepting payments, you'll just need to use your live
+          <a href="https://dashboard.stripe.com/login?redirect=%2Fapikeys">API keys</a> instead of
+          your test API keys. Your account can simultaneously be used for both test and live
+          requests, so you can continue testing while accepting live payments. Check out our
+          <a href="https://docs.stripe.com/dashboard/basics">tutorial about account basics</a
+          >.</mj-text
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="16px"
+          line-height="24px"
+          color="#525f7f"
+          css-class="community-rich-3"
+          >Finally, we've put together a
+          <a href="https://docs.stripe.com/get-started/checklist/website">quick checklist</a> to
+          ensure your website conforms to card network standards.</mj-text
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="16px"
+          line-height="24px"
+          color="#525f7f"
+          css-class="community-rich-4"
+          >We'll be here to help you with any step along the way. You can find answers to most
+          questions and get in touch with us on our
+          <a href="https://support.stripe.com/">support site</a>.</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="16px" line-height="24px" color="#525f7f"
+          >— The Stripe team</mj-text
+        >
+        <mj-divider border-color="#e6ebf1" border-width="1px" padding="20px 0px" />
+        <mj-text padding="0px 0px 16px" font-size="12px" line-height="16px" color="#8898aa"
+          >Stripe, 354 Oyster Point Blvd, South San Francisco, CA 94080</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-spacer height="64px" />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

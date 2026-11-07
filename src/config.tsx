@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { safeImageSource } from "./image-upload";
 import { ImageSourceField } from "./ImageSourceField";
+import { withFieldPermissions } from "./FieldPermissions";
 import type { Config, RichText, Slot } from "@puckeditor/core";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
 import { CodeArea } from "./CodeField";
@@ -98,6 +100,7 @@ function SectionFrame({
 export function createEmailConfig(
   onUploadImage?: (file: File) => Promise<string>,
   allowRawHtml = false,
+  allowLocalImages = false,
 ): Config {
   const contentSlotField = allowRawHtml
     ? { ...slotField, allow: [...slotField.allow, "Raw"] }
@@ -410,6 +413,7 @@ export function createEmailConfig(
         sections: Sections,
       }) => (
         <EmailCanvas
+          allowLocalImages={allowLocalImages}
           width={width}
           breakpoint={breakpoint}
           breakpointWidth={breakpointWidth}
@@ -851,6 +855,7 @@ export function createEmailConfig(
                 onChange={onChange}
                 readOnly={readOnly}
                 upload={onUploadImage}
+                allowLocalImages={allowLocalImages}
               />
             ),
           },
@@ -884,12 +889,16 @@ export function createEmailConfig(
           puck,
         }) => (
           <div className={classes("pm-image", cssClass)} style={{ textAlign: align, padding }}>
-            {src ? (
+            {safeImageSource(src, allowLocalImages) ? (
               <a
                 href={safeRichTextUrl(href) || undefined}
                 onClick={puck.isEditing ? (event) => event.preventDefault() : undefined}
               >
-                <img src={src} alt={alt} style={{ maxWidth: "100%", width, borderRadius }} />
+                <img
+                  src={safeImageSource(src, allowLocalImages)}
+                  alt={alt}
+                  style={{ maxWidth: "100%", width, borderRadius }}
+                />
               </a>
             ) : (
               <div className="pm-image-empty">Select an image URL</div>
@@ -1238,5 +1247,5 @@ export function createEmailConfig(
       },
     },
   };
-  return withNativeCanvas(withNativeFields(config, allowRawHtml));
+  return withFieldPermissions(withNativeCanvas(withNativeFields(config, allowRawHtml)));
 }

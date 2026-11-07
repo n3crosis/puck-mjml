@@ -10,6 +10,7 @@
 @import "./table-editor.css";
 @import "./spacing-overlay.css";
 @import "./table-resize.css";
+@import "./export-dialog.css";
 
 .pm-editor {
   height: 100%;
@@ -202,6 +203,22 @@
 }
 .pm-text h6 {
   font-size: 0.67em;
+}
+/* Imported copy keeps native browser paragraph/heading styles until edited. */
+.pm-text.pm-imported-text p,
+.pm-text.pm-imported-text h1,
+.pm-text.pm-imported-text h2,
+.pm-text.pm-imported-text h3,
+.pm-text.pm-imported-text h4,
+.pm-text.pm-imported-text h5,
+.pm-text.pm-imported-text h6 {
+  margin: revert;
+  font-size: revert;
+  font-weight: revert;
+  line-height: inherit;
+}
+.pm-text.pm-imported-inline-text p {
+  margin: 0;
 }
 /* Source fields for CSS and trusted HTML render as dark code blocks. */
 .pm-code {
@@ -407,8 +424,8 @@
 .pm-table {
   background: transparent;
 }
-.pm-table th,
-.pm-table td {
+.pm-table:not(.pm-native-table) th,
+.pm-table:not(.pm-native-table) td {
   padding: 0;
   border: 0;
   text-align: left;
@@ -488,17 +505,45 @@
   cursor: pointer;
   width: 100%;
 }
+.pm-upload:focus-within {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+.pm-upload[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.pm-upload-help {
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
 .pm-field small {
   color: #b91c1c;
 }
 .pm-preview-backdrop {
   position: fixed;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
+  color: inherit;
   background: #17212fbb;
   z-index: 10000;
   display: grid;
   place-items: center;
   padding: 18px;
+}
+.pm-preview-backdrop:not([open]) {
+  display: none;
+}
+.pm-preview-backdrop::backdrop {
+  background: transparent;
 }
 .pm-preview-dialog {
   min-height: 0;

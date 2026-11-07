@@ -2,8 +2,8 @@ import { fromMjml, toMjml } from "../src/core";
 
 /** Never commit an import that the untrusted demo cannot export. */
 export function reviewImport(source: string) {
-  const result = fromMjml(source);
-  toMjml(result.document);
+  const result = fromMjml(source, { allowLocalImages: true });
+  toMjml(result.document, { allowLocalImages: true });
   return result;
 }
 

@@ -1,0 +1,188 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/newsletters/stack-overflow-tips.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>Stack overflow tips for searching</mj-title>
+    <mj-preview>Stack overflow tips for searching</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Helvetica Neue,Helvetica,Arial,sans-serif" />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .stack-heart {
+        border: 1px solid #d6d9dc;
+        border-radius: 1px;
+        width: 30px;
+      }
+      .community-rich-0 a:nth-of-type(1) {
+        color: #9199a1;
+        text-decoration: underline;
+      }
+      .community-rich-0 a:nth-of-type(2) {
+        color: #9199a1;
+        text-decoration: underline;
+      }
+      .community-rich-0 a:nth-of-type(3) {
+        color: #9199a1;
+        text-decoration: underline;
+      }
+      .community-rich-0 a:nth-of-type(4) {
+        color: #9199a1;
+        text-decoration: underline;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="680px" background-color="#f3f3f5">
+    <mj-section padding="20px 30px">
+      <mj-column padding="0px">
+        <mj-image
+          src="https://demo.react.email/static/stack-overflow-logo.png"
+          alt=""
+          width="146px"
+          align="left"
+          padding="0px"
+        />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px" background-color="#2b2d6e" border-radius="6px 6px 0px 0px">
+      <mj-column padding="20px 30px 15px" width="50%">
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="27px"
+          line-height="27px"
+          font-weight="700"
+          color="#ffffff"
+          >Find what you want, faster</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="17px" line-height="24px" color="#ffffff"
+          >Tips and tricks for searching on Stack Overflow</mj-text
+        >
+      </mj-column>
+      <mj-column padding="30px 10px" width="50%">
+        <mj-image
+          src="https://demo.react.email/static/stack-overflow-header.png"
+          alt=""
+          width="340px"
+          align="left"
+          padding="0px"
+        />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="30px 30px 40px" background-color="#ffffff">
+      <mj-column padding="0px">
+        <mj-text
+          padding="0px 0px 15px"
+          font-size="21px"
+          line-height="1"
+          font-weight="700"
+          color="#0c0d0e"
+          >Searching for solutions</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="15px" line-height="21px" color="#3c3f44"
+          >With more than 18 million questions, it's possible that someone has already provided a
+          solution to the problem you're facing.</mj-text
+        >
+        <mj-divider border-color="#eeeeee" border-width="1px" padding="30px 0px" />
+        <mj-text
+          padding="0px 0px 15px"
+          font-size="21px"
+          line-height="1"
+          font-weight="700"
+          color="#0c0d0e"
+          >Use the search bar at the top of the page to find what you need</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="15px" line-height="21px" color="#3c3f44"
+          >Here are a few simple search tips to get you started:</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="15px" line-height="21px" color="#3c3f44"
+          ><ul>
+            <li><p>To find a specific phrase, enter it in quotes: &quot;local storage&quot;</p></li>
+            <li>
+              <p>To search within specific tag(s), enter them in square brackets: [javascript]</p>
+            </li>
+            <li>
+              <p>
+                Combine them to get even more precise results - [javascript] &quot;local
+                storage&quot; searches for the phrase “local storage” in questions that have the
+                [javascript] tag
+              </p>
+            </li>
+          </ul>
+        </mj-text>
+        <mj-text padding="0px 0px 16px" font-size="15px" line-height="21px" color="#3c3f44"
+          >The more information you can put in the search bar, the more likely you will be to either
+          find the answer you need or feel confident that no one else has asked the question
+          before.</mj-text
+        >
+        <mj-divider border-color="#eeeeee" border-width="1px" padding="30px 0px" />
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="21px"
+          line-height="1"
+          font-weight="700"
+          color="#0c0d0e"
+          >Take a break and read about the worst coder in the world</mj-text
+        >
+        <mj-button
+          href="https://stackoverflow.blog/2019/10/22/"
+          align="left"
+          padding="24px 0px 0px"
+          inner-padding="13px 17px"
+          border-radius="4px"
+          font-size="17px"
+          background-color="#0095ff"
+          color="#ffffff"
+          border="1px solid #0077cc"
+          line-height="17px"
+          >I need a break</mj-button
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="32px 30px">
+      <mj-column padding="0px">
+        <mj-text padding="0px" font-size="12px" line-height="15px" color="#9199a1"
+          >You're receiving this email because your Stack Overflow activity triggered this tip or
+          reminder.</mj-text
+        >
+        <mj-text
+          padding="8px 0px 0px"
+          font-size="12px"
+          line-height="1.5"
+          css-class="community-rich-0"
+          ><a href="https://demo.react.email/">Unsubscribe from emails like this</a> &nbsp;
+          <a href="https://demo.react.email/">Edit email settings</a> &nbsp;
+          <a href="https://demo.react.email/">Contact us</a> &nbsp;
+          <a href="https://demo.react.email/">Privacy</a>
+        </mj-text>
+        <mj-divider border-color="#d6d8db" border-width="1px" padding="30px 0px" />
+        <mj-image
+          src="https://demo.react.email/static/stack-overflow-logo-sm.png"
+          alt=""
+          width="111px"
+          align="left"
+          padding="0px"
+        />
+        <mj-text padding="4px 0px" font-size="12px" line-height="15px" color="#9199a1"
+          ><strong>Stack Overflow</strong>, 110 William Street, 28th Floor, New York, NY
+          10038</mj-text
+        >
+        <mj-text
+          padding="4px 6px 3px"
+          font-size="11px"
+          line-height="1"
+          font-family="Consolas,monospace"
+          color="#e06c77"
+          css-class="stack-heart"
+          >&lt;3</mj-text
+        >
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

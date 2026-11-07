@@ -1,0 +1,234 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reviews/amazon-review.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>Amazon Review</mj-title>
+    <mj-preview>Amazon Review</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Ember,Helvetica,Arial,sans-serif" />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .community-rich-0 a:nth-of-type(1) {
+        text-decoration: underline;
+      }
+      .community-rich-1 a:nth-of-type(1) {
+        color: #ffffff;
+        text-decoration: underline;
+      }
+      .community-rich-2 a:nth-of-type(1) {
+        color: #666666;
+        text-decoration: underline;
+      }
+      .community-rich-3 a:nth-of-type(1) {
+        color: #1155cc;
+        text-decoration: underline;
+      }
+      .community-rich-3 a:nth-of-type(2) {
+        color: #1155cc;
+        text-decoration: underline;
+      }
+      .community-rich-3 a:nth-of-type(3) {
+        color: #999999;
+        text-decoration: underline;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="640px" background-color="#ffffff">
+    <mj-section padding="20px 20px 0px" border-top="4px solid #FF9900">
+      <mj-column padding="0px">
+        <mj-image
+          src="https://demo.react.email/static/amazon-prime-logo.png"
+          alt="Amazon Prime Logo"
+          width="109px"
+          height="48px"
+          align="center"
+          padding="0px"
+          href="https://www.amazon.com"
+        />
+        <mj-text
+          padding="20px 0px"
+          font-size="36px"
+          line-height="38px"
+          font-weight="400"
+          color="#232f3e"
+          align="center"
+          >Your opinion is important!</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="14px" line-height="1.5" align="center"
+          >Alan Turing, do you have a moment? We would like to know if everything went well for you.
+          Take a moment to review your most recent purchases.</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px 20px">
+      <mj-column padding="0px" width="50%">
+        <mj-image
+          src="https://demo.react.email/static/amazon-book.jpg"
+          alt="Amazon Book"
+          width="274px"
+          height="350px"
+          align="left"
+          padding="0px"
+        />
+      </mj-column>
+      <mj-column padding="0px 0px 0px 30px" width="50%">
+        <mj-text padding="0px 0px 16px" font-size="14px" line-height="1.5"
+          >14 Habits of Highly Productive Developers (English Edition)</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="14px" line-height="1.5"
+          >Start with rating this product</mj-text
+        >
+        <mj-social
+          mode="horizontal"
+          align="left"
+          icon-size="32px"
+          padding="0px"
+          border-radius="0px"
+        >
+          <mj-social-element
+            name="web"
+            src="https://demo.react.email/static/amazon-rating.gif"
+            alt="Amazon Rating"
+            background-color="transparent"
+            padding="0px"
+          >
+          </mj-social-element>
+          <mj-social-element
+            name="web"
+            src="https://demo.react.email/static/amazon-rating.gif"
+            alt="Amazon Rating"
+            background-color="transparent"
+            padding="0px"
+          >
+          </mj-social-element>
+          <mj-social-element
+            name="web"
+            src="https://demo.react.email/static/amazon-rating.gif"
+            alt="Amazon Rating"
+            background-color="transparent"
+            padding="0px"
+          >
+          </mj-social-element>
+          <mj-social-element
+            name="web"
+            src="https://demo.react.email/static/amazon-rating.gif"
+            alt="Amazon Rating"
+            background-color="transparent"
+            padding="0px"
+          >
+          </mj-social-element>
+          <mj-social-element
+            name="web"
+            src="https://demo.react.email/static/amazon-rating.gif"
+            alt="Amazon Rating"
+            background-color="transparent"
+            padding="0px"
+          >
+          </mj-social-element>
+        </mj-social>
+        <mj-text padding="16px 0px" font-size="14px" line-height="1.5" css-class="community-rich-0"
+          >Your reviews will be posted on Amazon using your public name.<a
+            >Check your public name.</a
+          >
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px 20px">
+      <mj-column padding="0px">
+        <mj-text
+          padding="8px 0px"
+          font-size="14px"
+          line-height="1.5"
+          color="#ffffff"
+          align="center"
+          container-background-color="#008296"
+          css-class="community-rich-1"
+          >How about evaluating a previous purchase? <a>View more</a>
+        </mj-text>
+        <mj-divider border-color="#cccccc" border-width="1px" padding="20px 0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px 20px">
+      <mj-column padding="0px" width="70%">
+        <mj-image
+          src="https://demo.react.email/static/amazon-logo.png"
+          alt="Amazon Logo"
+          width="93px"
+          height="23px"
+          align="left"
+          padding="0px"
+        />
+      </mj-column>
+      <mj-column padding="0px" width="10%">
+        <mj-image
+          src="https://demo.react.email/static/amazon-instagram.jpg"
+          alt="Amazon Social Midia"
+          width="30px"
+          height="30px"
+          align="right"
+          padding="0px"
+        />
+      </mj-column>
+      <mj-column padding="0px" width="10%">
+        <mj-image
+          src="https://demo.react.email/static/amazon-facebook.jpg"
+          alt="Amazon Social Midia"
+          width="30px"
+          height="30px"
+          align="right"
+          padding="0px"
+        />
+      </mj-column>
+      <mj-column padding="0px" width="10%">
+        <mj-image
+          src="https://demo.react.email/static/amazon-twitter.jpg"
+          alt="Amazon Social Midia"
+          width="30px"
+          height="30px"
+          align="right"
+          padding="0px"
+        />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px 20px 20px">
+      <mj-column padding="0px">
+        <mj-text
+          padding="8px 0px 0px"
+          font-size="10px"
+          line-height="1.5"
+          color="#666666"
+          css-class="community-rich-2"
+          >Customer reviews must adhere to the <a>Community Guidelines</a> .</mj-text
+        >
+        <mj-text
+          padding="8px 0px 0px"
+          font-size="10px"
+          line-height="1.5"
+          color="#666666"
+          css-class="community-rich-3"
+          >We hope this message was helpful to you. However, if you prefer not to receive this type
+          of communication from <a>Amazon.com</a> at <a>alanturing@gmail.com </a>,
+          <a>click here</a> .</mj-text
+        >
+        <mj-text padding="8px 0px 0px" font-size="10px" line-height="1.5" color="#666666"
+          >Please note that product prices and availability are subject to change.</mj-text
+        >
+        <mj-text padding="8px 0px 0px" font-size="10px" line-height="1.5" color="#666666"
+          >© 2023 Amazon.com, Inc. or its affiliates. Amazon and all associated marks are trademarks
+          of Amazon.com, Inc. or its affiliates.</mj-text
+        >
+        <mj-text padding="8px 0px 0px" font-size="10px" line-height="1.5" color="#666666"
+          >Reference: 706784740</mj-text
+        >
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

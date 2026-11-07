@@ -88,7 +88,7 @@ const initial: TableProps = {
 };
 async function mount(
   props = initial,
-  readOnly: Record<string, boolean> = {},
+  readOnly: Record<string, boolean | undefined> = {},
   edit = true,
   direction: "ltr" | "rtl" = "ltr",
 ) {
@@ -415,6 +415,42 @@ describe("table column resize", () => {
     expect(api!.history.hasPast).toBe(false);
   });
 
+  it("discards a pending drag when the current table is externally replaced", async () => {
+    await mount();
+    await pointer("pointerdown", 300);
+    await pointer("pointermove", 450);
+    const current = api!.getItemById("table")!;
+    const selector = api!.getSelectorForId("table")!;
+    const replacement = {
+      ...current,
+      props: {
+        ...current.props,
+        ...Object.fromEntries(
+          (["headerRows", "bodyRows", "footerRows"] as const).map((group) => [
+            group,
+            initial[group]!.map((row) => ({
+              ...row,
+              cells: row.cells.map((cell, index) => ({ ...cell, width: index ? "80%" : "20%" })),
+            })),
+          ]),
+        ),
+      },
+    };
+    await act(async () =>
+      api!.dispatch({
+        type: "replace",
+        destinationIndex: selector.index,
+        destinationZone: selector.zone,
+        data: replacement,
+        recordHistory: false,
+      }),
+    );
+    await settle();
+    await pointer("pointerup", 450);
+    expect(saved().bodyRows![0].cells.map((cell) => cell.width)).toEqual(["20%", "80%"]);
+    expect(handle().dataset.resizing).toBeUndefined();
+  });
+
   it.each([
     { props: { ...initial, bodyRows: [{ cells: [{ content: "Merged", colSpan: 2 }] }] } },
     {
@@ -429,6 +465,25 @@ describe("table column resize", () => {
   ])("omits handles for ambiguous or locked rows", async ({ props, readOnly, edit }) => {
     await mount(props, readOnly, edit);
     expect(handle()).toBeNull();
+  });
+
+  it.each([
+    { label: "exact dot path", locks: { "bodyRows.0.cells.0.width": true } },
+    { label: "wildcard dot path", locks: { "bodyRows.*.cells.*.width": true } },
+  ])("honors $label width locks", async ({ locks }) => {
+    await mount(initial, locks);
+    expect(handle()).toBeNull();
+  });
+
+  it("honors specific false width rules under a wildcard lock", async () => {
+    await mount(initial, {
+      "bodyRows[*].cells[*].width": true,
+      "bodyRows[0].cells[0].width": false,
+      "bodyRows[0].cells[1].width": false,
+    });
+    expect(handle()).not.toBeNull();
+    await key("ArrowRight");
+    expect(saved().bodyRows![0].cells.map((cell) => cell.width)).toEqual(["41%", "59%"]);
   });
 
   it("preserves legacy text when converting its two columns and rejects malformed rows", () => {

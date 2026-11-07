@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState, type PointerEvent } from "react";
 import { createUsePuck, type Overrides } from "@puckeditor/core";
 import { DotsSixVerticalIcon } from "@phosphor-icons/react/dist/csr/DotsSixVertical";
 import { normalizeTableRows, type TableProps, type TableRow } from "./table";
+import { isReadOnlyPath } from "./field-permissions";
 
 const usePuck = createUsePuck();
 const groups = ["headerRows", "bodyRows", "footerRows"] as const;
@@ -111,11 +112,6 @@ export function measureTableColumns(
     direction,
   };
 }
-function locked(pattern: string, path: string) {
-  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "\\d+");
-  return new RegExp(`^${escaped}(?:$|[.\\[])`).test(path);
-}
-
 export function TableColumnResize({
   componentId,
   componentType,
@@ -141,20 +137,22 @@ export function TableColumnResize({
   ) => {
     if (!current || !currentRows || !widths || !api.getPermissions({ item: current }).edit)
       return false;
-    const locks = Object.entries(current.readOnly ?? {})
-      .filter(([, value]) => value)
-      .map(([path]) => path);
+    const locks = current.readOnly ?? {};
     return groups.every((group) =>
       currentRows[group].every((entry, row) =>
         entry.cells.every(
           (cell, column) =>
-            !locks.some((pattern) => locked(pattern, `${group}[${row}].cells[${column}].width`)) ||
+            !isReadOnlyPath(`${group}[${row}].cells[${column}].width`, locks) ||
             (column !== index && column !== index + 1 && cell.width === percentage(widths[column])),
         ),
       ),
     );
   };
   useLayoutEffect(() => {
+    // A host replacement, undo, or changed lock invalidates measurements captured
+    // at pointerdown. Never apply that pending drag to a different table state.
+    drag.current = null;
+    setPreview(null);
     const element = marker.current;
     const host = element?.parentElement;
     const view = element?.ownerDocument.defaultView;
@@ -200,7 +198,7 @@ export function TableColumnResize({
       view.removeEventListener("resize", schedule);
       view.removeEventListener("scroll", schedule, true);
     };
-  }, [active, componentId, count, item?.props]);
+  }, [active, componentId, count, item?.props, item?.readOnly]);
   const commit = (index: number, widths: number[]) => {
     const current = api.getItemById(componentId);
     const selector = api.getSelectorForId(componentId);

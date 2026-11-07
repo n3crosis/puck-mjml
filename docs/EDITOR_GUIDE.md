@@ -8,9 +8,9 @@ The host application owns the document and any persistence. Changing `value` to 
 
 The document is Puck JSON. Email sections and wrappers live in `root.props.sections`; the top-level `content` array stays empty. Wrappers hold sections, and content blocks live in each section's column slots. Use `createEmptyDocument()` as the starting shape when constructing a document programmatically.
 
-Use `headerTitle` for branding and `headerActions` for host controls such as export buttons. These appear in Puck's existing header alongside undo/redo and preview. The editor does not display a subject field or use email metadata as its header title. Existing subject metadata is still accepted on export.
+Use `headerTitle` for branding and `headerActions` for host controls such as importing or selecting templates. These appear in Puck's existing header alongside undo/redo, Preview, and Export. The editor does not display a subject field or use email metadata as its header title. Existing subject metadata is still accepted on export.
 
-`onPublish` is an optional host callback. Supply `onUploadImage(file)` to show an upload control; it must return a public HTTP or HTTPS image URL.
+`onPublish` is an optional host callback. Supply `onUploadImage(file)` to show an upload control beside Image URL; it must return a public HTTP or HTTPS image URL. The field provides progress, errors, validation, and stale-result protection. See [Image uploads](IMAGE_UPLOADS.md) for host integration and the separately opted-in local demo mode, which embeds raster assets without hosting them.
 
 ## Blocks and editing controls
 
@@ -19,6 +19,8 @@ The editor includes fixed one-, two-, and three-column sections, flexible sectio
 Blocks appear in a compact two-column palette with [Phosphor icons](https://phosphoricons.com/). The sidebar groups controls into Content, Layout, Spacing, Typography, Appearance, and Advanced, omitting empty groups. Groups start open and can be collapsed. Advanced contains native attributes, classes, and document source settings. Color fields include a native picker beside editable text, including table cells and native MJML colors.
 
 Selected and hovered blocks show green padding and amber margins with side measurements, including their owned inner layout boxes. Selection tools prefer space above or below the content; tall selections keep controls within the visible preview. These editing aids are excluded from exported email.
+
+The selection toolbar includes Puck's drag handle for moving nested blocks without grabbing their editable content. It respects the block's drag permission and retains Puck's normal undo/redo behavior.
 
 At tablet widths, opening Blocks/Outline or Fields closes the other sidebar to preserve canvas space. The native header toggles still control each panel. Custom header actions expand into a separate row instead of covering canvas controls.
 
@@ -29,6 +31,14 @@ Root settings include email language/direction, legacy Outlook web layout, mobil
 `fromMjml(source)` parses an MJML document into `{ document, warnings }`, where `document` is an editable `EmailDocument` and `warnings` lists anything the document model cannot represent.
 
 The importer covers the standard components the editor models: wrappers, sections, columns, groups, heroes, text, images, buttons, spacers, dividers, social rows, navigation bars, tables, accordions, and carousels, plus head settings (title, preview, breakpoint, web fonts, custom CSS, attribute defaults, MJML classes, and generated HTML attributes). Attributes the visual fields cannot express — for example pixel column widths or `background-url` — are preserved as native MJML attributes and survive re-export. Sections with a single plain column become one-column sections; anything else becomes a flexible section with explicit columns. `mj-raw` content imports as raw HTML blocks, which require `allowRawHtml: true` when compiling. `mj-include` and custom `.mjmlconfig` components are not supported; the demo's Import MJML button reads a local `.mjml` file.
+
+## Exporting an email
+
+Choose **Export** beside **Preview**, select **HTML** or **MJML**, then choose **Download HTML** or **Download MJML**. The read-only source field supports selecting and copying text; it never executes the generated markup. Downloads contain the exact displayed output as UTF-8: `email.html` (`text/html`) or `email.mjml` (`application/xml`). Keep MJML to import and continue editing later. HTML is compiled email output, not the editor canvas markup.
+
+MJML is available while HTML compiles. Validation warnings remain available in the dialog; a compilation failure disables only the HTML download and offers a retry. Invalid documents that cannot serialize disable both downloads. A new host document or changed trust option replaces the output and discards stale pending results. Closing and reopening exports the latest document. Escape, Close, or the backdrop dismisses the native modal and returns focus to Export.
+
+Export uses the editor's `allowRawHtml` and `allowLocalImages` settings. Embedded local demo images display a warning because many email clients do not display data URLs reliably. Use publicly hosted HTTPS images before sending a production email. Export does not upload files, call `onPublish`, modify content/history, or provide draft persistence; publishing and storage remain host-owned.
 
 ## Tables
 
@@ -88,7 +98,7 @@ Document `headStyles` and `fontImports` apply to the compiled email and, scoped 
 
 Set `root.props.tailwind` to render Tailwind utility classes from `css-class` values on the canvas. The canvas loads the Tailwind v4 browser runtime (pinned to the installed `@tailwindcss/browser` version from jsDelivr; enabled by the host with `tailwindRuntime={true}`, or a trusted HTTP(S) script URL supplied through that editor prop) and compiles utilities live, with preflight excluded. This is an editing preview: for the compiled email, include your generated Tailwind CSS in `headStyles` — pasted build output also renders on the canvas through the same scoping.
 
-CSS source is formatted for reading and can be explicitly reformatted without rewriting HTML source. Source fields use monospace code blocks with tab-to-indent. For CSS scoping and font limitations, see [canvas behavior](MJML_COMPATIBILITY.md#custom-css-and-web-fonts).
+Custom CSS uses CodeMirror with CSS highlighting, line numbers, autocomplete, bracket matching, local undo/redo, and Format/Expand controls. Tab and Shift+Tab indent selected lines; press Escape, then Tab to move focus out of the editor. Read-only fields cannot change the document. Ordinary controlled updates preserve the cursor and local undo; replacing the source externally starts a fresh local history. Initial display formatting does not change stored CSS. HTML source remains a plain monospace field. For CSS scoping and font limitations, see [canvas behavior](MJML_COMPATIBILITY.md#custom-css-and-web-fonts).
 
 ## Trusted raw HTML
 
@@ -110,3 +120,21 @@ Tailwind needs both the document toggle and the host's `EmailEditor` `tailwindRu
 ### Import safety and round trips
 
 Treat imports as a conversion with diagnostics, not a lossless source editor. Review all warnings and compare important output with the original MJML. Rich HTML outside supported rich-text markup may need trusted source mode. The public demo deliberately rejects documents needing trusted source before replacing the current email; it never enables trust based on file content. Hosts should validate export before committing an imported document and keep a copy of the original source.
+
+## Advanced Puck hosts and read-only fields
+
+`EmailEditor` includes the field permissions integration. For a custom Puck shell, import both supported helpers from the client entry and preserve the field overrides:
+
+```tsx
+import { Puck } from "@puckeditor/core";
+import { createEmailConfig, emailFieldTypes } from "puck-mjml";
+
+<Puck
+  config={createEmailConfig()}
+  data={document}
+  overrides={{ fieldTypes: emailFieldTypes }}
+  onChange={setDocument}
+/>;
+```
+
+These helpers belong to the client/root entry, not `puck-mjml/core`. Hosts replacing the field overrides are responsible for equivalent read-only enforcement. Locked ancestor arrays also lock their nested fields and inline content. At the same leaf depth, an exact `false` exception can override a wildcard lock in sidebar controls. Puck still keeps an inline rich-text field static when its wildcard is locked even if an exact `false` exception permits the sidebar edit. Use that sidebar field for this narrow exception.

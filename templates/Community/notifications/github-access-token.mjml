@@ -1,0 +1,81 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/notifications/github-access-token.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>A fine-grained personal access token has been added to your account</mj-title>
+    <mj-preview>A fine-grained personal access token has been added to your account</mj-preview>
+    <mj-attributes>
+      <mj-all
+        font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Helvetica,Arial,sans-serif,&#x27;Apple Color Emoji&#x27;,&#x27;Segoe UI Emoji&#x27;"
+      />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="480px" background-color="#ffffff">
+    <mj-section padding="20px 0px 0px">
+      <mj-column padding="0px">
+        <mj-image
+          src="https://demo.react.email/static/github.png"
+          alt="Github"
+          width="32px"
+          height="32px"
+          align="left"
+          padding="0px"
+        />
+        <mj-text padding="24px 0px" font-size="24px" line-height="1.25"
+          ><strong>@alanturing</strong>, a personal access was created on your account.</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="24px" border="1px solid #dedede" border-radius="5px">
+      <mj-column padding="0px">
+        <mj-text padding="0px 0px 10px" font-size="14px" line-height="1.5"
+          >Hey <strong>alanturing</strong>!</mj-text
+        >
+        <mj-text padding="0px 0px 10px" font-size="14px" line-height="1.5"
+          >A fine-grained personal access token (resend) was recently added to your
+          account.</mj-text
+        >
+        <mj-button
+          align="center"
+          padding="0px"
+          inner-padding="12px 24px"
+          border-radius="8px"
+          font-size="14px"
+          background-color="#28a745"
+          color="#ffffff"
+          >View your token</mj-button
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-text
+          padding="16px 0px"
+          font-size="12px"
+          line-height="1.5"
+          align="center"
+          color="#0366d6"
+          >Your security audit log ・ Contact support</mj-text
+        >
+        <mj-text
+          padding="44px 0px 64px"
+          font-size="12px"
+          line-height="24px"
+          align="center"
+          color="#6a737d"
+          >GitHub, Inc. ・88 Colin P Kelly Jr Street ・San Francisco, CA 94107</mj-text
+        >
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -91,8 +91,7 @@ describe("fromMjml", () => {
         <mj-column><mj-text>B</mj-text></mj-column>
       </mj-section>
     </mj-body></mjml>`);
-    expect(warnings).toHaveLength(1);
-    expect(warnings[0]).toContain("Pixel column width");
+    expect(warnings).toEqual([]);
     const columns = document.root.props!.sections![0]!.props.columns as EmailBlock[];
     expect(columns[0]!.props.mjmlAttributes).toContainEqual(
       expect.objectContaining({

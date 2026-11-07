@@ -1,0 +1,664 @@
+<!--
+  Adapted from React Email (MIT, Copyright 2024 Plus Five Five, Inc).
+  https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/product-update.tsx
+  Canonical editable MJML source. See ../README.md and ../../THIRD_PARTY_NOTICES.md.
+-->
+<mjml lang="en" dir="ltr" owa="none">
+  <mj-head>
+    <mj-title> What&apos;s new in Dither </mj-title>
+    <mj-preview> What&apos;s new in Dither </mj-preview>
+    <mj-breakpoint width="601px" />
+    <mj-font
+      name="IBM Plex Sans Condensed"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500&amp;display=swap"
+    />
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&amp;display=swap"
+    />
+    <mj-attributes>
+      <mj-all font-family="Inter, Arial, sans-serif" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .pm-email-text p {
+        margin: 0;
+      }
+      .pm-email-text h1,
+      .pm-email-text h2,
+      .pm-email-text h3,
+      .pm-email-text h4,
+      .pm-email-text h5,
+      .pm-email-text h6 {
+        margin: 0 0 0.5em;
+        font-weight: bold;
+      }
+      .pm-email-text h1 {
+        font-size: 1.7em;
+        line-height: 1.15;
+      }
+      .pm-email-text h2 {
+        font-size: 1.3em;
+        line-height: 1.2;
+      }
+      .pm-email-text h3 {
+        font-size: 1.17em;
+        line-height: inherit;
+      }
+      .pm-email-text h4 {
+        font-size: 1em;
+        line-height: inherit;
+      }
+      .pm-email-text h5 {
+        font-size: 0.83em;
+        line-height: inherit;
+      }
+      .pm-email-text h6 {
+        font-size: 0.67em;
+        line-height: inherit;
+      }
+      .pm-email-text h1:last-child,
+      .pm-email-text h2:last-child,
+      .pm-email-text h3:last-child,
+      .pm-email-text h4:last-child,
+      .pm-email-text h5:last-child,
+      .pm-email-text h6:last-child {
+        margin-bottom: 0;
+      }
+    </mj-style>
+    <mj-style inline="inline">
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .dither-footer-copy > div {
+        max-width: 320px;
+      }
+      .dither-footer-unsubscribe > div {
+        max-width: 160px;
+      }
+
+      .dither-update-title > div {
+        max-width: 480px;
+      }
+      .dither-smart-copy > div {
+        max-width: 456px;
+      }
+    </mj-style>
+    <mj-style>
+      @media (max-width: 600px) {
+        .dither-logo > table > tbody > tr > td {
+          padding: 24px 16px !important;
+        }
+        .dither-hero > table > tbody > tr > td {
+          padding: 0px 16px !important;
+        }
+        .dither-img-fluid table {
+          width: 100% !important;
+        }
+        .dither-img-fluid img {
+          width: 100% !important;
+        }
+        .dither-display > div {
+          font-size: 40px !important;
+          letter-spacing: -1.2px !important;
+        }
+        .dither-h2 > div {
+          font-size: 24px !important;
+          line-height: 1.5 !important;
+          letter-spacing: -0.072px !important;
+        }
+        .dither-h3 > div {
+          font-size: 32px !important;
+          line-height: 0.9 !important;
+          letter-spacing: 0.4px !important;
+        }
+        .dither-footer-rule > table > tbody > tr > td {
+          padding: 0px 16px !important;
+        }
+        .dither-footer > table > tbody > tr > td {
+          padding: 48px 16px !important;
+        }
+
+        .dither-update-banner > table > tbody > tr > td {
+          padding: 32px 16px 8px !important;
+        }
+        .dither-update-letter > table > tbody > tr > td {
+          padding: 0px 16px 64px !important;
+        }
+        .dither-update-launch > table > tbody > tr > td {
+          padding: 0px 16px 64px !important;
+        }
+        .dither-update-smart > table > tbody > tr > td {
+          padding: 0px 16px 48px !important;
+        }
+        .dither-update-blog-heading > table > tbody > tr > td {
+          padding: 0px 16px !important;
+        }
+        .dither-update-blog-row > table > tbody > tr > td {
+          padding: 48px 16px 64px !important;
+        }
+        .dither-blog-first > table > tbody > tr > td {
+          padding: 0px 0px 40px !important;
+        }
+        .dither-blog-last > table > tbody > tr > td {
+          padding: 0px !important;
+        }
+        .dither-update-help > table > tbody > tr > td {
+          padding: 0px 16px 64px !important;
+        }
+        .dither-update-title > div {
+          max-width: 100% !important;
+        }
+        .dither-smart-copy > div {
+          max-width: 100% !important;
+        }
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="640px" background-color="#212121">
+    <mj-section
+      background-color="#131313"
+      padding="24px 24px"
+      border-radius="0px"
+      css-class="dither-logo"
+    >
+      <mj-column>
+        <mj-image
+          src="https://demo.react.email/static/shared/logo-white.png"
+          width="32px"
+          height="32px"
+          align="left"
+          padding="0px"
+          border-radius="0px"
+        />
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="48px 24px 8px"
+      border-radius="0px"
+      css-class="dither-update-banner"
+    >
+      <mj-column>
+        <mj-image
+          src="https://demo.react.email/static/dither/dither-image-6.png"
+          width="592px"
+          align="center"
+          padding="0px"
+          border-radius="0px"
+          css-class="dither-img-fluid"
+        />
+        <mj-text
+          color="#FFFFFF"
+          font-size="56px"
+          font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
+          font-weight="500"
+          line-height="1"
+          letter-spacing="-1.68px"
+          align="left"
+          padding="48px 0px 24px"
+          css-class="pm-email-text dither-display dither-update-title"
+        >
+          <p>THE WORK BEHIND THE WORK</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px 64px"
+      border-radius="0px"
+      css-class="dither-update-letter"
+    >
+      <mj-column>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="0px 0px 16px"
+          css-class="pm-email-text"
+        >
+          <p>Here from the Dither team.</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="0px 0px 16px"
+          css-class="pm-email-text"
+        >
+          <p>
+            This month was about making Dither feel smoother, faster, and easier to use in everyday
+            work.
+          </p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="0px 0px 16px"
+          css-class="pm-email-text"
+        >
+          <p>
+            We shipped new features, improved key workflows, and made small but meaningful updates
+            that reduce friction across the product.
+          </p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="0px 0px 16px"
+          css-class="pm-email-text"
+        >
+          <p>
+            A lot of our focus was on simplifying actions, improving performance, and responding to
+            feedback from teams using the product day to day.
+          </p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text"
+        >
+          <p>
+            We're continuing to shape Dither around real workflows—not just features—so everything
+            feels more connected and effortless over time.
+          </p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px 64px"
+      border-radius="0px"
+      css-class="dither-update-launch"
+    >
+      <mj-column>
+        <mj-text
+          color="#FFFFFF"
+          font-size="32px"
+          font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
+          font-weight="500"
+          line-height="0.9"
+          letter-spacing="0.4px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text dither-h2"
+        >
+          <p>WE LAUNCHED SMART TASKS</p>
+        </mj-text>
+        <mj-image
+          src="https://demo.react.email/static/dither/dither-image-7.png"
+          width="560px"
+          align="center"
+          padding="48px 0px 0px"
+          border-radius="0px"
+          css-class="dither-img-fluid"
+        />
+        <mj-text
+          color="#FFFFFF"
+          font-size="20px"
+          font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
+          font-weight="500"
+          line-height="1.1"
+          letter-spacing="0px"
+          align="left"
+          padding="32px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>Auto-prioritization</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="14px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>All your tasks for the week are surfaced based on urgency and impact.</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="15px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="450"
+          line-height="1.5"
+          letter-spacing="-0.075px"
+          align="left"
+          padding="12px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <a href="https://example.com/">Explore Smart Tasks</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px 48px"
+      border-radius="0px"
+      css-class="dither-update-smart"
+    >
+      <mj-column>
+        <mj-text
+          color="#FFFFFF"
+          font-size="20px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="500"
+          line-height="1.1"
+          letter-spacing="0px"
+          align="left"
+          padding="48px 0px 0px"
+          css-class="pm-email-text dither-smart-copy"
+        >
+          <p>
+            Smart Tasks analyzes your projects in real time and helps organize your workload
+            automatically. As things change, your task list updates so you're always focused on what
+            matters most.
+          </p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px"
+      border-radius="0px"
+      css-class="dither-update-blog-heading"
+    >
+      <mj-column>
+        <mj-text
+          color="#FFFFFF"
+          font-size="32px"
+          font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
+          font-weight="500"
+          line-height="0.9"
+          letter-spacing="0.4px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text dither-h2"
+        >
+          <p>READ MORE ON OUR BLOG</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#ffffff"
+      padding="48px 24px 64px"
+      css-class="dither-update-blog-row"
+    >
+      <mj-column
+        width="50%"
+        padding="0px 10px 0px 0px"
+        vertical-align="top"
+        css-class="dither-blog-first"
+      >
+        <mj-image
+          src="https://demo.react.email/static/dither/dither-image-4.png"
+          width="269px"
+          align="left"
+          padding="0px"
+          border-radius="0px"
+          css-class="dither-img-fluid"
+        />
+        <mj-text
+          color="#FFFFFF"
+          font-size="20px"
+          font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
+          font-weight="500"
+          line-height="1.1"
+          letter-spacing="0px"
+          align="left"
+          padding="24px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>Less manual work</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="8px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>Fewer status updates, more automated work.</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="15px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="450"
+          line-height="1.5"
+          letter-spacing="-0.075px"
+          align="left"
+          padding="12px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <a href="https://example.com/">Read more</a>
+        </mj-text>
+      </mj-column>
+      <mj-column
+        width="50%"
+        padding="0px 0px 0px 10px"
+        vertical-align="top"
+        css-class="dither-blog-last"
+      >
+        <mj-image
+          src="https://demo.react.email/static/dither/dither-image-5.png"
+          width="269px"
+          align="left"
+          padding="0px"
+          border-radius="0px"
+          css-class="dither-img-fluid"
+        />
+        <mj-text
+          color="#FFFFFF"
+          font-size="20px"
+          font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
+          font-weight="500"
+          line-height="1.1"
+          letter-spacing="0px"
+          align="left"
+          padding="24px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>Less manual work</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="8px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>Fewer status updates, more automated work.</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="15px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="450"
+          line-height="1.5"
+          letter-spacing="-0.075px"
+          align="left"
+          padding="12px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <a href="https://example.com/">Read more</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px 64px"
+      border-radius="0px"
+      css-class="dither-update-help"
+    >
+      <mj-column>
+        <mj-text
+          color="#FFFFFF"
+          font-size="13px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="300"
+          line-height="1.5"
+          letter-spacing="0.2px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text"
+        >
+          <p>Need help?</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="13px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="300"
+          line-height="1.5"
+          letter-spacing="0.2px"
+          align="left"
+          padding="2px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>Find guides, tips, and best practices anytime, visit our Help Center.</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px"
+      border-radius="0px"
+      css-class="dither-footer-rule"
+    >
+      <mj-column>
+        <mj-divider border-color="#2B2B2B" border-width="1px" width="100%" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="64px 24px"
+      border-radius="0px"
+      css-class="dither-footer"
+    >
+      <mj-column>
+        <mj-text
+          color="#C4C4C4"
+          font-size="13px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="300"
+          line-height="1.5"
+          letter-spacing="0.2px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text dither-footer-copy"
+        >
+          <p>
+            Dither helps teams cut through noise—clear priorities, fewer tabs, and less busywork
+            from idea to shipped work.
+          </p>
+        </mj-text>
+        <mj-social
+          align="left"
+          padding="32px 0px 0px"
+          icon-size="20px"
+          icon-padding="0px"
+          border-radius="0px"
+        >
+          <mj-social-element
+            name="x-noshare"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-x-white.png"
+            alt="X"
+            background-color="transparent"
+            padding="0px 24px 0px 0px"
+          >
+          </mj-social-element>
+          <mj-social-element
+            name="linkedin-noshare"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-li-white.png"
+            alt="LinkedIn"
+            background-color="transparent"
+            padding="0px 24px 0px 0px"
+          >
+          </mj-social-element>
+          <mj-social-element
+            name="youtube"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-yt-white.png"
+            alt="YouTube"
+            background-color="transparent"
+            padding="0px 24px 0px 0px"
+          >
+          </mj-social-element>
+          <mj-social-element
+            name="github"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-gh-white.png"
+            alt="GitHub"
+            background-color="transparent"
+            padding="0px"
+          >
+          </mj-social-element>
+        </mj-social>
+        <mj-text
+          color="#C4C4C4"
+          font-size="11px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="300"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="32px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>123 Market Street, Floor 1<br />Tech City, CA, 94102</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="11px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="300"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="20px 0px 0px"
+          css-class="pm-email-text dither-footer-unsubscribe"
+        >
+          <a href="https://example.com/">Unsubscribe</a> from Dither marketing emails.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

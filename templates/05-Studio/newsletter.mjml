@@ -1,0 +1,391 @@
+<!--
+  Adapted from React Email (MIT, Copyright 2024 Plus Five Five, Inc).
+  https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/05-Studio/newsletter.tsx
+  Canonical editable MJML source. See ../README.md and ../../THIRD_PARTY_NOTICES.md.
+-->
+<mjml lang="en" dir="ltr" owa="none">
+  <mj-head>
+    <mj-title>The latest from Halo</mj-title>
+    <mj-preview>The latest from Halo</mj-preview>
+    <mj-breakpoint width="601px" />
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600&amp;display=swap"
+    />
+    <mj-font
+      name="Geist"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;450;500;600;700&amp;display=swap"
+    />
+    <mj-attributes>
+      <mj-all font-family="Inter, Arial, sans-serif" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .studio-email a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .studio-unsubscribe a {
+        color: #726a6a;
+      }
+      .studio-letter > div {
+        max-width: 430px;
+        margin: 0 auto;
+      }
+      .studio-order-copy > div {
+        max-width: 420px;
+        margin: 0 auto;
+      }
+    </mj-style>
+    <mj-style>
+      @media only screen and (max-width: 600px) {
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="640px" background-color="#F6F6F6" css-class="studio-email">
+    <mj-section padding="0px" background-color="#F6F6F6">
+      <mj-column padding="0px" vertical-align="top">
+        <mj-image
+          src="https://demo.react.email/static/tech/tech-image-2.png"
+          width="640px"
+          alt=""
+          padding="0px"
+          align="left"
+          border-radius="10px 10px 0px 0px"
+        />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="56px 24px 0px" background-color="#FFFFFF">
+      <mj-column padding="0px" vertical-align="top">
+        <mj-text
+          font-family="Geist, Inter, Arial, sans-serif"
+          font-size="40px"
+          font-weight="700"
+          line-height="1.2"
+          letter-spacing="-0.8px"
+          color="#332C2C"
+          padding="0px"
+          align="center"
+          css-class="studio-letter"
+          >Why your finger is the calmest screen</mj-text
+        >
+        <mj-text
+          font-family="Inter, Arial, sans-serif"
+          font-size="14px"
+          font-weight="450"
+          line-height="1.6"
+          letter-spacing="-0.042px"
+          color="#726A6A"
+          padding="24px 0px 0px"
+          align="center"
+          css-class="studio-letter"
+          >We're glad you're here. This is our space for Halo ring drops, sizing tips, and the
+          stories behind each batch—we share what we're building, what we're learning, and when
+          limited finishes return.</mj-text
+        >
+        <mj-text
+          font-family="Inter, Arial, sans-serif"
+          font-size="14px"
+          font-weight="450"
+          line-height="1.6"
+          letter-spacing="-0.042px"
+          color="#726A6A"
+          padding="24px 0px 0px"
+          align="center"
+          css-class="studio-letter"
+          >No inbox noise—just emails when restocks land, firmware improves, or there's something
+          meaningful for members. Thanks for reading; we're happy you're along for the
+          journey.</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="56px 24px 0px" background-color="#FFFFFF">
+      <mj-column padding="0px" vertical-align="top">
+        <mj-image
+          src="https://demo.react.email/static/tech/tech-image-3.png"
+          width="560px"
+          alt=""
+          padding="0px"
+          align="center"
+          border-radius="10px"
+        />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="40px 24px 0px" background-color="#FFFFFF">
+      <mj-column padding="0px" vertical-align="top">
+        <mj-text
+          font-family="Geist, Inter, Arial, sans-serif"
+          font-size="22px"
+          font-weight="500"
+          line-height="1.4"
+          letter-spacing="-0.176px"
+          color="#332C2C"
+          padding="0px"
+          align="center"
+          css-class="studio-order-copy"
+          >Your personal AI companion, wrapped around your finger.</mj-text
+        >
+        <mj-text
+          font-family="Inter, Arial, sans-serif"
+          font-size="14px"
+          font-weight="450"
+          line-height="1.6"
+          letter-spacing="-0.042px"
+          color="#726A6A"
+          padding="24px 0px 0px"
+          align="center"
+          css-class="studio-order-copy"
+          >Halo learns how you shop, move, and focus—then surfaces gentle prompts, order updates,
+          and wellness cues without another screen.</mj-text
+        >
+        <mj-text
+          font-family="Inter, Arial, sans-serif"
+          font-size="14px"
+          font-weight="450"
+          line-height="1.6"
+          letter-spacing="-0.042px"
+          color="#A2A9AA"
+          padding="24px 0px 0px"
+          align="center"
+        >
+          <a href="https://example.com/">Read More →</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="56px 24px 0px" background-color="#FFFFFF">
+      <mj-column padding="0px" vertical-align="top">
+        <mj-text
+          font-family="Geist, Inter, Arial, sans-serif"
+          font-size="22px"
+          font-weight="500"
+          line-height="1.4"
+          letter-spacing="-0.176px"
+          color="#332C2C"
+          padding="0px"
+          align="center"
+          >From the Halo journal</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="32px 40px 0px" background-color="#FFFFFF">
+      <mj-group width="100%">
+        <mj-column width="50%" padding="16px 16px 16px 8px" vertical-align="top">
+          <mj-image
+            src="https://demo.react.email/static/tech/tech-image-4.png"
+            width="252px"
+            alt=""
+            padding="0px"
+            align="left"
+            border-radius="8px"
+          />
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="14px"
+            font-weight="450"
+            line-height="1.6"
+            letter-spacing="-0.042px"
+            color="#332C2C"
+            padding="16px 0px 0px"
+            align="left"
+            >Pick the right ring size online</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="14px"
+            font-weight="450"
+            line-height="1.6"
+            letter-spacing="-0.042px"
+            color="#726A6A"
+            padding="12px 0px 0px"
+            align="left"
+            >Use our printable sizer or visit a partner store so your Halo sits snug—returns are
+            easier when the first fit is close.</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="14px"
+            font-weight="450"
+            line-height="1.6"
+            letter-spacing="-0.042px"
+            color="#A2A9AA"
+            padding="16px 0px 0px"
+            align="left"
+          >
+            <a href="https://example.com/">Read More →</a>
+          </mj-text>
+        </mj-column>
+        <mj-column width="50%" padding="16px 8px 16px 16px" vertical-align="top">
+          <mj-image
+            src="https://demo.react.email/static/tech/tech-image-4.png"
+            width="252px"
+            alt=""
+            padding="0px"
+            align="left"
+            border-radius="8px"
+          />
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="14px"
+            font-weight="450"
+            line-height="1.6"
+            letter-spacing="-0.042px"
+            color="#332C2C"
+            padding="16px 0px 0px"
+            align="left"
+            >Keep your AI assistant subtle</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="14px"
+            font-weight="450"
+            line-height="1.6"
+            letter-spacing="-0.042px"
+            color="#726A6A"
+            padding="12px 0px 0px"
+            align="left"
+            >Toggle haptics and voice replies in the app so meetings stay quiet while you still get
+            the nudges that matter.</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="14px"
+            font-weight="450"
+            line-height="1.6"
+            letter-spacing="-0.042px"
+            color="#A2A9AA"
+            padding="16px 0px 0px"
+            align="left"
+          >
+            <a href="https://example.com/">Read More →</a>
+          </mj-text>
+        </mj-column>
+      </mj-group>
+    </mj-section>
+    <mj-section padding="88px 40px" background-color="#FFFFFF">
+      <mj-column padding="0px" vertical-align="top">
+        <mj-text
+          font-family="Geist, Inter, Arial, sans-serif"
+          font-size="20px"
+          font-weight="400"
+          line-height="1.5"
+          letter-spacing="-0.1px"
+          color="#332C2C"
+          padding="0px"
+          align="center"
+          >Intelligence that doesn't demand attention.</mj-text
+        >
+        <mj-text
+          font-family="Inter, Arial, sans-serif"
+          font-size="14px"
+          font-weight="450"
+          line-height="1.6"
+          letter-spacing="-0.042px"
+          color="#726A6A"
+          padding="12px 0px 0px"
+          align="center"
+          >Shop your finish and size—we'll confirm inventory and ship fast.</mj-text
+        >
+        <mj-button
+          href="https://example.com/"
+          background-color="#FFFFFF"
+          color="#332C2C"
+          font-family="Inter, Arial, sans-serif"
+          font-size="15px"
+          font-weight="500"
+          line-height="1.6"
+          letter-spacing="-0.042px"
+          border="1px solid #E8E9E9"
+          border-radius="8px"
+          inner-padding="12px 20px"
+          padding="24px 0px 0px"
+          align="center"
+          >Shop Halo</mj-button
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px 24px 32px" background-color="#FFFFFF">
+      <mj-column padding="0px" vertical-align="top">
+        <mj-text
+          font-family="Inter, Arial, sans-serif"
+          font-size="14px"
+          font-weight="450"
+          line-height="1.6"
+          letter-spacing="-0.042px"
+          color="#A2A9AA"
+          padding="0px"
+          align="center"
+          css-class="studio-letter"
+          >Halo is the AI ring on your finger—easy shopping, clear shipping, and real support when
+          you need it.</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="8px 24px 64px" background-color="#FFFFFF">
+      <mj-column padding="0px" vertical-align="top">
+        <mj-social
+          align="center"
+          padding="8px 0px 32px"
+          icon-size="20px"
+          icon-padding="0px"
+          border-radius="0px"
+        >
+          <mj-social-element
+            name="x-noshare"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-x-black.png"
+            alt="X"
+            background-color="transparent"
+            padding="0px 20px 0px 0px"
+          />
+          <mj-social-element
+            name="linkedin-noshare"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-in-black.png"
+            alt="LinkedIn"
+            background-color="transparent"
+            padding="0px 20px 0px 0px"
+          />
+          <mj-social-element
+            name="youtube"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-yt-black.png"
+            alt="YouTube"
+            background-color="transparent"
+            padding="0px 20px 0px 0px"
+          />
+          <mj-social-element
+            name="github"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-gh-black.png"
+            alt="GitHub"
+            background-color="transparent"
+            padding="0px"
+          />
+        </mj-social>
+        <mj-text
+          font-family="Inter, Arial, sans-serif"
+          font-size="11px"
+          font-weight="400"
+          line-height="1.5"
+          letter-spacing="-0.11px"
+          color="#A2A9AA"
+          padding="0px"
+          align="center"
+          >123 Market Street, Floor 1<br />Tech City, CA, 94102</mj-text
+        >
+        <mj-text
+          font-family="Inter, Arial, sans-serif"
+          font-size="11px"
+          font-weight="400"
+          line-height="1.5"
+          letter-spacing="-0.11px"
+          color="#A2A9AA"
+          padding="20px 0px 0px"
+          align="center"
+          css-class="studio-unsubscribe"
+        >
+          <a href="https://example.com/">Unsubscribe</a> from Halo marketing emails.</mj-text
+        >
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

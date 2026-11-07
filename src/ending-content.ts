@@ -1,6 +1,13 @@
 import { nativeCatalog } from "./native-attributes";
 import type { ExportOptions } from "./types";
 
+/** MJML trims ending-tag source before entity decoding. Preserve decoded edge spaces. */
+export function encodeEndingWhitespace(value: string): string {
+  return value.replace(/^\s+|\s+$/g, (space) =>
+    Array.from(space, (character) => `&#${character.codePointAt(0)};`).join(""),
+  );
+}
+
 // The native parser also implicitly closes an ending tag when it sees an
 // ancestor's closing tag. Prevent content from changing the surrounding MJML tree.
 const closingMjmlTag = new RegExp(

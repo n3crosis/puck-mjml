@@ -13,6 +13,7 @@ export type NativeContext = Readonly<{
   classes: Readonly<Record<string, NativeClass>>;
   hasNativeDefinitions: boolean;
   allowRawHtml: boolean;
+  allowLocalImages: boolean;
 }>;
 export type NativeElementAttributes = Record<string, string | number | undefined>;
 
@@ -112,6 +113,7 @@ export function createNativeContext(
     components,
     classes,
     allowRawHtml: options.allowRawHtml === true,
+    allowLocalImages: options.allowLocalImages === true,
     hasNativeDefinitions:
       Object.keys(globalEdits).length > 0 ||
       Object.keys(components).length > 0 ||

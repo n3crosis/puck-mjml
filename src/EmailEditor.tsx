@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Puck, createUsePuck, type Data, type Plugin, type Overrides } from "@puckeditor/core";
 import { EyeIcon } from "@phosphor-icons/react/dist/csr/Eye";
+import { ExportIcon } from "@phosphor-icons/react/dist/csr/Export";
+import { EmailExportDialog } from "./EmailExportDialog";
 import { BlockPaletteItem } from "./BlockPaletteItem";
 import { EmailOutline } from "./EmailOutline";
 import { SelectionActionBar } from "./SelectionActionBar";
 import { EditorComponentOverlay } from "./EditorComponentOverlay";
-import { TableArrayField } from "./TableEditor";
+import { emailFieldTypes } from "./editor-field-types";
 import { PropertyFieldLabel, PropertyInspector } from "./PropertyInspector";
 import { createEmailConfig } from "./config";
 import { compileEmail } from "./export";
@@ -60,6 +62,7 @@ export function EmailEditor({
   onPublish,
   onUploadImage,
   allowRawHtml = false,
+  allowLocalImages = false,
   tailwindRuntime,
   headerTitle = "Puck MJML",
   headerActions,
@@ -67,13 +70,16 @@ export function EmailEditor({
 }: EmailEditorProps) {
   const [editorData, setEditorData] = useState(() => sanitizeDocumentRichText(value));
   const [editorKey, setEditorKey] = useState(0);
-  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewDocument, setPreviewDocument] = useState<EmailDocument | null>(null);
+  const previewOpen = previewDocument !== null;
+  const [exportDocument, setExportDocument] = useState<EmailDocument | null>(null);
   const [previewWidth, setPreviewWidth] = useState<"desktop" | "mobile">("desktop");
   const [compiled, setCompiled] = useState<CompiledEmail | null>(null);
   const [previewError, setPreviewError] = useState("");
   const [compiling, setCompiling] = useState(false);
-  const dialogRef = useRef<HTMLElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const previewButtonRef = useRef<HTMLButtonElement>(null);
+  const exportButtonRef = useRef<HTMLButtonElement>(null);
   usePreviewFocus(previewOpen, dialogRef, previewButtonRef);
   const currentData = useRef(editorData);
   // Keep Puck's component renderers stable when the host recreates its upload callback.
@@ -86,8 +92,9 @@ export function EmailEditor({
   }, []);
   const uploadEnabled = Boolean(onUploadImage);
   const config = useMemo(
-    () => createEmailConfig(uploadEnabled ? uploadImage : undefined, allowRawHtml),
-    [uploadEnabled, uploadImage, allowRawHtml],
+    () =>
+      createEmailConfig(uploadEnabled ? uploadImage : undefined, allowRawHtml, allowLocalImages),
+    [uploadEnabled, uploadImage, allowRawHtml, allowLocalImages],
   );
 
   useEffect(() => {
@@ -100,18 +107,19 @@ export function EmailEditor({
       currentData.current = next;
       setEditorData(next);
       setEditorKey((key) => key + 1);
-      setPreviewOpen(false);
+      setPreviewDocument(null);
       setCompiled(null);
+      setExportDocument((openDocument) => (openDocument ? next : null));
     }
   }, [value]);
 
   useEffect(() => {
-    if (!previewOpen) return;
+    if (!previewDocument) return;
     let cancelled = false;
     setCompiling(true);
     setCompiled(null);
     setPreviewError("");
-    compileEmail(currentData.current, { allowRawHtml })
+    compileEmail(previewDocument, { allowRawHtml, allowLocalImages })
       .then((result) => {
         if (!cancelled) setCompiled(result);
       })
@@ -127,12 +135,12 @@ export function EmailEditor({
     return () => {
       cancelled = true;
     };
-  }, [previewOpen, allowRawHtml]);
+  }, [previewDocument, allowRawHtml, allowLocalImages]);
 
   useEffect(() => {
     if (!previewOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setPreviewOpen(false);
+      if (event.key === "Escape") setPreviewDocument(null);
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
@@ -141,6 +149,11 @@ export function EmailEditor({
   const handleChange = (next: Data) => {
     const document = next as EmailDocument;
     currentData.current = document;
+    // Async edits such as pending uploads can finish while the workspace is
+    // inert. Host echoes intentionally skip replacement, so refresh open
+    // dialogs here without remounting Puck or changing its history.
+    setPreviewDocument((openDocument) => (openDocument ? document : null));
+    setExportDocument((openDocument) => (openDocument ? document : null));
     onChange(document);
   };
 
@@ -155,10 +168,20 @@ export function EmailEditor({
           className="pm-preview-button"
           ref={previewButtonRef}
           aria-label="Preview email"
-          onClick={() => setPreviewOpen(true)}
+          onClick={() => setPreviewDocument(currentData.current)}
         >
           <EyeIcon aria-hidden="true" />
           Preview
+        </button>
+        <button
+          type="button"
+          className="pm-preview-button"
+          ref={exportButtonRef}
+          aria-label="Export email"
+          onClick={() => setExportDocument(currentData.current)}
+        >
+          <ExportIcon aria-hidden="true" />
+          Export
         </button>
       </>
     ),
@@ -174,13 +197,14 @@ export function EmailEditor({
       >
         <div
           className="pm-editor-workspace"
-          inert={previewOpen || undefined}
+          inert={previewOpen || Boolean(exportDocument) || undefined}
           style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
         >
           <Puck
             key={editorKey}
             config={config}
             plugins={editorPlugins}
+            dnd={{ enableDragHandle: true }}
             height="100%"
             data={editorData as Data}
             onChange={handleChange}
@@ -191,7 +215,7 @@ export function EmailEditor({
               outline: EmailOutline,
               actionBar: SelectionActionBar,
               componentOverlay: EditorComponentOverlay,
-              fieldTypes: { array: TableArrayField },
+              fieldTypes: emailFieldTypes,
               fields: PropertyInspector,
               fieldLabel: PropertyFieldLabel,
               headerActions: renderHeaderActions,
@@ -203,22 +227,34 @@ export function EmailEditor({
             ]}
           />
         </div>
+        {exportDocument && (
+          <EmailExportDialog
+            document={exportDocument}
+            allowRawHtml={allowRawHtml}
+            allowLocalImages={allowLocalImages}
+            onClose={() => setExportDocument(null)}
+            restoreRef={exportButtonRef}
+          />
+        )}
         {previewOpen && (
-          <div
+          <dialog
+            ref={dialogRef}
             className="pm-preview-backdrop"
-            role="presentation"
+            aria-label="Email preview"
+            onCancel={(event) => {
+              event.preventDefault();
+              setPreviewDocument(null);
+            }}
+            onClose={() => {
+              // Ignore a queued close from an effect cleanup if the modal has
+              // already reopened (for example React StrictMode replay).
+              if (!dialogRef.current?.open) setPreviewDocument(null);
+            }}
             onMouseDown={(event) => {
-              if (event.target === event.currentTarget) setPreviewOpen(false);
+              if (event.target === event.currentTarget) setPreviewDocument(null);
             }}
           >
-            <section
-              ref={dialogRef}
-              tabIndex={-1}
-              className="pm-preview-dialog"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Email preview"
-            >
+            <section className="pm-preview-dialog">
               <span
                 tabIndex={0}
                 data-preview-focus-guard="start"
@@ -248,7 +284,7 @@ export function EmailEditor({
                   <button
                     type="button"
                     aria-label="Close preview"
-                    onClick={() => setPreviewOpen(false)}
+                    onClick={() => setPreviewDocument(null)}
                   >
                     Close
                   </button>
@@ -292,7 +328,7 @@ export function EmailEditor({
                 style={{ position: "fixed", width: 1, height: 1, overflow: "hidden", opacity: 0 }}
               />
             </section>
-          </div>
+          </dialog>
         )}
       </div>
     </TailwindRuntimeContext.Provider>

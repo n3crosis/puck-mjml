@@ -5,9 +5,10 @@ import { createUsePuck, type PuckApi } from "@puckeditor/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Editor } from "@tiptap/core";
 import { fromMjml } from "./import";
-import { toMjml } from "./export";
+import { compileEmail, toMjml } from "./export";
 import { EmailEditor } from "./EmailEditor";
 import type { EmailDocument } from "./types";
+import { pngImageBytes } from "../tests/fixtures/images";
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 const usePuck = createUsePuck();
@@ -37,7 +38,15 @@ afterEach(async () => {
     vi.unstubAllGlobals();
   }
 }, 15_000);
-function Host({ initial }: { initial?: EmailDocument }) {
+function Host({
+  initial,
+  onPublish,
+  onUploadImage,
+}: {
+  initial?: EmailDocument;
+  onPublish?: (value: EmailDocument) => void;
+  onUploadImage?: (file: File) => Promise<string>;
+}) {
   const [document, setDocument] = useState<EmailDocument>(
     initial ?? {
       root: {
@@ -97,17 +106,23 @@ function Host({ initial }: { initial?: EmailDocument }) {
     <EmailEditor
       value={document}
       onChange={setDocument}
+      onPublish={onPublish}
+      onUploadImage={onUploadImage}
       allowRawHtml
       headerActions={<CaptureApi />}
     />
   );
 }
-async function mount(initial?: EmailDocument) {
+async function mount(
+  initial?: EmailDocument,
+  onPublish?: (value: EmailDocument) => void,
+  onUploadImage?: (file: File) => Promise<string>,
+) {
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
   await act(async () => {
-    root!.render(<Host initial={initial} />);
+    root!.render(<Host initial={initial} onPublish={onPublish} onUploadImage={onUploadImage} />);
   });
 }
 const field = (name: string) =>
@@ -303,8 +318,9 @@ describe("controlled EmailEditor typing", { timeout: 20_000 }, () => {
     const opener = container!.querySelector<HTMLButtonElement>('[aria-label="Preview email"]')!;
     opener.focus();
     await act(async () => opener.click());
-    const dialog = container!.querySelector<HTMLElement>('[role="dialog"]')!;
+    const dialog = container!.querySelector<HTMLDialogElement>("dialog.pm-preview-backdrop")!;
     expect(dialog).not.toBeNull();
+    expect(dialog.open).toBe(true);
     expect(dialog.contains(document.activeElement)).toBe(true);
     expect(
       container!.querySelector('[aria-label="Preview email"]')!.closest("[inert]"),
@@ -314,11 +330,219 @@ describe("controlled EmailEditor typing", { timeout: 20_000 }, () => {
         new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
       ),
     );
-    expect(container!.querySelector('[role="dialog"]')).toBeNull();
+    expect(container!.querySelector("dialog.pm-preview-backdrop")).toBeNull();
     const restored = container!.querySelector('[aria-label="Preview email"]')!;
     expect(restored.closest("[inert]")).toBeNull();
     expect(document.activeElement).toBe(restored);
   });
+  it("exports current edits without remounting Puck or changing document/history", async () => {
+    const publish = vi.fn();
+    await mount(undefined, publish);
+    const initialHistory = api!.history.index;
+    await insert(field("previewText"), "Edited ");
+    // Establish the baseline after Puck commits this debounced field edit.
+    // Otherwise a slower modal/compile can legitimately advance history while
+    // it is open, even though the dialog itself never records an edit.
+    for (let retry = 0; retry < 80 && api!.history.index === initialHistory; retry++) {
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 25));
+      });
+    }
+    expect(api!.history.index).toBe(initialHistory + 1);
+    const beforeDocument = value;
+    const beforeHistory = api!.history.index;
+    const beforePuck = container!.querySelector(".Puck");
+    const opener = container!.querySelector<HTMLButtonElement>('[aria-label="Export email"]')!;
+    expect(opener.previousElementSibling?.getAttribute("aria-label")).toBe("Preview email");
+    await act(async () => opener.click());
+    const dialog = container!.querySelector<HTMLDialogElement>(
+      'dialog[aria-label="Export email"]',
+    )!;
+    expect(dialog.open).toBe(true);
+    expect(opener.closest("[inert]")).not.toBeNull();
+    const mjml = [...dialog.querySelectorAll("button")].find(
+      (node) => node.textContent === "MJML",
+    )!;
+    await act(async () => mjml.click());
+    expect(dialog.querySelector("textarea")!.value).toBe(
+      toMjml(beforeDocument!, { allowRawHtml: true }),
+    );
+    await act(async () =>
+      dialog.querySelector<HTMLButtonElement>('[aria-label="Close export"]')!.click(),
+    );
+    expect(container!.querySelector('dialog[aria-label="Export email"]')).toBeNull();
+    expect(document.activeElement).toBe(opener);
+    expect(opener.closest("[inert]")).toBeNull();
+    expect(container!.querySelector(".Puck")).toBe(beforePuck);
+    expect(api!.history.index).toBe(beforeHistory);
+    expect(value).toBe(beforeDocument);
+    expect(publish).not.toHaveBeenCalled();
+    const publishButton = [
+      ...container!.querySelectorAll<HTMLElement>('span[class*="_Button_"]'),
+    ].find((node) => node.textContent === "Publish")!;
+    expect(publishButton).toBeDefined();
+    await act(async () => publishButton.click());
+    expect(publish).toHaveBeenCalledExactlyOnceWith(beforeDocument);
+  });
+  it.each(["Export", "Preview"] as const)(
+    "refreshes an open %s when a pending image upload completes",
+    async (mode) => {
+      const previousSource = "https://example.com/before-upload.png";
+      const uploadedSource = "https://example.com/finished-upload.png";
+      let finish!: (source: string) => void;
+      const upload = vi.fn(
+        () =>
+          new Promise<string>((resolve) => {
+            finish = resolve;
+          }),
+      );
+      const publish = vi.fn();
+      await mount(
+        {
+          root: {
+            props: {
+              sections: [
+                {
+                  type: "Section1",
+                  props: {
+                    id: "upload-section",
+                    column: [
+                      {
+                        type: "Image",
+                        props: {
+                          id: "async-image",
+                          src: previousSource,
+                          alt: "Pending upload",
+                          width: 160,
+                          padding: "10px",
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          content: [],
+        },
+        publish,
+        upload,
+      );
+      await act(async () =>
+        api!.dispatch({
+          type: "setUi",
+          ui: { itemSelector: api!.getSelectorForId("async-image") },
+        }),
+      );
+      const input = container!.querySelector<HTMLInputElement>('input[aria-label="Upload image"]')!;
+      expect(input).not.toBeNull();
+      Object.defineProperty(input, "files", {
+        configurable: true,
+        value: [new File([pngImageBytes()], "image.png", { type: "image/png" })],
+      });
+      await act(async () => input.dispatchEvent(new Event("change", { bubbles: true })));
+      expect(upload).toHaveBeenCalledOnce();
+      expect(input.disabled).toBe(true);
+      const beforePuck = container!.querySelector(".Puck");
+      const beforeHistory = api!.history.index;
+      const opener = container!.querySelector<HTMLButtonElement>(`[aria-label="${mode} email"]`)!;
+      await act(async () => opener.click());
+      const dialog = container!.querySelector<HTMLDialogElement>(
+        `dialog[aria-label="${mode === "Export" ? "Export email" : "Email preview"}"]`,
+      )!;
+      const button = (text: string) =>
+        [...dialog.querySelectorAll("button")].find((node) => node.textContent?.trim() === text)!;
+      const displayedHtml = () =>
+        mode === "Export"
+          ? (dialog.querySelector("textarea")?.value ?? "")
+          : (dialog.querySelector("iframe")?.getAttribute("srcdoc") ?? "");
+      const settleUntil = async (condition: () => boolean) => {
+        for (let retry = 0; retry < 80 && !condition(); retry++) {
+          await act(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 25));
+          });
+        }
+        expect(condition()).toBe(true);
+      };
+      await settleUntil(() => displayedHtml().includes(previousSource));
+      expect(opener.closest("[inert]")).not.toBeNull();
+      if (mode === "Export") {
+        await act(async () => button("MJML").click());
+        expect(dialog.querySelector("textarea")!.value).toContain(previousSource);
+      }
+      await act(async () => finish(uploadedSource));
+      // Puck's actual field callback changes the document while the editor is
+      // inert, and the controlled host echoes that same document back.
+      await settleUntil(() => api!.getItemById("async-image")?.props.src === uploadedSource);
+      const latest = await compileEmail(value!, { allowRawHtml: true });
+      expect(latest.mjml).toContain(uploadedSource);
+      expect(latest.mjml).not.toContain(previousSource);
+      if (mode === "Export") {
+        expect(dialog.querySelector("textarea")!.value).toBe(latest.mjml);
+        const blobs: Blob[] = [];
+        const filenames: string[] = [];
+        const createUrl = vi.spyOn(URL, "createObjectURL").mockImplementation((blob) => {
+          blobs.push(blob as Blob);
+          return `blob:pending-upload-${blobs.length}`;
+        });
+        const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+          this: HTMLAnchorElement,
+        ) {
+          filenames.push(this.download);
+        });
+        try {
+          await act(async () => button("Download MJML").click());
+          await act(async () => button("HTML").click());
+          await settleUntil(() => displayedHtml() === latest.html);
+          expect(button("Download HTML").disabled).toBe(false);
+          await act(async () => button("Download HTML").click());
+          expect(filenames).toEqual(["email.mjml", "email.html"]);
+          expect(await blobs[0].text()).toBe(latest.mjml);
+          expect(await blobs[1].text()).toBe(latest.html);
+        } finally {
+          createUrl.mockRestore();
+          click.mockRestore();
+        }
+      } else {
+        await settleUntil(() => displayedHtml() === latest.html);
+        expect(dialog.querySelector("iframe")!.getAttribute("sandbox")).toBe("");
+      }
+      expect(container!.querySelector(".Puck")).toBe(beforePuck);
+      // Field edits join Puck's debounced history, rather than adding a
+      // separate dialog entry or clearing earlier edits.
+      await settleUntil(() => api!.history.index === beforeHistory + 1);
+      expect(publish).not.toHaveBeenCalled();
+      await act(async () => button("Close").click());
+      expect(document.activeElement).toBe(container!.querySelector(`[aria-label="${mode} email"]`));
+      expect(container!.querySelector(".Puck")).toBe(beforePuck);
+      expect(api!.history.index).toBe(beforeHistory + 1);
+    },
+  );
+  it.each(["cancel", "backdrop", "button"] as const)(
+    "closes the native preview by %s without weakening the email sandbox",
+    async (method) => {
+      await mount();
+      const opener = container!.querySelector<HTMLButtonElement>('[aria-label="Preview email"]')!;
+      opener.focus();
+      await act(async () => opener.click());
+      const dialog = container!.querySelector<HTMLDialogElement>("dialog.pm-preview-backdrop")!;
+      expect(dialog.open).toBe(true);
+      expect(dialog.querySelector('iframe[title="Rendered email"]')?.getAttribute("sandbox")).toBe(
+        "",
+      );
+      await act(async () => {
+        if (method === "cancel") dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
+        else if (method === "backdrop")
+          dialog.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+        else dialog.querySelector<HTMLButtonElement>('[aria-label="Close preview"]')!.click();
+      });
+      expect(container!.querySelector("dialog.pm-preview-backdrop")).toBeNull();
+      expect(document.activeElement).toBe(container!.querySelector('[aria-label="Preview email"]'));
+      expect(
+        container!.querySelector('[aria-label="Preview email"]')!.closest("[inert]"),
+      ).toBeNull();
+    },
+  );
   it("edits imported root width and font without leaving stale native omissions", async () => {
     const imported = fromMjml(
       '<mjml><mj-body><mj-section><mj-column><mj-text css-class="root-font">Root font</mj-text></mj-column></mj-section></mj-body></mjml>',

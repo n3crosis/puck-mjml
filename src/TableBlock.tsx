@@ -1,6 +1,7 @@
 import type { ArrayField, ComponentConfig } from "@puckeditor/core";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
 import { sanitizeEmailRichText } from "./richtext";
+import { hasImportedRichTextWrapper, importedRichText } from "./imported-content";
 import { colorField } from "./ColorField";
 import { nativeStyle, typographyKeys, type NativeCanvasAttributes } from "./native-canvas-context";
 import {
@@ -89,7 +90,13 @@ const rowsField = (label: string, header = false): ArrayField<TableRow[]> => ({
   getItemSummary: (row, index) => `Row ${(index ?? 0) + 1} · ${row.cells.length} cells`,
 });
 
-export function TableBlock(input: TableProps & { nativeAttributes?: NativeCanvasAttributes }) {
+export function TableBlock(
+  input: TableProps & {
+    nativeAttributes?: NativeCanvasAttributes;
+    source?: TableProps;
+    puck?: { isEditing?: boolean };
+  },
+) {
   // Puck's read-only rich-text mapper represents missing nested array paths as null.
   // Keep that renderer detail separate from the serialized-data validator.
   const props: TableProps = {
@@ -99,12 +106,17 @@ export function TableBlock(input: TableProps & { nativeAttributes?: NativeCanvas
     footerRows: input.footerRows ?? undefined,
   };
   const rows = normalizeTableRows(props);
+  const sourceRows = input.source ? normalizeTableRows(input.source) : rows;
+  const native = Boolean(props.importedTableContent);
   const attrs = input.nativeAttributes ?? getTableAttributes(props);
-  const renderRows = (items: TableRow[]) =>
+  const renderRows = (items: TableRow[], originals: TableRow[]) =>
     items.map((row, rowIndex) => (
       <tr key={rowIndex}>
         {row.cells.map((cell, cellIndex) => {
           const Cell = cell.header ? "th" : "td";
+          const sourceCell = originals[rowIndex]?.cells[cellIndex] ?? cell;
+          const original = importedRichText(sourceCell);
+          const wrapped = original !== undefined && hasImportedRichTextWrapper(sourceCell);
           return (
             <Cell
               key={cellIndex}
@@ -113,11 +125,16 @@ export function TableBlock(input: TableProps & { nativeAttributes?: NativeCanvas
               rowSpan={cell.rowSpan !== 1 ? cell.rowSpan : undefined}
               style={{
                 ...getTableCellStyle(cell),
-                padding: cell.padding || `${attrs.cellpadding}px`,
+                padding: cell.padding || (cell.native ? undefined : `${attrs.cellpadding}px`),
               }}
             >
-              <div className="pm-text" style={{ lineHeight: "inherit" }}>
-                {typeof cell.content === "string" ? (
+              <div
+                className={`pm-text${cell.native ? " pm-imported-text" : ""}${wrapped ? " pm-imported-inline-text" : ""}`}
+                style={{ lineHeight: "inherit" }}
+              >
+                {original !== undefined && !input.puck?.isEditing ? (
+                  <div dangerouslySetInnerHTML={{ __html: original }} />
+                ) : typeof cell.content === "string" ? (
                   <div dangerouslySetInnerHTML={{ __html: sanitizeEmailRichText(cell.content) }} />
                 ) : (
                   cell.content
@@ -145,7 +162,7 @@ export function TableBlock(input: TableProps & { nativeAttributes?: NativeCanvas
       }}
     >
       <table
-        className="pm-table"
+        className={`pm-table${native ? " pm-native-table" : ""}`}
         style={
           input.nativeAttributes
             ? {
@@ -156,7 +173,7 @@ export function TableBlock(input: TableProps & { nativeAttributes?: NativeCanvas
                   "border",
                 ]),
                 backgroundColor: "transparent",
-                borderCollapse: Number(attrs.cellspacing) > 0 ? "separate" : "collapse",
+                borderCollapse: native || Number(attrs.cellspacing) > 0 ? "separate" : "collapse",
                 borderSpacing: `${attrs.cellspacing}px`,
                 marginLeft: attrs.align === "center" || attrs.align === "right" ? "auto" : 0,
                 marginRight: attrs.align === "center" || attrs.align === "left" ? "auto" : 0,
@@ -167,9 +184,15 @@ export function TableBlock(input: TableProps & { nativeAttributes?: NativeCanvas
         cellSpacing={attrs.cellspacing}
       >
         {props.caption && <caption>{props.caption}</caption>}
-        {rows.headerRows.length > 0 && <thead>{renderRows(rows.headerRows)}</thead>}
-        {rows.bodyRows.length > 0 && <tbody>{renderRows(rows.bodyRows)}</tbody>}
-        {rows.footerRows.length > 0 && <tfoot>{renderRows(rows.footerRows)}</tfoot>}
+        {rows.headerRows.length > 0 && (
+          <thead>{renderRows(rows.headerRows, sourceRows.headerRows)}</thead>
+        )}
+        {rows.bodyRows.length > 0 && (
+          <tbody>{renderRows(rows.bodyRows, sourceRows.bodyRows)}</tbody>
+        )}
+        {rows.footerRows.length > 0 && (
+          <tfoot>{renderRows(rows.footerRows, sourceRows.footerRows)}</tfoot>
+        )}
       </table>
     </div>
   );

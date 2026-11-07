@@ -1,9 +1,11 @@
+import { isLocalImageSource } from "./image-upload";
 import { normalizeEmailWidth } from "./layout";
 import { getTableAttributes } from "./table";
 import { normalizeColor as color } from "./native-attributes";
 
 export interface NativeBaseOptions {
   nativeEnabled?: boolean;
+  allowLocalImages?: boolean;
   implicitColumn?: boolean;
   rawPosition?: "file-start";
 }
@@ -175,7 +177,10 @@ export function getNativeBaseAttributes(
       };
     case "mj-image":
       return {
-        src: blockUrl(props.src, "Image source", assetProtocols, props, options),
+        src:
+          options.allowLocalImages === true && isLocalImageSource(props.src)
+            ? props.src
+            : blockUrl(props.src, "Image source", assetProtocols, props, options),
         alt: stringValue(props.alt),
         width: `${boundedNumber(props, "width", 560, 1, 1200)}px`,
         align: alignment(props.align),

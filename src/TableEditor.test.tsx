@@ -67,7 +67,7 @@ const table: TableProps = {
 
 async function mount(
   props = table,
-  readOnly: Record<string, boolean> = {},
+  readOnly: Record<string, boolean | undefined> = {},
   edit = true,
   captureEditor = false,
 ) {
@@ -277,6 +277,30 @@ describe("table sidebar editor", () => {
     await edit(() => button("Header row 1 cell 2: Price").click());
     expect(field("padding").readOnly).toBe(true);
     expect(button("Header row 1 cell 2: Price").disabled).toBe(false);
+  });
+
+  it.each([
+    { label: "exact dot path", locks: { "bodyRows.0.cells.0.padding": true } },
+    { label: "wildcard dot path", locks: { "bodyRows.*.cells.*.padding": true } },
+  ])("honors $label read-only cell rules", async ({ locks }) => {
+    await mount(table, locks);
+    expect(field("padding").readOnly).toBe(true);
+    await change("padding", "100px");
+    expect(saved().bodyRows![0].cells[0].padding).toBe("8px");
+  });
+
+  it("allows a more specific false rule without weakening parent locks", async () => {
+    await mount(table, {
+      "bodyRows[*].cells[*].padding": true,
+      "bodyRows[0].cells[0].padding": false,
+      headerRows: true,
+      "headerRows[0].cells[0].padding": false,
+    });
+    expect(field("padding").readOnly).toBe(false);
+    await change("padding", "12px");
+    expect(saved().bodyRows![0].cells[0].padding).toBe("12px");
+    await edit(() => button("Header row 1 cell 1: Product & name").click());
+    expect(field("padding").readOnly).toBe(true);
   });
 
   it("retains the original rich-text editor for cell content and undo", async () => {

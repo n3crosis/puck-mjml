@@ -1,7 +1,7 @@
 /* eslint-disable no-control-regex -- These validators explicitly reject unsafe control characters. */
 import { normalizeEmailBreakpoint } from "./layout";
 import { readNativeAttributes } from "./native-attributes";
-import { trustedEndingContent } from "./ending-content";
+import { encodeEndingWhitespace, trustedEndingContent } from "./ending-content";
 import type { EmailSettings, ExportOptions } from "./types";
 
 const xmlEscapes: Record<string, string> = {
@@ -198,7 +198,7 @@ function renderHtmlAttributes(entries: unknown, options: ExportOptions): string 
       if (typeof item.value !== "string")
         throw new Error("Generated HTML attribute value must be text");
       validateHtmlValue(name, item.value, options);
-      return `<mj-selector${selectorAttribute(selector)}><mj-html-attribute name="${escapeXml(name)}">${escapeXml(item.value)}</mj-html-attribute></mj-selector>`;
+      return `<mj-selector${selectorAttribute(selector)}><mj-html-attribute name="${escapeXml(name)}">${encodeEndingWhitespace(escapeXml(item.value))}</mj-html-attribute></mj-selector>`;
     })
     .join("");
   return selectors ? `<mj-html-attributes>${selectors}</mj-html-attributes>` : "";

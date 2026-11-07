@@ -139,6 +139,7 @@ describe("native attribute values", () => {
     expect(read("mj-column", "width", "33.333%")).toBe("33.333%");
     expect(read("mj-text", "padding", "0  12.5px\t4% 0")).toBe("0 12.5px 4% 0");
     expect(read("mj-table", "cellpadding", "4096")).toBe("4096");
+    expect(read("mj-table", "cellpadding", "1.5")).toBe("1.5");
     expect(read("mj-image", "fluid-on-mobile", "TRUE")).toBe("true");
     expect(read("mj-social", "mode", "vertical")).toBe("vertical");
     for (const color of [
@@ -169,7 +170,8 @@ describe("native attribute values", () => {
       ["mj-text", "padding", "1px 2px 3px 4px 5px"],
       ["mj-text", "color", "red trailing"],
       ["mj-image", "fluid-on-mobile", "yes"],
-      ["mj-table", "cellpadding", "1.5"],
+      ["mj-table", "cellpadding", "1.5px"],
+      ["mj-table", "cellpadding", "2 onmouseover=alert(1)"],
       ["mj-section", "direction", "sideways"],
     ])
       expect(() => read(tag, name, value)).toThrow();

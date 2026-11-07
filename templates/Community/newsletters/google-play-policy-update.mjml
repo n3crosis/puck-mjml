@@ -1,0 +1,197 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/newsletters/google-play-policy-update.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>Google Play developers</mj-title>
+    <mj-preview>Google Play developers</mj-preview>
+    <mj-attributes>
+      <mj-all
+        font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&#x27;Helvetica Neue&#x27;,sans-serif"
+      />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .community-rich-0 a:nth-of-type(1) {
+        color: #004dcf;
+        text-decoration: underline;
+      }
+      .community-rich-1 a:nth-of-type(1) {
+        color: #004dcf;
+        text-decoration: underline;
+      }
+      .community-rich-1 a:nth-of-type(2) {
+        color: #004dcf;
+        text-decoration: underline;
+      }
+      .community-rich-1 a:nth-of-type(3) {
+        color: #004dcf;
+        text-decoration: underline;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="600px" background-color="#dbddde">
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-spacer height="30px" />
+      </mj-column>
+    </mj-section>
+    <mj-wrapper padding="0px" background-color="#ffffff" border-radius="5px">
+      <mj-section padding="0px">
+        <mj-column padding="0px">
+          <mj-image
+            src="https://demo.react.email/static/google-play-header.png"
+            alt="Google Play developers header blue transparent"
+            width="305px"
+            height="28px"
+            align="left"
+            padding="0px"
+          />
+          <mj-image
+            src="https://demo.react.email/static/google-play-logo.png"
+            alt="Google Play"
+            width="155px"
+            height="31px"
+            align="left"
+            padding="0px 40px"
+          />
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px 40px">
+        <mj-column padding="0px">
+          <mj-divider border-color="#e8eaed" border-width="1px" padding="20px 0px" />
+          <mj-text
+            padding="0px 0px 16px"
+            font-size="14px"
+            line-height="26px"
+            font-weight="700"
+            color="#004dcf"
+            >DEVELOPER UPDATE</mj-text
+          >
+          <mj-text padding="0px 0px 16px" font-size="14px" line-height="22px" color="#3c4043"
+            >Hello Google Play Developer,</mj-text
+          >
+          <mj-text padding="0px 0px 16px" font-size="14px" line-height="22px" color="#3c4043"
+            >We strive to make Google Play a safe and trusted experience for users.</mj-text
+          >
+          <mj-text
+            padding="0px 0px 16px"
+            font-size="14px"
+            line-height="22px"
+            color="#3c4043"
+            css-class="community-rich-0"
+            >We've added clarifications to our
+            <a href="https://notifications.google.com/">Target API Level policy</a>. Because this is
+            a clarification, our enforcement standards and practices for this policy remain the
+            same.</mj-text
+          >
+          <mj-text
+            padding="0px 0px 16px"
+            font-size="14px"
+            line-height="22px"
+            color="#3c4043"
+            css-class="community-rich-1"
+            >We're noting exceptions to the
+            <a href="https://notifications.google.com/">Target API Level policy</a>, which can be
+            found in our updated
+            <a href="https://notifications.google.com/">Help Center article.</a>These exceptions
+            include permanently private apps and apps that target automotive or wearables form
+            factors and are bundled within the same package.
+            <a href="https://notifications.google.com/">Learn more</a>
+          </mj-text>
+          <mj-text padding="0px 0px 16px" font-size="14px" line-height="22px" color="#3c4043"
+            >We're also extending the deadline to give you more time to adjust to these changes.
+            Now, apps that target API level 29 or below will start experiencing reduced distribution
+            starting <b>Jan 31, 2023</b> instead of Nov 1, 2022. If you need more time to update
+            your app, you can request an extension to keep your app discoverable to all users until
+            May 1, 2023.</mj-text
+          >
+          <mj-divider border-color="#e8eaed" border-width="1px" padding="20px 0px" />
+          <mj-text padding="0px 0px 16px" font-size="14px" line-height="22px" color="#3c4043"
+            >Thank you,</mj-text
+          >
+          <mj-text padding="0px 0px 16px" font-size="20px" line-height="22px" color="#3c4043"
+            >The Google Play team</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px" background-color="#f0fcff">
+        <mj-column padding="0px">
+          <mj-text padding="16px 20px" font-size="14px" line-height="22px" color="#3c4043"
+            >Connect with us</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px 20px" background-color="#f0fcff">
+        <mj-column padding="0px 4px 0px 0px" width="6%">
+          <mj-image
+            src="https://demo.react.email/static/google-play-chat.png"
+            alt=""
+            width="28px"
+            height="28px"
+            align="left"
+            padding="0px"
+            href="https://notifications.google.com"
+          />
+        </mj-column>
+        <mj-column padding="0px 4px 0px 0px" width="6%">
+          <mj-image
+            src="https://demo.react.email/static/google-play-icon.png"
+            alt=""
+            width="28px"
+            height="28px"
+            align="left"
+            padding="0px"
+            href="https://notifications.google.com"
+          />
+        </mj-column>
+        <mj-column padding="0px 4px 0px 0px" width="6%">
+          <mj-image
+            src="https://demo.react.email/static/google-play-academy.png"
+            alt=""
+            width="28px"
+            height="28px"
+            align="left"
+            padding="0px"
+            href="https://notifications.google.com"
+          />
+        </mj-column>
+        <mj-column padding="0px" width="82%"> </mj-column>
+      </mj-section>
+      <mj-section padding="0px" background-color="#f0fcff">
+        <mj-column padding="0px">
+          <mj-image
+            src="https://demo.react.email/static/google-play-footer.png"
+            alt=""
+            width="540px"
+            height="48px"
+            align="left"
+            padding="0px"
+          />
+        </mj-column>
+      </mj-section>
+      <mj-section padding="16px 40px 30px">
+        <mj-column padding="0px">
+          <mj-text padding="0px" font-size="12px" line-height="22px" color="#3c4043" align="center"
+            >© 2022 Google LLC 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA</mj-text
+          >
+          <mj-text padding="0px" font-size="12px" line-height="22px" color="#3c4043" align="center"
+            >You have received this mandatory email service announcement to update you about
+            important changes to your Google Play Developer account.</mj-text
+          >
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-spacer height="30px" />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

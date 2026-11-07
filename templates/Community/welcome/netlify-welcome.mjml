@@ -1,0 +1,176 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/welcome/netlify-welcome.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>Netlify Welcome</mj-title>
+    <mj-preview>Netlify Welcome</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Arial,Helvetica,sans-serif" />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .community-rich-0 li:nth-of-type(1) {
+        margin-bottom: 20px;
+      }
+      .community-rich-0 li:nth-of-type(2) {
+        margin-bottom: 20px;
+      }
+      .community-rich-0 li:nth-of-type(3) {
+        margin-bottom: 20px;
+      }
+      .community-rich-0 li:nth-of-type(4) {
+        margin-bottom: 20px;
+      }
+      .community-rich-4 a:nth-of-type(1) {
+        text-decoration: underline;
+      }
+      .community-rich-4 em:nth-of-type(1) {
+        font-style: normal;
+        color: #22c55e;
+      }
+      .community-rich-6 a:nth-of-type(1) {
+        text-decoration: underline;
+      }
+      .community-rich-6 em:nth-of-type(1) {
+        font-style: normal;
+        color: #22c55e;
+      }
+      .community-rich-8 a:nth-of-type(1) {
+        text-decoration: underline;
+      }
+      .community-rich-8 em:nth-of-type(1) {
+        font-style: normal;
+        color: #22c55e;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="600px" background-color="#fafbfb">
+    <mj-section padding="20px 0px">
+      <mj-column padding="0px">
+        <mj-image
+          src="https://demo.react.email/static/netlify-logo.png"
+          alt="Netlify"
+          width="184px"
+          height="75px"
+          align="center"
+          padding="0px"
+        />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="45px 45px 0px" background-color="#ffffff">
+      <mj-column padding="0px">
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="32px"
+          line-height="32px"
+          font-weight="700"
+          align="center"
+          >Welcome to Netlify</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="16px" line-height="1.5"
+          >Congratulations! You're joining over 3 million developers around the world who use
+          Netlify to build and ship sites, stores, and apps.</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="16px" line-height="1.5"
+          >Here's how to get started:</mj-text
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="16px"
+          line-height="1.5"
+          css-class="community-rich-0"
+          ><ul>
+            <li>
+              <strong>Deploy your first project.</strong> Connect to Git, choose a template, or
+              manually deploy a project you've been working on locally.
+            </li>
+            <li>
+              <strong>Check your deploy logs.</strong> Find out what's included in your build and
+              watch for errors or failed deploys. Learn how to read your deploy logs.
+            </li>
+            <li>
+              <strong>Choose an integration.</strong> Quickly discover, connect, and configure the
+              right tools for your project with 150+ integrations to choose from. Explore the
+              Integrations Hub.
+            </li>
+            <li>
+              <strong>Set up a custom domain.</strong> You can register a new domain and buy it
+              through Netlify or assign a domain you already own to your site. Add a custom domain.
+            </li>
+          </ul>
+        </mj-text>
+        <mj-button
+          align="center"
+          padding="0px 0px 16px"
+          inner-padding="12px 18px"
+          border-radius="8px"
+          font-size="16px"
+          background-color="#2250f4"
+          color="#ffffff"
+          >Go to your dashboard</mj-button
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="45px" background-color="#ffffff">
+      <mj-column padding="0px" width="33.333%">
+        <mj-text
+          padding="0px"
+          font-size="16px"
+          line-height="1.5"
+          font-weight="700"
+          css-class="community-rich-4"
+          ><a href="https://www.netlify.com/">Visit the forums</a> <em>→</em>
+        </mj-text>
+      </mj-column>
+      <mj-column padding="0px" width="33.333%">
+        <mj-text
+          padding="0px"
+          font-size="16px"
+          line-height="1.5"
+          font-weight="700"
+          css-class="community-rich-6"
+          ><a href="https://www.netlify.com/">Read the docs</a> <em>→</em>
+        </mj-text>
+      </mj-column>
+      <mj-column padding="0px" width="33.333%">
+        <mj-text
+          padding="0px"
+          font-size="16px"
+          line-height="1.5"
+          font-weight="700"
+          css-class="community-rich-8"
+          ><a href="https://www.netlify.com/">Contact an expert</a> <em>→</em>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="20px 0px 16px">
+      <mj-column padding="0px" width="50%">
+        <mj-text padding="0px 20px" font-size="16px" line-height="1.5" align="right"
+          >Unsubscribe</mj-text
+        >
+      </mj-column>
+      <mj-column padding="0px" width="50%">
+        <mj-text padding="0px" font-size="16px" line-height="1.5">Manage Preferences</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-text
+          padding="0px 0px 45px"
+          font-size="16px"
+          line-height="1.5"
+          align="center"
+          color="#9ca3af"
+          >Netlify, 44 Montgomery Street, Suite 300 San Francisco, CA</mj-text
+        >
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

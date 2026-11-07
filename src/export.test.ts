@@ -458,14 +458,14 @@ describe("toMjml", () => {
         }),
       ),
     ).toThrow(/only Columns/);
-    expect(() =>
+    expect(
       toMjml(
         section({
           type: "Column",
           props: { id: "c", content: [{ ...carousel, props: { ...carousel.props, images: [] } }] },
         }),
       ),
-    ).toThrow(/at least one image/);
+    ).toContain('<mj-carousel align="center" thumbnails="visible"></mj-carousel>');
     expect(() =>
       toMjml(
         section({

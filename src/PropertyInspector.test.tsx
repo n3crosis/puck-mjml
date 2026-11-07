@@ -171,7 +171,7 @@ describe("grouped property inspector", () => {
     expect(control<HTMLInputElement>("backgroundColor", 'input[type="text"]').readOnly).toBe(true);
     expect(group("layout").querySelector('[aria-label="Read only"]')).not.toBeNull();
     await select("hero");
-    expect(getComputedStyle(group("content")).display).toBe("none");
+    expect(group("content")).toBeNull();
     expect(control("height")).toBeNull();
     await act(async () => {
       const mode = control<HTMLSelectElement>("mode", "select");
@@ -195,7 +195,7 @@ describe("grouped property inspector", () => {
     };
     await mount({ root: { props: { width: 600, previewText: "" } }, content: [] } as Data, config);
     expect(control("previewText")).toBeNull();
-    expect(getComputedStyle(group("content")).display).toBe("none");
+    expect(group("content")).toBeNull();
     await changeInput(control<HTMLInputElement>("width"), "640");
     expect(control("previewText")).not.toBeNull();
     await changeInput(control<HTMLInputElement>("previewText"), "A new preview");

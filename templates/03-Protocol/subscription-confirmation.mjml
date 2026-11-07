@@ -1,0 +1,552 @@
+<!--
+  Adapted from React Email (MIT, Copyright 2024 Plus Five Five, Inc).
+  https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/subscription-confirmation.tsx
+  Canonical editable MJML source. See ../README.md and ../../THIRD_PARTY_NOTICES.md.
+-->
+<mjml lang="en" dir="ltr" owa="none">
+  <mj-head>
+    <mj-title> You&apos;re on Pro with Dither </mj-title>
+    <mj-preview> You&apos;re on Pro with Dither </mj-preview>
+    <mj-breakpoint width="601px" />
+    <mj-font
+      name="IBM Plex Sans Condensed"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500&amp;display=swap"
+    />
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&amp;display=swap"
+    />
+    <mj-attributes>
+      <mj-all font-family="Inter, Arial, sans-serif" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .pm-email-text p {
+        margin: 0;
+      }
+      .pm-email-text h1,
+      .pm-email-text h2,
+      .pm-email-text h3,
+      .pm-email-text h4,
+      .pm-email-text h5,
+      .pm-email-text h6 {
+        margin: 0 0 0.5em;
+        font-weight: bold;
+      }
+      .pm-email-text h1 {
+        font-size: 1.7em;
+        line-height: 1.15;
+      }
+      .pm-email-text h2 {
+        font-size: 1.3em;
+        line-height: 1.2;
+      }
+      .pm-email-text h3 {
+        font-size: 1.17em;
+        line-height: inherit;
+      }
+      .pm-email-text h4 {
+        font-size: 1em;
+        line-height: inherit;
+      }
+      .pm-email-text h5 {
+        font-size: 0.83em;
+        line-height: inherit;
+      }
+      .pm-email-text h6 {
+        font-size: 0.67em;
+        line-height: inherit;
+      }
+      .pm-email-text h1:last-child,
+      .pm-email-text h2:last-child,
+      .pm-email-text h3:last-child,
+      .pm-email-text h4:last-child,
+      .pm-email-text h5:last-child,
+      .pm-email-text h6:last-child {
+        margin-bottom: 0;
+      }
+    </mj-style>
+    <mj-style inline="inline">
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .dither-footer-copy > div {
+        max-width: 320px;
+      }
+      .dither-footer-unsubscribe > div {
+        max-width: 160px;
+      }
+
+      .dither-confirm-title > div {
+        max-width: 490px;
+      }
+
+      .dither-confirm-help-copy > div {
+        max-width: 490px;
+      }
+    </mj-style>
+    <mj-style>
+      @media (max-width: 600px) {
+        .dither-logo > table > tbody > tr > td {
+          padding: 24px 16px !important;
+        }
+        .dither-hero > table > tbody > tr > td {
+          padding: 0px 16px !important;
+        }
+        .dither-img-fluid table {
+          width: 100% !important;
+        }
+        .dither-img-fluid img {
+          width: 100% !important;
+        }
+        .dither-display > div {
+          font-size: 40px !important;
+          letter-spacing: -1.2px !important;
+        }
+        .dither-h2 > div {
+          font-size: 24px !important;
+          line-height: 1.5 !important;
+          letter-spacing: -0.072px !important;
+        }
+        .dither-h3 > div {
+          font-size: 32px !important;
+          line-height: 0.9 !important;
+          letter-spacing: 0.4px !important;
+        }
+        .dither-footer-rule > table > tbody > tr > td {
+          padding: 0px 16px !important;
+        }
+        .dither-footer > table > tbody > tr > td {
+          padding: 48px 16px !important;
+        }
+
+        .dither-confirm-main > table > tbody > tr > td {
+          padding: 40px 16px 64px !important;
+        }
+        .dither-confirm-button {
+          padding: 32px 0px 0px !important;
+        }
+        .dither-confirm-title > div {
+          max-width: 100% !important;
+        }
+
+        .dither-confirm-start > table > tbody > tr > td {
+          padding: 0px 16px !important;
+        }
+        .dither-confirm-row > table > tbody > tr > td {
+          padding: 32px 16px 0px !important;
+        }
+        .dither-confirm-rule > table > tbody > tr > td {
+          padding: 0px 16px !important;
+        }
+        .dither-confirm-help > table > tbody > tr > td {
+          padding: 40px 16px 40px !important;
+        }
+        .dither-confirm-help-copy > div {
+          max-width: 100% !important;
+        }
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="640px" background-color="#212121">
+    <mj-section
+      background-color="#131313"
+      padding="24px 24px"
+      border-radius="0px"
+      css-class="dither-logo"
+    >
+      <mj-column>
+        <mj-image
+          src="https://demo.react.email/static/shared/logo-white.png"
+          width="32px"
+          height="32px"
+          align="left"
+          padding="0px"
+          border-radius="0px"
+        />
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px"
+      border-radius="0px"
+      css-class="dither-hero"
+    >
+      <mj-column>
+        <mj-image
+          src="https://demo.react.email/static/dither/dither-image-1.png"
+          width="592px"
+          align="center"
+          padding="0px"
+          border-radius="0px"
+          css-class="dither-img-fluid"
+        />
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="64px 24px 96px"
+      border-radius="0px"
+      css-class="dither-confirm-main"
+    >
+      <mj-column>
+        <mj-text
+          color="#FFFFFF"
+          font-size="56px"
+          font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
+          font-weight="500"
+          line-height="1"
+          letter-spacing="-1.68px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text dither-display dither-confirm-title"
+        >
+          <p>WELCOME TO PRO</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="24px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>Thanks for starting your Pro subscription, Alex.</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="18px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>
+            Your payment method has been charged. The next charge will be on
+            <strong>April 22, 2026.</strong>
+          </p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="18px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>
+            You can modify your payment method or cancel your subscription anytime by visiting the
+            Dither <a href="https://example.com/">billing settings</a> page.
+          </p>
+        </mj-text>
+        <mj-button
+          href="https://example.com/"
+          background-color="#FFFFFF"
+          color="#131313"
+          font-size="15px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="450"
+          line-height="1.5"
+          letter-spacing="-0.075px"
+          inner-padding="14px 20px"
+          border-radius="0px"
+          align="left"
+          padding="48px 0px 0px"
+          css-class="dither-confirm-button"
+        >
+          Open Dither
+        </mj-button>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px"
+      border-radius="0px"
+      css-class="dither-confirm-start"
+    >
+      <mj-column>
+        <mj-text
+          color="#FFFFFF"
+          font-size="32px"
+          font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
+          font-weight="500"
+          line-height="0.9"
+          letter-spacing="0.4px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text dither-h2"
+        >
+          <p>GET STARTED</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="40px 24px 0px"
+      border-radius="0px"
+      css-class="dither-confirm-row"
+    >
+      <mj-column>
+        <mj-text
+          color="#FFFFFF"
+          font-size="20px"
+          font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
+          font-weight="500"
+          line-height="1.1"
+          letter-spacing="0px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text"
+        >
+          <p>Set up your workspace</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="16px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>Complete the basics to get the most out of your account.</p>
+        </mj-text>
+        <mj-text
+          color="#FFFFFF"
+          font-size="15px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="450"
+          line-height="1.5"
+          letter-spacing="-0.075px"
+          align="left"
+          padding="12px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <a href="https://example.com/">Complete Setup</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px"
+      border-radius="0px"
+      css-class="dither-confirm-rule"
+    >
+      <mj-column>
+        <mj-divider border-color="#2B2B2B" border-width="1px" width="100%" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="40px 24px 0px"
+      border-radius="0px"
+      css-class="dither-confirm-row"
+    >
+      <mj-column>
+        <mj-text
+          color="#FFFFFF"
+          font-size="20px"
+          font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
+          font-weight="500"
+          line-height="1.1"
+          letter-spacing="0px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text"
+        >
+          <p>Invite your team</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="14px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="350"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="16px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>Collaboration works best when everyone's in.</p>
+        </mj-text>
+        <mj-text
+          color="#FFFFFF"
+          font-size="15px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="450"
+          line-height="1.5"
+          letter-spacing="-0.075px"
+          align="left"
+          padding="12px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <a href="https://example.com/">Invite Teammates</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px"
+      border-radius="0px"
+      css-class="dither-confirm-rule"
+    >
+      <mj-column>
+        <mj-divider border-color="#2B2B2B" border-width="1px" width="100%" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="56px 24px 56px"
+      border-radius="0px"
+      css-class="dither-confirm-help"
+    >
+      <mj-column>
+        <mj-text
+          color="#FFFFFF"
+          font-size="15px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="450"
+          line-height="1.5"
+          letter-spacing="-0.075px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text"
+        >
+          <p>Need help?</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="13px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="300"
+          line-height="1.5"
+          letter-spacing="0.2px"
+          align="left"
+          padding="2px 0px 0px"
+          css-class="pm-email-text dither-confirm-help-copy"
+        >
+          <p>
+            Find guides, tips, and best practices anytime, visit our
+            <a href="https://example.com/">Help Center</a>.
+          </p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="0px 24px"
+      border-radius="0px"
+      css-class="dither-footer-rule"
+    >
+      <mj-column>
+        <mj-divider border-color="#2B2B2B" border-width="1px" width="100%" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section
+      background-color="#131313"
+      padding="80px 24px 64px"
+      border-radius="0px"
+      css-class="dither-footer"
+    >
+      <mj-column>
+        <mj-text
+          color="#C4C4C4"
+          font-size="13px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="300"
+          line-height="1.5"
+          letter-spacing="0.2px"
+          align="left"
+          padding="0px"
+          css-class="pm-email-text dither-footer-copy"
+        >
+          <p>
+            Dither helps teams cut through noise—clear priorities, fewer tabs, and less busywork
+            from idea to shipped work.
+          </p>
+        </mj-text>
+        <mj-social
+          align="left"
+          padding="32px 0px 0px"
+          icon-size="20px"
+          icon-padding="0px"
+          border-radius="0px"
+        >
+          <mj-social-element
+            name="x-noshare"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-x-white.png"
+            alt="X"
+            background-color="transparent"
+            padding="0px 24px 0px 0px"
+          >
+          </mj-social-element>
+          <mj-social-element
+            name="linkedin-noshare"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-li-white.png"
+            alt="LinkedIn"
+            background-color="transparent"
+            padding="0px 24px 0px 0px"
+          >
+          </mj-social-element>
+          <mj-social-element
+            name="youtube"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-yt-white.png"
+            alt="YouTube"
+            background-color="transparent"
+            padding="0px 24px 0px 0px"
+          >
+          </mj-social-element>
+          <mj-social-element
+            name="github"
+            href="https://example.com/"
+            src="https://demo.react.email/static/shared/social-gh-white.png"
+            alt="GitHub"
+            background-color="transparent"
+            padding="0px"
+          >
+          </mj-social-element>
+        </mj-social>
+        <mj-text
+          color="#C4C4C4"
+          font-size="11px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="300"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="32px 0px 0px"
+          css-class="pm-email-text"
+        >
+          <p>123 Market Street, Floor 1<br />Tech City, CA, 94102</p>
+        </mj-text>
+        <mj-text
+          color="#C4C4C4"
+          font-size="11px"
+          font-family="Inter, Arial, sans-serif"
+          font-weight="300"
+          line-height="1.5"
+          letter-spacing="0.3px"
+          align="left"
+          padding="20px 0px 0px"
+          css-class="pm-email-text dither-footer-unsubscribe"
+        >
+          <a href="https://example.com/">Unsubscribe</a> from Dither marketing emails.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

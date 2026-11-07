@@ -73,3 +73,9 @@ Treat imports as a conversion with diagnostics, not a lossless source editor. Re
 Imported native local attributes and root font rules retain static provenance and the original visual-control baseline. A preserved native value is suppressed only when its corresponding visual control changes. Explicit native edits remove that ownership, and undo restores the earlier data and behavior. This is not an on-change reconciliation pass that repeatedly rewrites the imported document.
 
 Ending-tag HTML is scanned with quote and comment awareness so ordinary HTML void tags do not consume later MJML components. Unsafe embedded MJML boundary literals are retained with explicit cannot-export warnings rather than silently deleted or reported as a successful round trip. Review these diagnostics before committing an import; the demo's export preflight rejects such documents without replacing the previous email.
+
+### Safe imported content
+
+Safe imported text and accordion answers keep their original markup while unchanged, and retain native typography and paragraph/heading spacing through rich-text edits and undo. Imported tables keep sanitized source structure while unchanged; modeled cell edits preserve the absence of unwanted default alignment, borders, and scope. Structural edits rebuild the modeled table. Unsupported inline anchor or table-cell CSS still needs scoped head CSS or the host's explicit trusted-source mode. These preservation fields are always sanitized, including when supplied by a persisted or constructed document.
+
+The bundled [62-template MJML suite](../templates/README.md) is validated directly and through safe editor import/export. It is a concrete regression corpus, not evidence that arbitrary MJML or every email client behaves identically.

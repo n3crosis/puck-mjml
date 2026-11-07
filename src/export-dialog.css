@@ -1,0 +1,122 @@
+.pm-preview-dialog.pm-export-dialog {
+  width: min(1000px, 100%);
+  height: min(780px, 100%);
+}
+.pm-export-toolbar,
+.pm-export-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  flex-shrink: 0;
+}
+.pm-export-toolbar > span,
+.pm-export-feedback {
+  font-size: 12px;
+  color: #64748b;
+}
+.pm-export-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 0 20px 16px;
+}
+.pm-export-source-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.pm-export-source-label span {
+  font-weight: 400;
+  color: #64748b;
+}
+.pm-code.pm-export-source {
+  flex: 1;
+  min-height: 120px;
+  resize: none;
+}
+.pm-export-status,
+.pm-export-error,
+.pm-export-warnings {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.pm-export-error,
+.pm-export-warnings {
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.pm-export-error {
+  color: #991b1b;
+  background: #fef2f2;
+}
+.pm-export-error p {
+  margin: 0 0 8px;
+}
+.pm-export-warnings {
+  flex-shrink: 0;
+  max-height: 130px;
+  overflow: auto;
+  color: #854d0e;
+  background: #fffbeb;
+}
+.pm-export-warnings summary {
+  cursor: pointer;
+}
+.pm-export-warnings ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+.pm-export-footer {
+  border-top: 1px solid #e5e7eb;
+}
+.pm-export-feedback {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.pm-export-feedback p {
+  margin: 0;
+}
+.pm-preview-actions .pm-export-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: #1e293b;
+  color: #fff;
+  border-color: #1e293b;
+}
+.pm-preview-actions .pm-export-download:hover:not(:disabled) {
+  background: #334155;
+}
+.pm-export-download svg {
+  width: 16px;
+  height: 16px;
+}
+.pm-preview-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+@media (max-width: 600px) {
+  .pm-export-dialog .pm-preview-header,
+  .pm-export-toolbar,
+  .pm-export-footer {
+    padding: 12px;
+  }
+  .pm-export-body {
+    padding: 0 12px 12px;
+  }
+  .pm-export-footer .pm-preview-actions,
+  .pm-export-download {
+    width: 100%;
+  }
+}

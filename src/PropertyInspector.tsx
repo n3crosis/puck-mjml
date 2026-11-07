@@ -1,4 +1,4 @@
-import { Children, isValidElement, useId, useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { createUsePuck, type Overrides } from "@puckeditor/core";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/csr/CaretDown";
 import { LockSimpleIcon } from "@phosphor-icons/react/dist/csr/LockSimple";
@@ -174,34 +174,23 @@ function InspectorSection({
 }
 
 function InspectorGroups({
-  children,
   component,
   fields,
-  dynamicFields,
+  renderedFields,
   isLoading,
 }: {
-  children: ReactNode;
   component: string;
   fields: Record<string, InspectorField>;
-  dynamicFields: boolean;
+  renderedFields: Partial<Record<string, ReactNode>>;
   isLoading: boolean;
 }) {
   const entries = new Map<GroupId, InspectorEntry[]>();
-  const unrecognized: ReactNode[] = [];
-  Children.forEach(children, (child) => {
-    // Puck supplies its own connected field elements to this override. Keep
-    // those elements intact so permissions, resolution, selection and history
-    // continue through Puck's ordinary field path.
-    const name = isValidElement<{ fieldName?: unknown }>(child) ? child.props.fieldName : undefined;
-    if (typeof name !== "string") {
-      if (child !== null && child !== undefined && typeof child !== "boolean")
-        unrecognized.push(child);
-      return;
-    }
+  Object.entries(renderedFields).forEach(([name, child]) => {
+    // Puck 0.24 supplies visible, connected fields through its public API.
+    // Preserve these nodes and let Puck resolve visibility and permissions,
+    // including fields revealed dynamically from a hidden base schema.
+    if (child === null || child === undefined || typeof child === "boolean") return;
     const field = fields[name];
-    // A resolver may reveal fields hidden in the base schema. In that case
-    // leave visibility entirely to Puck's connected field renderer.
-    if (!dynamicFields && (field?.type === "slot" || field?.visible === false)) return;
     const id = groupFor(name, component);
     const names = groups.find((group) => group.id === id)!.fields as readonly string[];
     const rank = names.indexOf(name);
@@ -222,13 +211,12 @@ function InspectorGroups({
           />
         ) : null;
       })}
-      {unrecognized.length ? <div className="pm-property-ungrouped">{unrecognized}</div> : null}
     </div>
   );
 }
 
 /** Organize supplied fields without replacing their editors or document schema. */
-export function PropertyInspector({ children, isLoading }: Parameters<Overrides["fields"]>[0]) {
+export function PropertyInspector({ fields, isLoading }: Parameters<Overrides["fields"]>[0]) {
   const selectedId = usePuck((state) => state.selectedItem?.props.id ?? "root");
   const component = usePuck((state) => state.selectedItem?.type ?? "root");
   const componentConfig = usePuck((state) =>
@@ -239,11 +227,9 @@ export function PropertyInspector({ children, isLoading }: Parameters<Overrides[
       key={selectedId}
       component={component}
       fields={componentConfig?.fields ?? {}}
-      dynamicFields={Boolean(componentConfig?.resolveFields)}
+      renderedFields={fields}
       isLoading={isLoading}
-    >
-      {children}
-    </InspectorGroups>
+    />
   );
 }
 

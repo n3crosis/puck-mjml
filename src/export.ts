@@ -1,10 +1,12 @@
 import { sanitizeEmailRichText } from "./richtext";
+import { importedRichText } from "./imported-content";
+import { importedTableContent } from "./imported-table-content";
 import { renderTableContent } from "./table";
 import { normalizeEmailDirection, normalizeEmailLanguage, normalizeOutlookWeb } from "./metadata";
 import { getNativeBaseAttributes } from "./native-base";
 import { applyNativeAttributes, createNativeContext, type NativeContext } from "./native-cascade";
 import { readNativeAttributes } from "./native-attributes";
-import { trustedEndingContent } from "./ending-content";
+import { encodeEndingWhitespace, trustedEndingContent } from "./ending-content";
 import { renderHeadSettings } from "./head";
 import type {
   CompiledEmail,
@@ -25,6 +27,7 @@ const XML_ESCAPE: Record<string, string> = {
 };
 const escapeXml = (value: unknown) =>
   String(value ?? "").replace(/[&<>"']/g, (match) => XML_ESCAPE[match]);
+const endingText = (value: unknown) => encodeEndingWhitespace(escapeXml(value));
 const attributes = (values: Record<string, string | number | undefined>, preserveEmpty = false) =>
   Object.entries(values)
     .filter(([, value]) => value !== undefined && (preserveEmpty || value !== ""))
@@ -83,7 +86,12 @@ function nativeAttributes(
   );
   const output: Record<string, string | undefined> = {};
   for (const [name, value] of Object.entries(validated)) if (value !== null) output[name] = value;
-  if (richText && props.htmlContent === undefined)
+  if (
+    richText &&
+    props.htmlContent === undefined &&
+    importedRichText(props) === undefined &&
+    importedTableContent(props) === undefined
+  )
     output["css-class"] = ["pm-email-text", String(result.effective["css-class"] ?? "")]
       .filter(Boolean)
       .join(" ");
@@ -159,11 +167,11 @@ function renderRaw(
 function renderContent(block: EmailBlock, options: RenderOptions): string {
   switch (block.type) {
     case "Text":
-      return `<mj-text${nativeAttributes("mj-text", block.props, getNativeBaseAttributes("mj-text", block.props, options), options)}>${endingContent("mj-text", block.props, () => sanitizeEmailRichText(block.props.content), options)}</mj-text>`;
+      return `<mj-text${nativeAttributes("mj-text", block.props, getNativeBaseAttributes("mj-text", block.props, options), options)}>${endingContent("mj-text", block.props, () => importedRichText(block.props) ?? sanitizeEmailRichText(block.props.content), options)}</mj-text>`;
     case "Image":
       return `<mj-image${nativeAttributes("mj-image", block.props, getNativeBaseAttributes("mj-image", block.props, options), options)} />`;
     case "Button":
-      return `<mj-button${nativeAttributes("mj-button", block.props, getNativeBaseAttributes("mj-button", block.props, options), options)}>${endingContent("mj-button", block.props, () => escapeXml(block.props.label), options)}</mj-button>`;
+      return `<mj-button${nativeAttributes("mj-button", block.props, getNativeBaseAttributes("mj-button", block.props, options), options)}>${endingContent("mj-button", block.props, () => endingText(block.props.label), options)}</mj-button>`;
     case "Spacer":
       return `<mj-spacer${nativeAttributes("mj-spacer", block.props, getNativeBaseAttributes("mj-spacer", block.props, options), options)} />`;
     case "Divider":
@@ -181,7 +189,7 @@ function renderContent(block: EmailBlock, options: RenderOptions): string {
               undefined,
               link,
             );
-          return `<mj-social-element${nativeAttributes("mj-social-element", link, getNativeBaseAttributes("mj-social-element", link, childOptions("mj-social", block.props, options)), childOptions("mj-social", block.props, options))}>${endingContent("mj-social-element", link, () => escapeXml(link.label), options)}</mj-social-element>`;
+          return `<mj-social-element${nativeAttributes("mj-social-element", link, getNativeBaseAttributes("mj-social-element", link, childOptions("mj-social", block.props, options)), childOptions("mj-social", block.props, options))}>${endingContent("mj-social-element", link, () => endingText(link.label), options)}</mj-social-element>`;
         })
         .join("")}</mj-social>`;
     case "Navbar":
@@ -192,11 +200,11 @@ function renderContent(block: EmailBlock, options: RenderOptions): string {
         .map((link) =>
           isRawItem(link, "Navigation links")
             ? renderRaw(link.html, childOptions("mj-navbar", block.props, options), undefined, link)
-            : `<mj-navbar-link${nativeAttributes("mj-navbar-link", link, getNativeBaseAttributes("mj-navbar-link", link, childOptions("mj-navbar", block.props, options)), childOptions("mj-navbar", block.props, options))}>${endingContent("mj-navbar-link", link, () => escapeXml(link.label), options)}</mj-navbar-link>`,
+            : `<mj-navbar-link${nativeAttributes("mj-navbar-link", link, getNativeBaseAttributes("mj-navbar-link", link, childOptions("mj-navbar", block.props, options)), childOptions("mj-navbar", block.props, options))}>${endingContent("mj-navbar-link", link, () => endingText(link.label), options)}</mj-navbar-link>`,
         )
         .join("")}</mj-navbar>`;
     case "Table":
-      return `<mj-table${nativeAttributes("mj-table", block.props, getNativeBaseAttributes("mj-table", block.props, options), options)}>${endingContent("mj-table", block.props, () => renderTableContent(block.props), options)}</mj-table>`;
+      return `<mj-table${nativeAttributes("mj-table", block.props, getNativeBaseAttributes("mj-table", block.props, options), options)}>${endingContent("mj-table", block.props, () => importedTableContent(block.props) ?? renderTableContent(block.props), options)}</mj-table>`;
     case "Accordion": {
       const elementOptions = childOptions("mj-accordion", block.props, options);
       return `<mj-accordion${nativeAttributes("mj-accordion", block.props, getNativeBaseAttributes("mj-accordion", block.props, options), options)}>${records(
@@ -218,7 +226,13 @@ function renderContent(block: EmailBlock, options: RenderOptions): string {
                     htmlContent: item.titleHtmlContent,
                     ...title,
                   },
-                  { kind: "text", content: item.content, htmlContent: item.htmlContent, ...text },
+                  {
+                    kind: "text",
+                    content: item.content,
+                    htmlContent: item.htmlContent,
+                    importedRichText: item.importedRichText,
+                    ...text,
+                  },
                 ]
               : records(item.children, "Accordion element children");
           const markup = children
@@ -230,7 +244,7 @@ function renderContent(block: EmailBlock, options: RenderOptions): string {
                   `Accordion element contains an unsupported child kind: ${String(child.kind)}`,
                 );
               const tag = child.kind === "title" ? "mj-accordion-title" : "mj-accordion-text";
-              return `<${tag}${nativeAttributes(tag, child, getNativeBaseAttributes(tag, child, contentOptions), contentOptions)}>${endingContent(tag, child, () => (child.kind === "title" ? escapeXml(child.content) : sanitizeEmailRichText(child.content)), contentOptions)}</${tag}>`;
+              return `<${tag}${nativeAttributes(tag, child, getNativeBaseAttributes(tag, child, contentOptions), contentOptions)}>${endingContent(tag, child, () => (child.kind === "title" ? endingText(child.content) : (importedRichText(child) ?? sanitizeEmailRichText(child.content))), contentOptions)}</${tag}>`;
             })
             .join("");
           return `<mj-accordion-element${nativeAttributes("mj-accordion-element", item, getNativeBaseAttributes("mj-accordion-element", item, elementOptions), elementOptions)}>${markup}</mj-accordion-element>`;
@@ -239,7 +253,6 @@ function renderContent(block: EmailBlock, options: RenderOptions): string {
     }
     case "Carousel": {
       const images = records(block.props.images, "Carousel images");
-      if (!images.length) throw new Error("Carousel needs at least one image");
       return `<mj-carousel${nativeAttributes("mj-carousel", block.props, getNativeBaseAttributes("mj-carousel", block.props, options), options)}>${images.map((item) => `<mj-carousel-image${nativeAttributes("mj-carousel-image", item, getNativeBaseAttributes("mj-carousel-image", item, childOptions("mj-carousel", block.props, options)), childOptions("mj-carousel", block.props, options))} />`).join("")}</mj-carousel>`;
     }
     case "Raw":
@@ -373,7 +386,7 @@ function renderHead(
 ): string {
   const { breakpoint, fontImports, styles, htmlAttributes } = renderHeadSettings(settings, options);
   const rawHead = settings.rawHead ? renderRaw(settings.rawHead, options) : "";
-  return `<mj-head><mj-title>${endingContent("mj-title", { htmlContent: settings.subjectHtmlContent }, () => escapeXml(settings.subject), options)}</mj-title><mj-preview>${endingContent("mj-preview", { htmlContent: settings.previewHtmlContent }, () => escapeXml(settings.previewText), options)}</mj-preview>${breakpoint}${fontImports}${renderNativeDefaults(options.nativeContext)}<mj-style inline="inline">${richTextStyles}</mj-style>${styles}${htmlAttributes}${rawHead}</mj-head>`;
+  return `<mj-head><mj-title>${endingContent("mj-title", { htmlContent: settings.subjectHtmlContent }, () => endingText(settings.subject), options)}</mj-title><mj-preview>${endingContent("mj-preview", { htmlContent: settings.previewHtmlContent }, () => endingText(settings.previewText), options)}</mj-preview>${breakpoint}${fontImports}${renderNativeDefaults(options.nativeContext)}<mj-style inline="inline">${richTextStyles}</mj-style>${styles}${htmlAttributes}${rawHead}</mj-head>`;
 }
 
 export function toMjml(document: EmailDocument, options: ExportOptions = {}): string {

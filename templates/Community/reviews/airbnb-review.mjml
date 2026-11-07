@@ -1,0 +1,141 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reviews/airbnb-review.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>Read Alex&#x27;s review</mj-title>
+    <mj-preview>Read Alex&#x27;s review</mj-preview>
+    <mj-attributes>
+      <mj-all
+        font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&#x27;Helvetica Neue&#x27;,sans-serif"
+      />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .community-rich-0 a:nth-of-type(1) {
+        color: #ff5a5f;
+        text-decoration: underline;
+      }
+      .community-rich-1 a:nth-of-type(1) {
+        color: #ff5a5f;
+        text-decoration: underline;
+      }
+      .community-rich-2 a:nth-of-type(1) {
+        color: #ff5a5f;
+        text-decoration: underline;
+      }
+      .community-rich-3 a:nth-of-type(1) {
+        color: #9ca299;
+        text-decoration: underline;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="580px" background-color="#ffffff">
+    <mj-section padding="20px 0px 48px">
+      <mj-column padding="0px">
+        <mj-image
+          src="https://demo.react.email/static/airbnb-logo.png"
+          alt="Airbnb"
+          width="96px"
+          height="30px"
+          align="left"
+          padding="0px"
+        />
+        <mj-image
+          src="https://demo.react.email/static/airbnb-review-user.jpg"
+          alt="Alex"
+          width="96px"
+          height="96px"
+          align="center"
+          padding="0px 0px 16px"
+          border-radius="999px"
+        />
+        <mj-text
+          padding="32px 0px"
+          font-size="32px"
+          line-height="1.3"
+          font-weight="700"
+          color="#484848"
+          >Here's what Alex wrote</mj-text
+        >
+        <mj-text
+          padding="24px"
+          font-size="18px"
+          line-height="1.4"
+          color="#484848"
+          container-background-color="#f2f3f3"
+          >“Alan was a great guest! Easy communication, the apartment was left in great condition,
+          very polite, and respectful of all house rules. He’s welcome back anytime and would easily
+          recommend him to any host!”</mj-text
+        >
+        <mj-text padding="18px 0px" font-size="18px" line-height="1.4" color="#484848"
+          >Now that the review period is over, we've posted Alex's review to your Airbnb
+          profile.</mj-text
+        >
+        <mj-text padding="0px 0px 32px" font-size="18px" line-height="1.4" color="#484848"
+          >While it's too late to write a review of your own, you can send your feedback to Alex
+          using your Airbnb message thread.</mj-text
+        >
+        <mj-button
+          href="https://www.airbnb.com"
+          align="center"
+          padding="0px 0px 20px"
+          inner-padding="19px 30px"
+          border-radius="2px"
+          font-size="18px"
+          background-color="#ff5a5f"
+          color="#ffffff"
+          width="100%"
+          >Send My Feedback</mj-button
+        >
+        <mj-divider border-color="#cccccc" border-width="1px" padding="20px 0px" />
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="18px"
+          line-height="1.4"
+          color="#484848"
+          font-weight="700"
+          >Common questions</mj-text
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="18px"
+          line-height="1.4"
+          css-class="community-rich-0"
+          ><a href="https://www.airbnb.com/">How do reviews work?</a>
+        </mj-text>
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="18px"
+          line-height="1.4"
+          css-class="community-rich-1"
+          ><a href="https://www.airbnb.com/">How do star ratings work?</a>
+        </mj-text>
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="18px"
+          line-height="1.4"
+          css-class="community-rich-2"
+          ><a href="https://www.airbnb.com/">Can I leave a review after 14 days?</a>
+        </mj-text>
+        <mj-divider border-color="#cccccc" border-width="1px" padding="20px 0px" />
+        <mj-text padding="0px 0px 10px" font-size="14px" line-height="24px" color="#9ca299"
+          >Airbnb, Inc., 888 Brannan St, San Francisco, CA 94103</mj-text
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="14px"
+          line-height="1.5"
+          css-class="community-rich-3"
+          ><a href="https://www.airbnb.com/">Report unsafe behavior</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

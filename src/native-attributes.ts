@@ -1,5 +1,6 @@
 /* eslint-disable no-control-regex -- These validators explicitly reject unsafe control characters. */
 import sanitizeHtml from "sanitize-html";
+import { isLocalImageSource } from "./image-upload";
 import catalogData from "./native-catalog.json";
 import type { ExportOptions } from "./types";
 
@@ -264,7 +265,10 @@ function matchDescriptor(value: string, descriptor: string): string | undefined 
   const trimmed = value.trim();
   if (descriptor === "boolean")
     return /^(?:true|false)$/i.test(trimmed) ? trimmed.toLowerCase() : undefined;
-  if (descriptor === "integer") return /^[+-]?\d+$/.test(trimmed) ? trimmed : undefined;
+  // MJML's integer descriptor also accepts decimals. Keep that safe numeric
+  // subset without copying its unanchored matcher, which accepts arbitrary text.
+  if (descriptor === "integer")
+    return /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/.test(trimmed) ? trimmed : undefined;
   if (descriptor === "color") {
     const lower = trimmed.toLowerCase();
     if (colorKeywords.has(lower) || /^#(?:[\da-f]{3}|[\da-f]{6})$/i.test(trimmed)) return trimmed;
@@ -306,7 +310,20 @@ function matchDescriptor(value: string, descriptor: string): string | undefined 
   throw new Error(`Unsupported native attribute descriptor: ${descriptor}`);
 }
 
-function validateValue(tag: string, name: string, value: string, descriptors: Set<string>): string {
+function validateValue(
+  tag: string,
+  name: string,
+  value: string,
+  descriptors: Set<string>,
+  options: ExportOptions,
+): string {
+  if (
+    options.allowLocalImages === true &&
+    tag === "mj-image" &&
+    name === "src" &&
+    isLocalImageSource(value)
+  )
+    return value;
   if (name === "css-class" || name === "mj-class") return normalizeMjClass(value) ?? "";
   if (name === "srcset") return validateSrcset(value);
   if (name === "background-url") return backgroundUrl(value);
@@ -377,7 +394,7 @@ export function readNativeAttributes(
         throw new Error("Native template attribute contains an invalid XML control character");
       result[name] = value;
     } else {
-      result[name] = validateValue(tag, name, value, descriptors);
+      result[name] = validateValue(tag, name, value, descriptors, options);
     }
   }
   return result;

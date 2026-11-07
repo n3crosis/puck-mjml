@@ -1,0 +1,635 @@
+<!--
+  Adapted from React Email (MIT, Copyright 2024 Plus Five Five, Inc).
+  https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/subscription-confirmation.tsx
+  Canonical editable MJML source. See ../README.md and ../../THIRD_PARTY_NOTICES.md.
+-->
+<mjml lang="en" dir="ltr" owa="none">
+  <mj-head>
+    <mj-title> You&apos;re subscribed to Collage Pro </mj-title>
+    <mj-preview> You&apos;re subscribed to Collage Pro </mj-preview>
+    <mj-breakpoint width="601px" />
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&amp;display=swap"
+    />
+    <mj-attributes>
+      <mj-all font-family="Inter, Arial, sans-serif" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .pm-email-text p {
+        margin: 0;
+      }
+      .pm-email-text h1,
+      .pm-email-text h2,
+      .pm-email-text h3,
+      .pm-email-text h4,
+      .pm-email-text h5,
+      .pm-email-text h6 {
+        margin: 0 0 0.5em;
+        font-weight: bold;
+      }
+      .pm-email-text h1 {
+        font-size: 1.7em;
+        line-height: 1.15;
+      }
+      .pm-email-text h2 {
+        font-size: 1.3em;
+        line-height: 1.2;
+      }
+      .pm-email-text h3 {
+        font-size: 1.17em;
+        line-height: inherit;
+      }
+      .pm-email-text h4 {
+        font-size: 1em;
+        line-height: inherit;
+      }
+      .pm-email-text h5 {
+        font-size: 0.83em;
+        line-height: inherit;
+      }
+      .pm-email-text h6 {
+        font-size: 0.67em;
+        line-height: inherit;
+      }
+      .pm-email-text h1:last-child,
+      .pm-email-text h2:last-child,
+      .pm-email-text h3:last-child,
+      .pm-email-text h4:last-child,
+      .pm-email-text h5:last-child,
+      .pm-email-text h6:last-child {
+        margin-bottom: 0;
+      }
+    </mj-style>
+    <mj-style inline="inline">
+      body {
+        padding: 0 16px !important;
+      }
+      .collage-card {
+        box-shadow:
+          0px 76px 21px 0px rgba(193, 195, 193, 0),
+          0px 49px 19px 0px rgba(193, 195, 193, 0.01),
+          0px 27px 16px 0px rgba(193, 195, 193, 0.05),
+          0px 12px 12px 0px rgba(193, 195, 193, 0.09),
+          0px 3px 7px 0px rgba(193, 195, 193, 0.1);
+      }
+      .collage-card a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .collage-footer-copy > div {
+        max-width: 320px;
+      }
+      .collage-unsubscribe > div {
+        max-width: 169px;
+      }
+      .collage-confirm-copy > div {
+        max-width: 480px;
+      }
+      .collage-confirm-narrow > div {
+        max-width: 490px;
+      }
+    </mj-style>
+    <mj-style>
+      @media only screen and (max-width: 600px) {
+        .collage-confirm-logo > table > tbody > tr > td {
+          padding: 64px 24px 0px !important;
+        }
+        .collage-confirm-main > table > tbody > tr > td {
+          padding: 32px 24px 0px !important;
+        }
+        .collage-confirm-total > table > tbody > tr > td {
+          padding: 12px 24px !important;
+        }
+        .collage-confirm-cta > table > tbody > tr > td {
+          padding: 40px 24px 0px !important;
+        }
+        .collage-confirm-start > table > tbody > tr > td {
+          padding: 64px 24px 8px !important;
+        }
+        .collage-confirm-step > table > tbody > tr > td {
+          padding: 40px 24px !important;
+        }
+        .collage-confirm-rule > table > tbody > tr > td {
+          padding: 0px 24px !important;
+        }
+        .collage-confirm-help > table > tbody > tr > td {
+          padding: 56px 24px !important;
+        }
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="608px" background-color="#FBFCFB">
+    <mj-section background-color="#FBFCFB" padding="0px" border-radius="0px">
+      <mj-column>
+        <mj-spacer height="64px" />
+      </mj-column>
+    </mj-section>
+    <mj-wrapper
+      background-color="#FFFFFF"
+      padding="0px"
+      border="1px solid #D8E1D4"
+      border-radius="8px"
+      css-class="collage-card"
+    >
+      <mj-section
+        background-color="#ffffff"
+        padding="64px 40px 0px"
+        border-radius="0px"
+        css-class="collage-confirm-logo"
+      >
+        <mj-column>
+          <mj-image
+            src="https://demo.react.email/static/collage/collage-image-2.png"
+            width="148px"
+            height="111px"
+            align="left"
+            padding="0px"
+            border-radius="0px"
+          />
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="32px 40px 0px"
+        border-radius="0px"
+        css-class="collage-confirm-main"
+      >
+        <mj-column>
+          <mj-text
+            color="#103B05"
+            font-size="48px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-1.44px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text collage-confirm-copy"
+          >
+            <p>Subscription confirmed</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="18px 0px 0px"
+            css-class="pm-email-text collage-confirm-copy"
+          >
+            <p>
+              Hi Alex, thanks for subscribing to the Pro plan with Collage. Your subscription is
+              active and you have access to everything included in your plan.
+            </p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="18px 0px 0px"
+            css-class="pm-email-text collage-confirm-copy"
+          >
+            <p>
+              You're billed $29 per month. Your next charge is on April 22, 2026. You can update
+              payment details or cancel anytime from your account.
+            </p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="18px 0px 0px"
+            css-class="pm-email-text collage-confirm-copy"
+          >
+            <p>
+              Questions about billing or your plan? Reply to this email and we're happy to help.
+            </p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section background-color="#EDF0E9" padding="12px 40px" css-class="collage-confirm-total">
+        <mj-column width="50%" padding="0px" vertical-align="top">
+          <mj-text
+            color="#103B05"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>Subtotal</p>
+          </mj-text>
+        </mj-column>
+        <mj-column width="50%" padding="0px" vertical-align="top">
+          <mj-text
+            color="#103B05"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="right"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>$29.00</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section background-color="#ffffff" padding="0px" border-radius="0px">
+        <mj-column>
+          <mj-spacer height="3px" />
+        </mj-column>
+      </mj-section>
+      <mj-section background-color="#EDF0E9" padding="12px 40px" css-class="collage-confirm-total">
+        <mj-column width="50%" padding="0px" vertical-align="top">
+          <mj-text
+            color="#103B05"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>Tax</p>
+          </mj-text>
+        </mj-column>
+        <mj-column width="50%" padding="0px" vertical-align="top">
+          <mj-text
+            color="#103B05"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="right"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>$0.00</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section background-color="#ffffff" padding="0px" border-radius="0px">
+        <mj-column>
+          <mj-spacer height="3px" />
+        </mj-column>
+      </mj-section>
+      <mj-section background-color="#D3D9CB" padding="12px 40px" css-class="collage-confirm-total">
+        <mj-column width="50%" padding="0px" vertical-align="top">
+          <mj-text
+            color="#103B05"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>Total</p>
+          </mj-text>
+        </mj-column>
+        <mj-column width="50%" padding="0px" vertical-align="top">
+          <mj-text
+            color="#103B05"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="right"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>$29.00</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="40px 40px 0px"
+        border-radius="0px"
+        css-class="collage-confirm-cta"
+      >
+        <mj-column>
+          <mj-button
+            href="https://example.com/"
+            background-color="#103B05"
+            color="#FBFFF9"
+            font-size="15px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="-0.075px"
+            inner-padding="14px 20px"
+            border-radius="0px"
+            align="left"
+            padding="0px"
+          >
+            Manage subscription
+          </mj-button>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="64px 40px 8px"
+        border-radius="0px"
+        css-class="collage-confirm-start"
+      >
+        <mj-column>
+          <mj-text
+            color="#103B05"
+            font-size="32px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.2"
+            letter-spacing="-0.6px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text collage-confirm-narrow"
+          >
+            <p>Get started</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="40px 40px"
+        border-radius="0px"
+        css-class="collage-confirm-step"
+      >
+        <mj-column>
+          <mj-text
+            color="#103B05"
+            font-size="20px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="500"
+            line-height="1.2"
+            letter-spacing="-0.2px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text collage-confirm-narrow"
+          >
+            <p>Set up your workspace</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="12px 0px 0px"
+            css-class="pm-email-text collage-confirm-narrow"
+          >
+            <p>Complete the basics to get the most out of your account.</p>
+          </mj-text>
+          <mj-text
+            color="#103B05"
+            font-size="15px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="-0.075px"
+            align="left"
+            padding="12px 0px 0px"
+            css-class="pm-email-text collage-confirm-narrow"
+          >
+            <a href="https://example.com/">Complete Setup</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="0px 40px"
+        border-radius="0px"
+        css-class="collage-confirm-rule"
+      >
+        <mj-column>
+          <mj-divider border-color="#D8E1D4" border-width="1px" width="100%" padding="0px" />
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="40px 40px"
+        border-radius="0px"
+        css-class="collage-confirm-step"
+      >
+        <mj-column>
+          <mj-text
+            color="#103B05"
+            font-size="20px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="500"
+            line-height="1.2"
+            letter-spacing="-0.2px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text collage-confirm-narrow"
+          >
+            <p>Invite your team</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="12px 0px 0px"
+            css-class="pm-email-text collage-confirm-narrow"
+          >
+            <p>Collaboration works best when everyone's in.</p>
+          </mj-text>
+          <mj-text
+            color="#103B05"
+            font-size="15px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="-0.075px"
+            align="left"
+            padding="12px 0px 0px"
+            css-class="pm-email-text collage-confirm-narrow"
+          >
+            <a href="https://example.com/">Invite Teammates</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="0px 40px"
+        border-radius="0px"
+        css-class="collage-confirm-rule"
+      >
+        <mj-column>
+          <mj-divider border-color="#D8E1D4" border-width="1px" width="100%" padding="0px" />
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="56px 40px 56px"
+        border-radius="0px"
+        css-class="collage-confirm-help"
+      >
+        <mj-column>
+          <mj-text
+            color="#103B05"
+            font-size="15px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="-0.075px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text collage-confirm-narrow"
+          >
+            <p>Need help?</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="2px 0px 0px"
+            css-class="pm-email-text collage-confirm-narrow"
+          >
+            <p>
+              Find guides, tips, and best practices anytime, visit our
+              <a href="https://example.com/">Help Center</a>.
+            </p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section background-color="#ffffff" padding="0px" border-radius="0px">
+        <mj-column>
+          <mj-divider border-color="#D8E1D4" border-width="1px" width="100%" padding="0px" />
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="64px 40px"
+        border-radius="0px 0px 7px 7px"
+        css-class="collage-footer"
+      >
+        <mj-column>
+          <mj-text
+            color="#869C7F"
+            font-size="13px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="300"
+            line-height="1.5"
+            letter-spacing="-0.039px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text collage-footer-copy"
+          >
+            <p>
+              Collage is the workspace where your team keeps projects, context, and updates
+              together—from first idea to launch.
+            </p>
+          </mj-text>
+          <mj-social
+            align="left"
+            padding="32px 0px 0px"
+            icon-size="20px"
+            icon-padding="0px"
+            border-radius="0px"
+          >
+            <mj-social-element
+              name="x-noshare"
+              href="https://example.com/"
+              src="https://demo.react.email/static/shared/social-x-black.png"
+              alt="X"
+              background-color="transparent"
+              padding="0px 32px 0px 0px"
+            >
+            </mj-social-element>
+            <mj-social-element
+              name="linkedin-noshare"
+              href="https://example.com/"
+              src="https://demo.react.email/static/shared/social-in-black.png"
+              alt="LinkedIn"
+              background-color="transparent"
+              padding="0px 32px 0px 0px"
+            >
+            </mj-social-element>
+            <mj-social-element
+              name="youtube"
+              href="https://example.com/"
+              src="https://demo.react.email/static/shared/social-yt-black.png"
+              alt="YouTube"
+              background-color="transparent"
+              padding="0px 32px 0px 0px"
+            >
+            </mj-social-element>
+            <mj-social-element
+              name="github"
+              href="https://example.com/"
+              src="https://demo.react.email/static/shared/social-gh-black.png"
+              alt="GitHub"
+              background-color="transparent"
+              padding="0px"
+            >
+            </mj-social-element>
+          </mj-social>
+          <mj-text
+            color="#194A07"
+            font-size="11px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="300"
+            line-height="1.5"
+            letter-spacing="-0.033px"
+            align="left"
+            padding="32px 0px 0px"
+            css-class="pm-email-text"
+          >
+            <p>123 Market Street, Floor 1<br />Tech City, CA, 94102</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="11px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="300"
+            line-height="1.5"
+            letter-spacing="-0.033px"
+            align="left"
+            padding="20px 0px 0px"
+            css-class="pm-email-text collage-unsubscribe"
+          >
+            <a href="https://example.com/">Unsubscribe</a> from Collage marketing emails.
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-section background-color="#FBFCFB" padding="0px" border-radius="0px">
+      <mj-column>
+        <mj-spacer height="24px" />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

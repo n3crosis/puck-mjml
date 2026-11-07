@@ -8,6 +8,8 @@ import {
 } from "@puckeditor/core";
 import { nativeCatalog } from "./native-attributes";
 import { NativeAttributeEditor } from "./NativeAttributeEditor";
+import { FieldPathScope, withFieldPermissionFields } from "./FieldPermissions";
+import { hasReadOnlyDescendant, isReadOnlyPath } from "./field-permissions";
 import { CodeArea } from "./CodeField";
 import type { MjmlAttribute } from "./types";
 
@@ -79,6 +81,7 @@ function OrderedAccordionChildren({
   array,
   ...props
 }: Parameters<CustomField<unknown>["render"]>[0] & { array: ArrayField }) {
+  const { name: fieldName, ...autoFieldProps } = props;
   const enabled = Array.isArray(props.value);
   const locks = usePuck((state) => state.selectedItem?.readOnly ?? {});
   const selected = usePuck((state) => state.selectedItem?.props);
@@ -87,21 +90,10 @@ function OrderedAccordionChildren({
   );
   const path = (value: string) => value.replace(/\[(\d+|\*)\]/g, ".$1").split(".");
   const fieldPath = path(props.name);
-  const locked =
-    props.readOnly ||
-    !canEdit ||
-    Object.entries(locks).some(([name, value]) => {
-      const rule = path(name);
-      return (
-        value &&
-        rule
-          .slice(0, fieldPath.length)
-          .every(
-            (part, index) =>
-              part === fieldPath[index] || (part === "*" && /^\d+$/.test(fieldPath[index])),
-          )
-      );
-    });
+  const readOnly = Boolean(props.readOnly || !canEdit || isReadOnlyPath(fieldName, locks));
+  // A descendant lock prevents replacing/reordering the array, but must not
+  // suppress legitimate edits to other children within that array.
+  const structureLocked = readOnly || hasReadOnlyDescendant(fieldName, locks);
   const initialChildren = () => {
     let parent: unknown = selected;
     for (const segment of fieldPath.slice(0, -1))
@@ -134,8 +126,11 @@ function OrderedAccordionChildren({
           id={`${props.id}-enabled`}
           type="checkbox"
           checked={enabled}
-          disabled={locked}
-          onChange={(event) => props.onChange(event.target.checked ? initialChildren() : undefined)}
+          disabled={structureLocked}
+          onChange={(event) => {
+            if (!structureLocked)
+              props.onChange(event.target.checked ? initialChildren() : undefined);
+          }}
         />
         Use ordered native children
       </label>
@@ -145,7 +140,9 @@ function OrderedAccordionChildren({
             Replaces the title and answer fields above. Add title, answer, or raw HTML children in
             source order.
           </p>
-          <AutoField {...props} field={array} readOnly={locked} />
+          <FieldPathScope path={fieldName}>
+            <AutoField {...autoFieldProps} field={array} readOnly={readOnly} />
+          </FieldPathScope>
         </>
       )}
     </div>
@@ -194,6 +191,7 @@ function orderedAccordionField(allowRawHtml: boolean): CustomField<unknown> {
     getItemSummary: (item) =>
       item.kind === "raw" ? "Raw HTML" : item.kind === "title" ? "Title" : "Answer",
   };
+  array.arrayFields = withFieldPermissionFields(array.arrayFields);
   return {
     type: "custom",
     label: "Ordered native children",

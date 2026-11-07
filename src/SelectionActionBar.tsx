@@ -28,6 +28,7 @@ export function SelectionActionBar({
   label,
   parentAction,
   children,
+  dragHandle,
 }: Parameters<Overrides["actionBar"]>[0]) {
   const barRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
@@ -99,6 +100,7 @@ export function SelectionActionBar({
           {label && <ActionBar.Label label={label} />}
         </ActionBar.Group>
         <ActionBar.Group>{children}</ActionBar.Group>
+        {dragHandle && <ActionBar.Group>{dragHandle}</ActionBar.Group>}
       </ActionBar>
     </div>
   );

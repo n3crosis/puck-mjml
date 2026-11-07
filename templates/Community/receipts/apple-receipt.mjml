@@ -1,0 +1,379 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/receipts/apple-receipt.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>Apple Receipt</mj-title>
+    <mj-preview>Apple Receipt</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Helvetica Neue,Helvetica,Arial,sans-serif" />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .apple-invoice p {
+        font-size: 10px;
+        color: #666666;
+        margin: 0;
+      }
+      .apple-invoice a {
+        color: #1155cc;
+        text-decoration: underline;
+      }
+      .community-rich-0 em:nth-of-type(1) {
+        font-style: normal;
+        font-style: normal;
+        vertical-align: super;
+        font-size: 10px;
+      }
+      .community-rich-0 a:nth-of-type(1) {
+        text-decoration: underline;
+      }
+      .community-rich-0 em:nth-of-type(2) {
+        font-style: normal;
+        font-style: normal;
+        vertical-align: super;
+        font-size: 10px;
+      }
+      .community-rich-3 a:nth-of-type(1) {
+        color: #0070c9;
+        text-decoration: underline;
+      }
+      .community-rich-3 a:nth-of-type(2) {
+        color: #0070c9;
+        text-decoration: underline;
+      }
+      .community-rich-5 a:nth-of-type(1) {
+        color: #007eff;
+        text-decoration: underline;
+      }
+      .community-rich-6 a:nth-of-type(1) {
+        color: #0073ff;
+        text-decoration: underline;
+      }
+      .community-rich-7 a:nth-of-type(1) {
+        color: #0073ff;
+        text-decoration: underline;
+      }
+      .community-rich-8 a:nth-of-type(1) {
+        text-decoration: underline;
+      }
+      .community-rich-9 a:nth-of-type(1) {
+        text-decoration: underline;
+      }
+      .community-rich-10 a:nth-of-type(1) {
+        text-decoration: underline;
+      }
+      .community-rich-10 a:nth-of-type(2) {
+        text-decoration: underline;
+      }
+      .community-rich-10 a:nth-of-type(3) {
+        text-decoration: underline;
+      }
+      .community-rich-13 a:nth-of-type(1) {
+        text-decoration: underline;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="660px" background-color="#ffffff">
+    <mj-section padding="20px 0px 0px">
+      <mj-column padding="0px" width="50%">
+        <mj-image
+          src="https://demo.react.email/static/apple-logo.png"
+          alt="Apple Logo"
+          width="42px"
+          height="42px"
+          align="left"
+          padding="0px"
+        />
+      </mj-column>
+      <mj-column padding="0px" width="50%">
+        <mj-text
+          padding="16px 0px"
+          font-size="32px"
+          line-height="24px"
+          font-weight="300"
+          color="#888888"
+          align="right"
+          >Receipt</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-text
+          padding="36px 0px 40px"
+          font-size="14px"
+          line-height="24px"
+          font-weight="500"
+          color="#111111"
+          align="center"
+          css-class="community-rich-0"
+          >Save 3% on all your Apple purchases with Apple Card.<em>1</em>
+          <a href="https://www.apple.com/apple-card/">Apply and use in minutes</a><em>2</em>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px" background-color="#fafafa" border-radius="3px">
+      <mj-column padding="0px">
+        <mj-table
+          font-size="12px"
+          color="#333333"
+          line-height="17px"
+          padding="0px"
+          css-class="apple-invoice"
+          ><tr>
+            <td colspan="2" style="padding: 8px 20px; border: 1px solid #ffffff">
+              <p>APPLE ID</p>
+              <a>alan.turing@gmail.com</a>
+            </td>
+            <td
+              colspan="2"
+              rowspan="3"
+              style="padding: 8px 20px; border: 1px solid #ffffff; vertical-align: top"
+            >
+              <p>BILLED TO</p>
+              Visa .... 7461 (Apple Pay)<br />Alan Turing<br />2125 Chestnut St<br />San Francisco,
+              CA 94123<br />USA
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2" style="padding: 8px 20px; border: 1px solid #ffffff">
+              <p>INVOICE DATE</p>
+              18 Jan 2023
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 20px; border: 1px solid #ffffff">
+              <p>ORDER ID</p>
+              <a>ML4F5L8522</a>
+            </td>
+            <td style="padding: 8px 20px; border: 1px solid #ffffff">
+              <p>DOCUMENT NO.</p>
+              186623754793
+            </td>
+          </tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-spacer height="30px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px" background-color="#fafafa" border-radius="3px">
+      <mj-column padding="0px">
+        <mj-text padding="0px 10px" font-size="14px" line-height="24px" font-weight="500"
+          >App Store</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="15px 0px 0px">
+      <mj-column padding="0px 0px 0px 20px" width="13%">
+        <mj-image
+          src="https://demo.react.email/static/apple-hbo-max-icon.jpeg"
+          alt="HBO Max"
+          width="64px"
+          height="64px"
+          align="left"
+          padding="0px"
+          border-radius="14px"
+          border="1px solid #f2f2f2"
+        />
+      </mj-column>
+      <mj-column padding="0px 0px 0px 22px" width="72%">
+        <mj-text padding="0px" font-size="12px" line-height="1.4" font-weight="600"
+          >HBO Max: Stream TV &amp; Movies</mj-text
+        >
+        <mj-text padding="0px" font-size="12px" line-height="1.4" color="#666666"
+          >HBO Max Ad-Free (Monthly)<br />Renews Aug 20, 2023</mj-text
+        >
+        <mj-text padding="0px" font-size="12px" line-height="1.5" css-class="community-rich-3"
+          ><a href="https://www.apple.com/">Write a Review</a> |
+          <a href="https://www.apple.com/">Report a Problem</a>
+        </mj-text>
+      </mj-column>
+      <mj-column padding="0px 20px 0px 0px" width="15%">
+        <mj-text padding="0px" font-size="12px" line-height="24px" font-weight="600" align="right"
+          >$14.99</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#eeeeee" border-width="1px" padding="30px 0px 0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px" width="85%" vertical-align="middle">
+        <mj-text
+          padding="0px 30px"
+          font-size="10px"
+          line-height="1.5"
+          color="#666666"
+          font-weight="600"
+          align="right"
+          >TOTAL</mj-text
+        >
+      </mj-column>
+      <mj-column padding="0px" width="15%" border-left="1px solid #eeeeee">
+        <mj-text
+          padding="16px 20px 16px 0px"
+          font-size="16px"
+          line-height="1.5"
+          font-weight="600"
+          align="right"
+          >$14.99</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#eeeeee" border-width="1px" padding="0px 0px 75px" />
+        <mj-image
+          src="https://demo.react.email/static/apple-card-icon.png"
+          alt="Apple Card"
+          width="60px"
+          height="17px"
+          align="center"
+          padding="0px"
+        />
+        <mj-text
+          padding="15px 0px 10px"
+          font-size="24px"
+          line-height="1"
+          font-weight="500"
+          align="center"
+          >Save 3% on all your Apple purchases.</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px" width="30%"> </mj-column>
+      <mj-column padding="0px" width="7%">
+        <mj-image
+          src="https://demo.react.email/static/apple-wallet.png"
+          alt="Apple Wallet"
+          width="28px"
+          height="28px"
+          align="right"
+          padding="0px 8px 0px 0px"
+          href="https://www.apple.com/"
+        />
+      </mj-column>
+      <mj-column padding="0px" width="63%" vertical-align="middle">
+        <mj-text padding="0px" font-size="14px" line-height="1.5" css-class="community-rich-5"
+          ><a href="https://www.apple.com/">Apply and use in minutes</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#eeeeee" border-width="1px" padding="65px 0px 20px" />
+        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+          >1. 3% savings is earned as Daily Cash and is transferred to your Apple Cash card when
+          transactions post to your Apple Card account. If you do not have an Apple Cash card, Daily
+          Cash can be applied by you as a credit on your statement balance. 3% is the total amount
+          of Daily Cash earned for these purchases. See the Apple Card Customer Agreement for more
+          details on Daily Cash and qualifying transactions.</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+          >2. Subject to credit approval.</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+          >To access and use all the features of Apple Card, you must add Apple Card to Wallet on an
+          iPhone or iPad with iOS or iPadOS 13.2 or later. Update to the latest version of iOS or
+          iPadOS by going to Settings &gt; General &gt; Software Update. Tap Download and
+          Install.</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+          >Available for qualifying applicants in the United States.</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+          >Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch.</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+          >If you reside in the US territories, please call Goldman Sachs at 877-255-5923 with
+          questions about Apple Card.</mj-text
+        >
+        <mj-text
+          padding="20px 0px 0px"
+          font-size="12px"
+          line-height="1.2"
+          color="#666666"
+          align="center"
+          css-class="community-rich-6"
+          >Privacy: We use a <a href="https://www.apple.com/"> Subscriber ID </a>to provide reports
+          to developers.</mj-text
+        >
+        <mj-text
+          padding="20px 0px 0px"
+          font-size="12px"
+          line-height="1.2"
+          color="#666666"
+          align="center"
+          css-class="community-rich-7"
+          >Get help with subscriptions and purchases.<a href="https://www.apple.com/"
+            >Visit Apple Support.</a
+          >
+        </mj-text>
+        <mj-text
+          padding="20px 0px 0px"
+          font-size="12px"
+          line-height="1.2"
+          color="#666666"
+          align="center"
+          css-class="community-rich-8"
+          >Learn how to <a href="https://www.apple.com/">manage your password preferences</a> for
+          iTunes, Apple Books, and App Store purchases.</mj-text
+        >
+        <mj-text
+          padding="20px 0px 0px"
+          font-size="12px"
+          line-height="1.2"
+          color="#666666"
+          align="center"
+          css-class="community-rich-9"
+          >You have the option to stop receiving email receipts for your subscription renewals. If
+          you have opted out, you can still view your receipts in your account under Purchase
+          History. To manage receipts or to opt in again, go to
+          <a href="https://www.apple.com/">Account Settings.</a>
+        </mj-text>
+        <mj-image
+          src="https://demo.react.email/static/apple-logo.png"
+          alt="Apple Card"
+          width="26px"
+          height="26px"
+          align="center"
+          padding="40px 0px 0px"
+        />
+        <mj-text
+          padding="8px 0px 0px"
+          font-size="12px"
+          line-height="24px"
+          color="#666666"
+          align="center"
+          css-class="community-rich-10"
+          ><a href="https://www.apple.com/">Account Settings</a> •
+          <a href="https://www.apple.com/">Terms of Sale</a> •
+          <a href="https://www.apple.com/legal/privacy/">Privacy Policy </a>
+        </mj-text>
+        <mj-text
+          padding="25px 0px 48px"
+          font-size="12px"
+          line-height="24px"
+          color="#666666"
+          align="center"
+          css-class="community-rich-13"
+          >Copyright © 2023 Apple Inc.<br />
+          <a href="https://www.apple.com/legal/">All rights reserved</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

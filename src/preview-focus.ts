@@ -11,6 +11,10 @@ export function usePreviewFocus(
     if (!open || !dialog) return;
     const document = dialog.ownerDocument;
     const previous = document.activeElement as HTMLElement | null;
+    // A real modal participates in the browser's close-request handling. Keep
+    // the rendered email's opaque-origin, script-disabled sandbox unchanged.
+    const modal = dialog.tagName === "DIALOG" ? (dialog as HTMLDialogElement) : null;
+    if (modal && !modal.open) modal.showModal();
     const controls = () =>
       [
         ...dialog.querySelectorAll<HTMLElement>(
@@ -45,6 +49,7 @@ export function usePreviewFocus(
     return () => {
       document.removeEventListener("focusin", contain);
       document.removeEventListener("keydown", cycle);
+      if (modal?.open) modal.close();
       const target = restoreRef?.current ?? previous;
       if (target?.isConnected) target.focus({ preventScroll: true });
     };

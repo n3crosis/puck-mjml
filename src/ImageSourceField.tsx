@@ -1,4 +1,11 @@
 import { useLayoutEffect, useRef, useState, type ChangeEvent } from "react";
+import { readNativeAttributes } from "./native-attributes";
+import {
+  IMAGE_UPLOAD_ACCEPT,
+  LOCAL_IMAGE_WARNING,
+  readUploadImage,
+  safeImageSource,
+} from "./image-upload";
 
 export function ImageSourceField({
   id,
@@ -6,20 +13,24 @@ export function ImageSourceField({
   onChange,
   upload,
   readOnly = false,
+  allowLocalImages = false,
 }: {
   id: string;
   value: unknown;
   onChange: (value: string) => void;
   upload?: (file: File) => Promise<string>;
   readOnly?: boolean;
+  allowLocalImages?: boolean;
 }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const request = useRef(0);
-  const latest = useRef({ onChange, readOnly });
-  latest.current = { onChange, readOnly };
+  const latest = useRef({ onChange, readOnly, upload, allowLocalImages });
+  latest.current = { onChange, readOnly, upload, allowLocalImages };
+  const uploadEnabled = Boolean(upload);
   // Selection changes remount this field by id. External updates, undo, locks,
-  // and unmounting invalidate uploads without attempting to cancel host work.
+  // host policy changes, and unmounting invalidate uploads without claiming to
+  // cancel host work that may already be running.
   useLayoutEffect(() => {
     request.current++;
     setBusy(false);
@@ -27,42 +38,56 @@ export function ImageSourceField({
     return () => {
       request.current++;
     };
-  }, [id, value, readOnly]);
+  }, [id, value, readOnly, uploadEnabled, allowLocalImages]);
   const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget;
     const file = input.files?.[0];
-    if (!file || !upload || latest.current.readOnly) return;
+    // Reset immediately. An older async completion must not clear a newer file.
+    input.value = "";
+    if (!file || !latest.current.upload || latest.current.readOnly) return;
     const token = ++request.current;
     setBusy(true);
     setError("");
     try {
-      const url = await upload(file);
+      await readUploadImage(file);
+      if (token !== request.current || latest.current.readOnly || !latest.current.upload) return;
+      const result = await latest.current.upload(file);
       if (token !== request.current || latest.current.readOnly) return;
-      const parsed = new URL(url);
-      if (
-        !["http:", "https:"].includes(parsed.protocol) ||
-        !parsed.hostname ||
-        parsed.username ||
-        parsed.password
-      )
-        throw new Error("Upload must return a public HTTP or HTTPS URL");
-      latest.current.onChange(parsed.href);
+      const url = safeImageSource(result, latest.current.allowLocalImages);
+      if (!url)
+        throw new Error(
+          allowLocalImages
+            ? "Upload must return an HTTP(S) URL or a supported embedded raster image"
+            : "Upload must return a public HTTP or HTTPS URL",
+        );
+      readNativeAttributes("mj-image", [{ name: "src", value: url }], {
+        allowLocalImages: latest.current.allowLocalImages,
+      });
+      latest.current.onChange(url);
     } catch (cause) {
       if (token === request.current)
-        setError(cause instanceof Error ? cause.message : "Upload failed");
+        setError(
+          cause instanceof Error && cause.message
+            ? cause.message
+            : "Image upload failed. Try again.",
+        );
     } finally {
       if (token === request.current) setBusy(false);
-      input.value = "";
     }
   };
+  const description = `${id}-upload-help`;
+  const errorId = `${id}-upload-error`;
   return (
-    <div className="pm-field">
+    <div className="pm-field" aria-busy={busy}>
       <label htmlFor={id}>Image URL</label>
       <input
         id={id}
         type="url"
         value={String(value ?? "")}
         readOnly={readOnly}
+        aria-describedby={
+          [upload ? description : "", error ? errorId : ""].filter(Boolean).join(" ") || undefined
+        }
         onChange={(event) => {
           if (latest.current.readOnly) return;
           request.current++;
@@ -73,12 +98,37 @@ export function ImageSourceField({
         placeholder="https://example.com/image.png"
       />
       {upload && (
-        <label className="pm-upload">
-          {busy ? "Uploading…" : "Upload image"}
-          <input type="file" accept="image/*" disabled={readOnly || busy} onChange={handleFile} />
-        </label>
+        <>
+          <label className="pm-upload" aria-disabled={readOnly || busy}>
+            {busy ? "Uploading…" : "Upload image"}
+            <input
+              aria-label="Upload image"
+              aria-describedby={[description, error ? errorId : ""].filter(Boolean).join(" ")}
+              aria-invalid={error ? true : undefined}
+              type="file"
+              accept={IMAGE_UPLOAD_ACCEPT}
+              disabled={readOnly || busy}
+              onChange={handleFile}
+            />
+          </label>
+          <span className="pm-upload-help" id={description}>
+            PNG, JPEG, GIF or WebP. Up to 5 MiB, 8192 pixels per side and 16 megapixels.
+            {allowLocalImages
+              ? ` ${LOCAL_IMAGE_WARNING}`
+              : " You can also paste a hosted image URL above."}
+          </span>
+        </>
       )}
-      {error && <small role="alert">{error}</small>}
+      {busy && (
+        <span role="status" aria-live="polite">
+          Uploading image…
+        </span>
+      )}
+      {error && (
+        <small id={errorId} role="alert">
+          {error}
+        </small>
+      )}
     </div>
   );
 }

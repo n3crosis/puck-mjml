@@ -15,7 +15,7 @@ describe("MJML import fidelity", () => {
       '<mj-attributes><mj-all font-family="Georgia" /><mj-text padding="42px" /><mj-class name="large" font-size="31px" /></mj-attributes>',
     );
     const output = toMjml(fromMjml(source).document);
-    expect(output).toContain('<mj-text mj-class="large" css-class="pm-email-text">');
+    expect(output).toContain('<mj-text mj-class="large">Hello</mj-text>');
     expect(output).toContain("<mj-spacer />");
     expect(output).not.toContain('font-size="16px"');
     expect(output).not.toContain('background-color="#f5f5f5"');
@@ -178,7 +178,7 @@ describe("import review regressions", () => {
     expect(() => toMjml(document)).toThrow(/allowRawHtml/);
     const output = toMjml(document, { allowRawHtml: true });
     expect(output).toContain(
-      '<mj-accordion-text><p>First</p></mj-accordion-text><mj-raw><!-- middle --></mj-raw><mj-accordion-title color="red">Title</mj-accordion-title><mj-accordion-title>Second title</mj-accordion-title>',
+      '<mj-accordion-text>First</mj-accordion-text><mj-raw><!-- middle --></mj-raw><mj-accordion-title color="red">Title</mj-accordion-title><mj-accordion-title>Second title</mj-accordion-title>',
     );
     expect(output).toContain("<mj-accordion-element></mj-accordion-element>");
   });

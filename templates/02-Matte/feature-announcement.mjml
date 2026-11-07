@@ -1,0 +1,770 @@
+<!--
+  Adapted from React Email (MIT, Copyright 2024 Plus Five Five, Inc).
+  https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/feature-announcement.tsx
+  Canonical editable MJML source. See ../README.md and ../../THIRD_PARTY_NOTICES.md.
+-->
+<mjml lang="en" dir="ltr" owa="none">
+  <mj-head>
+    <mj-title> Something new is live in Collage </mj-title>
+    <mj-preview> Something new is live in Collage </mj-preview>
+    <mj-breakpoint width="601px" />
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&amp;display=swap"
+    />
+    <mj-attributes>
+      <mj-all font-family="Inter, Arial, sans-serif" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .pm-email-text p {
+        margin: 0;
+      }
+      .pm-email-text h1,
+      .pm-email-text h2,
+      .pm-email-text h3,
+      .pm-email-text h4,
+      .pm-email-text h5,
+      .pm-email-text h6 {
+        margin: 0 0 0.5em;
+        font-weight: bold;
+      }
+      .pm-email-text h1 {
+        font-size: 1.7em;
+        line-height: 1.15;
+      }
+      .pm-email-text h2 {
+        font-size: 1.3em;
+        line-height: 1.2;
+      }
+      .pm-email-text h3 {
+        font-size: 1.17em;
+        line-height: inherit;
+      }
+      .pm-email-text h4 {
+        font-size: 1em;
+        line-height: inherit;
+      }
+      .pm-email-text h5 {
+        font-size: 0.83em;
+        line-height: inherit;
+      }
+      .pm-email-text h6 {
+        font-size: 0.67em;
+        line-height: inherit;
+      }
+      .pm-email-text h1:last-child,
+      .pm-email-text h2:last-child,
+      .pm-email-text h3:last-child,
+      .pm-email-text h4:last-child,
+      .pm-email-text h5:last-child,
+      .pm-email-text h6:last-child {
+        margin-bottom: 0;
+      }
+    </mj-style>
+    <mj-style inline="inline">
+      body {
+        padding: 0 16px !important;
+      }
+      .collage-card {
+        box-shadow:
+          0px 76px 21px 0px rgba(193, 195, 193, 0),
+          0px 49px 19px 0px rgba(193, 195, 193, 0.01),
+          0px 27px 16px 0px rgba(193, 195, 193, 0.05),
+          0px 12px 12px 0px rgba(193, 195, 193, 0.09),
+          0px 3px 7px 0px rgba(193, 195, 193, 0.1);
+      }
+      .collage-card a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .collage-footer-copy > div {
+        max-width: 320px;
+      }
+      .collage-unsubscribe > div {
+        max-width: 169px;
+      }
+      .collage-feedback-title > div {
+        max-width: 400px;
+      }
+      .collage-feedback-copy > div {
+        max-width: 479px;
+      }
+      .collage-highlight-description > div {
+        max-width: 380px;
+      }
+    </mj-style>
+    <mj-style>
+      @media only screen and (max-width: 600px) {
+        .collage-feature-intro > table > tbody > tr > td {
+          padding: 40px 24px 0px !important;
+        }
+        .collage-feature-cta > table > tbody > tr > td {
+          padding: 36px 24px 56px !important;
+        }
+        .collage-feature-lead > table > tbody > tr > td {
+          padding: 16px 24px 0px !important;
+        }
+        .collage-feature-row > table > tbody > tr > td {
+          padding: 48px 24px 0px !important;
+        }
+        .collage-feature-row-last > table > tbody > tr > td {
+          padding: 48px 24px 64px !important;
+        }
+        .collage-feature-image-column > table > tbody > tr > td {
+          padding: 0px 0px 24px !important;
+        }
+        .collage-feature-image table {
+          width: 100% !important;
+        }
+        .collage-feature-image img {
+          width: 100% !important;
+        }
+        .collage-feedback-heading > table > tbody > tr > td {
+          padding: 64px 24px 0px !important;
+        }
+        .collage-feedback-highlights > table > tbody > tr > td {
+          padding: 56px 24px 36px !important;
+        }
+        .collage-feature-highlight > table > tbody > tr > td {
+          padding: 24px 24px !important;
+        }
+        .collage-feature-highlight-rule > table > tbody > tr > td {
+          padding: 0px 24px !important;
+        }
+        .collage-feature-highlight-rule-last > table > tbody > tr > td {
+          padding: 0px 24px 64px !important;
+        }
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="608px" background-color="#FBFCFB">
+    <mj-section background-color="#FBFCFB" padding="0px" border-radius="0px">
+      <mj-column>
+        <mj-spacer height="64px" />
+      </mj-column>
+    </mj-section>
+    <mj-wrapper
+      background-color="#FFFFFF"
+      padding="0px"
+      border="1px solid #D8E1D4"
+      border-radius="8px"
+      css-class="collage-card"
+    >
+      <mj-section background-color="#ffffff" padding="0px" border-radius="7px 7px 0px 0px">
+        <mj-column>
+          <mj-image
+            src="https://demo.react.email/static/collage/collage-image-5.png"
+            width="608px"
+            align="center"
+            padding="0px"
+            border-radius="7px 7px 0px 0px"
+          />
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="80px 40px 0px"
+        border-radius="0px"
+        css-class="collage-feature-intro"
+      >
+        <mj-column>
+          <mj-text
+            color="#103B05"
+            font-size="48px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-1.44px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>Meet your next favorite feature</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="18px 0px 0px"
+            css-class="pm-email-text"
+          >
+            <p>
+              We're rolling out an update that makes Collage faster, clearer, and easier to use
+              every day.
+            </p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>
+              It's available now—open Collage to try it, or read on for what changed and why it
+              matters.
+            </p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="36px 40px 56px"
+        border-radius="0px"
+        css-class="collage-feature-cta"
+      >
+        <mj-column>
+          <mj-button
+            href="https://example.com/"
+            background-color="#103B05"
+            color="#FBFFF9"
+            font-size="15px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="-0.075px"
+            inner-padding="14px 20px"
+            border-radius="0px"
+            align="left"
+            padding="0px"
+          >
+            Try it now
+          </mj-button>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="16px 40px 0px"
+        border-radius="0px"
+        css-class="collage-feature-lead"
+      >
+        <mj-column>
+          <mj-text
+            color="#103B05"
+            font-size="15px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="-0.075px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>One workspace for the whole picture</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="8px 0px 0px"
+            css-class="pm-email-text"
+          >
+            <p>
+              Bring briefs, files, feedback, and status into Collage so your team spends less time
+              chasing context across tools.
+            </p>
+          </mj-text>
+          <mj-text
+            color="#103B05"
+            font-size="14px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="8px 0px 0px"
+            css-class="pm-email-text"
+          >
+            <a href="https://example.com/">See what's new →</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="48px 40px 0px"
+        css-class="collage-feature-row"
+      >
+        <mj-column
+          width="48%"
+          padding="0px"
+          vertical-align="top"
+          css-class="collage-feature-image-column"
+        >
+          <mj-image
+            src="https://demo.react.email/static/collage/collage-image-6.png"
+            width="264px"
+            align="left"
+            padding="0px"
+            border-radius="0px"
+            css-class="collage-feature-image"
+          />
+        </mj-column>
+        <mj-column width="52%" padding="0px 0px 0px 16px" vertical-align="top">
+          <mj-text
+            color="#103B05"
+            font-size="15px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="-0.075px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>Faster by default</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="8px 0px 0px"
+            css-class="pm-email-text"
+          >
+            <p>
+              The new flow cuts steps in half so your team can publish changes without bouncing
+              between screens.
+            </p>
+          </mj-text>
+          <mj-text
+            color="#103B05"
+            font-size="14px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="8px 0px 0px"
+            css-class="pm-email-text"
+          >
+            <a href="https://example.com/">See how it works →</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="48px 40px 64px"
+        css-class="collage-feature-row collage-feature-row-last"
+      >
+        <mj-column
+          width="48%"
+          padding="0px"
+          vertical-align="top"
+          css-class="collage-feature-image-column"
+        >
+          <mj-image
+            src="https://demo.react.email/static/collage/collage-image-7.png"
+            width="264px"
+            align="left"
+            padding="0px"
+            border-radius="0px"
+            css-class="collage-feature-image"
+          />
+        </mj-column>
+        <mj-column width="52%" padding="0px 0px 0px 16px" vertical-align="top">
+          <mj-text
+            color="#103B05"
+            font-size="15px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="-0.075px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>Clearer for everyone</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="8px 0px 0px"
+            css-class="pm-email-text"
+          >
+            <p>
+              Permissions and activity are easier to read, so admins spend less time answering who
+              changed this.
+            </p>
+          </mj-text>
+          <mj-text
+            color="#103B05"
+            font-size="14px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="8px 0px 0px"
+            css-class="pm-email-text"
+          >
+            <a href="https://example.com/">View the details →</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#FBFCFB"
+        padding="80px 40px 0px"
+        border-radius="0px"
+        css-class="collage-feedback-heading"
+      >
+        <mj-column>
+          <mj-text
+            color="#103B05"
+            font-size="48px"
+            font-family="Arial, Helvetica, sans-serif"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-1.44px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text collage-feedback-title"
+          >
+            <p>Built from real feedback</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="14px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0px"
+            align="left"
+            padding="18px 0px 0px"
+            css-class="pm-email-text collage-feedback-copy"
+          >
+            <p>
+              Teams told us where Collage felt slow or opaque. This release tightens those loops so
+              you spend less time coordinating and more time shipping.
+            </p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#FBFCFB"
+        padding="56px 40px 36px"
+        border-radius="0px"
+        css-class="collage-feedback-highlights"
+      >
+        <mj-column>
+          <mj-text
+            color="#103B05"
+            font-size="15px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="-0.075px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text"
+          >
+            <p>Highlights from this release:</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#FBFCFB"
+        padding="24px 40px"
+        css-class="collage-feature-highlight"
+      >
+        <mj-group width="100%">
+          <mj-column width="92%" padding="0px" vertical-align="top">
+            <mj-text
+              color="#103B05"
+              font-size="20px"
+              font-family="Inter, Arial, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="-0.2px"
+              align="left"
+              padding="0px"
+              css-class="pm-email-text"
+            >
+              <p>One place to review</p>
+            </mj-text>
+            <mj-text
+              color="#194A07"
+              font-size="14px"
+              font-family="Inter, Arial, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              align="left"
+              padding="4px 0px 0px"
+              css-class="pm-email-text collage-highlight-description"
+            >
+              <p>A single summary screen shows status, owners, and next steps for each release.</p>
+            </mj-text>
+          </mj-column>
+          <mj-column width="8%" padding="0px" vertical-align="middle">
+            <mj-image
+              src="https://demo.react.email/static/collage/collage-image-9.png"
+              width="12px"
+              height="12px"
+              align="right"
+              padding="0px"
+              border-radius="0px"
+            />
+          </mj-column>
+        </mj-group>
+      </mj-section>
+      <mj-section
+        background-color="#FBFCFB"
+        padding="0px 40px"
+        border-radius="0px"
+        css-class="collage-feature-highlight-rule"
+      >
+        <mj-column>
+          <mj-divider border-color="#D8E1D4" border-width="1px" width="100%" padding="0px" />
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#FBFCFB"
+        padding="24px 40px"
+        css-class="collage-feature-highlight"
+      >
+        <mj-group width="100%">
+          <mj-column width="92%" padding="0px" vertical-align="top">
+            <mj-text
+              color="#103B05"
+              font-size="20px"
+              font-family="Inter, Arial, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="-0.2px"
+              align="left"
+              padding="0px"
+              css-class="pm-email-text"
+            >
+              <p>Smarter notifications</p>
+            </mj-text>
+            <mj-text
+              color="#194A07"
+              font-size="14px"
+              font-family="Inter, Arial, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              align="left"
+              padding="4px 0px 0px"
+              css-class="pm-email-text collage-highlight-description"
+            >
+              <p>You only get pinged when something needs your attention—not on every edit.</p>
+            </mj-text>
+          </mj-column>
+          <mj-column width="8%" padding="0px" vertical-align="middle">
+            <mj-image
+              src="https://demo.react.email/static/collage/collage-image-9.png"
+              width="12px"
+              height="12px"
+              align="right"
+              padding="0px"
+              border-radius="0px"
+            />
+          </mj-column>
+        </mj-group>
+      </mj-section>
+      <mj-section
+        background-color="#FBFCFB"
+        padding="0px 40px"
+        border-radius="0px"
+        css-class="collage-feature-highlight-rule"
+      >
+        <mj-column>
+          <mj-divider border-color="#D8E1D4" border-width="1px" width="100%" padding="0px" />
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#FBFCFB"
+        padding="24px 40px"
+        css-class="collage-feature-highlight"
+      >
+        <mj-group width="100%">
+          <mj-column width="92%" padding="0px" vertical-align="top">
+            <mj-text
+              color="#103B05"
+              font-size="20px"
+              font-family="Inter, Arial, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="-0.2px"
+              align="left"
+              padding="0px"
+              css-class="pm-email-text"
+            >
+              <p>Works with your stack</p>
+            </mj-text>
+            <mj-text
+              color="#194A07"
+              font-size="14px"
+              font-family="Inter, Arial, sans-serif"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              align="left"
+              padding="4px 0px 0px"
+              css-class="pm-email-text collage-highlight-description"
+            >
+              <p>Connects to the tools you already use so context stays in sync across teams.</p>
+            </mj-text>
+          </mj-column>
+          <mj-column width="8%" padding="0px" vertical-align="middle">
+            <mj-image
+              src="https://demo.react.email/static/collage/collage-image-9.png"
+              width="12px"
+              height="12px"
+              align="right"
+              padding="0px"
+              border-radius="0px"
+            />
+          </mj-column>
+        </mj-group>
+      </mj-section>
+      <mj-section
+        background-color="#FBFCFB"
+        padding="0px 40px 80px"
+        border-radius="0px"
+        css-class="collage-feature-highlight-rule collage-feature-highlight-rule-last"
+      >
+        <mj-column>
+          <mj-divider border-color="#D8E1D4" border-width="1px" width="100%" padding="0px" />
+        </mj-column>
+      </mj-section>
+      <mj-section background-color="#ffffff" padding="0px" border-radius="0px">
+        <mj-column>
+          <mj-image
+            src="https://demo.react.email/static/collage/collage-image-4.png"
+            width="608px"
+            align="center"
+            padding="0px"
+            border-radius="0px"
+          />
+        </mj-column>
+      </mj-section>
+      <mj-section background-color="#ffffff" padding="0px" border-radius="0px">
+        <mj-column>
+          <mj-divider border-color="#D8E1D4" border-width="1px" width="100%" padding="0px" />
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#ffffff"
+        padding="64px 40px"
+        border-radius="0px 0px 7px 7px"
+        css-class="collage-footer"
+      >
+        <mj-column>
+          <mj-text
+            color="#869C7F"
+            font-size="13px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="300"
+            line-height="1.5"
+            letter-spacing="-0.039px"
+            align="left"
+            padding="0px"
+            css-class="pm-email-text collage-footer-copy"
+          >
+            <p>
+              Collage is the workspace where your team keeps projects, context, and updates
+              together—from first idea to launch.
+            </p>
+          </mj-text>
+          <mj-social
+            align="left"
+            padding="32px 0px 0px"
+            icon-size="20px"
+            icon-padding="0px"
+            border-radius="0px"
+          >
+            <mj-social-element
+              name="x-noshare"
+              href="https://example.com/"
+              src="https://demo.react.email/static/shared/social-x-black.png"
+              alt="X"
+              background-color="transparent"
+              padding="0px 32px 0px 0px"
+            >
+            </mj-social-element>
+            <mj-social-element
+              name="linkedin-noshare"
+              href="https://example.com/"
+              src="https://demo.react.email/static/shared/social-in-black.png"
+              alt="LinkedIn"
+              background-color="transparent"
+              padding="0px 32px 0px 0px"
+            >
+            </mj-social-element>
+            <mj-social-element
+              name="youtube"
+              href="https://example.com/"
+              src="https://demo.react.email/static/shared/social-yt-black.png"
+              alt="YouTube"
+              background-color="transparent"
+              padding="0px 32px 0px 0px"
+            >
+            </mj-social-element>
+            <mj-social-element
+              name="github"
+              href="https://example.com/"
+              src="https://demo.react.email/static/shared/social-gh-black.png"
+              alt="GitHub"
+              background-color="transparent"
+              padding="0px"
+            >
+            </mj-social-element>
+          </mj-social>
+          <mj-text
+            color="#194A07"
+            font-size="11px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="300"
+            line-height="1.5"
+            letter-spacing="-0.033px"
+            align="left"
+            padding="32px 0px 0px"
+            css-class="pm-email-text"
+          >
+            <p>123 Market Street, Floor 1<br />Tech City, CA, 94102</p>
+          </mj-text>
+          <mj-text
+            color="#194A07"
+            font-size="11px"
+            font-family="Inter, Arial, sans-serif"
+            font-weight="300"
+            line-height="1.5"
+            letter-spacing="-0.033px"
+            align="left"
+            padding="20px 0px 0px"
+            css-class="pm-email-text collage-unsubscribe"
+          >
+            <a href="https://example.com/">Unsubscribe</a> from Collage marketing emails.
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-section background-color="#FBFCFB" padding="0px" border-radius="0px">
+      <mj-column>
+        <mj-spacer height="24px" />
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -1,6 +1,5 @@
 import {
   createMatteActivationDocument,
-  createMatteCollageFontsDocument,
   createMatteFeatureAnnouncementDocument,
   createMattePasswordResetDocument,
   createMatteSubscriptionConfirmationDocument,
@@ -15,4 +14,3 @@ checkTemplate("Matte password reset", createMattePasswordResetDocument);
 checkTemplate("Matte subscription confirmation", createMatteSubscriptionConfirmationDocument);
 checkTemplate("Matte subscription update", createMatteSubscriptionUpdateDocument);
 checkTemplate("Matte text only", createMatteTextOnlyDocument);
-checkTemplate("Matte collage fonts", createMatteCollageFontsDocument);

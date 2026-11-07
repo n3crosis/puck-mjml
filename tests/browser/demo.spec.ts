@@ -6,9 +6,12 @@ test("demo loads, exports source, and rejects trusted imports without replacemen
   await page.goto("/");
   await expect(page.getByText("Demo only: drafts are not saved.", { exact: false })).toBeVisible();
   await expect(page.getByRole("button", { name: "Preview email" })).toBeVisible();
+  await page.getByRole("button", { name: "Export email" }).click();
+  await page.getByRole("button", { name: "MJML", exact: true }).click();
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download MJML" }).click();
   expect((await download).suggestedFilename()).toBe("email.mjml");
+  await page.getByRole("button", { name: "Close export" }).click();
   const template = await page.getByRole("combobox", { name: "Email template" }).inputValue();
   await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
     name: "trusted.mjml",
@@ -97,6 +100,30 @@ for (const viewport of [
     await page.screenshot({ path: `test-results/demo-${viewport.width}.png`, fullPage: true });
     await page.getByRole("button", { name: "Preview email" }).click();
     await expect(page.getByRole("dialog", { name: "Email preview" })).toBeVisible();
+    const rendered = page.frameLocator('iframe[title="Rendered email"]');
+    await expect(rendered.getByText("Monthly roundup", { exact: true })).toBeVisible({
+      timeout: 15_000,
+    });
+    const hero = rendered.locator("img").first();
+    await expect(hero).toBeVisible();
+    // Dialog visibility precedes iframe navigation, image decoding, and web fonts.
+    // Wait for those resources, not a fixed delay or a partially painted frame.
+    await hero.evaluate(async (image: HTMLImageElement) => {
+      let timeout: ReturnType<typeof setTimeout> | undefined;
+      try {
+        await Promise.race([
+          Promise.all([image.ownerDocument.fonts.ready, image.decode()]),
+          new Promise<never>((_, reject) => {
+            timeout = setTimeout(() => reject(new Error("Preview resources did not load")), 15_000);
+          }),
+        ]);
+        if (!image.complete || image.naturalWidth === 0) {
+          throw new Error("Preview hero image failed to load");
+        }
+      } finally {
+        clearTimeout(timeout);
+      }
+    });
     await page.screenshot({ path: `test-results/preview-${viewport.width}.png`, fullPage: true });
   });
 }

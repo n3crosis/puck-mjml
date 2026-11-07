@@ -9,6 +9,8 @@ import {
 } from "react";
 import { TrustedHtmlPreview } from "./NativeFields";
 import { readNativeAttributes } from "./native-attributes";
+import { hasImportedRichTextWrapper, importedRichText } from "./imported-content";
+import { useLayoutBlockProps } from "./native-layout-context";
 import {
   getCanvasElement,
   nativeBoxStyle,
@@ -355,6 +357,7 @@ const accordionKeys = [
 
 function Accordion({ props, attributes, scope }: ItemProps) {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+  const sourceItems = items(useLayoutBlockProps(props.id)?.items);
   return (
     <div
       className={classes("pm-accordion", attributes["css-class"])}
@@ -368,6 +371,7 @@ function Accordion({ props, attributes, scope }: ItemProps) {
         }}
       >
         {items(props.items).map((item, index) => {
+          const sourceItem = sourceItems[index] ?? item;
           if (item.kind === "raw")
             return (
               <TrustedHtmlPreview
@@ -420,6 +424,7 @@ function Accordion({ props, attributes, scope }: ItemProps) {
                   kind: "text",
                   content: item.content,
                   htmlContent: item.htmlContent,
+                  importedRichText: item.importedRichText,
                   mjClass: item.textMjClass,
                   mjmlAttributes: item.textAttributes,
                 },
@@ -496,10 +501,21 @@ function Accordion({ props, attributes, scope }: ItemProps) {
             if (part.kind !== "text") return null;
             const text =
               element("mj-accordion-text", part, resolved.scope, inherited)?.attributes ?? {};
+            const sourcePart = ordered
+              ? (items(sourceItem.children)[partIndex] ?? part)
+              : sourceItem;
+            const original =
+              part.htmlContent === undefined ? importedRichText(sourcePart) : undefined;
+            const wrapped = original !== undefined && hasImportedRichTextWrapper(sourcePart);
             return (
               <div
                 key={partIndex}
-                className={classes("pm-text", text["css-class"])}
+                className={classes(
+                  "pm-text",
+                  original !== undefined ? "pm-imported-text" : undefined,
+                  wrapped ? "pm-imported-inline-text" : undefined,
+                  text["css-class"],
+                )}
                 style={{
                   ...nativeBoxStyle(text),
                   border: undefined,
@@ -508,7 +524,12 @@ function Accordion({ props, attributes, scope }: ItemProps) {
                   fontFamily: fontFor(text, part, "mj-accordion-text"),
                 }}
               >
-                {source(part) ?? content(part.content)}
+                {source(part) ??
+                  (original !== undefined && !record(props.puck).isEditing ? (
+                    <div dangerouslySetInnerHTML={{ __html: original }} />
+                  ) : (
+                    content(part.content)
+                  ))}
               </div>
             );
           });

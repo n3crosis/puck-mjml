@@ -1,0 +1,486 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/receipts/nike-receipt.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>Your Nike order is on its way</mj-title>
+    <mj-preview>Get your order summary, estimated delivery date and more</mj-preview>
+    <mj-attributes>
+      <mj-all
+        font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&#x27;Helvetica Neue&#x27;,sans-serif"
+      />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .community-rich-0 a:nth-of-type(1) {
+        color: #000000;
+        text-decoration: underline;
+      }
+      .community-rich-1 a:nth-of-type(1) {
+        color: #000000;
+        text-decoration: underline;
+      }
+      .community-rich-2 a:nth-of-type(1) {
+        color: #000000;
+        text-decoration: underline;
+      }
+      .community-rich-3 a:nth-of-type(1) {
+        color: #000000;
+        text-decoration: underline;
+      }
+      .community-rich-4 a:nth-of-type(1) {
+        color: #000000;
+        text-decoration: underline;
+      }
+      .community-rich-5 a:nth-of-type(1) {
+        color: #000000;
+        text-decoration: underline;
+      }
+      .community-rich-6 a:nth-of-type(1) {
+        color: #000000;
+        text-decoration: underline;
+      }
+      .community-rich-7 a:nth-of-type(1) {
+        color: #000000;
+        text-decoration: underline;
+      }
+      .community-rich-8 a:nth-of-type(1) {
+        color: #000000;
+        text-decoration: underline;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="600px" background-color="#ffffff">
+    <mj-section padding="22px 40px" background-color="#F7F7F7">
+      <mj-column padding="0px" width="50%">
+        <mj-text padding="0px" font-size="14px" line-height="2" font-weight="700"
+          >Tracking Number</mj-text
+        >
+        <mj-text
+          padding="12px 0px 0px"
+          font-size="14px"
+          line-height="1.4"
+          font-weight="500"
+          color="#6F6F6F"
+          >1ZV218970300071628</mj-text
+        >
+      </mj-column>
+      <mj-column padding="0px" width="50%" vertical-align="middle">
+        <mj-button
+          align="right"
+          padding="0px"
+          inner-padding="10px 0px"
+          border-radius="0px"
+          font-size="16px"
+          background-color="#F7F7F7"
+          color="#000000"
+          border="1px solid #929292"
+          font-weight="500"
+          width="220px"
+          >Track Package</mj-button
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="40px 74px">
+      <mj-column padding="0px">
+        <mj-image
+          src="https://demo.react.email/static/nike-logo.png"
+          alt="Nike"
+          width="66px"
+          height="22px"
+          align="center"
+          padding="0px"
+        />
+        <mj-text
+          padding="32px 0px"
+          font-size="32px"
+          line-height="1.3"
+          font-weight="700"
+          align="center"
+          letter-spacing="-1px"
+          >It's On Its Way.</mj-text
+        >
+        <mj-text
+          padding="0px"
+          font-size="14px"
+          line-height="2"
+          color="#747474"
+          font-weight="500"
+          align="center"
+          >Your order is on its way. Use the link above to track its progress.</mj-text
+        >
+        <mj-text
+          padding="24px 0px 0px"
+          font-size="14px"
+          line-height="2"
+          color="#747474"
+          font-weight="500"
+          align="center"
+          >We´ve also charged your payment method for the cost of your order and will be removing
+          any authorization holds. For payment details, please visit your Orders page on Nike.com or
+          in the Nike app.</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="22px 40px">
+      <mj-column padding="0px">
+        <mj-text padding="0px" font-size="15px" line-height="2" font-weight="700"
+          >Shipping to: Alan Turing</mj-text
+        >
+        <mj-text padding="0px" font-size="14px" line-height="2" font-weight="500" color="#747474"
+          >2125 Chestnut St, San Francisco, CA 94123</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="40px">
+      <mj-column padding="0px" width="50%">
+        <mj-image
+          src="https://demo.react.email/static/nike-product.png"
+          alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
+          width="260px"
+          align="left"
+          padding="0px"
+        />
+      </mj-column>
+      <mj-column padding="0px 0px 0px 12px" width="50%">
+        <mj-text padding="0px" font-size="14px" line-height="2" font-weight="500"
+          >Brazil 2022/23 Stadium Away Women's Nike Dri-FIT Soccer Jersey</mj-text
+        >
+        <mj-text padding="0px" font-size="14px" line-height="2" font-weight="500" color="#747474"
+          >Size L (12–14)</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="22px 40px 40px">
+      <mj-column padding="0px" width="33%">
+        <mj-text padding="0px" font-size="14px" line-height="2" font-weight="700"
+          >Order Number</mj-text
+        >
+        <mj-text
+          padding="12px 0px 0px"
+          font-size="14px"
+          line-height="1.4"
+          font-weight="500"
+          color="#6F6F6F"
+          >C0106373851</mj-text
+        >
+      </mj-column>
+      <mj-column padding="0px" width="67%">
+        <mj-text padding="0px" font-size="14px" line-height="2" font-weight="700"
+          >Order Date</mj-text
+        >
+        <mj-text
+          padding="12px 0px 0px"
+          font-size="14px"
+          line-height="1.4"
+          font-weight="500"
+          color="#6F6F6F"
+          >Sep 22, 2022</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px 40px 22px">
+      <mj-column padding="0px">
+        <mj-button
+          align="center"
+          padding="0px"
+          inner-padding="10px 0px"
+          border-radius="0px"
+          font-size="16px"
+          background-color="#ffffff"
+          color="#000000"
+          border="1px solid #929292"
+          font-weight="500"
+          width="220px"
+          >Order Status</mj-button
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="22px 0px 0px">
+      <mj-column padding="0px">
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="32px"
+          line-height="1.3"
+          font-weight="700"
+          align="center"
+          letter-spacing="-1px"
+          >Top Picks For You</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="20px 2px 22px">
+      <mj-column padding="0px 2px" width="25%">
+        <mj-image
+          src="https://demo.react.email/static/nike-recomendation-1.png"
+          alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
+          align="left"
+          padding="0px"
+        />
+        <mj-text padding="12px 10px 0px" font-size="15px" line-height="1" font-weight="500"
+          >USWNT 2022/23 Stadium Home</mj-text
+        >
+        <mj-text padding="4px 10px 0px" font-size="15px" line-height="1" color="#747474"
+          >Women's Nike Dri-FIT Soccer Jersey</mj-text
+        >
+      </mj-column>
+      <mj-column padding="0px 2px" width="25%">
+        <mj-image
+          src="https://demo.react.email/static/nike-recomendation-2.png"
+          alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
+          align="left"
+          padding="0px"
+        />
+        <mj-text padding="12px 10px 0px" font-size="15px" line-height="1" font-weight="500"
+          >Brazil 2022/23 Stadium Goalkeeper</mj-text
+        >
+        <mj-text padding="4px 10px 0px" font-size="15px" line-height="1" color="#747474"
+          >Men's Nike Dri-FIT Short-Sleeve Football Shirt</mj-text
+        >
+      </mj-column>
+      <mj-column padding="0px 2px" width="25%">
+        <mj-image
+          src="https://demo.react.email/static/nike-recomendation-4.png"
+          alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
+          align="left"
+          padding="0px"
+        />
+        <mj-text padding="12px 10px 0px" font-size="15px" line-height="1" font-weight="500"
+          >FFF</mj-text
+        >
+        <mj-text padding="4px 10px 0px" font-size="15px" line-height="1" color="#747474"
+          >Women's Soccer Jacket</mj-text
+        >
+      </mj-column>
+      <mj-column padding="0px 2px" width="25%">
+        <mj-image
+          src="https://demo.react.email/static/nike-recomendation-4.png"
+          alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
+          align="left"
+          padding="0px"
+        />
+        <mj-text padding="12px 10px 0px" font-size="15px" line-height="1" font-weight="500"
+          >FFF</mj-text
+        >
+        <mj-text padding="4px 10px 0px" font-size="15px" line-height="1" color="#747474"
+          >Women's Nike Pre-Match Football Top</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="20px 40px 0px" background-color="#F7F7F7">
+      <mj-column padding="0px">
+        <mj-text padding="0px" font-size="14px" line-height="1.5" font-weight="700"
+          >Get Help</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="22px 40px" background-color="#F7F7F7">
+      <mj-column padding="0px" width="33.333%">
+        <mj-text
+          padding="0px"
+          font-size="13.5px"
+          line-height="1.5"
+          font-weight="500"
+          css-class="community-rich-0"
+          ><a href="https://www.nike.com/">Shipping Status</a>
+        </mj-text>
+      </mj-column>
+      <mj-column padding="0px" width="33.333%">
+        <mj-text
+          padding="0px"
+          font-size="13.5px"
+          line-height="1.5"
+          font-weight="500"
+          css-class="community-rich-1"
+          ><a href="https://www.nike.com/">Shipping &amp; Delivery</a>
+        </mj-text>
+      </mj-column>
+      <mj-column padding="0px" width="33.333%">
+        <mj-text
+          padding="0px"
+          font-size="13.5px"
+          line-height="1.5"
+          font-weight="500"
+          css-class="community-rich-2"
+          ><a href="https://www.nike.com/">Returns &amp; Exchanges</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px 40px 22px" background-color="#F7F7F7">
+      <mj-column padding="0px" width="33.333%">
+        <mj-text
+          padding="0px"
+          font-size="13.5px"
+          line-height="1.5"
+          font-weight="500"
+          css-class="community-rich-3"
+          ><a href="https://www.nike.com/">How to Return</a>
+        </mj-text>
+      </mj-column>
+      <mj-column padding="0px" width="66.667%">
+        <mj-text
+          padding="0px"
+          font-size="13.5px"
+          line-height="1.5"
+          font-weight="500"
+          css-class="community-rich-4"
+          ><a href="https://www.nike.com/">Contact Options</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="32px 40px 22px" background-color="#F7F7F7">
+      <mj-column padding="0px" width="7%">
+        <mj-image
+          src="https://demo.react.email/static/nike-phone.png"
+          alt="Nike Phone"
+          width="16px"
+          height="26px"
+          align="left"
+          padding="0px"
+        />
+      </mj-column>
+      <mj-column padding="0px" width="43%" vertical-align="middle">
+        <mj-text padding="0px" font-size="13.5px" line-height="1.5" font-weight="500"
+          >1-800-806-6453</mj-text
+        >
+      </mj-column>
+      <mj-column padding="0px" width="50%" vertical-align="middle">
+        <mj-text padding="0px" font-size="13.5px" line-height="1.5" font-weight="500"
+          >4 am - 11 pm PT</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="22px 0px 0px">
+      <mj-column padding="0px">
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="32px"
+          line-height="1.3"
+          font-weight="700"
+          align="center"
+          letter-spacing="-1px"
+          >Nike.com</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="12px 115px 34px">
+      <mj-column padding="0px" width="25%">
+        <mj-text
+          padding="0px"
+          font-size="16px"
+          line-height="1.5"
+          font-weight="500"
+          align="center"
+          css-class="community-rich-5"
+          ><a href="https://www.nike.com/">Men</a>
+        </mj-text>
+      </mj-column>
+      <mj-column padding="0px" width="25%">
+        <mj-text
+          padding="0px"
+          font-size="16px"
+          line-height="1.5"
+          font-weight="500"
+          align="center"
+          css-class="community-rich-6"
+          ><a href="https://www.nike.com/">Women</a>
+        </mj-text>
+      </mj-column>
+      <mj-column padding="0px" width="25%">
+        <mj-text
+          padding="0px"
+          font-size="16px"
+          line-height="1.5"
+          font-weight="500"
+          align="center"
+          css-class="community-rich-7"
+          ><a href="https://www.nike.com/">Kids</a>
+        </mj-text>
+      </mj-column>
+      <mj-column padding="0px" width="25%">
+        <mj-text
+          padding="0px"
+          font-size="16px"
+          line-height="1.5"
+          font-weight="500"
+          align="center"
+          css-class="community-rich-8"
+          ><a href="https://www.nike.com/">Customize</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
+      </mj-column>
+    </mj-section>
+    <mj-section padding="22px">
+      <mj-column padding="0px">
+        <mj-text padding="0px" font-size="13px" line-height="1.5" color="#AFAFAF" align="center"
+          >Web Version &nbsp;&nbsp;&nbsp; Privacy Policy</mj-text
+        >
+        <mj-text
+          padding="30px 0px"
+          font-size="13px"
+          line-height="1.5"
+          color="#AFAFAF"
+          align="center"
+          >Please contact us if you have any questions. (If you reply to this email, we won't be
+          able to see it.)</mj-text
+        >
+        <mj-text padding="0px" font-size="13px" line-height="1.5" color="#AFAFAF" align="center"
+          >© 2022 Nike, Inc. All Rights Reserved.</mj-text
+        >
+        <mj-text padding="0px" font-size="13px" line-height="1.5" color="#AFAFAF" align="center"
+          >NIKE, INC. One Bowerman Drive, Beaverton, Oregon 97005, USA.</mj-text
+        >
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

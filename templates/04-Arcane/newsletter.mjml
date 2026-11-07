@@ -1,0 +1,520 @@
+<!--
+  Adapted from React Email (MIT, Copyright 2024 Plus Five Five, Inc).
+  https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/04-Arcane/newsletter.tsx
+  Canonical editable MJML source. See ../README.md and ../../THIRD_PARTY_NOTICES.md.
+-->
+<mjml lang="en" dir="ltr" owa="none">
+  <mj-head>
+    <mj-title>The latest from Skin</mj-title>
+    <mj-preview>The latest from Skin</mj-preview>
+    <mj-breakpoint width="601px" />
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600&amp;display=swap"
+    />
+    <mj-font
+      name="Instrument Serif"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif&amp;display=swap"
+    />
+    <mj-attributes>
+      <mj-all font-family="Inter, Arial, sans-serif" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .arcane-tip td:first-child {
+        font-family:
+          Instrument Serif,
+          Georgia,
+          Times New Roman,
+          serif;
+        font-size: 20px;
+        line-height: 1.5;
+      }
+      .arcane-email a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .arcane-unsubscribe a {
+        color: #efe1d8;
+      }
+      .arcane-narrow > div {
+        max-width: 480px;
+      }
+      .arcane-letter > div {
+        max-width: 430px;
+      }
+      .arcane-footer-copy > div {
+        max-width: 320px;
+      }
+      .arcane-unsubscribe > div {
+        max-width: 169px;
+      }
+    </mj-style>
+    <mj-style>
+      @media only screen and (max-width: 600px) {
+        .arcane-inset > table > tbody > tr > td {
+          padding-left: 24px !important;
+          padding-right: 24px !important;
+        }
+        .arcane-mobile-top > table > tbody > tr > td {
+          padding-top: 48px !important;
+        }
+        .arcane-mobile-gap > table > tbody > tr > td {
+          padding-top: 40px !important;
+        }
+        .arcane-mobile-text > table > tbody > tr > td {
+          padding-top: 24px !important;
+          padding-left: 0px !important;
+          padding-right: 0px !important;
+        }
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="640px" background-color="#FFFFFF" css-class="arcane-email">
+    <mj-wrapper padding="0px" background-color="#300610">
+      <mj-section padding="40px 40px 24px" css-class="arcane-inset">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-image
+            src="https://demo.react.email/static/shared/logo-white.png"
+            width="32px"
+            height="32px"
+            alt=""
+            padding="0px"
+            align="left"
+          />
+        </mj-column>
+      </mj-section>
+      <mj-section padding="64px 40px 80px" css-class="arcane-inset">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-text
+            font-family="Instrument Serif, Georgia, Times New Roman, serif"
+            font-size="72px"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-0.52px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+            >Newsletter</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#EFE1D8"
+            padding="32px 0px 0px"
+            align="left"
+            css-class="arcane-letter"
+            >Hi there,</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#EFE1D8"
+            padding="32px 0px 0px"
+            align="left"
+            css-class="arcane-letter"
+            >We're glad you're here. This is where we share routine notes, ingredient spotlights,
+            and first word on drops—plus the occasional restock alert before shelves clear.</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#EFE1D8"
+            padding="32px 0px 0px"
+            align="left"
+            css-class="arcane-letter"
+            >No inbox clutter—just emails when we have something worth your time. Thanks for letting
+            us sit next to your morning serum and your evening wind-down.</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#FCF3ED"
+            padding="32px 0px 0px"
+            align="left"
+            css-class="arcane-letter"
+            >Thanks for reading,<br />The Skin team</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px" background-color="#431D26">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-image
+            src="https://demo.react.email/static/skin/skin-image-4.png"
+            width="640px"
+            alt=""
+            padding="0px"
+            align="left"
+          />
+        </mj-column>
+      </mj-section>
+      <mj-section padding="152px 40px 0px" css-class="arcane-inset arcane-mobile-top">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-text
+            font-family="Instrument Serif, Georgia, Times New Roman, serif"
+            font-size="72px"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-0.52px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+            >Tips and resources</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="88px 40px 0px" css-class="arcane-inset arcane-mobile-gap">
+        <mj-column width="50%" padding="0px 20px 0px 0px" vertical-align="top">
+          <mj-table
+            padding="0px"
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            line-height="1.5"
+            color="#FCF3ED"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            css-class="arcane-tip"
+          >
+            <tr>
+              <td
+                style="
+                  width: 40px;
+                  background-color: #431d26;
+                  text-align: center;
+                  vertical-align: top;
+                "
+              >
+                1
+              </td>
+              <td style="padding: 0px 0px 0px 22px; vertical-align: top">
+                Start with a patch test
+              </td>
+            </tr>
+          </mj-table>
+        </mj-column>
+        <mj-column width="50%" padding="0px" vertical-align="top" css-class="arcane-mobile-text">
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+            >Try new textures on a small area first, especially if you're rotating in actives or
+            seasonal formulas.</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#FCF3ED"
+            padding="8px 0px 0px"
+            align="left"
+          >
+            <a href="https://example.com/">Learn more →</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding="80px 40px 0px" css-class="arcane-inset arcane-mobile-gap">
+        <mj-column width="50%" padding="0px 20px 0px 0px" vertical-align="top">
+          <mj-table
+            padding="0px"
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            line-height="1.5"
+            color="#FCF3ED"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            css-class="arcane-tip"
+          >
+            <tr>
+              <td
+                style="
+                  width: 40px;
+                  background-color: #431d26;
+                  text-align: center;
+                  vertical-align: top;
+                "
+              >
+                2
+              </td>
+              <td style="padding: 0px 0px 0px 22px; vertical-align: top">Layer for your climate</td>
+            </tr>
+          </mj-table>
+        </mj-column>
+        <mj-column width="50%" padding="0px" vertical-align="top" css-class="arcane-mobile-text">
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+            >Humidity, cold snaps, and travel all change how skin drinks product layers in heat,
+            richer barriers when it's dry.</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#FCF3ED"
+            padding="8px 0px 0px"
+            align="left"
+          >
+            <a href="https://example.com/">Learn more →</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding="80px 40px 0px" css-class="arcane-inset arcane-mobile-gap">
+        <mj-column width="50%" padding="0px 20px 0px 0px" vertical-align="top">
+          <mj-table
+            padding="0px"
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            line-height="1.5"
+            color="#FCF3ED"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            css-class="arcane-tip"
+          >
+            <tr>
+              <td
+                style="
+                  width: 40px;
+                  background-color: #431d26;
+                  text-align: center;
+                  vertical-align: top;
+                "
+              >
+                3
+              </td>
+              <td style="padding: 0px 0px 0px 22px; vertical-align: top">Track what works</td>
+            </tr>
+          </mj-table>
+        </mj-column>
+        <mj-column width="50%" padding="0px" vertical-align="top" css-class="arcane-mobile-text">
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+            >Note how your skin feels after AM and PM routines so you can double down on what
+            actually moves the needle.</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#FCF3ED"
+            padding="8px 0px 0px"
+            align="left"
+          >
+            <a href="https://example.com/">Learn more →</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding="104px 40px 0px" css-class="arcane-inset">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-text
+            font-family="Instrument Serif, Georgia, Times New Roman, serif"
+            font-size="48px"
+            font-weight="400"
+            line-height="1.2"
+            letter-spacing="-0.28px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+            >“Shopping with Skin finally made my counter feel calm—every product earns its spot, and
+            my skin stays predictable through travel and stress.”</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="20px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.1px"
+            color="#FCF3ED"
+            padding="48px 0px 0px"
+            align="left"
+            >Alex Morgan</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="20px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.1px"
+            color="#EFE1D8"
+            padding="0px"
+            align="left"
+            >Member since 2024</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="48px 40px 56px" css-class="arcane-inset">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-image
+            src="https://demo.react.email/static/skin/skin-image-5.png"
+            width="560px"
+            alt=""
+            padding="0px"
+            align="left"
+            border-radius="2px"
+          />
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="24px"
+            font-weight="500"
+            line-height="1.4"
+            letter-spacing="0.008px"
+            color="#FCF3ED"
+            padding="56px 0px 0px"
+            align="left"
+            css-class="arcane-narrow"
+            >Most members say one or two routine swaps moved the needle more than a dozen impulse
+            buys.</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="18px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.056px"
+            color="#EFE1D8"
+            padding="20px 0px 0px"
+            align="left"
+            css-class="arcane-letter"
+            >Peek behind the formulas—short guides, founder notes, and community answers so you shop
+            for your skin, not the algorithm.</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="16px"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="0.168px"
+            color="#FCF3ED"
+            padding="32px 0px 0px"
+            align="left"
+          >
+            <a href="https://example.com/">See what’s new →</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-spacer height="48px" padding="0px" />
+        </mj-column>
+      </mj-section>
+      <mj-section padding="80px 40px 64px" css-class="arcane-inset" border-top="1px solid #3D151D">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="13px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.2px"
+            color="#B09996"
+            padding="0px"
+            align="left"
+            css-class="arcane-footer-copy"
+            >Skin crafts thoughtful skincare—barrier-first formulas, honest labels, and routines
+            you'll actually keep.</mj-text
+          >
+          <mj-social
+            align="left"
+            padding="32px 0px 0px"
+            icon-size="20px"
+            icon-padding="0px"
+            border-radius="0px"
+          >
+            <mj-social-element
+              name="x-noshare"
+              href="https://example.com/"
+              src="https://demo.react.email/static/skin/social-x.png"
+              alt="X"
+              background-color="transparent"
+              padding="0px 24px 0px 0px"
+            />
+            <mj-social-element
+              name="linkedin-noshare"
+              href="https://example.com/"
+              src="https://demo.react.email/static/skin/social-li.png"
+              alt="LinkedIn"
+              background-color="transparent"
+              padding="0px 24px 0px 0px"
+            />
+            <mj-social-element
+              name="youtube"
+              href="https://example.com/"
+              src="https://demo.react.email/static/skin/social-yt.png"
+              alt="YouTube"
+              background-color="transparent"
+              padding="0px 24px 0px 0px"
+            />
+            <mj-social-element
+              name="github"
+              href="https://example.com/"
+              src="https://demo.react.email/static/skin/social-gh.png"
+              alt="GitHub"
+              background-color="transparent"
+              padding="0px"
+            />
+          </mj-social>
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="11px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.3px"
+            color="#B09996"
+            padding="32px 0px 0px"
+            align="left"
+            >124 Mercantile Row, Studio 3<br />Los Angeles, CA, 90013</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="11px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.3px"
+            color="#B09996"
+            padding="20px 0px 0px"
+            align="left"
+            css-class="arcane-unsubscribe"
+          >
+            <a href="https://example.com/">Unsubscribe</a> from Skin marketing emails.</mj-text
+          >
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+  </mj-body>
+</mjml>

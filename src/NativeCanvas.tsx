@@ -11,6 +11,7 @@ import { nativeComponentTags } from "./NativeFields";
 import { TableBlock } from "./TableBlock";
 import type { TableProps } from "./table";
 import { resolveImportedAttributes } from "./import-inheritance";
+import { hasImportedRichTextWrapper, importedRichText } from "./imported-content";
 import { NativeItems } from "./NativeItems";
 import {
   NativeLayoutContext,
@@ -185,9 +186,18 @@ function ColumnBox({
   const layout = useContext(NativeLayoutContext);
   const gutter = columnGutter(a, layout, id);
   const style = columnStyle(a, fallbackWidth || defaultLayoutWidth(layout));
+  // MJML only renders the inner column box when padding is present, including
+  // an explicit zero or a value inherited from a class/component default.
+  const hasPadding = [
+    "padding",
+    "padding-top",
+    "padding-right",
+    "padding-bottom",
+    "padding-left",
+  ].some((name) => a[name] !== undefined);
   const content = (
     <NativeLayoutContext.Provider value={{ width: columnContentWidth(a, layout) }}>
-      <div style={nativeBoxStyle(a, "inner-")}>{children}</div>
+      <div style={hasPadding ? nativeBoxStyle(a, "inner-") : undefined}>{children}</div>
     </NativeLayoutContext.Provider>
   );
   return gutter ? (
@@ -236,11 +246,13 @@ function NativeBlockView({
   props,
   attributes: a,
   scope,
+  source,
 }: {
   name: string;
   props: Props;
   attributes: NativeCanvasAttributes;
   scope: NativeCanvasScope;
+  source?: Props;
 }): ReactNode {
   const puck = props.puck as { dragRef?: Ref<HTMLDivElement>; isEditing?: boolean } | undefined;
   const layout = useContext(NativeLayoutContext);
@@ -382,15 +394,26 @@ function NativeBlockView({
           </div>
         </div>
       );
-    case "Text":
+    case "Text": {
+      const original = importedRichText(source ?? props);
+      const imported = original !== undefined;
+      const wrapped = imported && hasImportedRichTextWrapper(source ?? props);
       return (
         <div
-          className={classes("pm-text", a)}
+          className={classes(
+            `pm-text${imported ? " pm-imported-text" : ""}${wrapped ? " pm-imported-inline-text" : ""}`,
+            a,
+          )}
           style={{ ...outerStyle(a), ...nativeStyle(a, [...typographyKeys, "height"]) }}
         >
-          {props.content as ReactNode}
+          {imported && !puck?.isEditing ? (
+            <div dangerouslySetInnerHTML={{ __html: original }} />
+          ) : (
+            (props.content as ReactNode)
+          )}
         </div>
       );
+    }
     case "Image":
       return (
         <div
@@ -493,6 +516,8 @@ function NativeBlockView({
               border: 0,
               width: a.width,
               borderTop: `${a["border-width"]} ${a["border-style"]} ${a["border-color"]}`,
+              marginTop: 0,
+              marginBottom: 0,
               marginLeft: a.align === "right" || a.align === "center" ? "auto" : 0,
               marginRight: a.align === "left" || a.align === "center" ? "auto" : 0,
             }}
@@ -500,7 +525,13 @@ function NativeBlockView({
         </div>
       );
     case "Table":
-      return <TableBlock {...(props as unknown as TableProps)} nativeAttributes={a} />;
+      return (
+        <TableBlock
+          {...(props as unknown as TableProps)}
+          source={source as TableProps | undefined}
+          nativeAttributes={a}
+        />
+      );
     case "Social":
     case "Navbar":
     case "Accordion":
@@ -605,7 +636,13 @@ function NativeBlock({
   if (!node) return fallback();
   return (
     <NativeCanvasContext.Provider value={node.scope}>
-      <NativeBlockView name={name} props={props} attributes={node.attributes} scope={node.scope} />
+      <NativeBlockView
+        name={name}
+        props={props}
+        source={source}
+        attributes={node.attributes}
+        scope={node.scope}
+      />
     </NativeCanvasContext.Provider>
   );
 }

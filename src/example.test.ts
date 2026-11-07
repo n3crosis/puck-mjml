@@ -39,7 +39,7 @@ describe("Collage product update example", () => {
     expect(document.content).toEqual([]);
     expect(blocks.every((block) => block.type !== "Raw" && Boolean(block.props.id))).toBe(true);
     expect(new Set(blocks.map((block) => block.props.id)).size).toBe(blocks.length);
-    const title = blocks.find((block) => block.props.id === "intro-title")!;
+    const title = blocks.find((block) => String(block.props.content).includes("Monthly roundup"))!;
     title.props.content = "<p>Edited inline</p>";
     expect(JSON.stringify(next)).toContain("Monthly roundup");
     expect(JSON.stringify(next)).not.toContain("Edited inline");

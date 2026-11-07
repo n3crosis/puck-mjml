@@ -1,19 +1,7 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
-import { formatCss } from "./format-css";
+import { useId, useState, type KeyboardEvent } from "react";
+import { CSSCodeEditor } from "./CSSCodeEditor";
 
-/**
- * Monospace source editor for CSS and HTML fields. Tab inserts two spaces so
- * authors can indent without leaving the field; Shift+Tab still moves focus.
- */
-export function CodeArea({
-  id,
-  value,
-  disabled,
-  rows = 4,
-  format,
-  ariaLabel,
-  onChange,
-}: {
+type CodeAreaProps = {
   id?: string;
   value: unknown;
   disabled?: boolean;
@@ -21,27 +9,20 @@ export function CodeArea({
   format?: "css";
   ariaLabel: string;
   onChange: (value: string) => void;
-}) {
+};
+
+/** CSS gets a full code editor; HTML source retains its existing plain-text field. */
+export function CodeArea(props: CodeAreaProps) {
+  return props.format === "css" ? <CSSCodeEditor {...props} /> : <SourceArea {...props} />;
+}
+
+function SourceArea({ id, value, disabled, rows = 4, ariaLabel, onChange }: CodeAreaProps) {
   const generatedId = useId();
   const areaId = id ?? generatedId;
   const [expanded, setExpanded] = useState(false);
   const source = typeof value === "string" ? value : "";
-  const [draft, setDraft] = useState(() => (format === "css" ? formatCss(source) : source));
-  const focused = useRef(false);
-  const reported = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    if (source === reported.current) {
-      reported.current = undefined;
-      return;
-    }
-    // External changes, including history, remain authoritative. Only format their
-    // presentation when the editor is idle; never rewrite text during active typing.
-    setDraft(format === "css" && !focused.current ? formatCss(source) : source);
-  }, [source, format]);
   const reportChange = (next: string) => {
-    setDraft(next);
-    reported.current = next;
-    onChange(next);
+    if (!disabled) onChange(next);
   };
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key !== "Tab" || event.shiftKey || disabled) return;
@@ -57,20 +38,6 @@ export function CodeArea({
   return (
     <div className="pm-code-field">
       <div className="pm-code-tools">
-        {format === "css" && (
-          <button
-            type="button"
-            aria-label={`Format ${ariaLabel}`}
-            disabled={disabled}
-            onClick={() => {
-              const next = formatCss(draft);
-              setDraft(next);
-              if (next !== source) reportChange(next);
-            }}
-          >
-            Format
-          </button>
-        )}
         <button
           type="button"
           aria-label={`${expanded ? "Collapse" : "Expand"} ${ariaLabel} editor`}
@@ -92,13 +59,7 @@ export function CodeArea({
         wrap="off"
         rows={expanded ? Math.max(16, rows) : rows}
         disabled={disabled}
-        value={format === "css" ? draft : source}
-        onFocus={() => {
-          focused.current = true;
-        }}
-        onBlur={() => {
-          focused.current = false;
-        }}
+        value={source}
         onChange={(event) => reportChange(event.target.value)}
         onKeyDown={handleKeyDown}
       />

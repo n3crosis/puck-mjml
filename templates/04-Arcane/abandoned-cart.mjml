@@ -1,0 +1,397 @@
+<!--
+  Adapted from React Email (MIT, Copyright 2024 Plus Five Five, Inc).
+  https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/04-Arcane/abandoned-cart.tsx
+  Canonical editable MJML source. See ../README.md and ../../THIRD_PARTY_NOTICES.md.
+-->
+<mjml lang="en" dir="ltr" owa="none">
+  <mj-head>
+    <mj-title>Your Skin cart is waiting</mj-title>
+    <mj-preview>Your Skin cart is waiting</mj-preview>
+    <mj-breakpoint width="601px" />
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600&amp;display=swap"
+    />
+    <mj-font
+      name="Instrument Serif"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif&amp;display=swap"
+    />
+    <mj-attributes>
+      <mj-all font-family="Inter, Arial, sans-serif" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .arcane-email a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .arcane-unsubscribe a {
+        color: #efe1d8;
+      }
+      .arcane-narrow > div {
+        max-width: 480px;
+      }
+      .arcane-footer-copy > div {
+        max-width: 320px;
+      }
+      .arcane-unsubscribe > div {
+        max-width: 169px;
+      }
+      .arcane-cart-copy > div {
+        max-width: 304px;
+      }
+    </mj-style>
+    <mj-style>
+      @media only screen and (max-width: 600px) {
+        .arcane-cart-copy > div {
+          max-width: none !important;
+        }
+        .arcane-inset > table > tbody > tr > td {
+          padding-left: 24px !important;
+          padding-right: 24px !important;
+        }
+        .arcane-mobile-top > table > tbody > tr > td {
+          padding-top: 48px !important;
+        }
+        .arcane-mobile-bottom > table > tbody > tr > td {
+          padding-bottom: 40px !important;
+        }
+        .arcane-mobile-text > table > tbody > tr > td {
+          padding-top: 24px !important;
+          padding-left: 0px !important;
+          padding-right: 0px !important;
+        }
+        .arcane-feature-image img,
+        .arcane-cart-image img {
+          width: 100% !important;
+          max-width: none !important;
+        }
+        .arcane-feature-image table,
+        .arcane-cart-image table {
+          width: 100% !important;
+        }
+        .arcane-join-section > table > tbody > tr > td {
+          padding-top: 48px !important;
+          padding-bottom: 40px !important;
+        }
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="640px" background-color="#FFFFFF" css-class="arcane-email">
+    <mj-wrapper padding="0px" background-color="#300610">
+      <mj-section padding="40px 40px 24px" css-class="arcane-inset">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-image
+            src="https://demo.react.email/static/shared/logo-white.png"
+            width="32px"
+            height="32px"
+            alt=""
+            padding="0px"
+            align="left"
+          />
+        </mj-column>
+      </mj-section>
+      <mj-section
+        padding="80px 40px 56px"
+        css-class="arcane-inset arcane-mobile-top arcane-mobile-bottom"
+      >
+        <mj-column padding="0px" vertical-align="top">
+          <mj-text
+            font-family="Instrument Serif, Georgia, Times New Roman, serif"
+            font-size="72px"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-0.52px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+            css-class="arcane-narrow"
+            >Pick up where you left off</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#EFE1D8"
+            padding="18px 0px 0px"
+            align="left"
+            css-class="arcane-narrow"
+            >Your cart still holds these formulas—checkout soon before limited stock or your hold
+            window expires.</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px 40px 36px" css-class="arcane-inset">
+        <mj-column width="31.785714%" padding="0px" vertical-align="middle">
+          <mj-image
+            src="https://demo.react.email/static/skin/skin-image-2.png"
+            width="178px"
+            alt=""
+            padding="0px"
+            align="left"
+            css-class="arcane-cart-image"
+          />
+        </mj-column>
+        <mj-column
+          width="68.214286%"
+          padding="0px 0px 0px 36px"
+          vertical-align="middle"
+          css-class="arcane-mobile-text"
+        >
+          <mj-text
+            font-family="Instrument Serif, Georgia, Times New Roman, serif"
+            font-size="32px"
+            font-weight="500"
+            line-height="1.4"
+            letter-spacing="0.008px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+            >Daily C Serum</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#B09996"
+            padding="12px 0px 0px"
+            align="left"
+            css-class="arcane-cart-copy"
+            >Brightening daytime serum—still in your cart. Finish checkout before we release the
+            inventory hold.</mj-text
+          >
+          <mj-text
+            font-family="Instrument Serif, Georgia, Times New Roman, serif"
+            font-size="20px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.1px"
+            color="#EFE1D8"
+            padding="12px 0px 0px"
+            align="left"
+            >$99</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px 40px 0px" css-class="arcane-inset">
+        <mj-column width="31.785714%" padding="0px" vertical-align="middle">
+          <mj-image
+            src="https://demo.react.email/static/skin/skin-image-3.png"
+            width="178px"
+            alt=""
+            padding="0px"
+            align="left"
+            css-class="arcane-cart-image"
+          />
+        </mj-column>
+        <mj-column
+          width="68.214286%"
+          padding="0px 0px 0px 36px"
+          vertical-align="middle"
+          css-class="arcane-mobile-text"
+        >
+          <mj-text
+            font-family="Instrument Serif, Georgia, Times New Roman, serif"
+            font-size="32px"
+            font-weight="500"
+            line-height="1.4"
+            letter-spacing="0.008px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+            >Overnight Repair Cream</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="15px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.25px"
+            color="#B09996"
+            padding="12px 0px 0px"
+            align="left"
+            css-class="arcane-cart-copy"
+            >Pairs with your morning serum for AM/PM balance. Limited batches move fast on
+            restocks.</mj-text
+          >
+          <mj-text
+            font-family="Instrument Serif, Georgia, Times New Roman, serif"
+            font-size="20px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.1px"
+            color="#EFE1D8"
+            padding="12px 0px 0px"
+            align="left"
+            >$99</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="48px 40px 56px" css-class="arcane-inset">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="16px"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="0.168px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+          >
+            <a href="https://example.com/">Return to cart →</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding="72px 40px 0px" css-class="arcane-inset arcane-mobile-top">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-text
+            font-family="Instrument Serif, Georgia, Times New Roman, serif"
+            font-size="64px"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-0.56px"
+            color="#FCF3ED"
+            padding="0px"
+            align="left"
+            css-class="arcane-narrow"
+            >Don’t take it from us</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="48px 40px 0px" css-class="arcane-inset arcane-join-section">
+        <mj-column
+          padding="80px 40px"
+          vertical-align="top"
+          background-color="#F9F9ED"
+          css-class="arcane-join"
+        >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="22px"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="-0.176px"
+            color="#300610"
+            padding="0px"
+            align="center"
+            >Join us on the journey</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="20px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.1px"
+            color="#300610"
+            padding="24px 0px 0px"
+            align="center"
+            >There's more ahead—new drops, member perks, and restock alerts. Explore what's new and
+            stay in the loop while your cart is on hold.</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="16px"
+            font-weight="500"
+            line-height="1.5"
+            letter-spacing="0.168px"
+            color="#300610"
+            padding="40px 0px 0px"
+            align="center"
+          >
+            <a href="https://example.com/">Start Exploring →</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-spacer height="48px" padding="0px" />
+        </mj-column>
+      </mj-section>
+      <mj-section padding="80px 40px 64px" css-class="arcane-inset" border-top="1px solid #3D151D">
+        <mj-column padding="0px" vertical-align="top">
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="13px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.2px"
+            color="#B09996"
+            padding="0px"
+            align="left"
+            css-class="arcane-footer-copy"
+            >Skin crafts thoughtful skincare—barrier-first formulas, honest labels, and routines
+            you'll actually keep.</mj-text
+          >
+          <mj-social
+            align="left"
+            padding="32px 0px 0px"
+            icon-size="20px"
+            icon-padding="0px"
+            border-radius="0px"
+          >
+            <mj-social-element
+              name="x-noshare"
+              href="https://example.com/"
+              src="https://demo.react.email/static/skin/social-x.png"
+              alt="X"
+              background-color="transparent"
+              padding="0px 24px 0px 0px"
+            />
+            <mj-social-element
+              name="linkedin-noshare"
+              href="https://example.com/"
+              src="https://demo.react.email/static/skin/social-li.png"
+              alt="LinkedIn"
+              background-color="transparent"
+              padding="0px 24px 0px 0px"
+            />
+            <mj-social-element
+              name="youtube"
+              href="https://example.com/"
+              src="https://demo.react.email/static/skin/social-yt.png"
+              alt="YouTube"
+              background-color="transparent"
+              padding="0px 24px 0px 0px"
+            />
+            <mj-social-element
+              name="github"
+              href="https://example.com/"
+              src="https://demo.react.email/static/skin/social-gh.png"
+              alt="GitHub"
+              background-color="transparent"
+              padding="0px"
+            />
+          </mj-social>
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="11px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.3px"
+            color="#B09996"
+            padding="32px 0px 0px"
+            align="left"
+            >124 Mercantile Row, Studio 3<br />Los Angeles, CA, 90013</mj-text
+          >
+          <mj-text
+            font-family="Inter, Arial, sans-serif"
+            font-size="11px"
+            font-weight="400"
+            line-height="1.5"
+            letter-spacing="0.3px"
+            color="#B09996"
+            padding="20px 0px 0px"
+            align="left"
+            css-class="arcane-unsubscribe"
+          >
+            <a href="https://example.com/">Unsubscribe</a> from Skin marketing emails.</mj-text
+          >
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+  </mj-body>
+</mjml>

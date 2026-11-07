@@ -2,10 +2,14 @@ import type { CSSProperties } from "react";
 import type { RichText } from "@puckeditor/core";
 import { sanitizeEmailRichText } from "./richtext";
 import { normalizeColor as color } from "./native-attributes";
+import { importedRichText } from "./imported-content";
 
 export type TableCellScope = "" | "row" | "col" | "rowgroup" | "colgroup";
 export type TableCell = {
   content: RichText;
+  /** Native imports omit unspecified cell styles instead of injecting editor defaults. */
+  native?: true;
+  importedRichText?: { source: string; baseline: string };
   header?: boolean;
   scope?: TableCellScope;
   colSpan?: number;
@@ -20,6 +24,7 @@ export type TableCell = {
 };
 export type TableRow = { cells: TableCell[] };
 export type TableProps = {
+  importedTableContent?: { source: string; baseline: string };
   caption?: string;
   headerRows?: TableRow[];
   bodyRows?: TableRow[];
@@ -132,6 +137,13 @@ function normalizeCell(value: Record<string, unknown>, headerRow: boolean): Tabl
     color: color(value.color),
     border: border(value.border),
   };
+  if (value.native === true) {
+    cell.native = true;
+    for (const key of ["scope", "align", "verticalAlign", "border"] as const)
+      if (value[key] === undefined) delete cell[key];
+  }
+  if (value.importedRichText !== undefined)
+    cell.importedRichText = value.importedRichText as TableCell["importedRichText"];
   return Object.entries(cell).every(([key, entry]) => value[key] === entry)
     ? (value as TableCell)
     : cell;
@@ -242,7 +254,7 @@ export function getTableCellStyle(value: TableCell): CSSProperties {
     padding: cell.padding || undefined,
     backgroundColor: cell.backgroundColor || undefined,
     color: cell.color || undefined,
-    border: cell.border || "none",
+    border: cell.border || (cell.native ? undefined : "none"),
   };
 }
 
@@ -282,7 +294,7 @@ export function renderTableContent(value: unknown): string {
               `<tr>${row.cells
                 .map((cell) => {
                   const tag = cell.header ? "th" : "td";
-                  return `<${tag}${serializeAttributes(getTableCellAttributes(cell))}>${sanitizeEmailRichText(cell.content)}</${tag}>`;
+                  return `<${tag}${serializeAttributes(getTableCellAttributes(cell))}>${importedRichText(cell) ?? sanitizeEmailRichText(cell.content)}</${tag}>`;
                 })
                 .join("")}</tr>`,
           )

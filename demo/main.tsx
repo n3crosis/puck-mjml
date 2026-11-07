@@ -1,36 +1,25 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { createRoot } from "react-dom/client";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/csr/CaretDown";
-import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/csr/DownloadSimple";
 import { UploadSimpleIcon } from "@phosphor-icons/react/dist/csr/UploadSimple";
 import {
   EmailEditor,
-  compileEmail,
   createExampleDocument,
   emailTemplates,
-  toMjml,
   type EmailDocument,
   type EmailTemplateDefinition,
 } from "../src";
 import "./style.css";
 import { reviewImport, hasUnsavedChanges } from "./import-review";
+import { uploadLocalImage } from "./local-images";
+import { LOCAL_IMAGE_WARNING } from "../src/image-upload";
 
 const DEFAULT_TEMPLATE_ID = "02-matte/product-update";
-
-function download(name: string, content: string, mime: string) {
-  const url = URL.createObjectURL(new Blob([content], { type: mime }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = name;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
 
 function App() {
   const [templateId, setTemplateId] = useState(DEFAULT_TEMPLATE_ID);
   const [value, setValue] = useState<EmailDocument>(() => createExampleDocument());
   const [status, setStatus] = useState("");
-  const [busy, setBusy] = useState(false);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [baseline, setBaseline] = useState(() => JSON.stringify(value));
   const dirty = hasUnsavedChanges(value, baseline);
@@ -98,33 +87,15 @@ function App() {
     }
   };
 
-  const exportFile = async (kind: "mjml" | "html") => {
-    setBusy(true);
-    setStatus("");
-    try {
-      if (kind === "mjml") {
-        download("email.mjml", toMjml(value), "application/xml");
-        return;
-      }
-      const result = await compileEmail(value);
-      if (result.errors.length) {
-        setStatus(
-          `MJML reported ${result.errors.length} warning${result.errors.length === 1 ? "" : "s"}. Check the preview for details.`,
-        );
-      }
-      download(`email.${kind}`, result.html, "text/html");
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Export failed");
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
     <div className="demo-app">
       <div className="demo-notice">
         Demo only: drafts are not saved. Download MJML before leaving.{" "}
         {dirty ? "You have unsaved edits." : ""}
+        <span className="demo-local-images">
+          {" "}
+          Image uploads stay in this browser draft. {LOCAL_IMAGE_WARNING}
+        </span>
       </div>
       {importWarnings.length > 0 && (
         <details className="demo-status">
@@ -145,6 +116,8 @@ function App() {
         <EmailEditor
           value={value}
           onChange={setValue}
+          onUploadImage={uploadLocalImage}
+          allowLocalImages
           headerActions={
             <div className="demo-actions">
               <label className="demo-template-picker">
@@ -188,27 +161,6 @@ function App() {
                   onChange={importMjmlFile}
                 />
               </label>
-              <button
-                type="button"
-                aria-label="Download MJML"
-                title="Download MJML"
-                disabled={busy}
-                onClick={() => exportFile("mjml")}
-              >
-                <DownloadSimpleIcon aria-hidden="true" />
-                MJML
-              </button>
-              <button
-                type="button"
-                className="demo-primary"
-                aria-label="Download HTML"
-                title="Download HTML"
-                disabled={busy}
-                onClick={() => exportFile("html")}
-              >
-                <DownloadSimpleIcon aria-hidden="true" />
-                HTML
-              </button>
             </div>
           }
         />

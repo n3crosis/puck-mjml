@@ -30,6 +30,7 @@ import { NativeLayoutContext } from "./native-layout-context";
 
 type EmailCanvasProps = {
   children: ReactNode;
+  allowLocalImages?: boolean;
   width?: unknown;
   breakpoint?: unknown;
   breakpointWidth?: string;
@@ -46,6 +47,7 @@ type EmailCanvasProps = {
 
 export function EmailCanvas({
   children,
+  allowLocalImages = false,
   width,
   breakpoint,
   breakpointWidth,
@@ -189,7 +191,11 @@ export function EmailCanvas({
         style={{ maxWidth: emailWidthStyle }}
       >
         <NativeLayoutContext.Provider value={{ width: Number.parseFloat(emailWidthStyle) || 600 }}>
-          <NativeCanvasProvider settings={{ ...nativeSettings, fontFamily }} fontAliases={aliases}>
+          <NativeCanvasProvider
+            settings={{ ...nativeSettings, fontFamily }}
+            fontAliases={aliases}
+            allowLocalImages={allowLocalImages}
+          >
             {children}
           </NativeCanvasProvider>
         </NativeLayoutContext.Provider>

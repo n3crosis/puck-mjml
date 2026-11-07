@@ -1,0 +1,862 @@
+<!-- Adapted from React Email (MIT, Copyright 2024 Plus Five Five, Inc).
+https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/01-Barebone/product-update.tsx
+Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../THIRD_PARTY_NOTICES.md. -->
+<mjml lang="en"
+  ><mj-head>
+    <mj-title>Here&#x27;s what&#x27;s new with Barebones</mj-title
+    ><mj-preview>Product update: what&#x27;s new at Barebones</mj-preview>
+    <mj-breakpoint width="601px" />
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap"
+    />
+    <mj-attributes
+      ><mj-all font-family="Inter, Arial, sans-serif" /><mj-section padding="0px" /><mj-column
+        padding="0px" /><mj-text padding="0px" /><mj-image padding="0px" /><mj-button
+        font-family="Inter, Arial, sans-serif"
+    /></mj-attributes>
+    <mj-style inline="inline">
+      .bare-footer-copy > div {
+        max-width: 280px;
+        margin: 0 auto;
+      }
+      .bare-copy > div {
+        max-width: 380px;
+        margin: 0 auto;
+      }
+      .bare-note > div {
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      .bare-heading-copy > div {
+        max-width: 422px;
+        margin: 0 auto;
+      }
+      .bare-shell a {
+        color: inherit;
+      }
+      .bare-gap > div {
+        display: block;
+      }
+    </mj-style>
+    <mj-style>
+      @media only screen and (max-width: 600px) {
+        .bare-top-space {
+          display: none !important;
+        }
+        .bare-shell > table > tbody > tr > td {
+          padding-left: 8px !important;
+          padding-right: 8px !important;
+        }
+        .bare-card-section > table > tbody > tr > td {
+          padding-left: 16px !important;
+          padding-right: 16px !important;
+        }
+        .bare-stack-gap {
+          padding-bottom: 32px !important;
+        }
+      }
+    </mj-style> </mj-head
+  ><mj-body width="640px" background-color="#F3F4F6">
+    <mj-section padding="0px" css-class="bare-top-space"
+      ><mj-column><mj-spacer height="32px" /></mj-column
+    ></mj-section>
+    <mj-wrapper background-color="#FFFFFF" padding="16px 24px" css-class="bare-shell">
+      <mj-section padding="0px 24px 12px"
+        ><mj-group width="100%"
+          ><mj-column width="50%" padding="7px 0px"
+            ><mj-image
+              src="https://demo.react.email/static/shared/logo-black.png"
+              alt=""
+              width="23px"
+              padding="0px 0px 0px"
+              border-radius="0px"
+              align="left" /></mj-column
+          ><mj-column width="50%" padding="7px 0px"
+            ><mj-text
+              font-size="13px"
+              font-weight="420"
+              line-height="1.5"
+              letter-spacing="-0.039px"
+              color="#7B7D81"
+              align="right"
+              padding="0px 0px 0px"
+              >Barebones</mj-text
+            ></mj-column
+          ></mj-group
+        ></mj-section
+      >
+      <mj-section
+        padding="56px 20px 20px"
+        background-color="#F3F4F6"
+        border-radius="10px"
+        css-class="bare-card-section"
+        ><mj-column width="100%" padding="0px"
+          ><mj-text
+            font-size="13px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.039px"
+            color="#7B7D81"
+            align="center"
+            padding="0px 0px 24px"
+            >Product update</mj-text
+          ><mj-text
+            font-size="40px"
+            font-weight="600"
+            line-height="1.1"
+            letter-spacing="-0.8px"
+            color="#14171E"
+            align="center"
+            padding="0px 0px 24px"
+            >Here&#x27;s what&#x27;s new with Barebones</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#43454B"
+            align="center"
+            padding="0px 0px 24px"
+            css-class="bare-heading-copy"
+            >We shipped a new release with improvements to help you move faster and stay in sync.
+            Open the dashboard to explore the full changelog.</mj-text
+          ><mj-button
+            href="https://example.com/"
+            background-color="#14171E"
+            color="#FFFFFF"
+            font-size="16px"
+            font-weight="420"
+            line-height="24px"
+            letter-spacing="-0.048px"
+            border-radius="8px"
+            inner-padding="16px 28px"
+            padding="0px 0px 40px"
+            align="center"
+            >View in dashboard</mj-button
+          ><mj-image
+            src="https://demo.react.email/static/barebones/barebones-image.png"
+            alt=""
+            width="592px"
+            padding="0px 0px 0px"
+            border-radius="12px" /></mj-column
+      ></mj-section>
+      <mj-section padding="0px"
+        ><mj-column width="100%" padding="0px"><mj-spacer height="24px" /></mj-column></mj-section
+      ><mj-section
+        padding="56px 44px 0px"
+        background-color="#F3F4F6"
+        border-radius="10px 10px 0px 0px"
+        css-class="bare-card-section"
+        ><mj-column width="100%" padding="0px"
+          ><mj-text
+            font-size="32px"
+            font-weight="600"
+            line-height="1.25"
+            letter-spacing="-0.64px"
+            color="#14171E"
+            align="center"
+            padding="0px 0px 40px"
+            >Starting is easy</mj-text
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 44px 0px"
+        background-color="#F3F4F6"
+        border-radius="0px"
+        css-class="bare-card-section"
+        ><mj-group width="100%"
+          ><mj-column width="10%" padding="4px 12px 0px 0px"
+            ><mj-text
+              font-size="14px"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              color="#14171E"
+              align="center"
+              padding="0px 0px 0px"
+              >1</mj-text
+            ></mj-column
+          ><mj-column width="90%" padding="0px 32px 0px 0px"
+            ><mj-text
+              font-size="16px"
+              font-weight="600"
+              line-height="1.5"
+              letter-spacing="-0.048px"
+              color="#14171E"
+              align="left"
+              padding="0px 0px 4px"
+              >Review the highlights</mj-text
+            ><mj-text
+              font-size="16px"
+              font-weight="420"
+              line-height="1.5"
+              letter-spacing="-0.048px"
+              color="#43454B"
+              align="left"
+              padding="0px 0px 36px"
+              >Skim what&#x27;s new and jump straight to the features that matter for your
+              team.</mj-text
+            ></mj-column
+          ></mj-group
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 44px 0px"
+        background-color="#F3F4F6"
+        border-radius="0px"
+        css-class="bare-card-section"
+        ><mj-group width="100%"
+          ><mj-column width="10%" padding="4px 12px 0px 0px"
+            ><mj-text
+              font-size="14px"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              color="#14171E"
+              align="center"
+              padding="0px 0px 0px"
+              >2</mj-text
+            ></mj-column
+          ><mj-column width="90%" padding="0px 32px 0px 0px"
+            ><mj-text
+              font-size="16px"
+              font-weight="600"
+              line-height="1.5"
+              letter-spacing="-0.048px"
+              color="#14171E"
+              align="left"
+              padding="0px 0px 4px"
+              >Try it when you&#x27;re ready</mj-text
+            ><mj-text
+              font-size="16px"
+              font-weight="420"
+              line-height="1.5"
+              letter-spacing="-0.048px"
+              color="#43454B"
+              align="left"
+              padding="0px 0px 36px"
+              >Turn on new options on your timeline—no forced migration or downtime for your
+              workflow.</mj-text
+            ></mj-column
+          ></mj-group
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 44px 0px"
+        background-color="#F3F4F6"
+        border-radius="0px"
+        css-class="bare-card-section"
+        ><mj-group width="100%"
+          ><mj-column width="10%" padding="4px 12px 0px 0px"
+            ><mj-text
+              font-size="14px"
+              font-weight="400"
+              line-height="1.5"
+              letter-spacing="0px"
+              color="#14171E"
+              align="center"
+              padding="0px 0px 0px"
+              >3</mj-text
+            ></mj-column
+          ><mj-column width="90%" padding="0px 32px 0px 0px"
+            ><mj-text
+              font-size="16px"
+              font-weight="600"
+              line-height="1.5"
+              letter-spacing="-0.048px"
+              color="#14171E"
+              align="left"
+              padding="0px 0px 4px"
+              >Share with your team</mj-text
+            ><mj-text
+              font-size="16px"
+              font-weight="420"
+              line-height="1.5"
+              letter-spacing="-0.048px"
+              color="#43454B"
+              align="left"
+              padding="0px 0px 36px"
+              >Invite teammates so everyone sees the same improvements and clear next
+              steps.</mj-text
+            ></mj-column
+          ></mj-group
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 44px 56px"
+        background-color="#F3F4F6"
+        border-radius="0px 0px 10px 10px"
+        css-class="bare-card-section"
+        ><mj-column width="100%" padding="0px"
+          ><mj-button
+            href="https://example.com/"
+            background-color="#14171E"
+            color="#FFFFFF"
+            font-size="16px"
+            font-weight="420"
+            line-height="24px"
+            letter-spacing="-0.048px"
+            border-radius="8px"
+            inner-padding="16px 28px"
+            padding="0px 0px 0px"
+            align="center"
+            >Explore updates</mj-button
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section padding="0px"
+        ><mj-column width="100%" padding="0px"><mj-spacer height="24px" /></mj-column></mj-section
+      ><mj-section
+        padding="56px 20px 0px"
+        background-color="#F3F4F6"
+        border-radius="10px 10px 0px 0px"
+        css-class="bare-card-section"
+        ><mj-column width="100%" padding="0px"
+          ><mj-text
+            font-size="32px"
+            font-weight="600"
+            line-height="1.25"
+            letter-spacing="-0.64px"
+            color="#14171E"
+            align="center"
+            padding="0px 0px 64px"
+            >Some new things</mj-text
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 20px 0px"
+        background-color="#F3F4F6"
+        border-radius="0px"
+        css-class="bare-card-section"
+        ><mj-column width="50%" padding="0px 10px 0px 0px" css-class="bare-stack-gap"
+          ><mj-image
+            src="https://demo.react.email/static/barebones/barebones-image-2.png"
+            alt=""
+            width="280px"
+            padding="0px 0px 24px"
+            border-radius="12px"
+          /><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#14171E"
+            align="left"
+            padding="0px 0px 4px"
+            >Quality-of-life fixes</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#43454B"
+            align="left"
+            padding="0px 0px 0px"
+            >Expect faster load times, clearer status, and fewer clicks for everyday tasks. We also
+            tightened the spots where teams tend to get stuck.</mj-text
+          ></mj-column
+        ><mj-column width="50%" padding="0px 0px 0px 10px" css-class="bare-stack-gap"
+          ><mj-image
+            src="https://demo.react.email/static/barebones/barebones-image-2.png"
+            alt=""
+            width="280px"
+            padding="0px 0px 24px"
+            border-radius="12px"
+          /><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#14171E"
+            align="left"
+            padding="0px 0px 4px"
+            >Under the hood</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#43454B"
+            align="left"
+            padding="0px 0px 0px"
+            >Expect faster load times, clearer status, and fewer clicks for everyday tasks. We also
+            tightened the spots where teams tend to get stuck.</mj-text
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 20px 56px"
+        background-color="#F3F4F6"
+        border-radius="0px 0px 10px 10px"
+        css-class="bare-card-section"
+        ><mj-column width="100%" padding="0px"
+          ><mj-spacer height="36px" /><mj-button
+            href="https://example.com/"
+            background-color="#14171E"
+            color="#FFFFFF"
+            font-size="16px"
+            font-weight="420"
+            line-height="24px"
+            letter-spacing="-0.048px"
+            border-radius="8px"
+            inner-padding="16px 28px"
+            padding="0px 0px 0px"
+            align="center"
+            >Explore updates</mj-button
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section padding="0px"
+        ><mj-column width="100%" padding="0px"><mj-spacer height="24px" /></mj-column></mj-section
+      ><mj-section
+        padding="56px 44px 0px"
+        background-color="#F3F4F6"
+        border-radius="10px 10px 0px 0px"
+        css-class="bare-card-section"
+        ><mj-column width="100%" padding="0px"
+          ><mj-text
+            font-size="32px"
+            font-weight="600"
+            line-height="1.25"
+            letter-spacing="-0.64px"
+            color="#14171E"
+            align="center"
+            padding="0px 0px 40px"
+            >Some new things</mj-text
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 44px 0px"
+        background-color="#F3F4F6"
+        border-radius="0px"
+        css-class="bare-card-section"
+        ><mj-column width="48%" padding="0px 20px 36px 0px" css-class="bare-stack-gap"
+          ><mj-image
+            src="https://demo.react.email/static/barebones/barebones-image-2.png"
+            alt=""
+            width="311px"
+            padding="0px 0px 0px"
+            border-radius="12px" /></mj-column
+        ><mj-column width="52%" padding="0px 0px 36px" css-class="bare-stack-gap"
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#14171E"
+            align="left"
+            padding="0px 0px 4px"
+            >Workflow improvements</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#43454B"
+            align="left"
+            padding="0px 0px 12px"
+            >Built for teams who need reliability at scale: clearer behavior, better defaults, and
+            less back-and-forth to get work done.</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#14171E"
+            align="left"
+            padding="0px 0px 0px"
+            ><a href="https://example.com/">Learn about Pro</a></mj-text
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 44px 0px"
+        background-color="#F3F4F6"
+        border-radius="0px"
+        css-class="bare-card-section"
+        ><mj-column width="52%" padding="0px 0px 36px" css-class="bare-stack-gap"
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#14171E"
+            align="left"
+            padding="0px 0px 4px"
+            >Reporting &amp; visibility</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#43454B"
+            align="left"
+            padding="0px 0px 12px"
+            >Built for teams who need reliability at scale: clearer behavior, better defaults, and
+            less back-and-forth to get work done.</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#14171E"
+            align="left"
+            padding="0px 0px 0px"
+            ><a href="https://example.com/">Learn about Pro</a></mj-text
+          ></mj-column
+        ><mj-column width="48%" padding="0px 20px 36px 0px" css-class="bare-stack-gap"
+          ><mj-image
+            src="https://demo.react.email/static/barebones/barebones-image-2.png"
+            alt=""
+            width="311px"
+            padding="0px 0px 0px"
+            border-radius="12px" /></mj-column
+      ></mj-section>
+      <mj-section
+        padding="0px 44px 56px"
+        background-color="#F3F4F6"
+        border-radius="0px 0px 10px 10px"
+        css-class="bare-card-section"
+        ><mj-column width="48%" padding="0px 20px 36px 0px" css-class="bare-stack-gap"
+          ><mj-image
+            src="https://demo.react.email/static/barebones/barebones-image-2.png"
+            alt=""
+            width="311px"
+            padding="0px 0px 0px"
+            border-radius="12px" /></mj-column
+        ><mj-column width="52%" padding="0px 0px 36px" css-class="bare-stack-gap"
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#14171E"
+            align="left"
+            padding="0px 0px 4px"
+            >API &amp; integrations</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#43454B"
+            align="left"
+            padding="0px 0px 12px"
+            >Built for teams who need reliability at scale: clearer behavior, better defaults, and
+            less back-and-forth to get work done.</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#14171E"
+            align="left"
+            padding="0px 0px 0px"
+            ><a href="https://example.com/">Learn about Pro</a></mj-text
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section padding="0px"
+        ><mj-column width="100%" padding="0px"><mj-spacer height="24px" /></mj-column></mj-section
+      ><mj-section
+        padding="56px 44px 0px"
+        background-color="#F3F4F6"
+        border-radius="10px 10px 0px 0px"
+        css-class="bare-card-section"
+        ><mj-column width="100%" padding="0px"
+          ><mj-text
+            font-size="32px"
+            font-weight="600"
+            line-height="1.25"
+            letter-spacing="-0.64px"
+            color="#14171E"
+            align="center"
+            padding="0px 0px 40px"
+            >Some new things</mj-text
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 44px 0px"
+        background-color="#F3F4F6"
+        border-radius="0px"
+        css-class="bare-card-section"
+        ><mj-column width="50%" padding="0px 32px 36px 0px" css-class="bare-stack-gap"
+          ><mj-text
+            font-size="24px"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-0.084px"
+            color="#E4E4E7"
+            align="left"
+            padding="0px 0px 20px"
+            >□</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#43454B"
+            align="left"
+            padding="0px 0px 0px"
+            >These updates roll out gradually. Check your workspace to see what&#x27;s available to
+            you today.</mj-text
+          ></mj-column
+        ><mj-column width="50%" padding="0px 32px 36px 0px" css-class="bare-stack-gap"
+          ><mj-text
+            font-size="24px"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-0.084px"
+            color="#E4E4E7"
+            align="left"
+            padding="0px 0px 20px"
+            >□</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#43454B"
+            align="left"
+            padding="0px 0px 0px"
+            >These updates roll out gradually. Check your workspace to see what&#x27;s available to
+            you today.</mj-text
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 44px 0px"
+        background-color="#F3F4F6"
+        border-radius="0px"
+        css-class="bare-card-section"
+        ><mj-column width="50%" padding="0px 32px 36px 0px" css-class="bare-stack-gap"
+          ><mj-text
+            font-size="24px"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-0.084px"
+            color="#E4E4E7"
+            align="left"
+            padding="0px 0px 20px"
+            >□</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#43454B"
+            align="left"
+            padding="0px 0px 0px"
+            >These updates roll out gradually. Check your workspace to see what&#x27;s available to
+            you today.</mj-text
+          ></mj-column
+        ><mj-column width="50%" padding="0px 32px 36px 0px" css-class="bare-stack-gap"
+          ><mj-text
+            font-size="24px"
+            font-weight="400"
+            line-height="1"
+            letter-spacing="-0.084px"
+            color="#E4E4E7"
+            align="left"
+            padding="0px 0px 20px"
+            >□</mj-text
+          ><mj-text
+            font-size="16px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.048px"
+            color="#43454B"
+            align="left"
+            padding="0px 0px 0px"
+            >These updates roll out gradually. Check your workspace to see what&#x27;s available to
+            you today.</mj-text
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 44px 56px"
+        background-color="#F3F4F6"
+        border-radius="0px 0px 10px 10px"
+        css-class="bare-card-section"
+        ><mj-column width="100%" padding="0px"
+          ><mj-button
+            href="https://example.com/"
+            background-color="#14171E"
+            color="#FFFFFF"
+            font-size="16px"
+            font-weight="420"
+            line-height="24px"
+            letter-spacing="-0.048px"
+            border-radius="8px"
+            inner-padding="16px 28px"
+            padding="0px 0px 0px"
+            align="center"
+            >Explore updates</mj-button
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section padding="0px"
+        ><mj-column width="100%" padding="0px"><mj-spacer height="24px" /></mj-column></mj-section
+      ><mj-section
+        padding="56px 24px 0px"
+        background-color="#F3F4F6"
+        border-radius="10px 10px 0px 0px"
+        css-class="bare-card-section"
+        ><mj-column width="56px" padding="12px" background-color="#000000" border-radius="12px"
+          ><mj-image
+            src="https://demo.react.email/static/shared/logo-white.png"
+            alt=""
+            width="32px"
+            padding="0px 0px 0px"
+            border-radius="0px" /></mj-column
+      ></mj-section>
+      <mj-section
+        padding="0px 24px 0px"
+        background-color="#F3F4F6"
+        border-radius="0px"
+        css-class="bare-card-section"
+        ><mj-column width="100%" padding="0px"
+          ><mj-spacer height="32px" /><mj-text
+            font-size="28px"
+            font-weight="420"
+            line-height="1.3"
+            letter-spacing="-0.084px"
+            color="#43454B"
+            align="center"
+            padding="0px 0px 32px"
+            >Get the app.<br />The fastest, easiest way to use Barebones.</mj-text
+          ></mj-column
+        ></mj-section
+      >
+      <mj-section
+        padding="0px 24px 56px"
+        background-color="#F3F4F6"
+        border-radius="0px 0px 10px 10px"
+        css-class="bare-card-section"
+        ><mj-group width="100%"
+          ><mj-column width="50%" padding="0px 8px 0px 0px"
+            ><mj-button
+              href="https://example.com/"
+              background-color="#14171E"
+              color="#FFFFFF"
+              font-size="16px"
+              font-weight="420"
+              line-height="24px"
+              letter-spacing="-0.048px"
+              border-radius="8px"
+              inner-padding="16px 28px"
+              padding="0px 0px 0px"
+              align="right"
+              >App Store</mj-button
+            ></mj-column
+          ><mj-column width="50%" padding="0px 0px 0px 8px"
+            ><mj-button
+              href="https://example.com/"
+              background-color="#14171E"
+              color="#FFFFFF"
+              font-size="16px"
+              font-weight="420"
+              line-height="24px"
+              letter-spacing="-0.048px"
+              border-radius="8px"
+              inner-padding="16px 28px"
+              padding="0px 0px 0px"
+              align="left"
+              >Google Play</mj-button
+            ></mj-column
+          ></mj-group
+        ></mj-section
+      >
+      <mj-section padding="0px"
+        ><mj-column width="100%" padding="0px"><mj-spacer height="48px" /></mj-column
+      ></mj-section>
+      <mj-section padding="40px 24px"
+        ><mj-column width="100%" padding="0px"
+          ><mj-text
+            font-size="13px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.039px"
+            color="#7B7D81"
+            align="center"
+            padding="0px 0px 32px"
+            css-class="bare-footer-copy"
+            >Barebones is the catchy slogan that perfectly encapsulates the vision of our
+            company.</mj-text
+          ><mj-social
+            mode="horizontal"
+            icon-size="18px"
+            icon-padding="0px"
+            border-radius="0px"
+            padding="0px 0px 32px"
+            align="center"
+            ><mj-social-element
+              name="web"
+              src="https://demo.react.email/static/shared/social-x-black.png"
+              href="https://example.com/"
+              alt="X"
+              background-color="transparent"
+              padding="0px 8px"
+              icon-size="18px"
+              icon-height="18px"
+            ></mj-social-element
+            ><mj-social-element
+              name="web"
+              src="https://demo.react.email/static/shared/social-in-black.png"
+              href="https://example.com/"
+              alt="LinkedIn"
+              background-color="transparent"
+              padding="0px 8px"
+              icon-size="18px"
+              icon-height="18px"
+            ></mj-social-element
+            ><mj-social-element
+              name="web"
+              src="https://demo.react.email/static/shared/social-yt-black.png"
+              href="https://example.com/"
+              alt="YouTube"
+              background-color="transparent"
+              padding="0px 8px"
+              icon-size="18px"
+              icon-height="18px"
+            ></mj-social-element
+            ><mj-social-element
+              name="web"
+              src="https://demo.react.email/static/shared/social-gh-black.png"
+              href="https://example.com/"
+              alt="GitHub"
+              background-color="transparent"
+              padding="0px 8px"
+              icon-size="18px"
+              icon-height="18px"
+            ></mj-social-element></mj-social
+          ><mj-text
+            font-size="11px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.033px"
+            color="#7B7D81"
+            align="center"
+            padding="0px 0px 20px"
+            >123 Market Street, Floor 1<br />Tech City, CA, 94102</mj-text
+          ><mj-text
+            font-size="11px"
+            font-weight="420"
+            line-height="1.5"
+            letter-spacing="-0.033px"
+            color="#7B7D81"
+            align="center"
+            padding="0px 0px 0px"
+            ><a href="https://example.com/">Unsubscribe</a> from Barebones marketing
+            emails.</mj-text
+          ></mj-column
+        ></mj-section
+      >
+    </mj-wrapper></mj-body
+  ></mjml
+>

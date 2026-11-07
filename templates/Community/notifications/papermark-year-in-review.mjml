@@ -1,0 +1,423 @@
+<!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
+Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/notifications/papermark-year-in-review.tsx
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+<mjml>
+  <mj-head>
+    <mj-title>Your Year with Papermark</mj-title>
+    <mj-preview>See your stats from 2024</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Arial,Helvetica,sans-serif" />
+      <mj-text padding="0px" />
+    </mj-attributes>
+    <mj-style>
+      p {
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .paper-orange {
+        background-image: radial-gradient(circle at bottom right, #fb7a00 0%, transparent 60%);
+      }
+      .paper-gray {
+        background-image: radial-gradient(circle at bottom right, #4b5563 0%, transparent 60%);
+      }
+      .paper-sand {
+        background-image: radial-gradient(circle at bottom right, #e4c5a0 0%, transparent 60%);
+      }
+      .paper-green {
+        background-image: radial-gradient(circle at bottom right, #10b981 0%, transparent 60%);
+      }
+      .community-rich-0 em:nth-of-type(1) {
+        font-style: normal;
+        display: inline-block;
+        border-radius: 999px;
+        background-color: #10b981;
+        padding: 4px 12px;
+        margin: 4px;
+        color: #ffffff;
+      }
+      .community-rich-0 em:nth-of-type(2) {
+        font-style: normal;
+        display: inline-block;
+        border-radius: 999px;
+        background-color: #10b981;
+        padding: 4px 12px;
+        margin: 4px;
+        color: #ffffff;
+      }
+      .community-rich-0 em:nth-of-type(3) {
+        font-style: normal;
+        display: inline-block;
+        border-radius: 999px;
+        background-color: #10b981;
+        padding: 4px 12px;
+        margin: 4px;
+        color: #ffffff;
+      }
+      .community-rich-0 em:nth-of-type(4) {
+        font-style: normal;
+        display: inline-block;
+        border-radius: 999px;
+        background-color: #10b981;
+        padding: 4px 12px;
+        margin: 4px;
+        color: #ffffff;
+      }
+      .community-rich-4 a:nth-of-type(1) {
+        color: #111827;
+        text-decoration: underline;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body width="600px" background-color="#ffffff">
+    <mj-section padding="32px">
+      <mj-column padding="0px">
+        <mj-text
+          padding="16px 0px 32px"
+          font-size="24px"
+          line-height="1.5"
+          font-weight="700"
+          align="center"
+          letter-spacing="-1px"
+          >Papermark</mj-text
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="14px"
+          line-height="1.5"
+          align="center"
+          letter-spacing="1px"
+          text-transform="uppercase"
+          >2024 in review</mj-text
+        >
+        <mj-text
+          padding="16px 0px"
+          font-size="36px"
+          line-height="1.3"
+          font-weight="500"
+          align="center"
+          >Your Year with Papermark</mj-text
+        >
+        <mj-text padding="0px 0px 32px" font-size="18px" line-height="32px" align="center"
+          >What a year it's been! Let's take a look at how you've used Papermark to share your
+          important documents.</mj-text
+        >
+        <mj-button
+          href="https://www.papermark.com"
+          align="center"
+          padding="0px"
+          inner-padding="16px 48px"
+          border-radius="999px"
+          font-size="14px"
+          background-color="#111827"
+          color="#ffffff"
+          font-weight="700"
+          >Share your stats</mj-button
+        >
+      </mj-column>
+    </mj-section>
+    <mj-wrapper
+      padding="0px"
+      background-color="#fff2e6"
+      border-radius="16px"
+      css-class="paper-orange"
+    >
+      <mj-section padding="32px 32px 0px">
+        <mj-column padding="0px">
+          <mj-text
+            padding="0px"
+            font-size="30px"
+            line-height="1.3"
+            font-weight="500"
+            color="#a63b00"
+            align="center"
+            >Viewers spent</mj-text
+          >
+          <mj-text
+            padding="16px 0px"
+            font-size="72px"
+            line-height="1"
+            font-weight="700"
+            color="#111827"
+            align="center"
+            >1234</mj-text
+          >
+          <mj-text
+            padding="0px 0px 16px"
+            font-size="30px"
+            line-height="1.5"
+            font-weight="500"
+            align="center"
+            >minutes on your documents</mj-text
+          >
+          <mj-text padding="0px 0px 16px" font-size="14px" line-height="20px" align="center"
+            >That's a lot of engagement! Your documents are resonating with your visitors.</mj-text
+          >
+          <mj-divider border-color="#fb7a00" border-width="1px" padding="24px 0px" />
+          <mj-text
+            padding="20px 0px 0px"
+            font-size="12px"
+            line-height="1.3"
+            font-weight="500"
+            align="center"
+            letter-spacing="1px"
+            text-transform="uppercase"
+            >Your activity</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="20px 32px 32px">
+        <mj-column padding="0px" width="33.333%">
+          <mj-text
+            padding="0px 0px 16px"
+            font-size="14px"
+            line-height="1.5"
+            color="#a63b00"
+            font-weight="500"
+            align="center"
+            >You uploaded</mj-text
+          >
+          <mj-text
+            padding="4px 0px"
+            font-size="36px"
+            line-height="1.5"
+            font-weight="700"
+            align="center"
+            >25</mj-text
+          >
+          <mj-text padding="0px 0px 16px" font-size="24px" line-height="1.5" align="center"
+            >documents</mj-text
+          >
+        </mj-column>
+        <mj-column padding="0px" width="33.333%">
+          <mj-text
+            padding="0px 0px 16px"
+            font-size="14px"
+            line-height="1.5"
+            color="#a63b00"
+            font-weight="500"
+            align="center"
+            >You shared</mj-text
+          >
+          <mj-text
+            padding="4px 0px"
+            font-size="36px"
+            line-height="1.5"
+            font-weight="700"
+            align="center"
+            >50</mj-text
+          >
+          <mj-text padding="0px 0px 16px" font-size="24px" line-height="1.5" align="center"
+            >links</mj-text
+          >
+        </mj-column>
+        <mj-column padding="0px" width="33.333%">
+          <mj-text
+            padding="0px 0px 16px"
+            font-size="14px"
+            line-height="1.5"
+            color="#a63b00"
+            font-weight="500"
+            align="center"
+            >You received</mj-text
+          >
+          <mj-text
+            padding="4px 0px"
+            font-size="36px"
+            line-height="1.5"
+            font-weight="700"
+            align="center"
+            >500</mj-text
+          >
+          <mj-text padding="0px 0px 16px" font-size="24px" line-height="1.5" align="center"
+            >views</mj-text
+          >
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-spacer height="24px" />
+      </mj-column>
+    </mj-section>
+    <mj-section
+      padding="32px"
+      background-color="#edeef0"
+      border-radius="16px"
+      css-class="paper-gray"
+    >
+      <mj-column padding="0px">
+        <mj-text
+          padding="0px"
+          font-size="30px"
+          line-height="1.3"
+          font-weight="500"
+          color="#1f2937"
+          align="center"
+          >Your top document</mj-text
+        >
+        <mj-text
+          padding="16px 0px"
+          font-size="24px"
+          line-height="1"
+          font-weight="700"
+          color="#111827"
+          align="center"
+          >&quot;Q4 Financial Report&quot;</mj-text
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="48px"
+          line-height="1.5"
+          font-weight="500"
+          align="center"
+          >150 views</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="14px" line-height="20px" align="center"
+          >This document really caught your visitor's attention!</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-spacer height="24px" />
+      </mj-column>
+    </mj-section>
+    <mj-section
+      padding="32px"
+      background-color="#fcf9f6"
+      border-radius="16px"
+      css-class="paper-sand"
+    >
+      <mj-column padding="0px">
+        <mj-text
+          padding="0px"
+          font-size="30px"
+          line-height="1.3"
+          font-weight="500"
+          color="#9c7b4a"
+          align="center"
+          >Your most active month</mj-text
+        >
+        <mj-text
+          padding="16px 0px"
+          font-size="48px"
+          line-height="1"
+          font-weight="700"
+          align="center"
+          >September</mj-text
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="30px"
+          line-height="1.5"
+          font-weight="500"
+          align="center"
+          >with 200 views</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="14px" line-height="20px" align="center"
+          >September was your busiest month. What did you share that got so much attention?</mj-text
+        >
+        <mj-divider border-color="#e4c5a0" border-width="1px" padding="24px 0px" />
+        <mj-text
+          padding="20px 0px 0px"
+          font-size="12px"
+          line-height="1.3"
+          font-weight="500"
+          align="center"
+          letter-spacing="1px"
+          text-transform="uppercase"
+          >You're in the top</mj-text
+        >
+        <mj-text
+          padding="16px 0px"
+          font-size="72px"
+          line-height="1"
+          font-weight="700"
+          align="center"
+          >95%</mj-text
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="20px"
+          line-height="1.5"
+          font-weight="500"
+          align="center"
+          >of sharers on Papermark</mj-text
+        >
+        <mj-text padding="0px 0px 16px" font-size="14px" line-height="20px" align="center"
+          >You're one of our most active users. Thank you for sharing with Papermark!</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-spacer height="24px" />
+      </mj-column>
+    </mj-section>
+    <mj-section
+      padding="32px"
+      background-color="#e7f8f2"
+      border-radius="16px"
+      css-class="paper-green"
+    >
+      <mj-column padding="0px">
+        <mj-text
+          padding="0px"
+          font-size="30px"
+          line-height="1.3"
+          font-weight="500"
+          color="#065f46"
+          align="center"
+          >Your documents were viewed from</mj-text
+        >
+        <mj-text
+          padding="16px 0px"
+          font-size="14px"
+          line-height="1.5"
+          align="center"
+          css-class="community-rich-0"
+          ><em>United States</em> <em>United Kingdom</em> <em>Germany</em> <em>Japan</em>
+        </mj-text>
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="14px"
+          line-height="20px"
+          color="#065f46"
+          align="center"
+          >Your documents get attention from all over the world!</mj-text
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="24px 0px">
+      <mj-column padding="0px">
+        <mj-text padding="0px 0px 16px" font-size="20px" line-height="32px" align="center"
+          >We're excited to support you next year!<br />Happy Holidays from the Papermark team
+          :)</mj-text
+        >
+        <mj-button
+          href="https://www.papermark.com"
+          align="center"
+          padding="16px 0px"
+          inner-padding="16px 48px"
+          border-radius="999px"
+          font-size="14px"
+          background-color="#111827"
+          color="#ffffff"
+          font-weight="700"
+          >Share your stats</mj-button
+        >
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="14px"
+          line-height="1.5"
+          align="center"
+          font-weight="700"
+          css-class="community-rich-4"
+          ><a href="https://www.papermark.com/">Go to your dashboard</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

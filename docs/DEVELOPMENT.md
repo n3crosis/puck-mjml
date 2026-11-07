@@ -18,7 +18,7 @@ bun run dev
 | `bun run build:demo` | Build the standalone demo into `demo-dist/`.                              |
 | `bun run catalog`    | Regenerate the native attribute catalog from the installed MJML compiler. |
 
-`node_modules/`, `dist/`, and `demo-dist/` are ignored by Git. Library output includes ESM (`dist/index.js`), CommonJS (`dist/index.cjs`), declarations (`dist/index.d.ts`), conversion-only `dist/core.js` / `dist/core.cjs` / `dist/core.d.ts`, and `dist/style.css`. The package includes the built library, documentation, license, and third-party notices; build before packaging.
+`node_modules/`, `dist/`, and `demo-dist/` are ignored by Git. Library output includes ESM (`dist/index.js`), CommonJS (`dist/index.cjs`), declarations (`dist/index.d.ts`), conversion-only `dist/core.js` / `dist/core.cjs` / `dist/core.d.ts`, and `dist/style.css`. The package includes the built library, all canonical MJML templates and their provenance, documentation, license, and third-party notices; build before packaging.
 
 To try the package in another local project, run `bun run build` and `bun pm pack` here, then install the resulting tarball in the host application. The host must also supply the peer dependencies listed in `package.json`.
 
@@ -35,7 +35,7 @@ To try the package in another local project, run `bun run build` and `bun pm pac
 | [src/import.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/import.ts)                                                                                                       | MJML import and unsupported-content warnings.                   |
 | [src/native-catalog.json](https://github.com/n3crosis/puck-mjml/blob/main/src/native-catalog.json)                                                                                   | Generated compiler attributes, defaults, and provenance.        |
 | [src/canvas-css.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/canvas-css.ts), [src/canvas-fonts.tsx](https://github.com/n3crosis/puck-mjml/blob/main/src/canvas-fonts.tsx) | Per-editor CSS scoping and web font aliases.                    |
-| [src/templates/registry.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/templates/registry.ts)                                                                               | Demo template registry and remaining template-family TODOs.     |
+| [src/templates/registry.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/templates/registry.ts)                                                                               | Demo registry loading all 62 canonical MJML examples.           |
 | [demo/main.tsx](https://github.com/n3crosis/puck-mjml/blob/main/demo/main.tsx)                                                                                                       | Demo template picker, file import, and downloads.               |
 
 ## Validation
@@ -50,13 +50,19 @@ bun run build:demo
 
 Tests cover compilation, server rendering, and detached DOM interactions. Keep controlled-editor focus/caret continuity, undo/redo, read-only fields, table structure/resizing (including RTL), and overlay placement covered when changing those interactions. A stable Puck plugin list prevents controlled updates from remounting inline editors.
 
-For API or bundling changes, run `bun run test:package` after building. It checks the generated ESM and CommonJS APIs, HTML compilation, and the `puck-mjml/core` entry under React Server Components resolution. Run `bun run test:browser` for the Chromium demo smoke suite. Install its browser once with `bunx playwright install chromium`; a local Chromium can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. These tests do not establish real email-client parity. Prior passing test counts are not a guarantee for the current checkout.
+For API or bundling changes, run `bun run test:package` after building. It checks the generated ESM and CommonJS APIs, the paired custom-editor exports, all 62 template factories and their source metadata, HTML compilation, and the `puck-mjml/core` entry under React Server Components resolution. Run `bun run test:browser` for Chromium editor interactions, CSS authoring, responsive layouts, and every template through the actual picker and compiled preview. Representative templates produce complete-email screenshots after font and image readiness. Install its browser once with `bunx playwright install chromium`; a local Chromium can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. These tests do not establish real email-client parity. Prior passing test counts are not a guarantee for the current checkout.
 
 ## Dependency security
 
 Run `bun audit` after dependency changes. This repository pins Happy DOM 21.0.4, the published patched release for [GHSA-834v-8h66-3h79](https://github.com/advisories/GHSA-834v-8h66-3h79) and [GHSA-c8p4-j97h-3vg8](https://github.com/advisories/GHSA-c8p4-j97h-3vg8). The root override covers both the test dependency and Puck's transitive dependency in this development/demo installation.
 
-Puck 0.23.0 declares Happy DOM as a regular dependency; its Tiptap Node rich-text path imports it. Tiptap's browser path uses the browser DOM instead. Package-level overrides do not propagate to consuming applications: hosts must audit their own lockfile and resolve a patched Happy DOM version for their Puck installation, using a compatible upstream release or a tested root override.
+Puck 0.24.0 declares patched Happy DOM `^21.0.4` as a regular dependency; its Tiptap Node rich-text path imports it. Tiptap's browser path uses the browser DOM instead. Package-level overrides do not propagate to consuming applications: hosts must audit their own lockfile and resolve a patched Happy DOM version for their Puck installation.
+
+## Updating Puck
+
+The editor requires Puck 0.24. Its property inspector consumes the public `fields` map supplied to the fields override, preserving Puck's resolved visibility, permissions, and connected editors without inspecting internal React child props. The existing compact, collapsible groups remain unchanged. The selection toolbar forwards Puck's registered drag handle, enabled through `dnd.enableDragHandle`; Puck omits the handle when drag permission is denied.
+
+The [0.24 release](https://github.com/puckeditor/puck/releases/tag/v0.24.0) also includes keyboard, rich-text paste, viewport, and field-transform fixes. This integration uses the published stable package, not unreleased `main` commits. It does not add Puck Cloud accounts, AI services, or experimental full-screen canvas behavior from the upstream demo. When upgrading again, run the inspector, permission, controlled-focus, overlay, and browser drag-and-drop regressions alongside the full validation commands.
 
 ## Updating MJML
 
@@ -76,7 +82,7 @@ Attribute acceptance establishes compiler coverage, not complete canvas or email
 
 Keep the editor host-controlled, with no internal draft persistence. Preserve inline editing, undo/redo, the single Puck header, and host-owned actions. Subject metadata remains supported in export without a dedicated subject control in the editor header.
 
-The [compatibility matrix](MJML_COMPATIBILITY.md) tracks rendering limitations. Further work includes specialized native canvas behavior and a host compilation path for filesystem includes or custom MJML components. The template registry tracks unfinished template families separately. Update the relevant reference when adding capabilities; do not infer full compatibility from catalog counts.
+The [compatibility matrix](MJML_COMPATIBILITY.md) tracks rendering limitations. Further work includes specialized native canvas behavior and a host compilation path for filesystem includes or custom MJML components. All 62 emails in the pinned React Email demo inventory are ported as standalone MJML; see [the template guide](../templates/README.md) for inventory and source conventions. Update the relevant reference when adding capabilities; do not infer full compatibility from catalog counts.
 
 ## GitHub Actions and Pages
 

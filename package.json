@@ -6,6 +6,7 @@
   "files": [
     "dist",
     "docs",
+    "templates",
     "README.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md"
@@ -42,6 +43,13 @@
     "test:browser": "playwright test"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.20.4",
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/lang-css": "^6.3.1",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
+    "@lezer/highlight": "^1.2.5",
     "@phosphor-icons/react": "^2.1.10",
     "cheerio": "^1.2.0",
     "mjml-browser": "^5.4.1",
@@ -50,7 +58,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.65.0",
-    "@puckeditor/core": "^0.23.0",
+    "@puckeditor/core": "^0.24.0",
     "@tailwindcss/browser": "^4.3.3",
     "@tiptap/core": "3.32.0",
     "@tiptap/extension-document": "3.32.0",
@@ -72,7 +80,7 @@
     "vitest": "^4.1.11"
   },
   "peerDependencies": {
-    "@puckeditor/core": "^0.23.0",
+    "@puckeditor/core": "^0.24.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },

@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
-import { act, StrictMode } from "react";
+import { act, createRef, StrictMode } from "react";
+import { ActionBar, Puck, type Config } from "@puckeditor/core";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SelectionActionBar, selectionActionPlacement } from "./SelectionActionBar";
@@ -11,12 +12,71 @@ afterEach(async () => {
   await act(async () => root?.unmount());
   container?.remove();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   root = undefined;
 });
 const bounds = (left: number, top: number, width: number, height: number) =>
   new DOMRect(left, top, width, height);
 
 describe("selection action positioning", () => {
+  it.each([true, false])(
+    "honors Puck drag permission %s in the native action bar",
+    async (drag) => {
+      vi.stubGlobal("localStorage", { getItem: () => null, setItem: () => undefined });
+      container = document.createElement("div");
+      document.body.append(container);
+      root = createRoot(container);
+      const config: Config = {
+        components: {
+          Text: {
+            permissions: { drag },
+            render: () => <p>Move this block</p>,
+          },
+        },
+      };
+      await act(async () =>
+        root!.render(
+          <Puck
+            config={config}
+            data={{ root: { props: {} }, content: [{ type: "Text", props: { id: "copy" } }] }}
+            iframe={{ enabled: false }}
+            ui={{ itemSelector: { index: 0, zone: "root:default-zone" } }}
+            dnd={{ enableDragHandle: true }}
+            overrides={{ actionBar: SelectionActionBar }}
+          />,
+        ),
+      );
+      const bar = container.querySelector(".pm-selection-actions");
+      expect(bar).not.toBeNull();
+      expect(Boolean(bar!.querySelector('[title="Drag to reorder"]'))).toBe(drag);
+    },
+  );
+
+  it("preserves Puck's registered drag handle and omits it when Puck supplies none", async () => {
+    container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+    const ref = createRef<HTMLButtonElement>();
+    const render = (drag: boolean) => (
+      <SelectionActionBar
+        label="Text"
+        parentAction={null}
+        dragHandle={drag ? <ActionBar.DragHandle ref={ref} label="Drag Text" /> : undefined}
+      >
+        <button type="button">Duplicate</button>
+      </SelectionActionBar>
+    );
+    await act(async () => root!.render(render(true)));
+    const handle = container.querySelector<HTMLButtonElement>('[title="Drag Text"]');
+    expect(handle).not.toBeNull();
+    expect(ref.current).toBe(handle);
+    expect(handle!.parentElement).not.toBe(container.querySelector("button")!.parentElement);
+    await act(async () => root!.render(render(false)));
+    expect(container.querySelector('[title="Drag Text"]')).toBeNull();
+    expect(ref.current).toBeNull();
+    expect(container.textContent).toContain("Duplicate");
+  });
+
   it("keeps a wrapped toolbar outside narrow elements and falls below at the viewport top", () => {
     const tools = { width: 120, height: 64 };
     const column = bounds(100, 150, 120, 48);

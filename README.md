@@ -5,9 +5,12 @@ A visual drag and drop editor for responsive email, built with [Puck](https://gi
 - Build layouts with sections, columns, groups, wrappers, and heroes.
 - Edit text, images, buttons, tables, social links, navigation, accordions, and carousels.
 - Preview desktop and mobile email, with native MJML attributes, classes, custom CSS, and web fonts.
+- Review HTML or MJML source and download either from the built-in Export dialog.
 - Keep persistence, image uploads, and publishing in your host application.
 
 ## Run the demo
+
+[Open the live demo](https://n3crosis.github.io/puck-mjml/). GitHub Actions checks and builds the project before publishing it to GitHub Pages. Drafts stay in the browser session and are not saved.
 
 Use the Bun version specified in `package.json`:
 
@@ -16,7 +19,7 @@ bun install
 bun run dev
 ```
 
-Open the Vite URL. The demo starts with the Collage product update, adapted from React Email's Matte template. The template picker includes a blank email and the Matte and Protocol families. You can import a local `.mjml` file and download MJML or HTML. Drafts are not saved. The demo warns before replacing edited content or leaving the page; download MJML to keep your work. Imported documents are checked before replacement and rejected if they need trusted HTML or cannot be safely exported. All import notes remain accessible. Example images and web fonts require network access.
+Open the Vite URL. The demo starts with the Collage product update, adapted from React Email's Matte template. The template picker includes a blank email and all 62 React Email examples: Barebone, Matte, Protocol, Arcane, Studio, and Community. Each example is a standalone, editable `.mjml` source in [`templates/`](templates/README.md), not a TypeScript email component. You can import a local `.mjml` file and download MJML or HTML. Drafts are not saved. The demo warns before replacing edited content or leaving the page; download MJML to keep your work. Imported documents are checked before replacement and rejected if they need trusted HTML or cannot be safely exported. All import notes remain accessible. Example images and web fonts require network access.
 
 ## Use in a host app
 
@@ -53,14 +56,19 @@ The host owns persistence. Replacing `value` with a different document resets un
 | `value`               | Current `EmailDocument` (required).                                         |
 | `onChange(document)`  | Receives document edits (required).                                         |
 | `onPublish(document)` | Optional host publishing callback; may return a promise.                    |
-| `onUploadImage(file)` | Enables uploads; must resolve to a public HTTP(S) image URL.                |
+| `onUploadImage(file)` | Host-owned upload callback; resolves to a public HTTP(S) image URL.         |
 | `headerTitle`         | Header branding; defaults to `"Puck MJML"`.                                 |
 | `headerActions`       | Host controls beside preview and history controls.                          |
+| `allowLocalImages`    | Opt-in for bounded embedded raster images; off by default.                  |
 | `allowRawHtml`        | Enables trusted HTML and template source controls.                          |
 | `tailwindRuntime`     | Host opt-in: `true` for the pinned runtime or a trusted HTTP(S) script URL. |
 | `className`           | Additional editor wrapper class.                                            |
 
+See [Image uploads](docs/IMAGE_UPLOADS.md) for provider-independent host wiring, validation, and the demo’s local-only embedded images. Local demo assets are not hosted; many email clients block them.
+
 ### Import and export
+
+Every `EmailEditor` includes **Export** beside **Preview**. Switch between read-only HTML and MJML source, then download `email.html` or `email.mjml`. HTML uses the actual MJML compiler, with loading, validation warnings, and retryable compilation errors; MJML can be downloaded while HTML compiles. Export runs locally, uses the editor's trust options, and does not publish, save, or change your document or undo history. Host `headerActions` remain available for other controls.
 
 ```ts
 import { compileEmail, fromMjml, toMjml } from "puck-mjml/core";
@@ -74,7 +82,7 @@ const { html, errors } = await compileEmail(document);
 
 `source` is an MJML string supplied by the host. Check import `warnings` for content the model cannot represent and compilation `errors` for MJML validation warnings. Export rejects invalid nesting, malformed settings, and invalid URLs. Import covers modeled standard components; arbitrary MJML is not guaranteed to round-trip without loss.
 
-`createEmptyDocument()` and `createExampleDocument()` return fresh documents. `emailTemplates` exposes the demo registry; each entry has `id`, `group`, `label`, and a `create()` factory. Public TypeScript types are exported from the package root.
+`createEmptyDocument()` and `createExampleDocument()` return fresh documents. `emailTemplates` exposes the demo registry; each entry has `id`, `group`, `label`, and a `create()` factory. Migrated examples also expose their canonical `source`, `sourcePath`, and pinned `upstreamUrl`. Public TypeScript types are exported from the package root.
 
 Trusted raw HTML and template attributes require `allowRawHtml` on the editor and `{ allowRawHtml: true }` on each export call. See the [trusted HTML guide](docs/EDITOR_GUIDE.md#trusted-raw-html) before using this mode.
 
@@ -84,6 +92,7 @@ Trusted raw HTML and template attributes require `allowRawHtml` on the editor an
 - [Native attribute reference](docs/NATIVE_ATTRIBUTES.md): schemas, inheritance, precedence, templates, and examples.
 - [MJML compatibility](docs/MJML_COMPATIBILITY.md): supported components, canvas behavior, and limitations.
 - [Development](docs/DEVELOPMENT.md): checks, builds, source map, and compiler maintenance.
+- [MJML example suite](templates/README.md): all 62 canonical sources, upstream provenance, and validation.
 
 See [the project review](docs/PROJECT_REVIEW.md) for findings, verification scope, and remaining limitations. See [deployment](docs/DEVELOPMENT.md#github-actions-and-pages) for the demo publishing workflow.
 

@@ -3,7 +3,7 @@ import { applyNativeAttributes, createNativeContext, type NativeContext } from "
 import { nativeAttributeNames, readNativeAttributes } from "./native-attributes";
 import { getNativeBaseAttributes, type NativeBaseOptions } from "./native-base";
 import { aliasFontFamilyList, type FontAliasMap } from "./canvas-css";
-import type { EmailSettings, MjmlElementOptions } from "./types";
+import type { EmailSettings, ExportOptions, MjmlElementOptions } from "./types";
 
 export type NativeCanvasAttributes = Record<string, string>;
 export type NativeCanvasScope = {
@@ -43,14 +43,18 @@ function concreteDefinitions(value: unknown): unknown {
 export function createCanvasScope(
   settings: EmailSettings = {},
   fontAliases?: FontAliasMap,
+  options: ExportOptions = {},
 ): NativeCanvasScope {
   try {
-    const context = createNativeContext({
-      ...settings,
-      attributeDefaults: concreteEntries(settings.attributeDefaults),
-      componentDefaults: concreteDefinitions(settings.componentDefaults),
-      mjmlClasses: concreteDefinitions(settings.mjmlClasses),
-    } as EmailSettings);
+    const context = createNativeContext(
+      {
+        ...settings,
+        attributeDefaults: concreteEntries(settings.attributeDefaults),
+        componentDefaults: concreteDefinitions(settings.componentDefaults),
+        mjmlClasses: concreteDefinitions(settings.mjmlClasses),
+      } as EmailSettings,
+      options,
+    );
     const body = applyNativeAttributes(
       "mj-body",
       {
@@ -73,7 +77,7 @@ export function createCanvasScope(
   } catch {
     // Partial sidebar drafts should not unmount the editor or lose the selection.
     return {
-      context: createNativeContext({ fontFamily: settings.fontFamily }),
+      context: createNativeContext({ fontFamily: settings.fontFamily }, options),
       enabled: false,
       fontAliases,
     };
@@ -83,14 +87,18 @@ export function createCanvasScope(
 export function NativeCanvasProvider({
   settings,
   fontAliases,
+  allowLocalImages = false,
   children,
 }: {
   settings?: EmailSettings;
   fontAliases?: FontAliasMap;
+  allowLocalImages?: boolean;
   children: ReactNode;
 }) {
   return (
-    <NativeCanvasContext.Provider value={createCanvasScope(settings, fontAliases)}>
+    <NativeCanvasContext.Provider
+      value={createCanvasScope(settings, fontAliases, { allowLocalImages })}
+    >
       {children}
     </NativeCanvasContext.Provider>
   );
@@ -126,7 +134,11 @@ export function getCanvasElement(
       mjmlAttributes: concreteEntries(props.mjmlAttributes),
     } as MjmlElementOptions;
     const base = {
-      ...getNativeBaseAttributes(tag, props, { ...options, nativeEnabled: true }),
+      ...getNativeBaseAttributes(tag, props, {
+        ...options,
+        nativeEnabled: true,
+        allowLocalImages: parent.context.allowLocalImages,
+      }),
       ...options.base,
     };
     // Native renderChildren supplies these attributes after mj-all but before
@@ -141,6 +153,7 @@ export function getCanvasElement(
       Object.entries(result.attributes)
         .filter(([, value]) => value !== undefined)
         .map(([name, value]) => ({ name, value: String(value) })),
+      context,
     );
     const supported = new Set(nativeAttributeNames(tag));
     const attributes: NativeCanvasAttributes = {};

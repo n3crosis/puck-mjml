@@ -1,0 +1,504 @@
+{
+  "repository": "https://github.com/resend/react-email",
+  "ref": "674d8ec2804b86be5d99156383fb1810179847bf",
+  "license": "MIT",
+  "copyright": "Copyright 2024 Plus Five Five, Inc",
+  "templates": [
+    {
+      "id": "01-barebone/activation",
+      "group": "01-Barebone",
+      "label": "Activation",
+      "file": "01-Barebone/activation.mjml",
+      "upstreamPath": "apps/demo/emails/01-Barebone/activation.tsx",
+      "upstreamBlob": "99c66c31e185a14bf82a2b9ae4d247b21b925318"
+    },
+    {
+      "id": "01-barebone/feature-announcement",
+      "group": "01-Barebone",
+      "label": "Feature announcement",
+      "file": "01-Barebone/feature-announcement.mjml",
+      "upstreamPath": "apps/demo/emails/01-Barebone/feature-announcement.tsx",
+      "upstreamBlob": "b8c586952e73cee3afe4a0b6f6ee0bcc6c36db16"
+    },
+    {
+      "id": "01-barebone/password-reset",
+      "group": "01-Barebone",
+      "label": "Password reset",
+      "file": "01-Barebone/password-reset.mjml",
+      "upstreamPath": "apps/demo/emails/01-Barebone/password-reset.tsx",
+      "upstreamBlob": "27606f66a3792bdea7179239e2dcb83e44322a23"
+    },
+    {
+      "id": "01-barebone/product-update",
+      "group": "01-Barebone",
+      "label": "Product update",
+      "file": "01-Barebone/product-update.mjml",
+      "upstreamPath": "apps/demo/emails/01-Barebone/product-update.tsx",
+      "upstreamBlob": "a3fb9433164b077723a7e60febd0613bdffe9462"
+    },
+    {
+      "id": "01-barebone/subscription-confirmation",
+      "group": "01-Barebone",
+      "label": "Subscription confirmation",
+      "file": "01-Barebone/subscription-confirmation.mjml",
+      "upstreamPath": "apps/demo/emails/01-Barebone/subscription-confirmation.tsx",
+      "upstreamBlob": "134813d39c3f3fd2a49764e8001ff353a6aa4b17"
+    },
+    {
+      "id": "01-barebone/subscription-update",
+      "group": "01-Barebone",
+      "label": "Subscription update",
+      "file": "01-Barebone/subscription-update.mjml",
+      "upstreamPath": "apps/demo/emails/01-Barebone/subscription-update.tsx",
+      "upstreamBlob": "850f9b56f26f38d71d5e0a1a052b498f4e05b923"
+    },
+    {
+      "id": "01-barebone/text-only",
+      "group": "01-Barebone",
+      "label": "Text only",
+      "file": "01-Barebone/text-only.mjml",
+      "upstreamPath": "apps/demo/emails/01-Barebone/text-only.tsx",
+      "upstreamBlob": "5b397c15a72380e40ef7884fe12e7fcf8f294ac6"
+    },
+    {
+      "id": "01-barebone/welcome",
+      "group": "01-Barebone",
+      "label": "Welcome",
+      "file": "01-Barebone/welcome.mjml",
+      "upstreamPath": "apps/demo/emails/01-Barebone/welcome.tsx",
+      "upstreamBlob": "30c4003a048a5c6db93a05fe1792d3ef6ca9150f"
+    },
+    {
+      "id": "02-matte/activation",
+      "group": "02-Matte",
+      "label": "Activation",
+      "file": "02-Matte/activation.mjml",
+      "upstreamPath": "apps/demo/emails/02-Matte/activation.tsx",
+      "upstreamBlob": "1c22120d10f54204bd011d5b32996a63754e06d2"
+    },
+    {
+      "id": "02-matte/feature-announcement",
+      "group": "02-Matte",
+      "label": "Feature announcement",
+      "file": "02-Matte/feature-announcement.mjml",
+      "upstreamPath": "apps/demo/emails/02-Matte/feature-announcement.tsx",
+      "upstreamBlob": "99acc007812847e35b2a21111a9a92aa18a23283"
+    },
+    {
+      "id": "02-matte/password-reset",
+      "group": "02-Matte",
+      "label": "Password reset",
+      "file": "02-Matte/password-reset.mjml",
+      "upstreamPath": "apps/demo/emails/02-Matte/password-reset.tsx",
+      "upstreamBlob": "b52573d961e630d3e3bcfa9e79cee69fde82a5a8"
+    },
+    {
+      "id": "02-matte/product-update",
+      "group": "02-Matte",
+      "label": "Product update",
+      "file": "02-Matte/product-update.mjml",
+      "upstreamPath": "apps/demo/emails/02-Matte/product-update.tsx",
+      "upstreamBlob": "27e457b75cac83d5f94117f043639944a5cbfba3"
+    },
+    {
+      "id": "02-matte/subscription-confirmation",
+      "group": "02-Matte",
+      "label": "Subscription confirmation",
+      "file": "02-Matte/subscription-confirmation.mjml",
+      "upstreamPath": "apps/demo/emails/02-Matte/subscription-confirmation.tsx",
+      "upstreamBlob": "983c11d8286df3af7057d0c5f99e44251db6e22b"
+    },
+    {
+      "id": "02-matte/subscription-update",
+      "group": "02-Matte",
+      "label": "Subscription update",
+      "file": "02-Matte/subscription-update.mjml",
+      "upstreamPath": "apps/demo/emails/02-Matte/subscription-update.tsx",
+      "upstreamBlob": "fbb8c2a9d8d17473f5c2ea36dfee52a71e700e1a"
+    },
+    {
+      "id": "02-matte/text-only",
+      "group": "02-Matte",
+      "label": "Text only",
+      "file": "02-Matte/text-only.mjml",
+      "upstreamPath": "apps/demo/emails/02-Matte/text-only.tsx",
+      "upstreamBlob": "63ab00aab9f4f2ee31707cfc9a6e7c3a5eb6e1d8"
+    },
+    {
+      "id": "02-matte/welcome",
+      "group": "02-Matte",
+      "label": "Welcome",
+      "file": "02-Matte/welcome.mjml",
+      "upstreamPath": "apps/demo/emails/02-Matte/welcome.tsx",
+      "upstreamBlob": "2837bffc18b5443d7d71b0271468f06fc6a59e53"
+    },
+    {
+      "id": "03-protocol/activation",
+      "group": "03-Protocol",
+      "label": "Activation",
+      "file": "03-Protocol/activation.mjml",
+      "upstreamPath": "apps/demo/emails/03-Protocol/activation.tsx",
+      "upstreamBlob": "d01c0b07a294605b7e2bb58d6a12b9277e33298f"
+    },
+    {
+      "id": "03-protocol/feature-announcement",
+      "group": "03-Protocol",
+      "label": "Feature announcement",
+      "file": "03-Protocol/feature-announcement.mjml",
+      "upstreamPath": "apps/demo/emails/03-Protocol/feature-announcement.tsx",
+      "upstreamBlob": "afb3e1d90b50247c5bd6bb65475b834b4172a6e9"
+    },
+    {
+      "id": "03-protocol/password-reset",
+      "group": "03-Protocol",
+      "label": "Password reset",
+      "file": "03-Protocol/password-reset.mjml",
+      "upstreamPath": "apps/demo/emails/03-Protocol/password-reset.tsx",
+      "upstreamBlob": "a66e168e635666a9aefef04afa8ea22bdf9aa551"
+    },
+    {
+      "id": "03-protocol/product-update",
+      "group": "03-Protocol",
+      "label": "Product update",
+      "file": "03-Protocol/product-update.mjml",
+      "upstreamPath": "apps/demo/emails/03-Protocol/product-update.tsx",
+      "upstreamBlob": "af76cb79558ff66f6f6eb2d125fb7598e8623f7a"
+    },
+    {
+      "id": "03-protocol/subscription-confirmation",
+      "group": "03-Protocol",
+      "label": "Subscription confirmation",
+      "file": "03-Protocol/subscription-confirmation.mjml",
+      "upstreamPath": "apps/demo/emails/03-Protocol/subscription-confirmation.tsx",
+      "upstreamBlob": "69d3b92d476232846932c456d4804098ff3b883a"
+    },
+    {
+      "id": "03-protocol/subscription-update",
+      "group": "03-Protocol",
+      "label": "Subscription update",
+      "file": "03-Protocol/subscription-update.mjml",
+      "upstreamPath": "apps/demo/emails/03-Protocol/subscription-update.tsx",
+      "upstreamBlob": "976902c27c34d56f7f5734d3f0c375e6968d3218"
+    },
+    {
+      "id": "03-protocol/text-only",
+      "group": "03-Protocol",
+      "label": "Text only",
+      "file": "03-Protocol/text-only.mjml",
+      "upstreamPath": "apps/demo/emails/03-Protocol/text-only.tsx",
+      "upstreamBlob": "f46ed739a763fdf13b99b8fbc84d910bb736f732"
+    },
+    {
+      "id": "03-protocol/welcome",
+      "group": "03-Protocol",
+      "label": "Welcome",
+      "file": "03-Protocol/welcome.mjml",
+      "upstreamPath": "apps/demo/emails/03-Protocol/welcome.tsx",
+      "upstreamBlob": "b619a168865ed068079a0d304e3e299691ee31c4"
+    },
+    {
+      "id": "04-arcane/abandoned-cart",
+      "group": "04-Arcane",
+      "label": "Abandoned cart",
+      "file": "04-Arcane/abandoned-cart.mjml",
+      "upstreamPath": "apps/demo/emails/04-Arcane/abandoned-cart.tsx",
+      "upstreamBlob": "7d4af0aa20c76008a938e867149d1b5464b42819"
+    },
+    {
+      "id": "04-arcane/activation",
+      "group": "04-Arcane",
+      "label": "Activation",
+      "file": "04-Arcane/activation.mjml",
+      "upstreamPath": "apps/demo/emails/04-Arcane/activation.tsx",
+      "upstreamBlob": "ee8242f7d3caa63df107a37ace82d8e2ef0dc0d7"
+    },
+    {
+      "id": "04-arcane/newsletter",
+      "group": "04-Arcane",
+      "label": "Newsletter",
+      "file": "04-Arcane/newsletter.mjml",
+      "upstreamPath": "apps/demo/emails/04-Arcane/newsletter.tsx",
+      "upstreamBlob": "d94b6c3e44ac4e06584252999b2608f493b0d072"
+    },
+    {
+      "id": "04-arcane/order-confirmation",
+      "group": "04-Arcane",
+      "label": "Order confirmation",
+      "file": "04-Arcane/order-confirmation.mjml",
+      "upstreamPath": "apps/demo/emails/04-Arcane/order-confirmation.tsx",
+      "upstreamBlob": "67136c063e697605a4bee5518e9e7020aa8aee96"
+    },
+    {
+      "id": "04-arcane/order-shipping",
+      "group": "04-Arcane",
+      "label": "Order shipping",
+      "file": "04-Arcane/order-shipping.mjml",
+      "upstreamPath": "apps/demo/emails/04-Arcane/order-shipping.tsx",
+      "upstreamBlob": "26451ed71238e8b8889653f0a2adbeb8cc628e34"
+    },
+    {
+      "id": "04-arcane/password-reset",
+      "group": "04-Arcane",
+      "label": "Password reset",
+      "file": "04-Arcane/password-reset.mjml",
+      "upstreamPath": "apps/demo/emails/04-Arcane/password-reset.tsx",
+      "upstreamBlob": "54cb046c2e31b1967e5a7a0d9abef34c5185bc9a"
+    },
+    {
+      "id": "04-arcane/promo",
+      "group": "04-Arcane",
+      "label": "Promo",
+      "file": "04-Arcane/promo.mjml",
+      "upstreamPath": "apps/demo/emails/04-Arcane/promo.tsx",
+      "upstreamBlob": "fa8b7d39d9713d2a6cd721c42da2b7a63692f1f2"
+    },
+    {
+      "id": "04-arcane/welcome",
+      "group": "04-Arcane",
+      "label": "Welcome",
+      "file": "04-Arcane/welcome.mjml",
+      "upstreamPath": "apps/demo/emails/04-Arcane/welcome.tsx",
+      "upstreamBlob": "d58a1a749eca663a46c581b43b8943733621cff0"
+    },
+    {
+      "id": "05-studio/abandoned-cart",
+      "group": "05-Studio",
+      "label": "Abandoned cart",
+      "file": "05-Studio/abandoned-cart.mjml",
+      "upstreamPath": "apps/demo/emails/05-Studio/abandoned-cart.tsx",
+      "upstreamBlob": "70edcf417a0751b3d5361a90009637e52ab768e9"
+    },
+    {
+      "id": "05-studio/activation",
+      "group": "05-Studio",
+      "label": "Activation",
+      "file": "05-Studio/activation.mjml",
+      "upstreamPath": "apps/demo/emails/05-Studio/activation.tsx",
+      "upstreamBlob": "fb7284a831019e17fd717c72f151c3dc02367971"
+    },
+    {
+      "id": "05-studio/newsletter",
+      "group": "05-Studio",
+      "label": "Newsletter",
+      "file": "05-Studio/newsletter.mjml",
+      "upstreamPath": "apps/demo/emails/05-Studio/newsletter.tsx",
+      "upstreamBlob": "3814aa00dbc982c03c9b8da1c97a4daf4ef2fa68"
+    },
+    {
+      "id": "05-studio/order-confirmation",
+      "group": "05-Studio",
+      "label": "Order confirmation",
+      "file": "05-Studio/order-confirmation.mjml",
+      "upstreamPath": "apps/demo/emails/05-Studio/order-confirmation.tsx",
+      "upstreamBlob": "0097232fd58ccb6165c1954569a2b5438e167ef5"
+    },
+    {
+      "id": "05-studio/order-shipping",
+      "group": "05-Studio",
+      "label": "Order shipping",
+      "file": "05-Studio/order-shipping.mjml",
+      "upstreamPath": "apps/demo/emails/05-Studio/order-shipping.tsx",
+      "upstreamBlob": "9f582d4fbee888ecf3ed54dede2081c1797ce269"
+    },
+    {
+      "id": "05-studio/password-reset",
+      "group": "05-Studio",
+      "label": "Password reset",
+      "file": "05-Studio/password-reset.mjml",
+      "upstreamPath": "apps/demo/emails/05-Studio/password-reset.tsx",
+      "upstreamBlob": "a7aacb79e1c479c16972887111d690607485c5ea"
+    },
+    {
+      "id": "05-studio/promo",
+      "group": "05-Studio",
+      "label": "Promo",
+      "file": "05-Studio/promo.mjml",
+      "upstreamPath": "apps/demo/emails/05-Studio/promo.tsx",
+      "upstreamBlob": "136305adbfdcc52115555fde7f4a6e852df314ca"
+    },
+    {
+      "id": "05-studio/welcome",
+      "group": "05-Studio",
+      "label": "Welcome",
+      "file": "05-Studio/welcome.mjml",
+      "upstreamPath": "apps/demo/emails/05-Studio/welcome.tsx",
+      "upstreamBlob": "47856ea976809633b8e133e12f3693a82e6161ad"
+    },
+    {
+      "id": "community/magic-links/aws-verify-email",
+      "group": "Community · Magic links",
+      "label": "AWS verify email",
+      "file": "Community/magic-links/aws-verify-email.mjml",
+      "upstreamPath": "apps/demo/emails/Community/magic-links/aws-verify-email.tsx",
+      "upstreamBlob": "5f1554af0de33b8ae5d55e5c1c4d797e8b971a19"
+    },
+    {
+      "id": "community/magic-links/linear-login-code",
+      "group": "Community · Magic links",
+      "label": "Linear login code",
+      "file": "Community/magic-links/linear-login-code.mjml",
+      "upstreamPath": "apps/demo/emails/Community/magic-links/linear-login-code.tsx",
+      "upstreamBlob": "29e3503478865da5560e6dfc4ab47e27d15e4eec"
+    },
+    {
+      "id": "community/magic-links/notion-magic-link",
+      "group": "Community · Magic links",
+      "label": "Notion magic link",
+      "file": "Community/magic-links/notion-magic-link.mjml",
+      "upstreamPath": "apps/demo/emails/Community/magic-links/notion-magic-link.tsx",
+      "upstreamBlob": "1ce37af90b1be54a32b10bc995fe9acb4d8049e6"
+    },
+    {
+      "id": "community/magic-links/plaid-verify-identity",
+      "group": "Community · Magic links",
+      "label": "Plaid verify identity",
+      "file": "Community/magic-links/plaid-verify-identity.mjml",
+      "upstreamPath": "apps/demo/emails/Community/magic-links/plaid-verify-identity.tsx",
+      "upstreamBlob": "7e60f31c218f9e4e7c88519fc8d6d3496216de8e"
+    },
+    {
+      "id": "community/magic-links/raycast-magic-link",
+      "group": "Community · Magic links",
+      "label": "Raycast magic link",
+      "file": "Community/magic-links/raycast-magic-link.mjml",
+      "upstreamPath": "apps/demo/emails/Community/magic-links/raycast-magic-link.tsx",
+      "upstreamBlob": "9575441cbfe219c9a625daffb8e4fa51344c383e"
+    },
+    {
+      "id": "community/magic-links/slack-confirm",
+      "group": "Community · Magic links",
+      "label": "Slack confirm",
+      "file": "Community/magic-links/slack-confirm.mjml",
+      "upstreamPath": "apps/demo/emails/Community/magic-links/slack-confirm.tsx",
+      "upstreamBlob": "347fa1ffbb2459c5b0bf2376cc44ad52457699b7"
+    },
+    {
+      "id": "community/newsletters/codepen-challengers",
+      "group": "Community · Newsletters",
+      "label": "CodePen challengers",
+      "file": "Community/newsletters/codepen-challengers.mjml",
+      "upstreamPath": "apps/demo/emails/Community/newsletters/codepen-challengers.tsx",
+      "upstreamBlob": "e6438c910b3acd383390ebde4e1fa52c45e0bf9f"
+    },
+    {
+      "id": "community/newsletters/google-play-policy-update",
+      "group": "Community · Newsletters",
+      "label": "Google play policy update",
+      "file": "Community/newsletters/google-play-policy-update.mjml",
+      "upstreamPath": "apps/demo/emails/Community/newsletters/google-play-policy-update.tsx",
+      "upstreamBlob": "a84fcad3309187d15560f79e080ab540e5adee65"
+    },
+    {
+      "id": "community/newsletters/stack-overflow-tips",
+      "group": "Community · Newsletters",
+      "label": "Stack overflow tips",
+      "file": "Community/newsletters/stack-overflow-tips.mjml",
+      "upstreamPath": "apps/demo/emails/Community/newsletters/stack-overflow-tips.tsx",
+      "upstreamBlob": "d236e0abffb235d1480e6a201ceaec71f0dd9810"
+    },
+    {
+      "id": "community/notifications/github-access-token",
+      "group": "Community · Notifications",
+      "label": "GitHub access token",
+      "file": "Community/notifications/github-access-token.mjml",
+      "upstreamPath": "apps/demo/emails/Community/notifications/github-access-token.tsx",
+      "upstreamBlob": "675f51157b3bdbfff054e7c439b248f5f2cb90f9"
+    },
+    {
+      "id": "community/notifications/papermark-year-in-review",
+      "group": "Community · Notifications",
+      "label": "Papermark year in review",
+      "file": "Community/notifications/papermark-year-in-review.mjml",
+      "upstreamPath": "apps/demo/emails/Community/notifications/papermark-year-in-review.tsx",
+      "upstreamBlob": "bb4b89a6244a7579f2e0da8f30512ef1bcb1eef2"
+    },
+    {
+      "id": "community/notifications/vercel-invite-user",
+      "group": "Community · Notifications",
+      "label": "Vercel invite user",
+      "file": "Community/notifications/vercel-invite-user.mjml",
+      "upstreamPath": "apps/demo/emails/Community/notifications/vercel-invite-user.tsx",
+      "upstreamBlob": "cc4492e200f744e91f557ede125fe66a96c48d94"
+    },
+    {
+      "id": "community/notifications/yelp-recent-login",
+      "group": "Community · Notifications",
+      "label": "Yelp recent login",
+      "file": "Community/notifications/yelp-recent-login.mjml",
+      "upstreamPath": "apps/demo/emails/Community/notifications/yelp-recent-login.tsx",
+      "upstreamBlob": "1055bf67578880bc6bd601ed75a30cac9eb74611"
+    },
+    {
+      "id": "community/receipts/apple-receipt",
+      "group": "Community · Receipts",
+      "label": "Apple receipt",
+      "file": "Community/receipts/apple-receipt.mjml",
+      "upstreamPath": "apps/demo/emails/Community/receipts/apple-receipt.tsx",
+      "upstreamBlob": "607766ad9807465138814b4ba225e3a41ea2d69c"
+    },
+    {
+      "id": "community/receipts/nike-receipt",
+      "group": "Community · Receipts",
+      "label": "Nike receipt",
+      "file": "Community/receipts/nike-receipt.mjml",
+      "upstreamPath": "apps/demo/emails/Community/receipts/nike-receipt.tsx",
+      "upstreamBlob": "bc908295d2800078ee1e874ea84ba74e7d68e5da"
+    },
+    {
+      "id": "community/reset-password/dropbox-reset-password",
+      "group": "Community · Reset password",
+      "label": "Dropbox reset password",
+      "file": "Community/reset-password/dropbox-reset-password.mjml",
+      "upstreamPath": "apps/demo/emails/Community/reset-password/dropbox-reset-password.tsx",
+      "upstreamBlob": "24b338f6224c27769575a6ab9101ba8e814327b5"
+    },
+    {
+      "id": "community/reset-password/twitch-reset-password",
+      "group": "Community · Reset password",
+      "label": "Twitch reset password",
+      "file": "Community/reset-password/twitch-reset-password.mjml",
+      "upstreamPath": "apps/demo/emails/Community/reset-password/twitch-reset-password.tsx",
+      "upstreamBlob": "8adbefdc8759ee17303bcc2ee3e30a4b4090c1e7"
+    },
+    {
+      "id": "community/reviews/airbnb-review",
+      "group": "Community · Reviews",
+      "label": "Airbnb review",
+      "file": "Community/reviews/airbnb-review.mjml",
+      "upstreamPath": "apps/demo/emails/Community/reviews/airbnb-review.tsx",
+      "upstreamBlob": "9c54faf070b17952e92f21bc934519d51bd16f6b"
+    },
+    {
+      "id": "community/reviews/amazon-review",
+      "group": "Community · Reviews",
+      "label": "Amazon review",
+      "file": "Community/reviews/amazon-review.mjml",
+      "upstreamPath": "apps/demo/emails/Community/reviews/amazon-review.tsx",
+      "upstreamBlob": "7baa5d6c66cec2fad3d692148459479ca770dd37"
+    },
+    {
+      "id": "community/welcome/koala-welcome",
+      "group": "Community · Welcome",
+      "label": "Koala welcome",
+      "file": "Community/welcome/koala-welcome.mjml",
+      "upstreamPath": "apps/demo/emails/Community/welcome/koala-welcome.tsx",
+      "upstreamBlob": "312bd203631fabd87681f438f51c457319b2da11"
+    },
+    {
+      "id": "community/welcome/netlify-welcome",
+      "group": "Community · Welcome",
+      "label": "Netlify welcome",
+      "file": "Community/welcome/netlify-welcome.mjml",
+      "upstreamPath": "apps/demo/emails/Community/welcome/netlify-welcome.tsx",
+      "upstreamBlob": "12422530a350382fb56754e8d2c47b7f94e63205"
+    },
+    {
+      "id": "community/welcome/stripe-welcome",
+      "group": "Community · Welcome",
+      "label": "Stripe welcome",
+      "file": "Community/welcome/stripe-welcome.mjml",
+      "upstreamPath": "apps/demo/emails/Community/welcome/stripe-welcome.tsx",
+      "upstreamBlob": "f6c17a0306692bf139360e4f98fea776c726ea72"
+    }
+  ]
+}

@@ -78,6 +78,7 @@ function LinkMenuControl({ editor, readOnly }: Pick<MenuProps, "editor" | "readO
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => {
             event.stopPropagation();
+            if (event.nativeEvent.isComposing) return;
             if (event.key === "Escape") {
               event.preventDefault();
               closeLink();
@@ -95,6 +96,7 @@ function LinkMenuControl({ editor, readOnly }: Pick<MenuProps, "editor" | "readO
               autoFocus
               onChange={(event) => setUrl(event.target.value)}
               onKeyDown={(event) => {
+                if (event.nativeEvent.isComposing) return;
                 if (event.key === "Enter") {
                   event.preventDefault();
                   applyLink();

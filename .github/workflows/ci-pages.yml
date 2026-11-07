@@ -32,7 +32,50 @@ jobs:
         if: always()
         with:
           name: browser-results
-          path: test-results
+          path: |
+            test-results
+            !test-results/templates-01-barebone-*/**
+            !test-results/templates-02-matte-*/**
+            !test-results/templates-03-protocol-*/**
+            !test-results/templates-04-arcane-*/**
+            !test-results/templates-05-studio-*/**
+            !test-results/templates-community-*/**
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: email-comparison-01-barebone
+          path: test-results/templates-01-barebone-*/**
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: email-comparison-02-matte
+          path: test-results/templates-02-matte-*/**
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: email-comparison-03-protocol
+          path: test-results/templates-03-protocol-*/**
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: email-comparison-04-arcane
+          path: test-results/templates-04-arcane-*/**
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: email-comparison-05-studio
+          path: test-results/templates-05-studio-*/**
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: email-comparison-community
+          path: test-results/templates-community-*/**
           if-no-files-found: ignore
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

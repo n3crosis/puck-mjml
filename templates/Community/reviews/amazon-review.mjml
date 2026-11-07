@@ -1,6 +1,7 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reviews/amazon-review.tsx
-Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
+Responsive adaptation: Keep the upstream desktop book/review row, but let it stack on mobile for legible copy. -->
 <mjml>
   <mj-head>
     <mj-title>Amazon Review</mj-title>
@@ -9,7 +10,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-all font-family="Ember,Helvetica,Arial,sans-serif" />
       <mj-text padding="0px" />
     </mj-attributes>
-    <mj-style>
+    <mj-style inline="inline">
       p {
         margin: 0;
       }
@@ -17,7 +18,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         color: inherit;
       }
       .community-rich-0 a:nth-of-type(1) {
-        text-decoration: underline;
+        color: #067df7;
+        text-decoration: none;
       }
       .community-rich-1 a:nth-of-type(1) {
         color: #ffffff;
@@ -38,6 +40,13 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       .community-rich-3 a:nth-of-type(3) {
         color: #999999;
         text-decoration: underline;
+      }
+    </mj-style>
+    <mj-style>
+      @media only screen and (max-width: 479px) {
+        .amazon-review-copy > table > tbody > tr > td {
+          padding-left: 0px !important;
+        }
       }
     </mj-style>
   </mj-head>
@@ -62,14 +71,14 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           align="center"
           >Your opinion is important!</mj-text
         >
-        <mj-text padding="0px 0px 16px" font-size="14px" line-height="1.5" align="center"
+        <mj-text padding="0px 0px 16px" font-size="14px" line-height="24px" align="center"
           >Alan Turing, do you have a moment? We would like to know if everything went well for you.
           Take a moment to review your most recent purchases.</mj-text
         >
       </mj-column>
     </mj-section>
     <mj-section padding="0px 20px">
-      <mj-column padding="0px" width="50%">
+      <mj-column padding="0px" width="50%" vertical-align="middle">
         <mj-image
           src="https://demo.react.email/static/amazon-book.jpg"
           alt="Amazon Book"
@@ -79,17 +88,23 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           padding="0px"
         />
       </mj-column>
-      <mj-column padding="0px 0px 0px 30px" width="50%">
-        <mj-text padding="0px 0px 16px" font-size="14px" line-height="1.5"
+      <mj-column
+        padding="0px 0px 0px 30px"
+        width="50%"
+        vertical-align="middle"
+        css-class="amazon-review-copy"
+      >
+        <mj-text padding="0px 0px 16px" font-size="14px" line-height="24px"
           >14 Habits of Highly Productive Developers (English Edition)</mj-text
         >
-        <mj-text padding="0px 0px 16px" font-size="14px" line-height="1.5"
+        <mj-text padding="0px 0px 16px" font-size="14px" line-height="24px"
           >Start with rating this product</mj-text
         >
         <mj-social
           mode="horizontal"
           align="left"
-          icon-size="32px"
+          icon-size="35px"
+          icon-height="33px"
           padding="0px"
           border-radius="0px"
         >
@@ -134,7 +149,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           >
           </mj-social-element>
         </mj-social>
-        <mj-text padding="16px 0px" font-size="14px" line-height="1.5" css-class="community-rich-0"
+        <mj-text padding="16px 0px" font-size="14px" line-height="24px" css-class="community-rich-0"
           >Your reviews will be posted on Amazon using your public name.<a
             >Check your public name.</a
           >
@@ -146,7 +161,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="8px 0px"
           font-size="14px"
-          line-height="1.5"
+          line-height="24px"
           color="#ffffff"
           align="center"
           container-background-color="#008296"
@@ -157,53 +172,59 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       </mj-column>
     </mj-section>
     <mj-section padding="0px 20px">
-      <mj-column padding="0px" width="70%">
-        <mj-image
-          src="https://demo.react.email/static/amazon-logo.png"
-          alt="Amazon Logo"
-          width="93px"
-          height="23px"
-          align="left"
-          padding="0px"
-        />
-      </mj-column>
-      <mj-column padding="0px" width="10%">
-        <mj-image
-          src="https://demo.react.email/static/amazon-instagram.jpg"
-          alt="Amazon Social Midia"
-          width="30px"
-          height="30px"
-          align="right"
-          padding="0px"
-        />
-      </mj-column>
-      <mj-column padding="0px" width="10%">
-        <mj-image
-          src="https://demo.react.email/static/amazon-facebook.jpg"
-          alt="Amazon Social Midia"
-          width="30px"
-          height="30px"
-          align="right"
-          padding="0px"
-        />
-      </mj-column>
-      <mj-column padding="0px" width="10%">
-        <mj-image
-          src="https://demo.react.email/static/amazon-twitter.jpg"
-          alt="Amazon Social Midia"
-          width="30px"
-          height="30px"
-          align="right"
-          padding="0px"
-        />
-      </mj-column>
+      <mj-group>
+        <mj-column padding="0px" width="50%" vertical-align="middle">
+          <mj-image
+            src="https://demo.react.email/static/amazon-logo.png"
+            alt="Amazon Logo"
+            width="93px"
+            height="23px"
+            align="left"
+            padding="0px"
+          />
+        </mj-column>
+        <mj-column padding="0px" width="50%" vertical-align="middle">
+          <mj-social
+            mode="horizontal"
+            align="right"
+            icon-size="30px"
+            padding="0px"
+            border-radius="0px"
+          >
+            <mj-social-element
+              name="web"
+              src="https://demo.react.email/static/amazon-instagram.jpg"
+              alt="Amazon Social Midia"
+              background-color="transparent"
+              padding="0px 0px 0px 10px"
+              icon-padding="0px"
+            />
+            <mj-social-element
+              name="web"
+              src="https://demo.react.email/static/amazon-facebook.jpg"
+              alt="Amazon Social Midia"
+              background-color="transparent"
+              padding="0px 0px 0px 10px"
+              icon-padding="0px"
+            />
+            <mj-social-element
+              name="web"
+              src="https://demo.react.email/static/amazon-twitter.jpg"
+              alt="Amazon Social Midia"
+              background-color="transparent"
+              padding="0px 0px 0px 10px"
+              icon-padding="0px"
+            />
+          </mj-social>
+        </mj-column>
+      </mj-group>
     </mj-section>
     <mj-section padding="0px 20px 20px">
       <mj-column padding="0px">
         <mj-text
           padding="8px 0px 0px"
           font-size="10px"
-          line-height="1.5"
+          line-height="24px"
           color="#666666"
           css-class="community-rich-2"
           >Customer reviews must adhere to the <a>Community Guidelines</a> .</mj-text
@@ -211,21 +232,21 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="8px 0px 0px"
           font-size="10px"
-          line-height="1.5"
+          line-height="24px"
           color="#666666"
           css-class="community-rich-3"
           >We hope this message was helpful to you. However, if you prefer not to receive this type
           of communication from <a>Amazon.com</a> at <a>alanturing@gmail.com </a>,
           <a>click here</a> .</mj-text
         >
-        <mj-text padding="8px 0px 0px" font-size="10px" line-height="1.5" color="#666666"
+        <mj-text padding="8px 0px 0px" font-size="10px" line-height="24px" color="#666666"
           >Please note that product prices and availability are subject to change.</mj-text
         >
-        <mj-text padding="8px 0px 0px" font-size="10px" line-height="1.5" color="#666666"
+        <mj-text padding="8px 0px 0px" font-size="10px" line-height="24px" color="#666666"
           >© 2023 Amazon.com, Inc. or its affiliates. Amazon and all associated marks are trademarks
           of Amazon.com, Inc. or its affiliates.</mj-text
         >
-        <mj-text padding="8px 0px 0px" font-size="10px" line-height="1.5" color="#666666"
+        <mj-text padding="8px 0px 0px" font-size="10px" line-height="24px" color="#666666"
           >Reference: 706784740</mj-text
         >
       </mj-column>

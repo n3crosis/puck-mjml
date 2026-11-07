@@ -1,10 +1,20 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { thirdPartyNotices } from "./scripts/third-party-notices";
 
 export default defineConfig(({ command, mode }) => ({
   plugins: [react(), thirdPartyNotices()],
-  test: { exclude: ["tests/browser/**", "node_modules/**", "dist/**", "demo-dist/**"] },
+  test: {
+    // Reference-rendering tools have their own isolated dependencies/cache.
+    // Retain Vitest's recursive defaults so their package tests never run here.
+    exclude: [
+      ...configDefaults.exclude,
+      "tests/browser/**",
+      "dist/**",
+      "demo-dist/**",
+      "**/.cache/**",
+    ],
+  },
   build:
     command === "build" && mode === "demo"
       ? { outDir: "demo-dist" }

@@ -60,6 +60,76 @@ describe("code area source fields", () => {
     expect(value).toBe(".a{\n    color: red;\n}");
   });
 
+  it.each(["ctrlKey", "altKey", "metaKey"] as const)(
+    "leaves %s+Tab to the browser without replacing selected source",
+    (modifier) => {
+      const source = "<p>🙂日本語</p>";
+      const onChange = vi.fn();
+      const area = mount({ ariaLabel: "HTML", value: source, onChange });
+      const start = "<p>🙂".length;
+      area.setSelectionRange(start, start + "日本語".length);
+      const tab = new KeyboardEvent("keydown", {
+        key: "Tab",
+        [modifier]: true,
+        bubbles: true,
+        cancelable: true,
+      });
+      act(() => area.dispatchEvent(tab));
+      expect(tab.defaultPrevented).toBe(false);
+      expect(onChange).not.toHaveBeenCalled();
+      expect(area.value).toBe(source);
+      expect(area.selectionStart).toBe(start);
+      expect(area.selectionEnd).toBe(start + "日本語".length);
+    },
+  );
+
+  it("leaves composing Tab and Escape to the IME without modifying source or arming exit", () => {
+    const source = "<p>日本語</p>";
+    const onChange = vi.fn();
+    const area = mount({ ariaLabel: "HTML", value: source, onChange });
+    act(() => {
+      area.focus();
+      area.setSelectionRange(3, 6);
+      area.dispatchEvent(new CompositionEvent("compositionstart", { bubbles: true }));
+    });
+    for (const key of ["Tab", "Escape"]) {
+      const event = new KeyboardEvent("keydown", {
+        key,
+        isComposing: true,
+        bubbles: true,
+        cancelable: true,
+      });
+      act(() => area.dispatchEvent(event));
+      expect(event.defaultPrevented).toBe(false);
+      expect(onChange).not.toHaveBeenCalled();
+      expect(area.value).toBe(source);
+      expect(area.selectionStart).toBe(3);
+      expect(area.selectionEnd).toBe(6);
+    }
+    const tab = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    act(() => {
+      area.dispatchEvent(new CompositionEvent("compositionend", { bubbles: true, data: "日本語" }));
+      area.dispatchEvent(tab);
+    });
+    expect(tab.defaultPrevented).toBe(true);
+    expect(onChange).toHaveBeenCalledExactlyOnceWith("<p>  </p>");
+  });
+
+  it("cancels a pending keyboard exit after composing input", () => {
+    const onChange = vi.fn();
+    const area = mount({ ariaLabel: "HTML", value: "<p>Hello</p>", onChange });
+    const tab = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    act(() => {
+      area.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      area.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Process", isComposing: true, bubbles: true }),
+      );
+      area.dispatchEvent(tab);
+    });
+    expect(tab.defaultPrevented).toBe(true);
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
   it("documents Escape then Tab and leaves that Tab to native focus navigation", () => {
     const onChange = vi.fn();
     const area = mount({ ariaLabel: "HTML", value: "<p>Hello</p>", onChange });

@@ -28,6 +28,12 @@ function SourceArea({ id, value, disabled, rows = 4, ariaLabel, onChange }: Code
     if (!disabled) onChange(next);
   };
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.nativeEvent.isComposing) {
+      // Candidate selection/cancellation belongs to the IME, not indentation
+      // or keyboard exit. Composing input also cancels a previous exit request.
+      tabExit.current = false;
+      return;
+    }
     if (event.key === "Escape") {
       tabExit.current = true;
       return;
@@ -42,7 +48,15 @@ function SourceArea({ id, value, disabled, rows = 4, ariaLabel, onChange }: Code
     const exit = tabExit.current;
     tabExit.current = false;
     if (exit && event.key === "Tab") return;
-    if (event.key !== "Tab" || event.shiftKey || disabled) return;
+    if (
+      event.key !== "Tab" ||
+      event.shiftKey ||
+      event.ctrlKey ||
+      event.altKey ||
+      event.metaKey ||
+      disabled
+    )
+      return;
     event.preventDefault();
     const target = event.currentTarget;
     const { selectionStart, selectionEnd } = target;

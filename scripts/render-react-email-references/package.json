@@ -1,0 +1,24 @@
+{
+  "name": "puck-mjml-upstream-reference-renderer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "bun render.mjs",
+    "fetch": "bun fetch-source.mjs",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "@react-email/render": "2.2.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-email": "6.11.8",
+    "tailwindcss": "4.1.18"
+  },
+  "overrides": {
+    "@react-email/render": "2.2.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwindcss": "4.1.18"
+  },
+  "packageManager": "bun@1.4.2"
+}

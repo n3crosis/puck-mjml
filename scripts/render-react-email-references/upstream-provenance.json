@@ -1,0 +1,451 @@
+{
+  "repository": "resend/react-email",
+  "ref": "674d8ec2804b86be5d99156383fb1810179847bf",
+  "sourceUrl": "https://github.com/resend/react-email/tree/674d8ec2804b86be5d99156383fb1810179847bf",
+  "sources": [
+    {
+      "path": "apps/demo/emails/01-Barebone/activation.tsx",
+      "gitBlob": "99c66c31e185a14bf82a2b9ae4d247b21b925318",
+      "bytes": 6651,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/01-Barebone/feature-announcement.tsx",
+      "gitBlob": "b8c586952e73cee3afe4a0b6f6ee0bcc6c36db16",
+      "bytes": 11712,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/01-Barebone/password-reset.tsx",
+      "gitBlob": "27606f66a3792bdea7179239e2dcb83e44322a23",
+      "bytes": 6704,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/01-Barebone/product-update.tsx",
+      "gitBlob": "a3fb9433164b077723a7e60febd0613bdffe9462",
+      "bytes": 19804,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/01-Barebone/subscription-confirmation.tsx",
+      "gitBlob": "134813d39c3f3fd2a49764e8001ff353a6aa4b17",
+      "bytes": 7908,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/01-Barebone/subscription-update.tsx",
+      "gitBlob": "850f9b56f26f38d71d5e0a1a052b498f4e05b923",
+      "bytes": 7884,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/01-Barebone/text-only.tsx",
+      "gitBlob": "5b397c15a72380e40ef7884fe12e7fcf8f294ac6",
+      "bytes": 6845,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/01-Barebone/theme-fonts.tsx",
+      "gitBlob": "9f01fc11ab1fd2a00c65e292d94ebba0dce54a0c",
+      "bytes": 1528,
+      "kind": "helper"
+    },
+    {
+      "path": "apps/demo/emails/01-Barebone/theme.ts",
+      "gitBlob": "8ac739e2bdf3aea8ae5ec872171d0aa378bd4302",
+      "bytes": 1748,
+      "kind": "helper"
+    },
+    {
+      "path": "apps/demo/emails/01-Barebone/welcome.tsx",
+      "gitBlob": "30c4003a048a5c6db93a05fe1792d3ef6ca9150f",
+      "bytes": 12201,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/02-Matte/activation.tsx",
+      "gitBlob": "1c22120d10f54204bd011d5b32996a63754e06d2",
+      "bytes": 6490,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/02-Matte/collage-fonts.tsx",
+      "gitBlob": "11c9586a4b2b27d495614f5d96cd66e7eee0c496",
+      "bytes": 1068,
+      "kind": "helper"
+    },
+    {
+      "path": "apps/demo/emails/02-Matte/feature-announcement.tsx",
+      "gitBlob": "99acc007812847e35b2a21111a9a92aa18a23283",
+      "bytes": 13595,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/02-Matte/password-reset.tsx",
+      "gitBlob": "b52573d961e630d3e3bcfa9e79cee69fde82a5a8",
+      "bytes": 6915,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/02-Matte/product-update.tsx",
+      "gitBlob": "27e457b75cac83d5f94117f043639944a5cbfba3",
+      "bytes": 13190,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/02-Matte/subscription-confirmation.tsx",
+      "gitBlob": "983c11d8286df3af7057d0c5f99e44251db6e22b",
+      "bytes": 12242,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/02-Matte/subscription-update.tsx",
+      "gitBlob": "fbb8c2a9d8d17473f5c2ea36dfee52a71e700e1a",
+      "bytes": 7924,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/02-Matte/text-only.tsx",
+      "gitBlob": "63ab00aab9f4f2ee31707cfc9a6e7c3a5eb6e1d8",
+      "bytes": 7402,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/02-Matte/theme.ts",
+      "gitBlob": "1c368822dbe2dfe5176d9bc3f9e02a376bc28890",
+      "bytes": 1934,
+      "kind": "helper"
+    },
+    {
+      "path": "apps/demo/emails/02-Matte/welcome.tsx",
+      "gitBlob": "2837bffc18b5443d7d71b0271468f06fc6a59e53",
+      "bytes": 10229,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/03-Protocol/activation.tsx",
+      "gitBlob": "d01c0b07a294605b7e2bb58d6a12b9277e33298f",
+      "bytes": 6367,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/03-Protocol/dither-fonts.tsx",
+      "gitBlob": "3009df04ef48939d0cdae377f2065304277140d3",
+      "bytes": 1418,
+      "kind": "helper"
+    },
+    {
+      "path": "apps/demo/emails/03-Protocol/feature-announcement.tsx",
+      "gitBlob": "afb3e1d90b50247c5bd6bb65475b834b4172a6e9",
+      "bytes": 11930,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/03-Protocol/password-reset.tsx",
+      "gitBlob": "a66e168e635666a9aefef04afa8ea22bdf9aa551",
+      "bytes": 6012,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/03-Protocol/product-update.tsx",
+      "gitBlob": "af76cb79558ff66f6f6eb2d125fb7598e8623f7a",
+      "bytes": 12287,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/03-Protocol/subscription-confirmation.tsx",
+      "gitBlob": "69d3b92d476232846932c456d4804098ff3b883a",
+      "bytes": 9537,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/03-Protocol/subscription-update.tsx",
+      "gitBlob": "976902c27c34d56f7f5734d3f0c375e6968d3218",
+      "bytes": 6789,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/03-Protocol/text-only.tsx",
+      "gitBlob": "f46ed739a763fdf13b99b8fbc84d910bb736f732",
+      "bytes": 7104,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/03-Protocol/theme.ts",
+      "gitBlob": "1608b2298fd3a7a740f42246e34496026924e998",
+      "bytes": 2091,
+      "kind": "helper"
+    },
+    {
+      "path": "apps/demo/emails/03-Protocol/welcome.tsx",
+      "gitBlob": "b619a168865ed068079a0d304e3e299691ee31c4",
+      "bytes": 8230,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/04-Arcane/abandoned-cart.tsx",
+      "gitBlob": "7d4af0aa20c76008a938e867149d1b5464b42819",
+      "bytes": 9291,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/04-Arcane/activation.tsx",
+      "gitBlob": "ee8242f7d3caa63df107a37ace82d8e2ef0dc0d7",
+      "bytes": 6770,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/04-Arcane/newsletter.tsx",
+      "gitBlob": "d94b6c3e44ac4e06584252999b2608f493b0d072",
+      "bytes": 12113,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/04-Arcane/order-confirmation.tsx",
+      "gitBlob": "67136c063e697605a4bee5518e9e7020aa8aee96",
+      "bytes": 10519,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/04-Arcane/order-shipping.tsx",
+      "gitBlob": "26451ed71238e8b8889653f0a2adbeb8cc628e34",
+      "bytes": 9591,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/04-Arcane/password-reset.tsx",
+      "gitBlob": "54cb046c2e31b1967e5a7a0d9abef34c5185bc9a",
+      "bytes": 6342,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/04-Arcane/promo.tsx",
+      "gitBlob": "fa8b7d39d9713d2a6cd721c42da2b7a63692f1f2",
+      "bytes": 11133,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/04-Arcane/skin-fonts.tsx",
+      "gitBlob": "ce6e36fddbae740267fbede93f927f9dd250b7fa",
+      "bytes": 1407,
+      "kind": "helper"
+    },
+    {
+      "path": "apps/demo/emails/04-Arcane/theme.ts",
+      "gitBlob": "35983076e5281d5d6dd71bab4b29690fc8c29e1c",
+      "bytes": 2109,
+      "kind": "helper"
+    },
+    {
+      "path": "apps/demo/emails/04-Arcane/welcome.tsx",
+      "gitBlob": "d58a1a749eca663a46c581b43b8943733621cff0",
+      "bytes": 11201,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/05-Studio/abandoned-cart.tsx",
+      "gitBlob": "70edcf417a0751b3d5361a90009637e52ab768e9",
+      "bytes": 8210,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/05-Studio/activation.tsx",
+      "gitBlob": "fb7284a831019e17fd717c72f151c3dc02367971",
+      "bytes": 5206,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/05-Studio/newsletter.tsx",
+      "gitBlob": "3814aa00dbc982c03c9b8da1c97a4daf4ef2fa68",
+      "bytes": 11444,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/05-Studio/order-confirmation.tsx",
+      "gitBlob": "0097232fd58ccb6165c1954569a2b5438e167ef5",
+      "bytes": 9764,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/05-Studio/order-shipping.tsx",
+      "gitBlob": "9f582d4fbee888ecf3ed54dede2081c1797ce269",
+      "bytes": 9853,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/05-Studio/password-reset.tsx",
+      "gitBlob": "a7aacb79e1c479c16972887111d690607485c5ea",
+      "bytes": 5231,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/05-Studio/promo.tsx",
+      "gitBlob": "136305adbfdcc52115555fde7f4a6e852df314ca",
+      "bytes": 8001,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/05-Studio/tech-fonts.tsx",
+      "gitBlob": "b9b979de1588eb8a1f0ee99743b54b36c3225bf8",
+      "bytes": 2649,
+      "kind": "helper"
+    },
+    {
+      "path": "apps/demo/emails/05-Studio/theme.ts",
+      "gitBlob": "1b310ec05dec8929b8bb86e7c83e9408e118bcc6",
+      "bytes": 2741,
+      "kind": "helper"
+    },
+    {
+      "path": "apps/demo/emails/05-Studio/welcome.tsx",
+      "gitBlob": "47856ea976809633b8e133e12f3693a82e6161ad",
+      "bytes": 7724,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/magic-links/aws-verify-email.tsx",
+      "gitBlob": "5f1554af0de33b8ae5d55e5c1c4d797e8b971a19",
+      "bytes": 3828,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/magic-links/linear-login-code.tsx",
+      "gitBlob": "29e3503478865da5560e6dfc4ab47e27d15e4eec",
+      "bytes": 2432,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/magic-links/notion-magic-link.tsx",
+      "gitBlob": "1ce37af90b1be54a32b10bc995fe9acb4d8049e6",
+      "bytes": 2578,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/magic-links/plaid-verify-identity.tsx",
+      "gitBlob": "7e60f31c218f9e4e7c88519fc8d6d3496216de8e",
+      "bytes": 2743,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/magic-links/raycast-magic-link.tsx",
+      "gitBlob": "9575441cbfe219c9a625daffb8e4fa51344c383e",
+      "bytes": 2508,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/magic-links/slack-confirm.tsx",
+      "gitBlob": "347fa1ffbb2459c5b0bf2376cc44ad52457699b7",
+      "bytes": 4894,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/newsletters/codepen-challengers.tsx",
+      "gitBlob": "e6438c910b3acd383390ebde4e1fa52c45e0bf9f",
+      "bytes": 11105,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/newsletters/google-play-policy-update.tsx",
+      "gitBlob": "a84fcad3309187d15560f79e080ab540e5adee65",
+      "bytes": 6705,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/newsletters/stack-overflow-tips.tsx",
+      "gitBlob": "d236e0abffb235d1480e6a201ceaec71f0dd9810",
+      "bytes": 6477,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/notifications/github-access-token.tsx",
+      "gitBlob": "675f51157b3bdbfff054e7c439b248f5f2cb90f9",
+      "bytes": 2486,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/notifications/papermark-year-in-review.tsx",
+      "gitBlob": "bb4b89a6244a7579f2e0da8f30512ef1bcb1eef2",
+      "bytes": 9253,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/notifications/vercel-invite-user.tsx",
+      "gitBlob": "cc4492e200f744e91f557ede125fe66a96c48d94",
+      "bytes": 5228,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/notifications/yelp-recent-login.tsx",
+      "gitBlob": "1055bf67578880bc6bd601ed75a30cac9eb74611",
+      "bytes": 4368,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/receipts/apple-receipt.tsx",
+      "gitBlob": "607766ad9807465138814b4ba225e3a41ea2d69c",
+      "bytes": 13813,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/receipts/nike-receipt.tsx",
+      "gitBlob": "bc908295d2800078ee1e874ea84ba74e7d68e5da",
+      "bytes": 13637,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/reset-password/dropbox-reset-password.tsx",
+      "gitBlob": "24b338f6224c27769575a6ab9101ba8e814327b5",
+      "bytes": 2976,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/reset-password/twitch-reset-password.tsx",
+      "gitBlob": "8adbefdc8759ee17303bcc2ee3e30a4b4090c1e7",
+      "bytes": 4365,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/reviews/airbnb-review.tsx",
+      "gitBlob": "9c54faf070b17952e92f21bc934519d51bd16f6b",
+      "bytes": 4792,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/reviews/amazon-review.tsx",
+      "gitBlob": "7baa5d6c66cec2fad3d692148459479ca770dd37",
+      "bytes": 6577,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/welcome/koala-welcome.tsx",
+      "gitBlob": "312bd203631fabd87681f438f51c457319b2da11",
+      "bytes": 2171,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/welcome/netlify-welcome.tsx",
+      "gitBlob": "12422530a350382fb56754e8d2c47b7f94e63205",
+      "bytes": 5084,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/Community/welcome/stripe-welcome.tsx",
+      "gitBlob": "f6c17a0306692bf139360e4f98fea776c726ea72",
+      "bytes": 4399,
+      "kind": "email"
+    },
+    {
+      "path": "apps/demo/emails/tailwind.config.ts",
+      "gitBlob": "25ff64fc277e96aefb10de17f0267eff3fa9c712",
+      "bytes": 3080,
+      "kind": "helper"
+    },
+    {
+      "path": "LICENSE.md",
+      "gitBlob": "5058f53ebb9d6a55406864ddb6b346cb0a45c2ca",
+      "bytes": 1059,
+      "kind": "license"
+    }
+  ]
+}

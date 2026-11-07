@@ -1,0 +1,1111 @@
+{
+  "schemaVersion": 1,
+  "repository": "resend/react-email",
+  "ref": "674d8ec2804b86be5d99156383fb1810179847bf",
+  "sourceUrl": "https://github.com/resend/react-email/tree/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails",
+  "sourceVerification": {
+    "algorithm": "Git blob SHA-1",
+    "verifiedFiles": 73,
+    "emails": 62,
+    "helperFiles": 11
+  },
+  "license": {
+    "spdx": "MIT",
+    "source": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/LICENSE.md",
+    "sha256": "824a5acd4cf751b349d2f37513b94c682bceddbf6ead1d0225ff0aaa9b7eb2e4"
+  },
+  "renderer": {
+    "api": "@react-email/render.render(React.createElement(defaultExport, defaultExport.PreviewProps ?? {}))",
+    "dependencies": {
+      "@react-email/render": "2.2.0",
+      "react": "19.2.4",
+      "react-dom": "19.2.4",
+      "react-email": "6.11.8",
+      "tailwindcss": "4.1.18"
+    },
+    "runtime": {
+      "bun": "1.4.2",
+      "timezone": "UTC",
+      "VERCEL_URL": "demo.react.email"
+    },
+    "options": {},
+    "sourceChanges": "None. Upstream source and PreviewProps are used verbatim.",
+    "outputChanges": "None. Raw renderer output is stored byte-for-byte.",
+    "lockfileSha256": "9b57bb9cbb7d34d021aa362e969f0823467cd2d17aeca3e3626abd7cebdd8fc3",
+    "metadataSha256": "5139afb4b1661a3146b0c4ae1c58705382fe25f0986c3ede7486d5592f0972a3",
+    "provenanceSha256": "c74fbdbfbf44853e0156e72486fc67a4dd43eda660df7f0a4ee0f983ee9df8cb",
+    "deterministicDoubleRender": true
+  },
+  "totalHtmlBytes": 884331,
+  "templates": [
+    {
+      "file": "01-Barebone/activation.mjml",
+      "html": "01-Barebone/activation.html",
+      "source": "apps/demo/emails/01-Barebone/activation.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/01-Barebone/activation.tsx",
+      "sourceGitBlob": "99c66c31e185a14bf82a2b9ae4d247b21b925318",
+      "component": "ConfirmEmail",
+      "previewProps": {
+        "companyName": "Barebones",
+        "url": "https://example.com/"
+      },
+      "bytes": 12551,
+      "sha256": "db701d9f5b89be534b7a7886edba6298f2f420a1c6f4c09608df1b20f3100103"
+    },
+    {
+      "file": "01-Barebone/feature-announcement.mjml",
+      "html": "01-Barebone/feature-announcement.html",
+      "source": "apps/demo/emails/01-Barebone/feature-announcement.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/01-Barebone/feature-announcement.tsx",
+      "sourceGitBlob": "b8c586952e73cee3afe4a0b6f6ee0bcc6c36db16",
+      "component": "FeatureAnnouncementEmail",
+      "previewProps": {
+        "companyName": "Barebones",
+        "url": "https://example.com/"
+      },
+      "bytes": 23419,
+      "sha256": "73fd1a8a4363f7c700470c02eca6b1c7f9c4cb57f43e0e2b8131bd5787ec7437"
+    },
+    {
+      "file": "01-Barebone/password-reset.mjml",
+      "html": "01-Barebone/password-reset.html",
+      "source": "apps/demo/emails/01-Barebone/password-reset.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/01-Barebone/password-reset.tsx",
+      "sourceGitBlob": "27606f66a3792bdea7179239e2dcb83e44322a23",
+      "component": "PasswordResetEmail",
+      "previewProps": {
+        "companyName": "Barebones",
+        "url": "https://example.com/"
+      },
+      "bytes": 12684,
+      "sha256": "fdd5d2c8c022d41a04be39bc0b7bfd9c21dd2a4f02047a6c7debdc93154d61f9"
+    },
+    {
+      "file": "01-Barebone/product-update.mjml",
+      "html": "01-Barebone/product-update.html",
+      "source": "apps/demo/emails/01-Barebone/product-update.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/01-Barebone/product-update.tsx",
+      "sourceGitBlob": "a3fb9433164b077723a7e60febd0613bdffe9462",
+      "component": "ProductUpdateEmail",
+      "previewProps": {
+        "companyName": "Barebones",
+        "url": "https://example.com/"
+      },
+      "bytes": 38675,
+      "sha256": "0f1eb69075e909585c5bed7741e85577341f0697dc9be6957ce4d10b4449ff01"
+    },
+    {
+      "file": "01-Barebone/subscription-confirmation.mjml",
+      "html": "01-Barebone/subscription-confirmation.html",
+      "source": "apps/demo/emails/01-Barebone/subscription-confirmation.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/01-Barebone/subscription-confirmation.tsx",
+      "sourceGitBlob": "134813d39c3f3fd2a49764e8001ff353a6aa4b17",
+      "component": "SubscriptionConfirmation",
+      "previewProps": {
+        "companyName": "Barebones",
+        "url": "https://example.com/",
+        "userName": "Alex",
+        "planName": "Pro",
+        "planPrice": "$29",
+        "cycleLabel": "month",
+        "nextBillingDate": "April 22, 2026"
+      },
+      "bytes": 13008,
+      "sha256": "322a3166285bec61f801c8191095d4e64233673ee3df9c8c27f77f861ad1133b"
+    },
+    {
+      "file": "01-Barebone/subscription-update.mjml",
+      "html": "01-Barebone/subscription-update.html",
+      "source": "apps/demo/emails/01-Barebone/subscription-update.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/01-Barebone/subscription-update.tsx",
+      "sourceGitBlob": "850f9b56f26f38d71d5e0a1a052b498f4e05b923",
+      "component": "SubscriptionUpdate",
+      "previewProps": {
+        "companyName": "Barebones",
+        "url": "https://example.com/",
+        "userName": "Alex",
+        "planName": "Pro",
+        "planPrice": "$29",
+        "cycleLabel": "month",
+        "nextBillingDate": "April 22, 2026"
+      },
+      "bytes": 12913,
+      "sha256": "e040b03a3af6b4f089d51157841b4eb83107bf4944a8bc6c400065f32246ca05"
+    },
+    {
+      "file": "01-Barebone/text-only.mjml",
+      "html": "01-Barebone/text-only.html",
+      "source": "apps/demo/emails/01-Barebone/text-only.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/01-Barebone/text-only.tsx",
+      "sourceGitBlob": "5b397c15a72380e40ef7884fe12e7fcf8f294ac6",
+      "component": "TextOnlyEmail",
+      "previewProps": {
+        "companyName": "Barebones",
+        "url": "https://example.com/"
+      },
+      "bytes": 12509,
+      "sha256": "391e5ba333a8a9df74d4fd97bafe895232f60e1fbe0a6c550a714f4a1d0adbc8"
+    },
+    {
+      "file": "01-Barebone/welcome.mjml",
+      "html": "01-Barebone/welcome.html",
+      "source": "apps/demo/emails/01-Barebone/welcome.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/01-Barebone/welcome.tsx",
+      "sourceGitBlob": "30c4003a048a5c6db93a05fe1792d3ef6ca9150f",
+      "component": "WelcomeEmail",
+      "previewProps": {
+        "companyName": "Barebones",
+        "url": "https://example.com/"
+      },
+      "bytes": 24980,
+      "sha256": "dc54880ab1e1bb3b7057aea8c652911041a9eab7defa11c033d8a9d308452b6b"
+    },
+    {
+      "file": "02-Matte/activation.mjml",
+      "html": "02-Matte/activation.html",
+      "source": "apps/demo/emails/02-Matte/activation.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/activation.tsx",
+      "sourceGitBlob": "1c22120d10f54204bd011d5b32996a63754e06d2",
+      "component": "ActivationEmail",
+      "previewProps": {
+        "companyName": "Collage",
+        "url": "https://example.com/"
+      },
+      "bytes": 12332,
+      "sha256": "477778cb2cbc7f62597763bf881c09c9077e1738c85683f543318f0b6e0b6ee1"
+    },
+    {
+      "file": "02-Matte/feature-announcement.mjml",
+      "html": "02-Matte/feature-announcement.html",
+      "source": "apps/demo/emails/02-Matte/feature-announcement.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/feature-announcement.tsx",
+      "sourceGitBlob": "99acc007812847e35b2a21111a9a92aa18a23283",
+      "component": "FeatureAnnouncementEmail",
+      "previewProps": {
+        "companyName": "Collage",
+        "url": "https://example.com/"
+      },
+      "bytes": 23639,
+      "sha256": "49d512b5de76d9b7454cde1f2a3f15f365e214761e9ce9966503a6098988cfff"
+    },
+    {
+      "file": "02-Matte/password-reset.mjml",
+      "html": "02-Matte/password-reset.html",
+      "source": "apps/demo/emails/02-Matte/password-reset.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/password-reset.tsx",
+      "sourceGitBlob": "b52573d961e630d3e3bcfa9e79cee69fde82a5a8",
+      "component": "PasswordResetEmail",
+      "previewProps": {
+        "companyName": "Collage",
+        "url": "https://example.com/"
+      },
+      "bytes": 12345,
+      "sha256": "6166434c76ff226b0696194d428c0804213c48ae9405f8f892c1a60a927c6225"
+    },
+    {
+      "file": "02-Matte/product-update.mjml",
+      "html": "02-Matte/product-update.html",
+      "source": "apps/demo/emails/02-Matte/product-update.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/product-update.tsx",
+      "sourceGitBlob": "27e457b75cac83d5f94117f043639944a5cbfba3",
+      "component": "ProductUpdateEmail",
+      "previewProps": {
+        "companyName": "Collage",
+        "url": "https://example.com/"
+      },
+      "bytes": 23971,
+      "sha256": "95509251d760d7ff9d4489a4e695541a3590b45387f44d97e5507b1d5c72a6db"
+    },
+    {
+      "file": "02-Matte/subscription-confirmation.mjml",
+      "html": "02-Matte/subscription-confirmation.html",
+      "source": "apps/demo/emails/02-Matte/subscription-confirmation.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/subscription-confirmation.tsx",
+      "sourceGitBlob": "983c11d8286df3af7057d0c5f99e44251db6e22b",
+      "component": "SubscriptionConfirmation",
+      "previewProps": {
+        "companyName": "Collage",
+        "url": "https://example.com/",
+        "userName": "Alex",
+        "planName": "Pro",
+        "planPrice": "$29",
+        "cycleLabel": "month",
+        "nextBillingDate": "April 22, 2026",
+        "subtotal": "$29.00",
+        "tax": "$0.00",
+        "total": "$29.00"
+      },
+      "bytes": 18408,
+      "sha256": "3f5975ec03f74090977ca1e06aae6f00c52a566cfc0fb8278cc754e3c9705381"
+    },
+    {
+      "file": "02-Matte/subscription-update.mjml",
+      "html": "02-Matte/subscription-update.html",
+      "source": "apps/demo/emails/02-Matte/subscription-update.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/subscription-update.tsx",
+      "sourceGitBlob": "fbb8c2a9d8d17473f5c2ea36dfee52a71e700e1a",
+      "component": "SubscriptionUpdate",
+      "previewProps": {
+        "companyName": "Collage",
+        "url": "https://example.com/",
+        "userName": "Alex",
+        "planName": "Pro",
+        "planPrice": "$29",
+        "cycleLabel": "month",
+        "nextBillingDate": "April 22, 2026"
+      },
+      "bytes": 12361,
+      "sha256": "967f384ad5fc8641d454a2bb0dd75ba96ab6e18244229373aec7a2b7eff37898"
+    },
+    {
+      "file": "02-Matte/text-only.mjml",
+      "html": "02-Matte/text-only.html",
+      "source": "apps/demo/emails/02-Matte/text-only.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/text-only.tsx",
+      "sourceGitBlob": "63ab00aab9f4f2ee31707cfc9a6e7c3a5eb6e1d8",
+      "component": "TextOnlyEmail",
+      "previewProps": {
+        "companyName": "Collage",
+        "url": "https://example.com/"
+      },
+      "bytes": 11659,
+      "sha256": "21ab3c93e75bd079ba73190e61f3390a63333e96ec1d3d33cdb9f6a01fbce930"
+    },
+    {
+      "file": "02-Matte/welcome.mjml",
+      "html": "02-Matte/welcome.html",
+      "source": "apps/demo/emails/02-Matte/welcome.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/02-Matte/welcome.tsx",
+      "sourceGitBlob": "2837bffc18b5443d7d71b0271468f06fc6a59e53",
+      "component": "WelcomeEmail",
+      "previewProps": {
+        "companyName": "Collage",
+        "url": "https://example.com/"
+      },
+      "bytes": 18465,
+      "sha256": "86c8eb107ddbd856f6d1e43acc7c68c6166d321790798430b8d4d125022f1e75"
+    },
+    {
+      "file": "03-Protocol/activation.mjml",
+      "html": "03-Protocol/activation.html",
+      "source": "apps/demo/emails/03-Protocol/activation.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/activation.tsx",
+      "sourceGitBlob": "d01c0b07a294605b7e2bb58d6a12b9277e33298f",
+      "component": "ActivationEmail",
+      "previewProps": {
+        "companyName": "Dither",
+        "url": "https://example.com/"
+      },
+      "bytes": 12700,
+      "sha256": "1e6cdbf44b8602281419cd46a455ee38ee840115a251f6e59871d38de6f4381a"
+    },
+    {
+      "file": "03-Protocol/feature-announcement.mjml",
+      "html": "03-Protocol/feature-announcement.html",
+      "source": "apps/demo/emails/03-Protocol/feature-announcement.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/feature-announcement.tsx",
+      "sourceGitBlob": "afb3e1d90b50247c5bd6bb65475b834b4172a6e9",
+      "component": "FeatureAnnouncementEmail",
+      "previewProps": {
+        "companyName": "Dither",
+        "url": "https://example.com/"
+      },
+      "bytes": 24006,
+      "sha256": "6cd5ac4f1221f09593e7b7f0787e3de1d4e158d6cd3c5b8d0b7db2ec385c7f50"
+    },
+    {
+      "file": "03-Protocol/password-reset.mjml",
+      "html": "03-Protocol/password-reset.html",
+      "source": "apps/demo/emails/03-Protocol/password-reset.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/password-reset.tsx",
+      "sourceGitBlob": "a66e168e635666a9aefef04afa8ea22bdf9aa551",
+      "component": "PasswordResetEmail",
+      "previewProps": {
+        "companyName": "Dither",
+        "url": "https://example.com/"
+      },
+      "bytes": 12171,
+      "sha256": "7556517149a6e7bd97746c06524d50b08eb9323d0a18e0eb4a22b652239421cf"
+    },
+    {
+      "file": "03-Protocol/product-update.mjml",
+      "html": "03-Protocol/product-update.html",
+      "source": "apps/demo/emails/03-Protocol/product-update.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/product-update.tsx",
+      "sourceGitBlob": "af76cb79558ff66f6f6eb2d125fb7598e8623f7a",
+      "component": "ProductUpdateEmail",
+      "previewProps": {
+        "companyName": "Dither",
+        "url": "https://example.com/"
+      },
+      "bytes": 20288,
+      "sha256": "1e11b104d92219ea6912687721d047fbd1461cce2c52d7b3d5737f1dc43a431c"
+    },
+    {
+      "file": "03-Protocol/subscription-confirmation.mjml",
+      "html": "03-Protocol/subscription-confirmation.html",
+      "source": "apps/demo/emails/03-Protocol/subscription-confirmation.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/subscription-confirmation.tsx",
+      "sourceGitBlob": "69d3b92d476232846932c456d4804098ff3b883a",
+      "component": "SubscriptionConfirmation",
+      "previewProps": {
+        "companyName": "Dither",
+        "url": "https://example.com/",
+        "planName": "Pro",
+        "userName": "Alex",
+        "nextBillingDate": "April 22, 2026"
+      },
+      "bytes": 17145,
+      "sha256": "8ca6834d35590c4268bb9a5cc22aac7e53fef1604e237395e8a4947e66cf66d1"
+    },
+    {
+      "file": "03-Protocol/subscription-update.mjml",
+      "html": "03-Protocol/subscription-update.html",
+      "source": "apps/demo/emails/03-Protocol/subscription-update.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/subscription-update.tsx",
+      "sourceGitBlob": "976902c27c34d56f7f5734d3f0c375e6968d3218",
+      "component": "SubscriptionUpdate",
+      "previewProps": {
+        "companyName": "Dither",
+        "url": "https://example.com/",
+        "userName": "Name Surname",
+        "planName": "Pro",
+        "nextBillingDate": "Jun 15, 2026"
+      },
+      "bytes": 12279,
+      "sha256": "6c6ad9922587151143a18e263c806d258b1cad5c462a5dd27c33a9cc6b0c1bf4"
+    },
+    {
+      "file": "03-Protocol/text-only.mjml",
+      "html": "03-Protocol/text-only.html",
+      "source": "apps/demo/emails/03-Protocol/text-only.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/text-only.tsx",
+      "sourceGitBlob": "f46ed739a763fdf13b99b8fbc84d910bb736f732",
+      "component": "TextOnlyEmail",
+      "previewProps": {
+        "companyName": "Dither",
+        "url": "https://example.com/"
+      },
+      "bytes": 12518,
+      "sha256": "e17b632a886c3350a8880509f74ba07260383c6c062a11c995aeee30b1657913"
+    },
+    {
+      "file": "03-Protocol/welcome.mjml",
+      "html": "03-Protocol/welcome.html",
+      "source": "apps/demo/emails/03-Protocol/welcome.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/03-Protocol/welcome.tsx",
+      "sourceGitBlob": "b619a168865ed068079a0d304e3e299691ee31c4",
+      "component": "WelcomeEmail",
+      "previewProps": {
+        "companyName": "Dither",
+        "url": "https://example.com/"
+      },
+      "bytes": 16362,
+      "sha256": "1e22669b8eecf1af180c3eeb8d7da1641ca3d8a845106df89839fdd9c4562189"
+    },
+    {
+      "file": "04-Arcane/abandoned-cart.mjml",
+      "html": "04-Arcane/abandoned-cart.html",
+      "source": "apps/demo/emails/04-Arcane/abandoned-cart.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/04-Arcane/abandoned-cart.tsx",
+      "sourceGitBlob": "7d4af0aa20c76008a938e867149d1b5464b42819",
+      "component": "AbandonedCartEmail",
+      "previewProps": {
+        "companyName": "Skin",
+        "url": "https://example.com/"
+      },
+      "bytes": 17208,
+      "sha256": "e86a1377e973046998834f0170d7b2eea183bc6fa0c1a819f2bde9d49d4ed784"
+    },
+    {
+      "file": "04-Arcane/activation.mjml",
+      "html": "04-Arcane/activation.html",
+      "source": "apps/demo/emails/04-Arcane/activation.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/04-Arcane/activation.tsx",
+      "sourceGitBlob": "ee8242f7d3caa63df107a37ace82d8e2ef0dc0d7",
+      "component": "ActivationEmail",
+      "previewProps": {
+        "companyName": "Skin",
+        "url": "https://example.com/"
+      },
+      "bytes": 12166,
+      "sha256": "9321333127cfec435f8f18ffa16b7e0784e504afa7efb371886b97a366a109d4"
+    },
+    {
+      "file": "04-Arcane/newsletter.mjml",
+      "html": "04-Arcane/newsletter.html",
+      "source": "apps/demo/emails/04-Arcane/newsletter.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/04-Arcane/newsletter.tsx",
+      "sourceGitBlob": "d94b6c3e44ac4e06584252999b2608f493b0d072",
+      "component": "NewsletterEmail",
+      "previewProps": {
+        "companyName": "Skin",
+        "url": "https://example.com/"
+      },
+      "bytes": 24074,
+      "sha256": "07378a58f9e3c14e5c8ef43f571c217f752ce034b29c1a3b46a1682f0da428e2"
+    },
+    {
+      "file": "04-Arcane/order-confirmation.mjml",
+      "html": "04-Arcane/order-confirmation.html",
+      "source": "apps/demo/emails/04-Arcane/order-confirmation.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/04-Arcane/order-confirmation.tsx",
+      "sourceGitBlob": "67136c063e697605a4bee5518e9e7020aa8aee96",
+      "component": "OrderConfirmationEmail",
+      "previewProps": {
+        "companyName": "Skin",
+        "url": "https://example.com/"
+      },
+      "bytes": 17330,
+      "sha256": "a4331ca0972420f4e21556ef9ff1ce1a461ad62aa7b8ae36e3d228e68ea7bae0"
+    },
+    {
+      "file": "04-Arcane/order-shipping.mjml",
+      "html": "04-Arcane/order-shipping.html",
+      "source": "apps/demo/emails/04-Arcane/order-shipping.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/04-Arcane/order-shipping.tsx",
+      "sourceGitBlob": "26451ed71238e8b8889653f0a2adbeb8cc628e34",
+      "component": "OrderShippingEmail",
+      "previewProps": {
+        "companyName": "Skin",
+        "url": "https://example.com/"
+      },
+      "bytes": 17215,
+      "sha256": "a760fcad4d0813291810874dd4cb9be65920d1c58671fdf755152ff0976a6417"
+    },
+    {
+      "file": "04-Arcane/password-reset.mjml",
+      "html": "04-Arcane/password-reset.html",
+      "source": "apps/demo/emails/04-Arcane/password-reset.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/04-Arcane/password-reset.tsx",
+      "sourceGitBlob": "54cb046c2e31b1967e5a7a0d9abef34c5185bc9a",
+      "component": "PasswordResetEmail",
+      "previewProps": {
+        "companyName": "Skin",
+        "url": "https://example.com/"
+      },
+      "bytes": 11428,
+      "sha256": "e474869cdc6893e9799ffb68da96b7e0536a98c4d09514637c1a8fd0fc104afb"
+    },
+    {
+      "file": "04-Arcane/promo.mjml",
+      "html": "04-Arcane/promo.html",
+      "source": "apps/demo/emails/04-Arcane/promo.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/04-Arcane/promo.tsx",
+      "sourceGitBlob": "fa8b7d39d9713d2a6cd721c42da2b7a63692f1f2",
+      "component": "PromoEmail",
+      "previewProps": {
+        "companyName": "Skin",
+        "url": "https://example.com/"
+      },
+      "bytes": 19060,
+      "sha256": "629c904127c2eb1e1a4090cd96b1bb5ace75362fb94125227911c097e98312d9"
+    },
+    {
+      "file": "04-Arcane/welcome.mjml",
+      "html": "04-Arcane/welcome.html",
+      "source": "apps/demo/emails/04-Arcane/welcome.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/04-Arcane/welcome.tsx",
+      "sourceGitBlob": "d58a1a749eca663a46c581b43b8943733621cff0",
+      "component": "WelcomeEmail",
+      "previewProps": {
+        "companyName": "Skin",
+        "url": "https://example.com/"
+      },
+      "bytes": 18969,
+      "sha256": "86a293d611837b566e1aa13e32b6c71b5d09b6d13fa5077fddcfffa99583843e"
+    },
+    {
+      "file": "05-Studio/abandoned-cart.mjml",
+      "html": "05-Studio/abandoned-cart.html",
+      "source": "apps/demo/emails/05-Studio/abandoned-cart.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/05-Studio/abandoned-cart.tsx",
+      "sourceGitBlob": "70edcf417a0751b3d5361a90009637e52ab768e9",
+      "component": "TechAbandonedCartEmail",
+      "previewProps": {
+        "companyName": "Halo",
+        "url": "https://example.com/"
+      },
+      "bytes": 18434,
+      "sha256": "e753ce1c3f03f8d6d9b0245680832f5710c61ab00881801ff8da5303b9750068"
+    },
+    {
+      "file": "05-Studio/activation.mjml",
+      "html": "05-Studio/activation.html",
+      "source": "apps/demo/emails/05-Studio/activation.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/05-Studio/activation.tsx",
+      "sourceGitBlob": "fb7284a831019e17fd717c72f151c3dc02367971",
+      "component": "TechActivationEmail",
+      "previewProps": {
+        "companyName": "Halo",
+        "url": "https://example.com/"
+      },
+      "bytes": 12158,
+      "sha256": "7b070f71d39d75edea74eb31c036bc8dd8f1e4d77ac9226d2b1cd1d87e8eaa17"
+    },
+    {
+      "file": "05-Studio/newsletter.mjml",
+      "html": "05-Studio/newsletter.html",
+      "source": "apps/demo/emails/05-Studio/newsletter.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/05-Studio/newsletter.tsx",
+      "sourceGitBlob": "3814aa00dbc982c03c9b8da1c97a4daf4ef2fa68",
+      "component": "TechNewsletterEmail",
+      "previewProps": {
+        "companyName": "Halo",
+        "url": "https://example.com/"
+      },
+      "bytes": 20635,
+      "sha256": "d11a771bf3282780694aa43133782dc32809942129707ec16c54c1f895113336"
+    },
+    {
+      "file": "05-Studio/order-confirmation.mjml",
+      "html": "05-Studio/order-confirmation.html",
+      "source": "apps/demo/emails/05-Studio/order-confirmation.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/05-Studio/order-confirmation.tsx",
+      "sourceGitBlob": "0097232fd58ccb6165c1954569a2b5438e167ef5",
+      "component": "TechOrderConfirmationEmail",
+      "previewProps": {
+        "companyName": "Halo",
+        "url": "https://example.com/"
+      },
+      "bytes": 17772,
+      "sha256": "b6f630eb09b6b9ee95fa729c63e035ced1e5804791b89a6bbb2d8e64bf5ad70a"
+    },
+    {
+      "file": "05-Studio/order-shipping.mjml",
+      "html": "05-Studio/order-shipping.html",
+      "source": "apps/demo/emails/05-Studio/order-shipping.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/05-Studio/order-shipping.tsx",
+      "sourceGitBlob": "9f582d4fbee888ecf3ed54dede2081c1797ce269",
+      "component": "TechOrderShippingEmail",
+      "previewProps": {
+        "companyName": "Halo",
+        "url": "https://example.com/"
+      },
+      "bytes": 19523,
+      "sha256": "60c1773df6be6de86b446eb66801a37662995591b83d1d5adc97f7e6d4c23e9b"
+    },
+    {
+      "file": "05-Studio/password-reset.mjml",
+      "html": "05-Studio/password-reset.html",
+      "source": "apps/demo/emails/05-Studio/password-reset.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/05-Studio/password-reset.tsx",
+      "sourceGitBlob": "a7aacb79e1c479c16972887111d690607485c5ea",
+      "component": "TechPasswordResetEmail",
+      "previewProps": {
+        "companyName": "Halo",
+        "url": "https://example.com/"
+      },
+      "bytes": 12256,
+      "sha256": "2ac5922c92e28cb2e71697e0537a597ee403a23713c0a1c8ec96ca86165c7f0d"
+    },
+    {
+      "file": "05-Studio/promo.mjml",
+      "html": "05-Studio/promo.html",
+      "source": "apps/demo/emails/05-Studio/promo.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/05-Studio/promo.tsx",
+      "sourceGitBlob": "136305adbfdcc52115555fde7f4a6e852df314ca",
+      "component": "TechPromoEmail",
+      "previewProps": {
+        "companyName": "Halo",
+        "url": "https://example.com/"
+      },
+      "bytes": 17214,
+      "sha256": "df572cfa8cc0997622f31209e5a510eec5a49a1d4343a9f8c6b9194295e7ce7c"
+    },
+    {
+      "file": "05-Studio/welcome.mjml",
+      "html": "05-Studio/welcome.html",
+      "source": "apps/demo/emails/05-Studio/welcome.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/05-Studio/welcome.tsx",
+      "sourceGitBlob": "47856ea976809633b8e133e12f3693a82e6161ad",
+      "component": "TechWelcomeEmail",
+      "previewProps": {
+        "companyName": "Halo",
+        "url": "https://example.com/"
+      },
+      "bytes": 15658,
+      "sha256": "3f5cd8f7912b078c55d59e20b3d2bf22fda04d24207e6d1b4ed65306ccf6ddbc"
+    },
+    {
+      "file": "Community/magic-links/aws-verify-email.mjml",
+      "html": "Community/magic-links/aws-verify-email.html",
+      "source": "apps/demo/emails/Community/magic-links/aws-verify-email.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/magic-links/aws-verify-email.tsx",
+      "sourceGitBlob": "5f1554af0de33b8ae5d55e5c1c4d797e8b971a19",
+      "component": "AWSVerifyEmail",
+      "previewProps": {
+        "verificationCode": "596853"
+      },
+      "bytes": 7172,
+      "sha256": "3675af6f5df77139c4690aa31998dbaed207fc1e502903c00c03c15f64119107"
+    },
+    {
+      "file": "Community/magic-links/linear-login-code.mjml",
+      "html": "Community/magic-links/linear-login-code.html",
+      "source": "apps/demo/emails/Community/magic-links/linear-login-code.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/magic-links/linear-login-code.tsx",
+      "sourceGitBlob": "29e3503478865da5560e6dfc4ab47e27d15e4eec",
+      "component": "LinearLoginCodeEmail",
+      "previewProps": {
+        "validationCode": "tt226-5398x"
+      },
+      "bytes": 5866,
+      "sha256": "ffc2ac58ebc0183a475ef320b11051d69e8b273064c000f75b0461e38947335c"
+    },
+    {
+      "file": "Community/magic-links/notion-magic-link.mjml",
+      "html": "Community/magic-links/notion-magic-link.html",
+      "source": "apps/demo/emails/Community/magic-links/notion-magic-link.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/magic-links/notion-magic-link.tsx",
+      "sourceGitBlob": "1ce37af90b1be54a32b10bc995fe9acb4d8049e6",
+      "component": "NotionMagicLinkEmail",
+      "previewProps": {
+        "loginCode": "sparo-ndigo-amurt-secan"
+      },
+      "bytes": 5346,
+      "sha256": "032435437313f205f813a5f64ee32436163c17ec05e1ad705f3cba22ff4bb802"
+    },
+    {
+      "file": "Community/magic-links/plaid-verify-identity.mjml",
+      "html": "Community/magic-links/plaid-verify-identity.html",
+      "source": "apps/demo/emails/Community/magic-links/plaid-verify-identity.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/magic-links/plaid-verify-identity.tsx",
+      "sourceGitBlob": "7e60f31c218f9e4e7c88519fc8d6d3496216de8e",
+      "component": "PlaidVerifyIdentityEmail",
+      "previewProps": {
+        "validationCode": "144833"
+      },
+      "bytes": 3488,
+      "sha256": "e1db86f465423624b75b1f4c4b65d49cdf8e855b12019a111ec89e08a33f7ddb"
+    },
+    {
+      "file": "Community/magic-links/raycast-magic-link.mjml",
+      "html": "Community/magic-links/raycast-magic-link.html",
+      "source": "apps/demo/emails/Community/magic-links/raycast-magic-link.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/magic-links/raycast-magic-link.tsx",
+      "sourceGitBlob": "9575441cbfe219c9a625daffb8e4fa51344c383e",
+      "component": "RaycastMagicLinkEmail",
+      "previewProps": {
+        "magicLink": "https://raycast.com"
+      },
+      "bytes": 5435,
+      "sha256": "ad617285add828fc8dace8867c900051a20b1ff89900586a9a07b5d2b5ab108c"
+    },
+    {
+      "file": "Community/magic-links/slack-confirm.mjml",
+      "html": "Community/magic-links/slack-confirm.html",
+      "source": "apps/demo/emails/Community/magic-links/slack-confirm.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/magic-links/slack-confirm.tsx",
+      "sourceGitBlob": "347fa1ffbb2459c5b0bf2376cc44ad52457699b7",
+      "component": "SlackConfirmEmail",
+      "previewProps": {
+        "validationCode": "DJZ-TLX"
+      },
+      "bytes": 7799,
+      "sha256": "e9760dd1b81ef5fa80f6b0bbd7e6eabe3b4bf9faf78628cf67262cec72e5369d"
+    },
+    {
+      "file": "Community/newsletters/codepen-challengers.mjml",
+      "html": "Community/newsletters/codepen-challengers.html",
+      "source": "apps/demo/emails/Community/newsletters/codepen-challengers.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/newsletters/codepen-challengers.tsx",
+      "sourceGitBlob": "e6438c910b3acd383390ebde4e1fa52c45e0bf9f",
+      "component": "CodepenChallengersEmail",
+      "previewProps": {},
+      "bytes": 17121,
+      "sha256": "171d756dba056ff305e9222fa171667cb8c208b401351071c8a91df9126e6cb5"
+    },
+    {
+      "file": "Community/newsletters/google-play-policy-update.mjml",
+      "html": "Community/newsletters/google-play-policy-update.html",
+      "source": "apps/demo/emails/Community/newsletters/google-play-policy-update.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/newsletters/google-play-policy-update.tsx",
+      "sourceGitBlob": "a84fcad3309187d15560f79e080ab540e5adee65",
+      "component": "GooglePlayPolicyUpdateEmail",
+      "previewProps": {},
+      "bytes": 10763,
+      "sha256": "dba7fe35744f675600ae0962b45e86c2fe7e30efc8ac14369c049e011698ee65"
+    },
+    {
+      "file": "Community/newsletters/stack-overflow-tips.mjml",
+      "html": "Community/newsletters/stack-overflow-tips.html",
+      "source": "apps/demo/emails/Community/newsletters/stack-overflow-tips.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/newsletters/stack-overflow-tips.tsx",
+      "sourceGitBlob": "d236e0abffb235d1480e6a201ceaec71f0dd9810",
+      "component": "StackOverflowTipsEmail",
+      "previewProps": {
+        "tips": [
+          {
+            "id": 1,
+            "description": "To find a specific phrase, enter it in quotes: \"local storage\""
+          },
+          {
+            "id": 2,
+            "description": "To search within specific tag(s), enter them in square brackets: [javascript]"
+          },
+          {
+            "id": 3,
+            "description": "Combine them to get even more precise results - [javascript] \"local storage\" searches for the phrase “local storage” in questions that have the [javascript] tag"
+          }
+        ]
+      },
+      "bytes": 10017,
+      "sha256": "3d045820a41dbc4dea7d975e15ff7c9f2cc77e71509c05dd2366d740c10bf714"
+    },
+    {
+      "file": "Community/notifications/github-access-token.mjml",
+      "html": "Community/notifications/github-access-token.html",
+      "source": "apps/demo/emails/Community/notifications/github-access-token.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/notifications/github-access-token.tsx",
+      "sourceGitBlob": "675f51157b3bdbfff054e7c439b248f5f2cb90f9",
+      "component": "GithubAccessTokenEmail",
+      "previewProps": {
+        "username": "alanturing"
+      },
+      "bytes": 5402,
+      "sha256": "f5e20cff0c1a2534e870a90c5230429a6a0a2042c928b2a5101a07dff25b7a46"
+    },
+    {
+      "file": "Community/notifications/papermark-year-in-review.mjml",
+      "html": "Community/notifications/papermark-year-in-review.html",
+      "source": "apps/demo/emails/Community/notifications/papermark-year-in-review.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/notifications/papermark-year-in-review.tsx",
+      "sourceGitBlob": "bb4b89a6244a7579f2e0da8f30512ef1bcb1eef2",
+      "component": "PapermarkYearInReviewEmail",
+      "previewProps": {
+        "year": 2024,
+        "minutesSpentOnDocs": 1234,
+        "uploadedDocuments": 25,
+        "sharedLinks": 50,
+        "receivedViews": 500,
+        "topDocumentName": "Q4 Financial Report",
+        "topDocumentViews": 150,
+        "mostActiveMonth": "September",
+        "mostActiveMonthViews": 200,
+        "sharerPercentile": 95,
+        "viewingLocations": ["United States", "United Kingdom", "Germany", "Japan"]
+      },
+      "bytes": 13996,
+      "sha256": "589090327ad0b604d66e1192006c6a8f2b4a84340d0e5928c522580806205b50"
+    },
+    {
+      "file": "Community/notifications/vercel-invite-user.mjml",
+      "html": "Community/notifications/vercel-invite-user.html",
+      "source": "apps/demo/emails/Community/notifications/vercel-invite-user.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/notifications/vercel-invite-user.tsx",
+      "sourceGitBlob": "cc4492e200f744e91f557ede125fe66a96c48d94",
+      "component": "VercelInviteUserEmail",
+      "previewProps": {
+        "username": "alanturing",
+        "userImage": "https://demo.react.email/static/vercel-user.png",
+        "invitedByUsername": "Alan",
+        "invitedByEmail": "alan.turing@example.com",
+        "teamName": "Enigma",
+        "teamImage": "https://demo.react.email/static/vercel-team.png",
+        "inviteLink": "https://vercel.com",
+        "inviteFromIp": "204.13.186.218",
+        "inviteFromLocation": "São Paulo, Brazil"
+      },
+      "bytes": 8121,
+      "sha256": "deb4179aa433528c6bd31e99e520bcfef54653d8c54cc821416513373757783a"
+    },
+    {
+      "file": "Community/notifications/yelp-recent-login.mjml",
+      "html": "Community/notifications/yelp-recent-login.html",
+      "source": "apps/demo/emails/Community/notifications/yelp-recent-login.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/notifications/yelp-recent-login.tsx",
+      "sourceGitBlob": "1055bf67578880bc6bd601ed75a30cac9eb74611",
+      "component": "YelpRecentLoginEmail",
+      "previewProps": {
+        "userFirstName": "Alan",
+        "loginDate": "2022-09-07T10:58:00.000Z",
+        "loginDevice": "Chrome on Mac OS X",
+        "loginLocation": "Upland, California, United States",
+        "loginIp": "47.149.53.167"
+      },
+      "bytes": 7554,
+      "sha256": "5f099d5d8fbe375f8e962fae4f2862816f2d1f966173114686f0c3080b6a1cb1"
+    },
+    {
+      "file": "Community/receipts/apple-receipt.mjml",
+      "html": "Community/receipts/apple-receipt.html",
+      "source": "apps/demo/emails/Community/receipts/apple-receipt.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/receipts/apple-receipt.tsx",
+      "sourceGitBlob": "607766ad9807465138814b4ba225e3a41ea2d69c",
+      "component": "AppleReceiptEmail",
+      "previewProps": {},
+      "bytes": 19782,
+      "sha256": "c8ee214d6d2cacddbba8569c14855b59c1907ce2e22d03711f3e24baaccff76a"
+    },
+    {
+      "file": "Community/receipts/nike-receipt.mjml",
+      "html": "Community/receipts/nike-receipt.html",
+      "source": "apps/demo/emails/Community/receipts/nike-receipt.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/receipts/nike-receipt.tsx",
+      "sourceGitBlob": "bc908295d2800078ee1e874ea84ba74e7d68e5da",
+      "component": "NikeReceiptEmail",
+      "previewProps": {},
+      "bytes": 20463,
+      "sha256": "577d45ead4a57ea7963c490afae28bd5cb610f6eb9665c86c2fddd0c4d31bc94"
+    },
+    {
+      "file": "Community/reset-password/dropbox-reset-password.mjml",
+      "html": "Community/reset-password/dropbox-reset-password.html",
+      "source": "apps/demo/emails/Community/reset-password/dropbox-reset-password.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reset-password/dropbox-reset-password.tsx",
+      "sourceGitBlob": "24b338f6224c27769575a6ab9101ba8e814327b5",
+      "component": "DropboxResetPasswordEmail",
+      "previewProps": {
+        "userFirstname": "Alan",
+        "resetPasswordLink": "https://www.dropbox.com"
+      },
+      "bytes": 6351,
+      "sha256": "f479d9e7eb3ddc48e3ecf9404b1607fe38fdd6ee47a1665412199a08186f3c04"
+    },
+    {
+      "file": "Community/reset-password/twitch-reset-password.mjml",
+      "html": "Community/reset-password/twitch-reset-password.html",
+      "source": "apps/demo/emails/Community/reset-password/twitch-reset-password.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reset-password/twitch-reset-password.tsx",
+      "sourceGitBlob": "8adbefdc8759ee17303bcc2ee3e30a4b4090c1e7",
+      "component": "TwitchResetPasswordEmail",
+      "previewProps": {
+        "username": "alanturing",
+        "updatedDate": "2022-06-23T16:06:00.000Z"
+      },
+      "bytes": 7113,
+      "sha256": "774464aaffdcc2bdc55f07d1df59600c14811c58c2b6c753e5f44a9bb040e400"
+    },
+    {
+      "file": "Community/reviews/airbnb-review.mjml",
+      "html": "Community/reviews/airbnb-review.html",
+      "source": "apps/demo/emails/Community/reviews/airbnb-review.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reviews/airbnb-review.tsx",
+      "sourceGitBlob": "9c54faf070b17952e92f21bc934519d51bd16f6b",
+      "component": "AirbnbReviewEmail",
+      "previewProps": {
+        "authorName": "Alex",
+        "authorImage": "https://demo.react.email/static/airbnb-review-user.jpg",
+        "reviewText": "“Alan was a great guest! Easy communication, the apartment was left\n    in great condition, very polite, and respectful of all house rules.\n    He’s welcome back anytime and would easily recommend him to any\n    host!”"
+      },
+      "bytes": 8335,
+      "sha256": "37db57132a1fbd11580737f76118fc36fea47fc77e49baf62d69cf8151ac06df"
+    },
+    {
+      "file": "Community/reviews/amazon-review.mjml",
+      "html": "Community/reviews/amazon-review.html",
+      "source": "apps/demo/emails/Community/reviews/amazon-review.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reviews/amazon-review.tsx",
+      "sourceGitBlob": "7baa5d6c66cec2fad3d692148459479ca770dd37",
+      "component": "AmazonReviewEmail",
+      "previewProps": {
+        "titleText": "Your opinion is important!",
+        "reviewText": "Alan Turing, do you have a moment? We would like to know if everything went well for you. Take a moment to review your most recent purchases.",
+        "reviwStars": [
+          "https://demo.react.email/static/amazon-rating.gif",
+          "https://demo.react.email/static/amazon-rating.gif",
+          "https://demo.react.email/static/amazon-rating.gif",
+          "https://demo.react.email/static/amazon-rating.gif",
+          "https://demo.react.email/static/amazon-rating.gif"
+        ],
+        "socialMediaIcons": [
+          "https://demo.react.email/static/amazon-instagram.jpg",
+          "https://demo.react.email/static/amazon-facebook.jpg",
+          "https://demo.react.email/static/amazon-twitter.jpg"
+        ]
+      },
+      "bytes": 10750,
+      "sha256": "628ceb6f81d7d940a37fce4ac23c4adec90ae746e9cbd828c18244ee27cb9e5c"
+    },
+    {
+      "file": "Community/welcome/koala-welcome.mjml",
+      "html": "Community/welcome/koala-welcome.html",
+      "source": "apps/demo/emails/Community/welcome/koala-welcome.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/welcome/koala-welcome.tsx",
+      "sourceGitBlob": "312bd203631fabd87681f438f51c457319b2da11",
+      "component": "KoalaWelcomeEmail",
+      "previewProps": {
+        "userFirstname": "Alan"
+      },
+      "bytes": 4852,
+      "sha256": "8ffdb555bd566eda832188a71b47034b072ed3fd39487f31f5940a106baced7f"
+    },
+    {
+      "file": "Community/welcome/netlify-welcome.mjml",
+      "html": "Community/welcome/netlify-welcome.html",
+      "source": "apps/demo/emails/Community/welcome/netlify-welcome.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/welcome/netlify-welcome.tsx",
+      "sourceGitBlob": "12422530a350382fb56754e8d2c47b7f94e63205",
+      "component": "NetlifyWelcomeEmail",
+      "previewProps": {
+        "steps": [
+          {
+            "id": 1,
+            "Description": {
+              "type": "li",
+              "key": "1",
+              "props": {
+                "className": "mb-20",
+                "children": [
+                  {
+                    "type": "strong",
+                    "key": null,
+                    "props": {
+                      "children": "Deploy your first project."
+                    },
+                    "_owner": null,
+                    "_store": {}
+                  },
+                  " ",
+                  {
+                    "type": {},
+                    "key": null,
+                    "props": {
+                      "children": "Connect to Git, choose a template"
+                    },
+                    "_owner": null,
+                    "_store": {}
+                  },
+                  ", or manually deploy a project you've been working on locally."
+                ]
+              },
+              "_owner": null,
+              "_store": {}
+            }
+          },
+          {
+            "id": 2,
+            "Description": {
+              "type": "li",
+              "key": "2",
+              "props": {
+                "className": "mb-20",
+                "children": [
+                  {
+                    "type": "strong",
+                    "key": null,
+                    "props": {
+                      "children": "Check your deploy logs."
+                    },
+                    "_owner": null,
+                    "_store": {}
+                  },
+                  " Find out what's included in your build and watch for errors or failed deploys.",
+                  " ",
+                  {
+                    "type": {},
+                    "key": null,
+                    "props": {
+                      "children": "Learn how to read your deploy logs"
+                    },
+                    "_owner": null,
+                    "_store": {}
+                  },
+                  "."
+                ]
+              },
+              "_owner": null,
+              "_store": {}
+            }
+          },
+          {
+            "id": 3,
+            "Description": {
+              "type": "li",
+              "key": "3",
+              "props": {
+                "className": "mb-20",
+                "children": [
+                  {
+                    "type": "strong",
+                    "key": null,
+                    "props": {
+                      "children": "Choose an integration."
+                    },
+                    "_owner": null,
+                    "_store": {}
+                  },
+                  " Quickly discover, connect, and configure the right tools for your project with 150+ integrations to choose from. ",
+                  {
+                    "type": {},
+                    "key": null,
+                    "props": {
+                      "children": "Explore the Integrations Hub"
+                    },
+                    "_owner": null,
+                    "_store": {}
+                  },
+                  "."
+                ]
+              },
+              "_owner": null,
+              "_store": {}
+            }
+          },
+          {
+            "id": 4,
+            "Description": {
+              "type": "li",
+              "key": "4",
+              "props": {
+                "className": "mb-20",
+                "children": [
+                  {
+                    "type": "strong",
+                    "key": null,
+                    "props": {
+                      "children": "Set up a custom domain."
+                    },
+                    "_owner": null,
+                    "_store": {}
+                  },
+                  " You can register a new domain and buy it through Netlify or assign a domain you already own to your site. ",
+                  {
+                    "type": {},
+                    "key": null,
+                    "props": {
+                      "children": "Add a custom domain"
+                    },
+                    "_owner": null,
+                    "_store": {}
+                  },
+                  "."
+                ]
+              },
+              "_owner": null,
+              "_store": {}
+            }
+          }
+        ],
+        "links": [
+          {
+            "title": "Visit the forums",
+            "href": "https://www.netlify.com"
+          },
+          {
+            "title": "Read the docs",
+            "href": "https://www.netlify.com"
+          },
+          {
+            "title": "Contact an expert",
+            "href": "https://www.netlify.com"
+          }
+        ]
+      },
+      "bytes": 8713,
+      "sha256": "dbcee1f1699facec728979bc3868ed0e1e6ddf97df0e0e65aac535340cc10ab4"
+    },
+    {
+      "file": "Community/welcome/stripe-welcome.mjml",
+      "html": "Community/welcome/stripe-welcome.html",
+      "source": "apps/demo/emails/Community/welcome/stripe-welcome.tsx",
+      "sourceUrl": "https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/welcome/stripe-welcome.tsx",
+      "sourceGitBlob": "f6c17a0306692bf139360e4f98fea776c726ea72",
+      "component": "StripeWelcomeEmail",
+      "previewProps": {},
+      "bytes": 7404,
+      "sha256": "8f64c14d3b391425b1a3a56c5875fc56df0ca416dc755043069eb89483963431"
+    }
+  ]
+}

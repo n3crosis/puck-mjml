@@ -9,24 +9,47 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-all font-family="Arial,Helvetica,sans-serif" />
       <mj-text padding="0px" />
     </mj-attributes>
+    <mj-style inline="inline">
+      /* Style both opaque surfaces; solid colors remain fallbacks for email clients. */
+      .paper-orange,
+      .paper-orange > table {
+        background-image: radial-gradient(
+          circle at bottom right,
+          #fb7a00 0%,
+          transparent 60%
+        ) !important;
+      }
+      .paper-gray,
+      .paper-gray > table {
+        background-image: radial-gradient(
+          circle at bottom right,
+          #4b5563 0%,
+          transparent 60%
+        ) !important;
+      }
+      .paper-sand,
+      .paper-sand > table {
+        background-image: radial-gradient(
+          circle at bottom right,
+          #e4c5a0 0%,
+          transparent 60%
+        ) !important;
+      }
+      .paper-green,
+      .paper-green > table {
+        background-image: radial-gradient(
+          circle at bottom right,
+          #10b981 0%,
+          transparent 60%
+        ) !important;
+      }
+    </mj-style>
     <mj-style>
       p {
         margin: 0;
       }
       a {
         color: inherit;
-      }
-      .paper-orange {
-        background-image: radial-gradient(circle at bottom right, #fb7a00 0%, transparent 60%);
-      }
-      .paper-gray {
-        background-image: radial-gradient(circle at bottom right, #4b5563 0%, transparent 60%);
-      }
-      .paper-sand {
-        background-image: radial-gradient(circle at bottom right, #e4c5a0 0%, transparent 60%);
-      }
-      .paper-green {
-        background-image: radial-gradient(circle at bottom right, #10b981 0%, transparent 60%);
       }
       .community-rich-0 em:nth-of-type(1) {
         font-style: normal;

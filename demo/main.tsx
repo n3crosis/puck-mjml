@@ -10,7 +10,7 @@ import {
   type EmailTemplateDefinition,
 } from "../src";
 import "./style.css";
-import { reviewImport, hasUnsavedChanges } from "./import-review";
+import { reviewImport, hasUnsavedChanges, documentSnapshot } from "./import-review";
 import { uploadLocalImage } from "./local-images";
 import { LOCAL_IMAGE_WARNING } from "../src/image-upload";
 
@@ -21,8 +21,8 @@ function App() {
   const [value, setValue] = useState<EmailDocument>(() => createExampleDocument());
   const [status, setStatus] = useState("");
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
-  const [baseline, setBaseline] = useState(() => JSON.stringify(value));
-  const dirty = hasUnsavedChanges(value, baseline);
+  const [baseline, setBaseline] = useState(() => documentSnapshot(value));
+  const dirty = useMemo(() => hasUnsavedChanges(value, baseline), [value, baseline]);
   const importRequest = useRef(0);
   const dirtyRef = useRef(dirty);
   dirtyRef.current = dirty;
@@ -55,7 +55,7 @@ function App() {
     const next = template.create();
     setTemplateId(id);
     setValue(next);
-    setBaseline(JSON.stringify(next));
+    setBaseline(documentSnapshot(next));
     setImportWarnings([]);
     setStatus("");
   };
@@ -71,7 +71,7 @@ function App() {
       const { document, warnings } = reviewImport(source);
       if (!canReplace()) return;
       setValue(document);
-      setBaseline(JSON.stringify(document));
+      setBaseline(documentSnapshot(document));
       setImportWarnings(warnings);
       setTemplateId("imported");
       setStatus(

@@ -9,6 +9,13 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-all font-family="Arial,Helvetica,sans-serif" />
       <mj-text padding="0px" />
     </mj-attributes>
+    <mj-style inline="inline">
+      .community-rich-0 a,
+      .netlify-footer-link a {
+        color: #067df7;
+        text-decoration: none;
+      }
+    </mj-style>
     <mj-style>
       p {
         margin: 0;
@@ -33,21 +40,21 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       }
       .community-rich-4 em:nth-of-type(1) {
         font-style: normal;
-        color: #22c55e;
+        color: #00c950;
       }
       .community-rich-6 a:nth-of-type(1) {
         text-decoration: underline;
       }
       .community-rich-6 em:nth-of-type(1) {
         font-style: normal;
-        color: #22c55e;
+        color: #00c950;
       }
       .community-rich-8 a:nth-of-type(1) {
         text-decoration: underline;
       }
       .community-rich-8 em:nth-of-type(1) {
         font-style: normal;
-        color: #22c55e;
+        color: #00c950;
       }
     </mj-style>
   </mj-head>
@@ -88,21 +95,22 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           css-class="community-rich-0"
           ><ul>
             <li>
-              <strong>Deploy your first project.</strong> Connect to Git, choose a template, or
-              manually deploy a project you've been working on locally.
+              <strong>Deploy your first project.</strong> <a>Connect to Git, choose a template</a>,
+              or manually deploy a project you've been working on locally.
             </li>
             <li>
               <strong>Check your deploy logs.</strong> Find out what's included in your build and
-              watch for errors or failed deploys. Learn how to read your deploy logs.
+              watch for errors or failed deploys. <a>Learn how to read your deploy logs</a>.
             </li>
             <li>
               <strong>Choose an integration.</strong> Quickly discover, connect, and configure the
-              right tools for your project with 150+ integrations to choose from. Explore the
-              Integrations Hub.
+              right tools for your project with 150+ integrations to choose from.
+              <a>Explore the Integrations Hub</a>.
             </li>
             <li>
               <strong>Set up a custom domain.</strong> You can register a new domain and buy it
-              through Netlify or assign a domain you already own to your site. Add a custom domain.
+              through Netlify or assign a domain you already own to your site.
+              <a>Add a custom domain</a>.
             </li>
           </ul>
         </mj-text>
@@ -119,55 +127,66 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       </mj-column>
     </mj-section>
     <mj-section padding="45px" background-color="#ffffff">
-      <mj-column padding="0px" width="33.333%">
-        <mj-text
-          padding="0px"
-          font-size="16px"
-          line-height="1.5"
-          font-weight="700"
-          css-class="community-rich-4"
-          ><a href="https://www.netlify.com/">Visit the forums</a> <em>→</em>
-        </mj-text>
-      </mj-column>
-      <mj-column padding="0px" width="33.333%">
-        <mj-text
-          padding="0px"
-          font-size="16px"
-          line-height="1.5"
-          font-weight="700"
-          css-class="community-rich-6"
-          ><a href="https://www.netlify.com/">Read the docs</a> <em>→</em>
-        </mj-text>
-      </mj-column>
-      <mj-column padding="0px" width="33.333%">
-        <mj-text
-          padding="0px"
-          font-size="16px"
-          line-height="1.5"
-          font-weight="700"
-          css-class="community-rich-8"
-          ><a href="https://www.netlify.com/">Contact an expert</a> <em>→</em>
-        </mj-text>
-      </mj-column>
+      <mj-group width="100%" css-class="netlify-resource-links">
+        <mj-column padding="0px" width="33.333%">
+          <mj-text
+            padding="0px"
+            font-size="16px"
+            line-height="1.5"
+            font-weight="700"
+            css-class="community-rich-4"
+            ><a href="https://www.netlify.com/">Visit the forums</a> <em>→</em>
+          </mj-text>
+        </mj-column>
+        <mj-column padding="0px" width="33.333%">
+          <mj-text
+            padding="0px"
+            font-size="16px"
+            line-height="1.5"
+            font-weight="700"
+            css-class="community-rich-6"
+            ><a href="https://www.netlify.com/">Read the docs</a> <em>→</em>
+          </mj-text>
+        </mj-column>
+        <mj-column padding="0px" width="33.333%">
+          <mj-text
+            padding="0px"
+            font-size="16px"
+            line-height="1.5"
+            font-weight="700"
+            css-class="community-rich-8"
+            ><a href="https://www.netlify.com/">Contact an expert</a> <em>→</em>
+          </mj-text>
+        </mj-column>
+      </mj-group>
     </mj-section>
     <mj-section padding="20px 0px 16px">
-      <mj-column padding="0px" width="50%">
-        <mj-text padding="0px 20px" font-size="16px" line-height="1.5" align="right"
-          >Unsubscribe</mj-text
-        >
-      </mj-column>
-      <mj-column padding="0px" width="50%">
-        <mj-text padding="0px" font-size="16px" line-height="1.5">Manage Preferences</mj-text>
-      </mj-column>
+      <mj-group width="100%" css-class="netlify-footer-links">
+        <mj-column padding="0px" width="50%">
+          <mj-text
+            padding="0px 20px"
+            font-size="16px"
+            line-height="1.5"
+            align="right"
+            css-class="netlify-footer-link"
+            ><a>Unsubscribe</a></mj-text
+          >
+        </mj-column>
+        <mj-column padding="0px" width="50%">
+          <mj-text padding="0px" font-size="16px" line-height="1.5" css-class="netlify-footer-link"
+            ><a>Manage Preferences</a></mj-text
+          >
+        </mj-column>
+      </mj-group>
     </mj-section>
     <mj-section padding="0px">
       <mj-column padding="0px">
         <mj-text
           padding="0px 0px 45px"
-          font-size="16px"
-          line-height="1.5"
+          font-size="14px"
+          line-height="24px"
           align="center"
-          color="#9ca3af"
+          color="#99a1af"
           >Netlify, 44 Montgomery Street, Suite 300 San Francisco, CA</mj-text
         >
       </mj-column>

@@ -146,6 +146,7 @@ export function NativeAttributeEditor({
     const dismissEscape = (event: KeyboardEvent) => {
       if (
         event.key !== "Escape" ||
+        event.isComposing ||
         !(event.target instanceof Node) ||
         !editor.contains(event.target)
       )

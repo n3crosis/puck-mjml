@@ -56,6 +56,50 @@ async function activate(index: number, action: string) {
 }
 
 describe("native attribute keyboard action focus", () => {
+  it("preserves composing Escape in a value field while another row menu is open", async () => {
+    await mount(
+      initial.map((entry, index) => (index === 2 ? { ...entry, value: "日本語" } : entry)),
+    );
+    const menu = rows()[0].querySelector<HTMLDetailsElement>("details")!;
+    const input = rows()[2].querySelector<HTMLInputElement>(".pm-attribute-value")!;
+    await act(async () => {
+      menu.open = true;
+      input.focus();
+      input.setSelectionRange(0, 3);
+      input.dispatchEvent(new CompositionEvent("compositionstart", { bubbles: true }));
+    });
+    const composingEscape = new KeyboardEvent("keydown", {
+      key: "Escape",
+      isComposing: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    await act(async () => input.dispatchEvent(composingEscape));
+    expect(composingEscape.defaultPrevented).toBe(false);
+    expect(menu.open).toBe(true);
+    expect(document.activeElement).toBe(input);
+    expect(input.value).toBe("日本語");
+    expect(input.selectionStart).toBe(0);
+    expect(input.selectionEnd).toBe(3);
+    expect(names()).toEqual(initial.map(({ name }) => name));
+
+    const escape = new KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+      cancelable: true,
+    });
+    await act(async () => {
+      input.dispatchEvent(
+        new CompositionEvent("compositionend", { bubbles: true, data: "日本語" }),
+      );
+      input.dispatchEvent(escape);
+    });
+    expect(escape.defaultPrevented).toBe(true);
+    expect(menu.open).toBe(false);
+    expect(document.activeElement).toBe(summary(0));
+    expect(input.value).toBe("日本語");
+  });
+
   it.each([
     { from: 1, action: "Move up", to: 0, order: [1, 0, 2] },
     { from: 1, action: "Move down", to: 2, order: [0, 2, 1] },

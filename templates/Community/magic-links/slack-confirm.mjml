@@ -1,6 +1,7 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/magic-links/slack-confirm.tsx
-Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
+Responsive adaptation: Keep the logo and social icons in one row; 40% leaves room for all three icons on mobile. -->
 <mjml>
   <mj-head>
     <mj-title>Confirm your email address</mj-title>
@@ -37,106 +38,118 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     </mj-style>
   </mj-head>
   <mj-body width="600px" background-color="#ffffff">
-    <mj-section padding="32px 20px 0px">
-      <mj-column padding="0px">
-        <mj-image
-          src="https://demo.react.email/static/slack-logo.png"
-          alt="Slack"
-          width="120px"
-          height="36px"
-          align="left"
-          padding="0px"
-        />
-        <mj-text
-          padding="30px 0px"
-          font-size="36px"
-          line-height="42px"
-          font-weight="700"
-          color="#1d1c1d"
-          >Confirm your email address</mj-text
-        >
-        <mj-text padding="0px 0px 30px" font-size="20px" line-height="1.5"
-          >Your confirmation code is below - enter it in your open browser window and we'll help you
-          get signed in.</mj-text
-        >
-      </mj-column>
-    </mj-section>
-    <mj-section padding="40px 30px" background-color="#f5f4f5" border-radius="4px">
-      <mj-column padding="0px">
-        <mj-text padding="0px" font-size="30px" line-height="24px" align="center">DJZ-TLX</mj-text>
-      </mj-column>
-    </mj-section>
-    <mj-section padding="30px 20px 16px">
-      <mj-column padding="0px">
-        <mj-text padding="0px 0px 16px" font-size="14px" line-height="24px"
-          >If you didn't request this email, there's nothing to worry about, you can safely ignore
-          it.</mj-text
-        >
-      </mj-column>
-    </mj-section>
-    <mj-section padding="0px 28px 32px">
-      <mj-column padding="0px" width="60%">
-        <mj-image
-          src="https://demo.react.email/static/slack-logo.png"
-          alt="Slack"
-          width="120px"
-          height="36px"
-          align="left"
-          padding="0px"
-        />
-      </mj-column>
-      <mj-column padding="0px" width="13.333%">
-        <mj-image
-          src="https://demo.react.email/static/slack-twitter.png"
-          alt="Slack"
-          width="32px"
-          height="32px"
-          align="left"
-          padding="0px"
-          href="https://demo.react.email/"
-        />
-      </mj-column>
-      <mj-column padding="0px" width="13.333%">
-        <mj-image
-          src="https://demo.react.email/static/slack-facebook.png"
-          alt="Slack"
-          width="32px"
-          height="32px"
-          align="left"
-          padding="0px"
-          href="https://demo.react.email/"
-        />
-      </mj-column>
-      <mj-column padding="0px" width="13.334%">
-        <mj-image
-          src="https://demo.react.email/static/slack-linkedin.png"
-          alt="Slack"
-          width="32px"
-          height="32px"
-          align="left"
-          padding="0px"
-          href="https://demo.react.email/"
-        />
-      </mj-column>
-    </mj-section>
-    <mj-section padding="0px 20px">
-      <mj-column padding="0px">
-        <mj-text
-          padding="0px 0px 16px"
-          font-size="14px"
-          line-height="1.5"
-          css-class="community-rich-0"
-          ><a href="https://slackhq.com/">Our blog</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a
-            href="https://slack.com/legal"
-            >Policies</a
-          >&nbsp;&nbsp;|&nbsp;&nbsp;<a href="https://slack.com/help">Help center</a
-          >&nbsp;&nbsp;|&nbsp;&nbsp;<a href="https://slack.com/community">Slack Community</a>
-        </mj-text>
-        <mj-text padding="0px 0px 50px" font-size="12px" line-height="15px" color="#b7b7b7"
-          >©2022 Slack Technologies, LLC, a Salesforce company.<br />500 Howard Street, San
-          Francisco, CA 94105, USA<br /><br />All rights reserved.</mj-text
-        >
-      </mj-column>
-    </mj-section>
+    <mj-wrapper padding="0px 20px">
+      <mj-section padding="32px 0px 0px">
+        <mj-column padding="0px">
+          <mj-image
+            src="https://demo.react.email/static/slack-logo.png"
+            alt="Slack"
+            width="120px"
+            height="36px"
+            align="left"
+            padding="0px"
+          />
+          <mj-text
+            padding="30px 0px"
+            font-size="36px"
+            line-height="42px"
+            font-weight="700"
+            color="#1d1c1d"
+            >Confirm your email address</mj-text
+          >
+          <mj-text padding="0px 0px 30px" font-size="20px" line-height="28px"
+            >Your confirmation code is below - enter it in your open browser window and we'll help
+            you get signed in.</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="40px 10px" background-color="#f5f4f5" border-radius="4px">
+        <mj-column padding="0px">
+          <mj-text padding="16px 0px" font-size="30px" line-height="24px" align="center"
+            >DJZ-TLX</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="30px 0px 0px">
+        <mj-column padding="0px">
+          <mj-text padding="0px 0px 16px" font-size="14px" line-height="24px"
+            >If you didn't request this email, there's nothing to worry about, you can safely ignore
+            it.</mj-text
+          >
+        </mj-column>
+      </mj-section>
+      <mj-section padding="0px 8px 32px">
+        <mj-group>
+          <mj-column padding="0px" width="60%" vertical-align="middle">
+            <mj-image
+              src="https://demo.react.email/static/slack-logo.png"
+              alt="Slack"
+              width="120px"
+              height="36px"
+              align="left"
+              padding="0px"
+            />
+          </mj-column>
+          <mj-column padding="0px" width="40%" vertical-align="middle">
+            <mj-social
+              mode="horizontal"
+              align="right"
+              icon-size="32px"
+              padding="0px"
+              border-radius="0px"
+            >
+              <mj-social-element
+                name="web"
+                src="https://demo.react.email/static/slack-twitter.png"
+                alt="Slack"
+                href="https://demo.react.email/"
+                background-color="transparent"
+                padding="0px 0px 0px 8px"
+                icon-padding="0px"
+              />
+              <mj-social-element
+                name="web"
+                src="https://demo.react.email/static/slack-facebook.png"
+                alt="Slack"
+                href="https://demo.react.email/"
+                background-color="transparent"
+                padding="0px 0px 0px 8px"
+                icon-padding="0px"
+              />
+              <mj-social-element
+                name="web"
+                src="https://demo.react.email/static/slack-linkedin.png"
+                alt="Slack"
+                href="https://demo.react.email/"
+                background-color="transparent"
+                padding="0px 0px 0px 8px"
+                icon-padding="0px"
+              />
+            </mj-social>
+          </mj-column>
+        </mj-group>
+      </mj-section>
+      <mj-section padding="0px">
+        <mj-column padding="0px">
+          <mj-text
+            padding="0px 0px 16px"
+            font-size="16px"
+            line-height="1.2"
+            css-class="community-rich-0"
+            ><a href="https://slackhq.com/">Our blog</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<a
+              href="https://slack.com/legal"
+              >Policies</a
+            >&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<a href="https://slack.com/help">Help center</a
+            >&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<a href="https://slack.com/community"
+              >Slack Community</a
+            >
+          </mj-text>
+          <mj-text padding="0px 0px 50px" font-size="12px" line-height="15px" color="#b7b7b7"
+            >©2022 Slack Technologies, LLC, a Salesforce company.<br />500 Howard Street, San
+            Francisco, CA 94105, USA<br /><br />All rights reserved.</mj-text
+          >
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
   </mj-body>
 </mjml>

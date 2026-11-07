@@ -1,4 +1,7 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": []
+  "ignorePatterns": [
+    "tests/fixtures/react-email-reference/**/*.html",
+    "tests/fixtures/react-email-reference/LICENSE.md"
+  ]
 }

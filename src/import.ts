@@ -6,6 +6,7 @@ import { captureImportedAttributeBaselines } from "./import-inheritance";
 import { trustedEndingContent } from "./ending-content";
 import { getNativeBaseAttributes } from "./native-base";
 import { sanitizeEmailRichText, sanitizeEmailTableContent } from "./richtext";
+import { hasSourceWhitespaceStyles, normalizeImportedWhitespace } from "./imported-whitespace";
 import { renderTableContent } from "./table";
 import type {
   EmailBlock,
@@ -249,7 +250,10 @@ interface SourceElement {
 }
 
 class Importer {
-  constructor(readonly options: ImportOptions = {}) {}
+  constructor(
+    readonly options: ImportOptions = {},
+    readonly preserveSourceWhitespace = false,
+  ) {}
 
   readonly warnings: string[] = [];
   private readonly ids = new Set<string>();
@@ -521,8 +525,11 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
     .map(build);
 }
 
-function sanitizedRichText(innerHtml: string): string {
-  const html = sanitizeEmailRichText(innerHtml);
+function sanitizedRichText(innerHtml: string, importer: Importer): string {
+  const sanitized = sanitizeEmailRichText(innerHtml);
+  const html = importer.preserveSourceWhitespace
+    ? sanitized
+    : normalizeImportedWhitespace(sanitized);
   // Puck escapes tag-free rich text as plain text; wrap loose sentences once.
   // Content that already starts with a block element is left untouched.
   return html && !/^\s*<(?:p|h[1-6]|ul|ol|li|blockquote|code|pre|hr)\b/i.test(html)
@@ -1055,7 +1062,7 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
   switch (element.tag) {
     case "mj-text": {
       const props = importer.attributes("mj-text", element, TEXT_ATTRS);
-      const content = sanitizedRichText(element.innerHtml);
+      const content = sanitizedRichText(element.innerHtml, importer);
       const blockProps = {
         id: importer.id("text"),
         content,
@@ -1217,7 +1224,9 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
               children.push({ kind: "raw", ...parseRaw(part, importer).props });
             else if (part.tag === "mj-accordion-title" || part.tag === "mj-accordion-text") {
               const isTitle = part.tag === "mj-accordion-title";
-              const content = isTitle ? part.textContent : sanitizedRichText(part.innerHtml);
+              const content = isTitle
+                ? part.textContent
+                : sanitizedRichText(part.innerHtml, importer);
               children.push({
                 kind: isTitle ? "title" : "text",
                 content,
@@ -1242,7 +1251,7 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
         }
         const titleProps = title ? importer.attributes("mj-accordion-title", title, {}) : {};
         const textProps = text ? importer.attributes("mj-accordion-text", text, {}) : {};
-        const content = sanitizedRichText(text?.innerHtml ?? "<p></p>");
+        const content = sanitizedRichText(text?.innerHtml ?? "<p></p>", importer);
         items.push({
           title: title?.textContent ?? "",
           ...(titleProps.mjClass !== undefined ? { titleMjClass: titleProps.mjClass } : {}),
@@ -1311,7 +1320,7 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
         );
     }
     const source = wrapped.html() ?? "";
-    const content = sanitizedRichText(source);
+    const content = sanitizedRichText(source, importer);
     const tableCell: Record<string, unknown> = {
       content,
       native: true,
@@ -1480,7 +1489,7 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
  * warning. `mj-include` and custom components are not supported.
  */
 export function fromMjml(source: string, options: ImportOptions = {}): ImportedEmail {
-  const importer = new Importer(options);
+  const importer = new Importer(options, hasSourceWhitespaceStyles(source));
   const roots = parseElements(source, importer);
   const mjml = roots.find((element) => element.tag === "mjml");
   if (!mjml) throw new Error("MJML source must contain an <mjml> root element.");

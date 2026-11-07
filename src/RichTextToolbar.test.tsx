@@ -76,6 +76,60 @@ function renderMenu(menu: typeof renderEmailRichTextMenu, editor: Editor) {
 }
 
 describe("rich text link control", () => {
+  it.each([
+    ["sidebar", renderEmailRichTextMenu],
+    ["inline", renderEmailInlineMenu],
+  ] as const)("keeps composing Enter and Escape inside the %s URL input", async (_name, menu) => {
+    const editor = new Editor({
+      extensions: [Document, Paragraph, Text, Link],
+      content: "<p>Selected copy</p>",
+    });
+    cleanups.push(() => editor.destroy());
+    editor.commands.setTextSelection({ from: 1, to: 9 });
+    const container = renderMenu(menu, editor);
+    await act(async () =>
+      container.querySelector<HTMLButtonElement>('button[aria-label="Add link"]')!.click(),
+    );
+    const input = container.querySelector<HTMLInputElement>(".pm-richtext-link input")!;
+    await act(async () => {
+      input.dispatchEvent(new CompositionEvent("compositionstart", { bubbles: true }));
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+        input,
+        "https://example.com/日本",
+      );
+      input.dispatchEvent(
+        new InputEvent("input", {
+          bubbles: true,
+          inputType: "insertCompositionText",
+          isComposing: true,
+          data: "日本",
+        }),
+      );
+    });
+    for (const key of ["Enter", "Escape"]) {
+      const event = new KeyboardEvent("keydown", {
+        key,
+        isComposing: true,
+        bubbles: true,
+        cancelable: true,
+      });
+      await act(async () => input.dispatchEvent(event));
+      expect(event.defaultPrevented).toBe(false);
+      expect(container.querySelector(".pm-richtext-link input")).toBe(input);
+      expect(document.activeElement).toBe(input);
+      expect(editor.getHTML()).toBe("<p>Selected copy</p>");
+    }
+    await act(async () => {
+      input.dispatchEvent(new CompositionEvent("compositionend", { bubbles: true, data: "日本" }));
+      input.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }),
+      );
+    });
+    expect(container.querySelector(".pm-richtext-link")).toBeNull();
+    expect(editor.getHTML()).toContain('href="https://example.com/%E6%97%A5%E6%9C%AC"');
+    expect(editor.getHTML()).toContain(">Selected</a> copy");
+  });
+
   it("updates when the caret enters and leaves a link without other formatting changes", async () => {
     const editor = new Editor({
       extensions: [Document, Paragraph, Text, Link],

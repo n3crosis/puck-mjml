@@ -92,6 +92,18 @@ test("isolated preview preserves pointer interaction and returns keyboard focus 
   await dialog.click({ position: { x: 5, y: 5 } });
   await expect(dialog).toBeHidden();
   await expect(opener).toBeFocused();
+  // Keyboard re-entry must work immediately after backdrop dismissal. Split
+  // the next press to catch native mousedown focus overriding the restored control.
+  await page.keyboard.press("Enter");
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Mobile", exact: true }).click();
+  await expect(dialog.getByRole("button", { name: "Mobile", exact: true })).toBeFocused();
+  await page.mouse.move(5, 5);
+  await page.mouse.down();
+  await expect(dialog).toBeHidden();
+  await expect(opener).toBeFocused();
+  await page.mouse.up();
+  await expect(opener).toBeFocused();
 });
 
 for (const canvas of ["Desktop", "Mobile"] as const) {

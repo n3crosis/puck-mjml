@@ -98,6 +98,14 @@ export function CSSCodeEditor({
           bracketMatching(),
           closeBrackets(),
           autocompletion(),
+          EditorView.domEventObservers({
+            keydown(event, editor) {
+              // Completion/snippet handlers can consume Escape before the
+              // built-in fallback arms keyboard exit. Observe without consuming
+              // it, so they still close and the following Tab can move focus.
+              if (event.key === "Escape") editor.setTabFocusMode(2000);
+            },
+          }),
           configuration.history.of(history()),
           // CodeMirror groups delete.dedent with adjacent changes by default.
           // Isolate both indent directions so Tab followed by Shift+Tab does

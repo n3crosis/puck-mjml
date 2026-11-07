@@ -53,6 +53,25 @@ for (const width of [1440, 834, 390]) {
     );
     await dialog.getByRole("button", { name: "Close export" }).click();
     await expect(exportButton).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(dialog).toBeVisible();
+    // Source selection remains interactive; only the backdrop cancels its
+    // mousedown default so it cannot steal focus after the modal disappears.
+    const source = dialog.getByRole("textbox", { name: "HTML source" });
+    await source.click();
+    await expect(source).toBeFocused();
+    await dialog.click({ position: { x: 5, y: 5 } });
+    await expect(dialog).toBeHidden();
+    await expect(exportButton).toBeFocused();
+    await expect(page.locator(".pm-editor-workspace")).not.toHaveAttribute("inert", "");
+    await page.keyboard.press("Enter");
+    await expect(dialog).toBeVisible();
+    await page.mouse.move(5, 5);
+    await page.mouse.down();
+    await expect(dialog).toBeHidden();
+    await expect(exportButton).toBeFocused();
+    await page.mouse.up();
+    await expect(exportButton).toBeFocused();
     expect(errors).toEqual([]);
   });
 }

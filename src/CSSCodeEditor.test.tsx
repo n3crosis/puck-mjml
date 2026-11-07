@@ -3,6 +3,7 @@ import { act, StrictMode, useState, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { redo, undo, undoDepth } from "@codemirror/commands";
+import { completionStatus, startCompletion } from "@codemirror/autocomplete";
 import { EditorView } from "@codemirror/view";
 import { Transaction } from "@codemirror/state";
 import { CodeArea } from "./CodeField";
@@ -160,6 +161,65 @@ describe("CSS code editor", () => {
     expect(view.state.doc.toString()).toBe(original);
     expect(commits).toEqual([original, indented, original, indented, original, indented, original]);
   });
+
+  it.each([false, true])(
+    "lets %s-shift Tab leave after Escape dismisses completion",
+    (shiftKey) => {
+      const onChange = vi.fn();
+      const view = mount(<CSSCodeEditor ariaLabel="CSS" value="" onChange={onChange} />);
+      act(() => view.focus());
+      const source = ".card {\n  col\n}";
+      replace(view, source, source.indexOf("col") + 3);
+      onChange.mockClear();
+      // Pending and visible completion use the same Escape command. Cancel
+      // before tooltip layout, which Happy DOM cannot faithfully measure.
+      act(() => expect(startCompletion(view)).toBe(true));
+      expect(completionStatus(view.state)).toBe("pending");
+      const escape = new KeyboardEvent("keydown", {
+        key: "Escape",
+        keyCode: 27,
+        bubbles: true,
+        cancelable: true,
+      });
+      act(() => view.contentDOM.dispatchEvent(escape));
+      expect(completionStatus(view.state)).toBeNull();
+      expect(escape.defaultPrevented).toBe(true);
+      const tab = new KeyboardEvent("keydown", {
+        key: "Tab",
+        keyCode: 9,
+        shiftKey,
+        bubbles: true,
+        cancelable: true,
+      });
+      act(() => view.contentDOM.dispatchEvent(tab));
+      // Happy DOM does not perform native focus navigation. Leaving Tab
+      // unprevented is the contract; Chromium verifies the next focus target.
+      expect(tab.defaultPrevented).toBe(false);
+      expect(view.state.doc.toString()).toBe(source);
+      expect(onChange).not.toHaveBeenCalled();
+
+      // Continuing to edit cancels temporary focus mode, restoring indentation.
+      act(() =>
+        view.contentDOM.dispatchEvent(
+          new KeyboardEvent("keydown", {
+            key: "ArrowLeft",
+            keyCode: 37,
+            bubbles: true,
+            cancelable: true,
+          }),
+        ),
+      );
+      const indent = new KeyboardEvent("keydown", {
+        key: "Tab",
+        keyCode: 9,
+        bubbles: true,
+        cancelable: true,
+      });
+      act(() => view.contentDOM.dispatchEvent(indent));
+      expect(indent.defaultPrevented).toBe(true);
+      expect(view.state.doc.toString()).toBe(".card {\n    col\n}");
+    },
+  );
 
   it("uses the latest callback and applies external history without stale local undo", () => {
     const first = vi.fn();

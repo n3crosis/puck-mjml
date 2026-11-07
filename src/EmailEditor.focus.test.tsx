@@ -543,6 +543,32 @@ describe("controlled EmailEditor typing", { timeout: 20_000 }, () => {
       ).toBeNull();
     },
   );
+  it("cancels only backdrop mousedown so native focus cannot override the restored opener", async () => {
+    await mount();
+    const opener = container!.querySelector<HTMLButtonElement>('[aria-label="Preview email"]')!;
+    opener.focus();
+    await act(async () => opener.click());
+    const dialog = container!.querySelector<HTMLDialogElement>("dialog.pm-preview-backdrop")!;
+    for (const target of [
+      dialog.querySelector("strong")!,
+      dialog.querySelector<HTMLButtonElement>('[aria-label="Close preview"]')!,
+    ]) {
+      const down = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+      await act(async () => target.dispatchEvent(down));
+      // Controls and text selection keep their pointer defaults.
+      expect(down.defaultPrevented).toBe(false);
+      expect(dialog.open).toBe(true);
+      expect(dialog.isConnected).toBe(true);
+    }
+    const down = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+    await act(async () => dialog.dispatchEvent(down));
+    // Happy DOM does not implement the browser's post-dispatch focus action.
+    // Cancel it before removing the modal; Chromium exercises the full action.
+    expect(down.defaultPrevented).toBe(true);
+    expect(dialog.isConnected).toBe(false);
+    expect(document.activeElement).toBe(opener);
+    expect(opener.closest("[inert]")).toBeNull();
+  });
   it("edits imported root width and font without leaving stale native omissions", async () => {
     const imported = fromMjml(
       '<mjml><mj-body><mj-section><mj-column><mj-text css-class="root-font">Root font</mj-text></mj-column></mj-section></mj-body></mjml>',

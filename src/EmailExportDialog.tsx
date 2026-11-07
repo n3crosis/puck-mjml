@@ -117,7 +117,11 @@ export function EmailExportDialog({
         }
       }}
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target !== event.currentTarget) return;
+        // Do not let the native mousedown focus action run after dismissal
+        // and override the opener focus restored by usePreviewFocus.
+        event.preventDefault();
+        onClose();
       }}
     >
       <section className="pm-preview-dialog pm-export-dialog">

@@ -29,7 +29,12 @@ async function openImageField(page: Page) {
       `<mjml><mj-body><mj-section><mj-column><mj-image width="160px" src="${source}" alt="Upload test" /></mj-column></mj-section></mj-body></mjml>`,
     ),
   });
-  const image = page.frameLocator("#preview-frame").locator(".pm-image").first();
+  // Local file reading and Puck's controlled document remount are asynchronous.
+  // Select the imported image only after the new document is on the canvas.
+  await expect(page.getByRole("combobox", { name: "Email template" })).toHaveValue("imported");
+  const frame = page.frameLocator("#preview-frame");
+  await expect(frame.getByAltText("Upload test", { exact: true })).toBeVisible();
+  const image = frame.locator('.pm-image:has(img[alt="Upload test"])');
   await image.click();
   const url = page.getByRole("textbox", { name: "Image URL", exact: true });
   await expect(url).toBeVisible();

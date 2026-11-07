@@ -261,7 +261,11 @@ export function EmailEditor({
               if (!dialogRef.current?.open) setPreviewDocument(null);
             }}
             onMouseDown={(event) => {
-              if (event.target === event.currentTarget) setPreviewDocument(null);
+              if (event.target !== event.currentTarget) return;
+              // The native mousedown focus action runs after this handler and
+              // can undo focus restoration once the dialog has been removed.
+              event.preventDefault();
+              setPreviewDocument(null);
             }}
           >
             <section className="pm-preview-dialog">

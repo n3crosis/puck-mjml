@@ -36,8 +36,16 @@ test("CSS editor has stable controlled typing, indentation, completion, history,
   await expect(page.locator(".cm-tooltip-autocomplete")).toBeVisible();
   await expect(page.locator(".cm-tooltip-autocomplete")).toContainText("color");
   await editor.press("Escape");
-  await editor.press("Tab");
+  await expect(page.locator(".cm-tooltip-autocomplete")).toBeHidden();
+  await expect(editor).toBeFocused();
+  await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Toggle read-only" })).toBeFocused();
+  await expect(source).toHaveJSProperty("textContent", ".card {\n  col\n}");
+  await editor.focus();
+  await editor.press("Escape");
+  await page.keyboard.press("Shift+Tab");
+  await expect(page.getByRole("button", { name: "Expand Custom CSS editor" })).toBeFocused();
+  await expect(source).toHaveJSProperty("textContent", ".card {\n  col\n}");
   expect(errors).toEqual([]);
 });
 

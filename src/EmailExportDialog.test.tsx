@@ -248,6 +248,26 @@ describe("email export dialog", () => {
     },
   );
 
+  it("cancels backdrop mousedown without cancelling controls or source selection", async () => {
+    vi.mocked(compileEmail).mockResolvedValue(result());
+    await render(email("Backdrop focus"));
+    const dialog = container.querySelector("dialog")!;
+    for (const target of [button("MJML"), source()]) {
+      const down = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+      await act(async () => target.dispatchEvent(down));
+      expect(down.defaultPrevented).toBe(false);
+      expect(dialog.open).toBe(true);
+      expect(dialog.isConnected).toBe(true);
+    }
+    const down = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+    await act(async () => dialog.dispatchEvent(down));
+    // Happy DOM does not apply native mousedown focus after the handler.
+    // Cancellation prevents that action from undoing focus restoration.
+    expect(down.defaultPrevented).toBe(true);
+    expect(dialog.isConnected).toBe(false);
+    expect(document.activeElement).toBe(button("Open export"));
+  });
+
   it("contains Tab focus and stays open through StrictMode effect replay", async () => {
     vi.mocked(compileEmail).mockResolvedValue(result());
     await act(async () =>

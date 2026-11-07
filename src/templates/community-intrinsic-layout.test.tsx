@@ -57,6 +57,65 @@ function blocks(value: unknown): EmailBlock[] {
 // Structural and source-backed checks complement the 800/390px real-editor
 // geometry assertions in community-intrinsic-layout.spec.ts.
 describe.each([false, true])("Community intrinsic layouts, safe round trip: %s", (roundTrip) => {
+  it("keeps both Papermark button surfaces and their labels equivalent to the original anchors", async () => {
+    const name = "notifications/papermark-year-in-review";
+    const input = source(name);
+    const imported = fromMjml(input);
+    expect(imported.warnings).toEqual([]);
+    const mjml = roundTrip ? toMjml(imported.document) : input;
+    const parsed = fromMjml(mjml);
+    expect(parsed.warnings).toEqual([]);
+    const original = reference(name);
+    const anchors = original("a").filter(
+      (_index, node) => normalized(original(node).text()) === "Share your stats",
+    );
+    expect(anchors).toHaveLength(2);
+    anchors.each((_index, node) => {
+      expect(original(node).attr("href")).toBe("https://www.papermark.com");
+      expect(declarations(original(node).attr("style"))).toMatchObject({
+        "padding-left": "3rem",
+        "padding-right": "3rem",
+        "padding-top": "1rem",
+        "padding-bottom": "1rem",
+        "font-size": "0.875rem",
+        "font-weight": "700",
+      });
+    });
+    const native = load(
+      renderToStaticMarkup(<Render config={createEmailConfig()} data={parsed.document as Data} />),
+    );
+    const buttons = native(".pm-button").filter(
+      (_index, node) => normalized(native(node).text()) === "Share your stats",
+    );
+    expect(buttons).toHaveLength(2);
+    buttons.each((_index, node) => {
+      expect(node.tagName).toBe("span");
+      expect(declarations(native(node).attr("style"))).toMatchObject({
+        padding: "16px 48px",
+        "font-size": "14px",
+        "font-weight": "700",
+        "line-height": "20px",
+      });
+    });
+    const { default: compile } = await import("mjml-browser");
+    const result = await compile(mjml, { validationLevel: "strict" });
+    expect(result.errors).toEqual([]);
+    const compiled = load(result.html);
+    const links = compiled("a").filter(
+      (_index, node) => normalized(compiled(node).text()) === "Share your stats",
+    );
+    expect(links).toHaveLength(2);
+    links.each((_index, node) => {
+      expect(compiled(node).attr("href")).toBe("https://www.papermark.com");
+      expect(declarations(compiled(node).attr("style"))).toMatchObject({
+        padding: "16px 48px",
+        "font-size": "14px",
+        "font-weight": "700",
+        "line-height": "20px",
+      });
+    });
+  });
+
   it("keeps Papermark's source intrinsic table model fully editable", async () => {
     const name = "notifications/papermark-year-in-review";
     const input = source(name);

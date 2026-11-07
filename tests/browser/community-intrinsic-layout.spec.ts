@@ -79,7 +79,7 @@ async function paperSourceGeometry(root: Locator) {
       "Go to your dashboard",
     ];
     const offset = element.matches(".pm-canvas") ? element.getBoundingClientRect() : { x: 0, y: 0 };
-    const nodes = Array.from(element.querySelectorAll("p,h1,h2,a,div"));
+    const nodes = Array.from(element.querySelectorAll("p,h1,h2,a,div,.pm-button"));
     return targets.flatMap((text) => {
       const matching = nodes.filter(
         (node) => renderedText(node) === normalize(text) && node.getBoundingClientRect().height > 0,
@@ -87,18 +87,53 @@ async function paperSourceGeometry(root: Locator) {
       const leaves = matching.filter(
         (node) => !matching.some((child) => child !== node && node.contains(child)),
       );
-      return leaves.map((node, occurrence) => {
+      return leaves.flatMap((node, occurrence) => {
         const range = node.ownerDocument.createRange();
         range.selectNodeContents(node);
-        const bounds = range.getBoundingClientRect();
-        return {
+        const geometry = (
+          bounds: { x: number; y: number; width: number; height: number },
+          kind: "text" | "button",
+        ) => ({
           text,
           occurrence,
+          kind,
           x: bounds.x - offset.x,
           y: bounds.y - offset.y,
           width: bounds.width,
           height: bounds.height,
-        };
+        });
+        if (text !== "Share your stats") return [geometry(range.getBoundingClientRect(), "text")];
+
+        // The original/compiled surface is an anchor; the editor surface is
+        // span.pm-button with an inline-editing span inside it. A range over
+        // the parent div includes the 48px padded surface, and a range over
+        // the inner span's parent includes its line box. Compare actual text
+        // nodes separately from the equivalent complete button surfaces.
+        const walker = node.ownerDocument.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+        const glyphs: DOMRect[] = [];
+        while (walker.nextNode()) {
+          const child = walker.currentNode;
+          const value = child.textContent ?? "";
+          const start = value.search(/\S/);
+          if (start < 0) continue;
+          range.setStart(child, start);
+          range.setEnd(child, value.trimEnd().length);
+          glyphs.push(...Array.from(range.getClientRects()));
+        }
+        const x = Math.min(...glyphs.map((bounds) => bounds.x));
+        const y = Math.min(...glyphs.map((bounds) => bounds.y));
+        return [
+          geometry(
+            {
+              x,
+              y,
+              width: Math.max(...glyphs.map((bounds) => bounds.right)) - x,
+              height: Math.max(...glyphs.map((bounds) => bounds.bottom)) - y,
+            },
+            "text",
+          ),
+          geometry(node.getBoundingClientRect(), "button"),
+        ];
       });
     });
   });
@@ -149,13 +184,16 @@ for (const [name, id, selector] of templates) {
           await original!.setViewportSize({ width, height: 900 });
           await original!.evaluate(() => document.fonts.ready);
           const sourceGeometry = await paperSourceGeometry(original!.locator("body"));
+          expect(sourceGeometry.filter(({ kind }) => kind === "button")).toHaveLength(2);
           for (const root of [email.locator("body"), canvas.locator(".pm-canvas")]) {
             const geometry = await paperSourceGeometry(root);
-            expect(geometry.map(({ text, occurrence }) => ({ text, occurrence }))).toEqual(
-              sourceGeometry.map(({ text, occurrence }) => ({ text, occurrence })),
+            expect(
+              geometry.map(({ text, occurrence, kind }) => ({ text, occurrence, kind })),
+            ).toEqual(
+              sourceGeometry.map(({ text, occurrence, kind }) => ({ text, occurrence, kind })),
             );
             for (let i = 0; i < geometry.length; i++) {
-              const message = `${mode} ${geometry[i].text} #${geometry[i].occurrence} source geometry`;
+              const message = `${mode} ${geometry[i].text} #${geometry[i].occurrence} ${geometry[i].kind} source geometry`;
               for (const key of ["x", "y", "width", "height"] as const)
                 expect(
                   Math.abs(geometry[i][key] - sourceGeometry[i][key]),

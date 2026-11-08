@@ -159,7 +159,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
     <mj-wrapper background-color="#FFFFFF" padding="16px 24px" css-class="bare-shell">
       <mj-section padding="0px 24px 12px"
         ><mj-group width="100%"
-          ><mj-column width="50%" padding="7px 0px"
+          ><mj-column width="50%" padding="7px 0px" vertical-align="middle"
             ><mj-image
               src="https://demo.react.email/static/shared/logo-black.png"
               alt=""
@@ -167,7 +167,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
               padding="0px 0px 0px"
               border-radius="0px"
               align="left" /></mj-column
-          ><mj-column width="50%" padding="7px 0px"
+          ><mj-column width="50%" padding="7px 0px" vertical-align="middle"
             ><mj-text
               font-family="Inter, Arial, sans-serif"
               font-size="13px"

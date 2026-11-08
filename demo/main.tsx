@@ -13,6 +13,7 @@ import "./style.css";
 import { reviewImport, hasUnsavedChanges, documentSnapshot } from "./import-review";
 import { uploadLocalImage } from "./local-images";
 import { ImportSource } from "./import-source";
+import { DemoWorkspace } from "./DemoWorkspace";
 import { LOCAL_IMAGE_WARNING } from "../src/image-upload";
 
 const DEFAULT_TEMPLATE_ID = "02-matte/product-update";
@@ -118,57 +119,59 @@ function App() {
       )}
       <ImportSource onImport={(source) => void importMjml(source)} />
       <main>
-        <EmailEditor
-          value={value}
-          onChange={setValue}
-          onUploadImage={uploadLocalImage}
-          allowLocalImages
-          headerActions={
-            <div className="demo-actions">
-              <label className="demo-template-picker">
-                <span>Template</span>
-                <span className="demo-template-select">
-                  <select
-                    aria-label="Email template"
-                    value={templateId}
-                    onChange={(event) => loadTemplate(event.target.value)}
-                  >
-                    {templateId === "imported" && <option value="imported">Imported MJML</option>}
-                    {[...groups.entries()].map(([group, templates]) =>
-                      group ? (
-                        <optgroup key={group} label={group}>
-                          {templates.map((template) => (
+        <DemoWorkspace document={value}>
+          <EmailEditor
+            value={value}
+            onChange={setValue}
+            onUploadImage={uploadLocalImage}
+            allowLocalImages
+            headerActions={
+              <div className="demo-actions">
+                <label className="demo-template-picker">
+                  <span>Template</span>
+                  <span className="demo-template-select">
+                    <select
+                      aria-label="Email template"
+                      value={templateId}
+                      onChange={(event) => loadTemplate(event.target.value)}
+                    >
+                      {templateId === "imported" && <option value="imported">Imported MJML</option>}
+                      {[...groups.entries()].map(([group, templates]) =>
+                        group ? (
+                          <optgroup key={group} label={group}>
+                            {templates.map((template) => (
+                              <option key={template.id} value={template.id}>
+                                {template.label}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ) : (
+                          templates.map((template) => (
                             <option key={template.id} value={template.id}>
                               {template.label}
                             </option>
-                          ))}
-                        </optgroup>
-                      ) : (
-                        templates.map((template) => (
-                          <option key={template.id} value={template.id}>
-                            {template.label}
-                          </option>
-                        ))
-                      ),
-                    )}
-                  </select>
-                  <CaretDownIcon className="demo-template-chevron" aria-hidden="true" />
-                </span>
-              </label>
-              <span className="demo-divider" />
-              <label className="demo-import" title="Import MJML">
-                <UploadSimpleIcon aria-hidden="true" />
-                Import
-                <input
-                  aria-label="Import MJML"
-                  type="file"
-                  accept=".mjml,text/xml,application/xml,text/plain"
-                  onChange={importMjmlFile}
-                />
-              </label>
-            </div>
-          }
-        />
+                          ))
+                        ),
+                      )}
+                    </select>
+                    <CaretDownIcon className="demo-template-chevron" aria-hidden="true" />
+                  </span>
+                </label>
+                <span className="demo-divider" />
+                <label className="demo-import" title="Import MJML">
+                  <UploadSimpleIcon aria-hidden="true" />
+                  Import
+                  <input
+                    aria-label="Import MJML"
+                    type="file"
+                    accept=".mjml,text/xml,application/xml,text/plain"
+                    onChange={importMjmlFile}
+                  />
+                </label>
+              </div>
+            }
+          />
+        </DemoWorkspace>
       </main>
     </div>
   );

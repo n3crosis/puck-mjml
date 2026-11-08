@@ -6,6 +6,7 @@ A visual drag and drop editor for responsive email, built with [Puck](https://gi
 - Edit text, images, buttons, tables, social links, navigation, accordions, and carousels.
 - Preview desktop and mobile email, with native MJML attributes, classes, custom CSS, and web fonts.
 - Review HTML or MJML source and download either from the built-in Export dialog.
+- Inspect the current email in the demo’s Compatibility tab, with locally embedded Can I email support data and client-specific caveats.
 - Keep persistence, image uploads, and publishing in your host application.
 
 ## Run the demo
@@ -116,6 +117,7 @@ Trusted raw HTML and template attributes require `allowRawHtml` on the editor an
 - [Editor guide](docs/EDITOR_GUIDE.md): documents, controls, import, tables, CSS, fonts, Tailwind, and trusted HTML.
 - [Native attribute reference](docs/NATIVE_ATTRIBUTES.md): schemas, inheritance, precedence, templates, and examples.
 - [MJML compatibility](docs/MJML_COMPATIBILITY.md): supported components, canvas behavior, and limitations.
+- [Email client compatibility](docs/EMAIL_CLIENT_COMPATIBILITY.md): Can I email checks, support data, and limits of static analysis.
 - [Development](docs/DEVELOPMENT.md): checks, builds, source map, and compiler maintenance.
 - [MJML example suite](templates/README.md): all 62 canonical sources, upstream provenance, and validation.
 

@@ -251,3 +251,29 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## Can I email
+
+The demo’s Compatibility tab embeds a curated subset of client support data and labels from [Can I email](https://github.com/hteumeuleu/caniemail/tree/cb8109c3f8658e003aa064b47a71b232ddc28d39), pinned at commit `cb8109c3f8658e003aa064b47a71b232ddc28d39`. The snapshot is used locally for static feature inspection; it is not a rendering test and is not bundled into the library entry points. Per-feature source hashes, exact recorded client versions/dates, and upstream caveats are retained. See the [compatibility guide](docs/EMAIL_CLIENT_COMPATIBILITY.md) for scope and maintenance. The following upstream license applies to this data and its labels.
+
+MIT License
+
+Copyright (c) 2019 Rémi Parmentier
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

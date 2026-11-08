@@ -253,3 +253,20 @@ export function fontFailures(
     },
   };
 }
+
+/** Called after bounded font readiness, never from a pre-load resource snapshot. */
+export function assertReferenceFont404s(
+  failedFaces: { family: string; weight: string }[],
+  known: { family: string; weight: string; url: string }[],
+  responses: { url: string; status: number }[],
+): void {
+  for (const face of failedFaces) {
+    const source = known.find(
+      ({ family, weight }) => face.family.replace(/["']/g, "") === family && face.weight === weight,
+    );
+    if (!source || !responses.some(({ url, status }) => url === source.url && status === 404))
+      throw new Error(
+        `Font failed without verified original HTTP 404: ${face.family} ${face.weight}`,
+      );
+  }
+}

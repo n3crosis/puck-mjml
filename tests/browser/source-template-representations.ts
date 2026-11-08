@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { inspectArtwork } from "./artwork-evidence";
-import { observeResources, waitForCanvasFontCss } from "./font-evidence";
+import { assertReferenceFont404s, observeResources, waitForCanvasFontCss } from "./font-evidence";
 import { loadReactEmailReference } from "./reference-document";
 
 /** Original, exported HTML and editable canvas after fonts and images settle. */
@@ -51,24 +51,41 @@ export async function sourceTemplateRepresentations(
     await loadReactEmailReference(
       reference,
       readFileSync(
-        new URL(`../fixtures/react-email-reference/${family}/${name}.html`, import.meta.url),
+        new URL(`../../.cache/react-email-reference/${family}/${name}.html`, import.meta.url),
         "utf8",
       ),
     );
-    const referenceArtwork = await reference.locator("body").evaluate(inspectArtwork, {
-      decode: true,
-      // Only explicitly identified upstream 404s are evidence rather than a
-      // fatal readiness failure. Other faces and transport errors remain strict.
-      recordedReferenceFontFailures: options.referenceFont404s?.filter(({ url }) =>
-        referenceResources().fontAndStylesheetResponses.some(
-          (response) => response.url === url && response.status === 404,
+    let referenceArtwork: Awaited<ReturnType<typeof inspectArtwork>> | undefined;
+    let referenceReadinessError: string | undefined;
+    try {
+      referenceArtwork = await reference.locator("body").evaluate(inspectArtwork, {
+        decode: true,
+        // Candidate faces are recorded while the bounded readiness wait runs.
+        // Verify their exact HTTP 404 only afterward: load may precede fonts.ready.
+        recordedReferenceFontFailures: options.referenceFont404s,
+      });
+      assertReferenceFont404s(
+        referenceArtwork.fontFailures,
+        options.referenceFont404s ?? [],
+        referenceResources().fontAndStylesheetResponses,
+      );
+    } catch (error) {
+      referenceReadinessError = String(error);
+      throw error;
+    } finally {
+      await test.info().attach("original-reference-resources.json", {
+        body: JSON.stringify(
+          {
+            ...referenceArtwork,
+            readinessError: referenceReadinessError,
+            resources: referenceResources(),
+          },
+          null,
+          2,
         ),
-      ),
-    });
-    await test.info().attach("original-reference-resources.json", {
-      body: JSON.stringify({ ...referenceArtwork, resources: referenceResources() }, null, 2),
-      contentType: "application/json",
-    });
+        contentType: "application/json",
+      });
+    }
     await compiled.setContent(html, { waitUntil: "load" });
     await compiled.locator("body").evaluate(inspectArtwork, { decode: true });
     return { reference, compiled, canvas, roots: [compiled.locator("body"), canvas] };

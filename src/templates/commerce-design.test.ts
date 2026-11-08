@@ -35,7 +35,7 @@ function pixels(value: string, size = 16) {
 function reference(family: string, name: string) {
   return load(
     readFileSync(
-      new URL(`../../tests/fixtures/react-email-reference/${family}/${name}.html`, import.meta.url),
+      new URL(`../../.cache/react-email-reference/${family}/${name}.html`, import.meta.url),
       "utf8",
     ),
   );

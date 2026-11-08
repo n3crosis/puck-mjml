@@ -12,6 +12,10 @@ describe("demo import guard", () => {
       ).document,
     ).toBeDefined();
   });
+  it.each(["", "   ", "ordinary selected text", "<html><body>Not MJML</body></html>"])(
+    "rejects empty or non-MJML imported text: %j",
+    (source) => expect(() => reviewImport(source)).toThrow(/mjml/i),
+  );
   it("rejects trusted source before replacing a document", () => {
     expect(() =>
       reviewImport("<mjml><mj-body><mj-raw><div>Trusted</div></mj-raw></mj-body></mjml>"),

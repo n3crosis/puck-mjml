@@ -6,14 +6,18 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     <mj-title>Yelp recent login</mj-title>
     <mj-preview>Yelp recent login</mj-preview>
     <mj-attributes>
-      <mj-all
-        font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&#x27;Helvetica Neue&#x27;,sans-serif"
-      />
+      <mj-all font-family="inherit" />
       <mj-text padding="0px" />
     </mj-attributes>
     <mj-style>
       body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+          "Helvetica Neue", sans-serif !important;
         padding: 8px !important;
+      }
+      .reference-heading > div {
+        line-height: normal !important;
       }
       p {
         margin: 0;
@@ -64,45 +68,43 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-section padding="20px">
         <mj-column padding="0px">
           <mj-text
-            padding="0px 0px 16px"
+            padding="21.44px 0px 0px"
             font-size="32px"
-            line-height="1.3"
             font-weight="700"
             align="center"
             css-class="reference-heading"
             ><h1>Hi Alan,</h1></mj-text
           >
           <mj-text
-            padding="0px 0px 16px"
+            padding="21.58px 0px"
             font-size="26px"
-            line-height="1.3"
             font-weight="700"
             align="center"
             css-class="reference-heading"
             ><h2>We noticed a recent login to your Yelp account.</h2></mj-text
           >
-          <mj-text padding="0px 0px 16px" font-size="16px" line-height="1.5"
+          <mj-text padding="0px 0px 11px" font-size="16px" line-height="24px"
             ><b>Time: </b>September 7, 2022 at 10:58 AM</mj-text
           >
-          <mj-text padding="0px 0px 16px" font-size="16px" line-height="1.5"
+          <mj-text padding="0px 0px 11px" font-size="16px" line-height="24px"
             ><b>Device: </b>Chrome on Mac OS X</mj-text
           >
-          <mj-text padding="0px 0px 16px" font-size="16px" line-height="1.5"
+          <mj-text padding="0px 0px 11px" font-size="16px" line-height="24px"
             ><b>Location: </b>Upland, California, United States</mj-text
           >
           <mj-text padding="0px 0px 16px" font-size="14px" line-height="24px" color="#808080"
             >*Approximate geographic location based on IP address:47.149.53.167</mj-text
           >
-          <mj-text padding="0px 0px 16px" font-size="16px" line-height="1.5"
+          <mj-text padding="0px 0px 11px" font-size="16px" line-height="24px"
             >If this was you, there's nothing else you need to do.</mj-text
           >
-          <mj-text padding="0px 0px 16px" font-size="16px" line-height="1.5"
+          <mj-text padding="0px 0px 16px" font-size="16px" line-height="24px"
             >If this wasn't you or if you have additional questions, please see our support
             page.</mj-text
           >
           <mj-button
             align="center"
-            padding="0px 0px 16px"
+            padding="0px"
             inner-padding="12px 30px"
             border-radius="4px"
             font-size="16px"

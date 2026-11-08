@@ -49,7 +49,7 @@ async function representations(page: Page, template: string, width: number, read
     await loadReactEmailReference(
       original,
       readFileSync(
-        new URL(`../fixtures/react-email-reference/${template}.html`, import.meta.url),
+        new URL(`../../.cache/react-email-reference/${template}.html`, import.meta.url),
         "utf8",
       ),
     );

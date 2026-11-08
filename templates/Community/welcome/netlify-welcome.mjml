@@ -13,9 +13,22 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     </mj-attributes>
     <mj-style inline="inline">
       .community-rich-0 a,
-      .netlify-footer-link a {
+      .netlify-footer-links a {
         color: #067df7;
         text-decoration: none;
+      }
+      .community-rich-0 ul {
+        margin: 16px 0 !important;
+        padding-left: 40px;
+      }
+      .netlify-resource-links a {
+        color: #000000;
+        text-decoration: underline;
+        font-weight: 700;
+      }
+      .netlify-resource-links em {
+        font-style: normal;
+        color: #00c950;
       }
     </mj-style>
     <mj-style>
@@ -28,6 +41,12 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       a {
         color: inherit;
       }
+      .netlify-resource-links td,
+      .netlify-resource-links td *,
+      .netlify-footer-links td,
+      .netlify-footer-links td * {
+        overflow-wrap: normal;
+      }
       .community-rich-0 li:nth-of-type(1) {
         margin-bottom: 20px;
       }
@@ -39,27 +58,6 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       }
       .community-rich-0 li:nth-of-type(4) {
         margin-bottom: 20px;
-      }
-      .community-rich-4 a:nth-of-type(1) {
-        text-decoration: underline;
-      }
-      .community-rich-4 em:nth-of-type(1) {
-        font-style: normal;
-        color: #00c950;
-      }
-      .community-rich-6 a:nth-of-type(1) {
-        text-decoration: underline;
-      }
-      .community-rich-6 em:nth-of-type(1) {
-        font-style: normal;
-        color: #00c950;
-      }
-      .community-rich-8 a:nth-of-type(1) {
-        text-decoration: underline;
-      }
-      .community-rich-8 em:nth-of-type(1) {
-        font-style: normal;
-        color: #00c950;
       }
     </mj-style>
     <mj-style inline="inline">
@@ -107,11 +105,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text padding="0px 0px 16px" font-size="16px" line-height="1.5"
           >Here's how to get started:</mj-text
         >
-        <mj-text
-          padding="0px 0px 16px"
-          font-size="16px"
-          line-height="1.5"
-          css-class="community-rich-0"
+        <mj-text padding="0px" font-size="16px" line-height="1.5" css-class="community-rich-0"
           ><ul>
             <li>
               <strong>Deploy your first project.</strong> <a>Connect to Git, choose a template</a>,
@@ -135,7 +129,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         </mj-text>
         <mj-button
           align="center"
-          padding="0px 0px 16px"
+          padding="0px"
           inner-padding="12px 18px"
           border-radius="8px"
           font-size="16px"
@@ -146,57 +140,43 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       </mj-column>
     </mj-section>
     <mj-section padding="45px" background-color="#ffffff">
-      <mj-group width="100%" css-class="netlify-resource-links">
-        <mj-column padding="0px" width="33.333%">
-          <mj-text
-            padding="0px"
-            font-size="16px"
-            line-height="1.5"
-            font-weight="700"
-            css-class="community-rich-4"
-            ><a href="https://www.netlify.com/">Visit the forums</a> <em>→</em>
-          </mj-text>
-        </mj-column>
-        <mj-column padding="0px" width="33.333%">
-          <mj-text
-            padding="0px"
-            font-size="16px"
-            line-height="1.5"
-            font-weight="700"
-            css-class="community-rich-6"
-            ><a href="https://www.netlify.com/">Read the docs</a> <em>→</em>
-          </mj-text>
-        </mj-column>
-        <mj-column padding="0px" width="33.333%">
-          <mj-text
-            padding="0px"
-            font-size="16px"
-            line-height="1.5"
-            font-weight="700"
-            css-class="community-rich-8"
-            ><a href="https://www.netlify.com/">Contact an expert</a> <em>→</em>
-          </mj-text>
-        </mj-column>
-      </mj-group>
+      <mj-column padding="0px">
+        <mj-table
+          padding="0px"
+          width="100%"
+          table-layout="auto"
+          cellpadding="0"
+          cellspacing="0"
+          font-size="16px"
+          line-height="24px"
+          css-class="netlify-resource-links"
+        >
+          <tr>
+            <td><a href="https://www.netlify.com/">Visit the forums</a> <em>→</em></td>
+            <td><a href="https://www.netlify.com/">Read the docs</a> <em>→</em></td>
+            <td><a href="https://www.netlify.com/">Contact an expert</a> <em>→</em></td>
+          </tr>
+        </mj-table>
+      </mj-column>
     </mj-section>
     <mj-section padding="20px 0px 16px">
-      <mj-group width="100%" css-class="netlify-footer-links">
-        <mj-column padding="0px" width="50%">
-          <mj-text
-            padding="0px 20px"
-            font-size="16px"
-            line-height="1.5"
-            align="right"
-            css-class="netlify-footer-link"
-            ><a>Unsubscribe</a></mj-text
-          >
-        </mj-column>
-        <mj-column padding="0px" width="50%">
-          <mj-text padding="0px" font-size="16px" line-height="1.5" css-class="netlify-footer-link"
-            ><a>Manage Preferences</a></mj-text
-          >
-        </mj-column>
-      </mj-group>
+      <mj-column padding="0px">
+        <mj-table
+          padding="0px"
+          width="100%"
+          table-layout="auto"
+          cellpadding="0"
+          cellspacing="0"
+          font-size="16px"
+          line-height="24px"
+          css-class="netlify-footer-links"
+        >
+          <tr>
+            <td style="padding: 0px 20px; text-align: right"><a>Unsubscribe</a></td>
+            <td style="text-align: left"><a>Manage Preferences</a></td>
+          </tr>
+        </mj-table>
+      </mj-column>
     </mj-section>
     <mj-section padding="0px">
       <mj-column padding="0px">

@@ -68,7 +68,7 @@ describe("unchanged React Email reference document origin", () => {
   });
 
   it("preserves every pinned reference's original bytes and SHA-256 through fulfillment", async () => {
-    const directory = new URL("./fixtures/react-email-reference/", import.meta.url);
+    const directory = new URL("../.cache/react-email-reference/", import.meta.url);
     const manifest: { templates: { html: string; bytes: number; sha256: string }[] } = JSON.parse(
       readFileSync(new URL("manifest.json", directory), "utf8"),
     );

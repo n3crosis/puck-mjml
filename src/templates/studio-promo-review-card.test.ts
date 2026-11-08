@@ -13,7 +13,7 @@ describe.each([false, true])("Studio promo painted review card, round trip: %s",
   it("keeps source32px outer and16px inner mobile insets without changing the quote width", async () => {
     const reference = load(
       readFileSync(
-        new URL("../../tests/fixtures/react-email-reference/05-Studio/promo.html", import.meta.url),
+        new URL("../../.cache/react-email-reference/05-Studio/promo.html", import.meta.url),
         "utf8",
       ),
     );

@@ -187,7 +187,7 @@ for (const [name, id, selector] of templates) {
           original,
           readFileSync(
             new URL(
-              "../fixtures/react-email-reference/Community/notifications/papermark-year-in-review.html",
+              "../../.cache/react-email-reference/Community/notifications/papermark-year-in-review.html",
               import.meta.url,
             ),
             "utf8",

@@ -9,6 +9,7 @@ import {
 } from "@puckeditor/core";
 import { EyeIcon } from "@phosphor-icons/react/dist/csr/Eye";
 import { ExportIcon } from "@phosphor-icons/react/dist/csr/Export";
+import { MonitorIcon } from "@phosphor-icons/react/dist/csr/Monitor";
 import { EmailExportDialog } from "./EmailExportDialog";
 import { BlockPaletteItem } from "./BlockPaletteItem";
 import { EmailOutline } from "./EmailOutline";
@@ -32,7 +33,7 @@ const editorPlugins: Plugin[] = [];
 // Changing this reference reruns Puck's viewport initialization, which replaces
 // its sole history snapshot before the first debounced edit is committed.
 const editorViewports: Viewports = [
-  { width: 800, label: "Desktop" },
+  { width: 800, label: "Desktop", icon: <MonitorIcon size={16} aria-hidden="true" /> },
   { width: 390, label: "Mobile" },
 ];
 const usePuck = createUsePuck();

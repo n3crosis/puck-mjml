@@ -124,7 +124,7 @@ for (const name of communityBodyInsetNames) {
       await loadReactEmailReference(
         original,
         readFileSync(
-          new URL(`../fixtures/react-email-reference/Community/${name}.html`, import.meta.url),
+          new URL(`../../.cache/react-email-reference/Community/${name}.html`, import.meta.url),
           "utf8",
         ),
       );

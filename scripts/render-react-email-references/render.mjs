@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -10,7 +11,11 @@ process.env.VERCEL_URL = "demo.react.email";
 process.env.TZ = "UTC";
 await ensureSources();
 
-const output = join(root, "../../tests/fixtures/react-email-reference");
+const output = join(root, "../../.cache/react-email-reference");
+const expected = JSON.parse(
+  readFileSync(join(root, "../../tests/fixtures/react-email-reference/manifest.json"), "utf8"),
+);
+assert.equal(Bun.version, expected.renderer.runtime.bun, "Use the pinned Bun version");
 const sha256 = (data) => createHash("sha256").update(data).digest("hex");
 const candidates = provenance.sources.filter((entry) => entry.kind === "email");
 if (candidates.length !== 62)
@@ -83,6 +88,12 @@ const manifest = {
   totalHtmlBytes: templates.reduce((sum, entry) => sum + entry.bytes, 0),
   templates,
 };
+// Never update the committed baseline as a side effect of running tests.
+assert.deepEqual(
+  JSON.parse(JSON.stringify(manifest)),
+  expected,
+  "Rendered references differ from the pinned manifest",
+);
 mkdirSync(output, { recursive: true });
 writeFileSync(join(output, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 writeFileSync(join(output, "LICENSE.md"), readFileSync(join(sourceRoot, "LICENSE.md")));

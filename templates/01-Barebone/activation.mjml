@@ -59,6 +59,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         max-width: 422px;
         margin: 0 auto;
       }
+      .bare-plain-link a {
+        text-decoration: none;
+      }
       .bare-shell a {
         color: inherit;
       }
@@ -267,6 +270,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#7B7D81"
             align="center"
             padding="0px 0px 0px"
+            css-class="bare-plain-link"
             ><a href="https://example.com/">Unsubscribe</a> from Barebones marketing
             emails.</mj-text
           ></mj-column

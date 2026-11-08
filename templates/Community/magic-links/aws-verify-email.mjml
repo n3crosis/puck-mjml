@@ -6,13 +6,14 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     <mj-title>AWS Email Verification</mj-title>
     <mj-preview>AWS Email Verification</mj-preview>
     <mj-attributes>
-      <mj-all
-        font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Roboto,Oxygen,Ubuntu,Cantarell,&#x27;Fira Sans&#x27;,&#x27;Droid Sans&#x27;,&#x27;Helvetica Neue&#x27;,sans-serif"
-      />
+      <mj-all font-family="inherit" />
       <mj-text padding="0px" color="#333333" />
     </mj-attributes>
     <mj-style>
       body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+          "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif !important;
         padding: 8px !important;
       }
       p {

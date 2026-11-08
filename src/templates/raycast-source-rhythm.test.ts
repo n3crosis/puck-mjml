@@ -14,7 +14,7 @@ const input = readFileSync(
 const reference = load(
   readFileSync(
     new URL(
-      "../../tests/fixtures/react-email-reference/Community/magic-links/raycast-magic-link.html",
+      "../../.cache/react-email-reference/Community/magic-links/raycast-magic-link.html",
       import.meta.url,
     ),
     "utf8",

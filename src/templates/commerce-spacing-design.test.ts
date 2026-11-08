@@ -15,7 +15,7 @@ const pixels = (value: string) => parseFloat(value) * (value.endsWith("rem") ? 1
 function reference(family: string, name: string) {
   return load(
     readFileSync(
-      new URL(`../../tests/fixtures/react-email-reference/${family}/${name}.html`, import.meta.url),
+      new URL(`../../.cache/react-email-reference/${family}/${name}.html`, import.meta.url),
       "utf8",
     ),
   );

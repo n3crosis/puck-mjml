@@ -48,10 +48,7 @@ describe.each([false, true])("Barebone source font faces, round trip: %s", (roun
     "%s preserves the exact valid static faces and variable fallback",
     async (name) => {
       const reference = readFileSync(
-        new URL(
-          `../../tests/fixtures/react-email-reference/01-Barebone/${name}.html`,
-          import.meta.url,
-        ),
+        new URL(`../../.cache/react-email-reference/01-Barebone/${name}.html`, import.meta.url),
         "utf8",
       );
       const source = readFileSync(

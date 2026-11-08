@@ -12,7 +12,7 @@ describe.each([false, true])("Studio shipping source rule rhythm, round trip: %s
     const reference = load(
       readFileSync(
         new URL(
-          "../../tests/fixtures/react-email-reference/05-Studio/order-shipping.html",
+          "../../.cache/react-email-reference/05-Studio/order-shipping.html",
           import.meta.url,
         ),
         "utf8",

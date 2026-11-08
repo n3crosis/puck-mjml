@@ -22,6 +22,11 @@ jobs:
           node-version: 22
       - run: bun install --frozen-lockfile
       - run: bun audit
+      - name: Generate pinned upstream reference HTML (not checked in)
+        run: bun run references:prepare
+      - name: Audit reference renderer dependencies
+        run: bun audit
+        working-directory: scripts/render-react-email-references
       - run: bun run check
       - run: bun run build
       - run: bun run test:package

@@ -70,6 +70,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
         max-width: 420px;
         margin: 0 auto;
       }
+      .bare-plain-link a {
+        text-decoration: none;
+      }
       .bare-shell a {
         color: inherit;
       }
@@ -368,6 +371,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
               color="#14171E"
               align="left"
               padding="0px 0px 0px"
+              css-class="bare-plain-link"
               ><a href="https://example.com/">Read more</a></mj-text
             ></mj-column
           ></mj-group
@@ -414,6 +418,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
               color="#14171E"
               align="left"
               padding="0px 0px 0px"
+              css-class="bare-plain-link"
               ><a href="https://example.com/">Read more</a></mj-text
             ></mj-column
           ></mj-group
@@ -621,6 +626,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#7B7D81"
             align="center"
             padding="0px 0px 0px"
+            css-class="bare-plain-link"
             ><a href="https://example.com/">Unsubscribe</a> from Barebones marketing
             emails.</mj-text
           ></mj-column

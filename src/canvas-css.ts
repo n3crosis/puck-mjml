@@ -121,9 +121,21 @@ export function createFontAliases(names: string[], scope: string): FontAliasMap 
   return aliases;
 }
 
+/** Consume one CSS escape, including a hexadecimal escape's optional space. */
+function cssEscapeEnd(value: string, start: number): number {
+  let end = start + 1;
+  if (/[\da-f]/i.test(value[end] ?? "")) {
+    for (let count = 0; count < 6 && /[\da-f]/i.test(value[end] ?? ""); count += 1) end += 1;
+    if (value[end] === "\r" && value[end + 1] === "\n") return end + 2;
+    if (/[ \t\r\n\f]/.test(value[end] ?? "")) end += 1;
+    return end;
+  }
+  return Math.min(value.length, end + (value[end] === "\r" && value[end + 1] === "\n" ? 2 : 1));
+}
+
 /**
- * Split a declaration value on top-level separators, preserving parentheses,
- * brackets, and quoted strings.
+ * Split CSS tokens on top-level separators. Escapes, comments, and strings are
+ * opaque: punctuation inside them must never hide a real selector-list comma.
  */
 function splitTopLevel(value: string, separator: "," | " ", preserveEmpty = false): string[] {
   const parts: string[] = [];
@@ -132,9 +144,18 @@ function splitTopLevel(value: string, separator: "," | " ", preserveEmpty = fals
   let quote = "";
   for (let index = 0; index < value.length; index += 1) {
     const character = value[index];
-    if (quote) {
+    if (character === "\\") {
+      const end = cssEscapeEnd(value, index);
+      current += value.slice(index, end);
+      index = end - 1;
+    } else if (quote) {
       current += character;
-      if (character === quote && value[index - 1] !== "\\") quote = "";
+      if (character === quote) quote = "";
+    } else if (character === "/" && value[index + 1] === "*") {
+      const end = value.indexOf("*/", index + 2);
+      if (end < 0) return [value]; // PostCSS normally rejects unclosed comments.
+      current += value.slice(index, end + 2);
+      index = end + 1;
     } else if (character === '"' || character === "'") {
       current += character;
       quote = character;
@@ -374,9 +395,26 @@ function tokenizeSelector(
   let quote = "";
   for (let index = 0; index < selector.length; index += 1) {
     const character = selector[index];
+    if (character === "\\") {
+      if (combinator) {
+        combinators.push(combinator.trim() || " ");
+        combinator = "";
+      }
+      const end = cssEscapeEnd(selector, index);
+      compound += selector.slice(index, end);
+      index = end - 1;
+      continue;
+    }
     if (quote) {
       compound += character;
-      if (character === quote && selector[index - 1] !== "\\") quote = "";
+      if (character === quote) quote = "";
+      continue;
+    }
+    if (character === "/" && selector[index + 1] === "*") {
+      const end = selector.indexOf("*/", index + 2);
+      if (end < 0) return undefined;
+      compound += selector.slice(index, end + 2);
+      index = end + 1;
       continue;
     }
     if (character === '"' || character === "'") {

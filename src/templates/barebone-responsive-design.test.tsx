@@ -77,10 +77,7 @@ function stylesAt($: CheerioAPI, node: Cheerio<AnyNode>, width: number) {
 function original(name: string) {
   return load(
     readFileSync(
-      new URL(
-        `../../tests/fixtures/react-email-reference/01-Barebone/${name}.html`,
-        import.meta.url,
-      ),
+      new URL(`../../.cache/react-email-reference/01-Barebone/${name}.html`, import.meta.url),
       "utf8",
     ),
   );

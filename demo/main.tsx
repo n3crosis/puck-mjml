@@ -12,6 +12,7 @@ import {
 import "./style.css";
 import { reviewImport, hasUnsavedChanges, documentSnapshot } from "./import-review";
 import { uploadLocalImage } from "./local-images";
+import { ImportSource } from "./import-source";
 import { LOCAL_IMAGE_WARNING } from "../src/image-upload";
 
 const DEFAULT_TEMPLATE_ID = "02-matte/product-update";
@@ -60,13 +61,10 @@ function App() {
     setStatus("");
   };
 
-  const importMjmlFile = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
+  const importMjml = async (input: File | string) => {
     const request = ++importRequest.current;
     try {
-      const source = await file.text();
+      const source = typeof input === "string" ? input : await input.text();
       if (request !== importRequest.current) return;
       const { document, warnings } = reviewImport(source);
       if (!canReplace()) return;
@@ -76,7 +74,7 @@ function App() {
       setTemplateId("imported");
       setStatus(
         warnings.length
-          ? `Imported ${file.name} with ${warnings.length} note${warnings.length === 1 ? "" : "s"}: ${warnings.slice(0, 3).join(" ")}${warnings.length > 3 ? " …" : ""}`
+          ? `Imported ${typeof input === "string" ? "MJML text" : input.name} with ${warnings.length} note${warnings.length === 1 ? "" : "s"}: ${warnings.slice(0, 3).join(" ")}${warnings.length > 3 ? " …" : ""}`
           : "",
       );
     } catch (error) {
@@ -85,6 +83,12 @@ function App() {
           `Import not loaded. Your previous email is unchanged. ${error instanceof Error ? error.message : "Import failed"}`,
         );
     }
+  };
+
+  const importMjmlFile = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (file) void importMjml(file);
   };
 
   return (
@@ -112,6 +116,7 @@ function App() {
           {status}
         </div>
       )}
+      <ImportSource onImport={(source) => void importMjml(source)} />
       <main>
         <EmailEditor
           value={value}

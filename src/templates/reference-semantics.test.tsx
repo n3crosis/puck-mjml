@@ -11,7 +11,7 @@ import { toMjml } from "../export";
 beforeAll(() => vi.stubGlobal("window", globalThis));
 afterAll(() => vi.unstubAllGlobals());
 
-const fixtureRoot = new URL("../../tests/fixtures/react-email-reference/", import.meta.url);
+const fixtureRoot = new URL("../../.cache/react-email-reference/", import.meta.url);
 const manifest = JSON.parse(readFileSync(new URL("manifest.json", fixtureRoot), "utf8")) as {
   templates: { file: string; html: string }[];
 };

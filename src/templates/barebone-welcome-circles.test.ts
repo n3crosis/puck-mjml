@@ -11,10 +11,7 @@ describe.each([false, true])("Barebone welcome source circle size, round trip: %
   it("keeps 24px of content plus both 1px borders instead of shrinking the four circles", async () => {
     const reference = load(
       readFileSync(
-        new URL(
-          "../../tests/fixtures/react-email-reference/01-Barebone/welcome.html",
-          import.meta.url,
-        ),
+        new URL("../../.cache/react-email-reference/01-Barebone/welcome.html", import.meta.url),
         "utf8",
       ),
     );

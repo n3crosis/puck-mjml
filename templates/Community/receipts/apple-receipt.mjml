@@ -17,10 +17,21 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         margin: 0;
       }
       a {
-        color: inherit;
+        color: #067df7;
+        text-decoration: none;
+      }
+      .apple-invoice td {
+        border-right: 1px solid #ffffff;
+        border-bottom: 1px solid #ffffff;
+      }
+      .apple-invoice p {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.4;
       }
       .apple-invoice p:first-child {
         font-size: 10px;
+        line-height: 1.4;
         color: #666666;
         margin: 0;
       }
@@ -30,56 +41,57 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       }
       .community-rich-0 em:nth-of-type(1) {
         font-style: normal;
-        font-style: normal;
         vertical-align: super;
         font-size: 10px;
       }
       .community-rich-0 a:nth-of-type(1) {
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-0 em:nth-of-type(2) {
-        font-style: normal;
         font-style: normal;
         vertical-align: super;
         font-size: 10px;
       }
       .community-rich-3 a:nth-of-type(1) {
         color: #0070c9;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-3 a:nth-of-type(2) {
         color: #0070c9;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-5 a:nth-of-type(1) {
         color: #007eff;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-6 a:nth-of-type(1) {
         color: #0073ff;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-7 a:nth-of-type(1) {
         color: #0073ff;
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-8 a:nth-of-type(1) {
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-9 a:nth-of-type(1) {
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-10 a:nth-of-type(1) {
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-10 a:nth-of-type(2) {
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-10 a:nth-of-type(3) {
-        text-decoration: underline;
+        text-decoration: none;
       }
       .community-rich-13 a:nth-of-type(1) {
-        text-decoration: underline;
+        text-decoration: none;
+      }
+      .apple-legal div {
+        line-height: normal !important;
       }
       .apple-wallet-cta {
         width: 220px !important;
@@ -147,38 +159,37 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-table
           font-size="12px"
           color="#333333"
-          line-height="17px"
+          line-height="1.4"
           padding="0px"
           css-class="apple-invoice"
           ><tr>
-            <td colspan="2" style="padding: 8px 20px; border: 1px solid #ffffff">
+            <td colspan="2" style="padding: 0px 0px 0px 20px">
               <p>APPLE ID</p>
-              <a>alan.turing@gmail.com</a>
+              <p><a>alan.turing@gmail.com</a></p>
             </td>
-            <td
-              colspan="2"
-              rowspan="3"
-              style="padding: 8px 20px; border: 1px solid #ffffff; vertical-align: top"
-            >
+            <td colspan="2" rowspan="3" style="padding: 0px 0px 0px 20px">
               <p>BILLED TO</p>
-              Visa .... 7461 (Apple Pay)<br />Alan Turing<br />2125 Chestnut St<br />San Francisco,
-              CA 94123<br />USA
+              <p>Visa .... 7461 (Apple Pay)</p>
+              <p>Alan Turing</p>
+              <p>2125 Chestnut St</p>
+              <p>San Francisco, CA 94123</p>
+              <p>USA</p>
             </td>
           </tr>
           <tr>
-            <td colspan="2" style="padding: 8px 20px; border: 1px solid #ffffff">
+            <td colspan="2" style="padding: 0px 0px 0px 20px">
               <p>INVOICE DATE</p>
-              18 Jan 2023
+              <p>18 Jan 2023</p>
             </td>
           </tr>
           <tr>
-            <td style="padding: 8px 20px; border: 1px solid #ffffff">
+            <td style="padding: 0px 0px 0px 20px">
               <p>ORDER ID</p>
-              <a>ML4F5L8522</a>
+              <p><a>ML4F5L8522</a></p>
             </td>
-            <td style="padding: 8px 20px; border: 1px solid #ffffff">
+            <td style="padding: 0px 0px 0px 20px">
               <p>DOCUMENT NO.</p>
-              186623754793
+              <p>186623754793</p>
             </td>
           </tr>
         </mj-table>
@@ -191,7 +202,12 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     </mj-section>
     <mj-section padding="0px" background-color="#fafafa" border-radius="3px">
       <mj-column padding="0px">
-        <mj-text padding="0px 10px" font-size="14px" line-height="24px" font-weight="500"
+        <mj-text
+          padding="0px 10px"
+          font-size="14px"
+          line-height="24px"
+          font-weight="500"
+          color="#333333"
           >App Store</mj-text
         >
       </mj-column>
@@ -303,29 +319,59 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     <mj-section padding="0px">
       <mj-column padding="0px">
         <mj-divider border-color="#eeeeee" border-width="1px" padding="65px 0px 20px" />
-        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="12px"
+          line-height="1.2"
+          color="#666666"
+          css-class="apple-legal"
           >1. 3% savings is earned as Daily Cash and is transferred to your Apple Cash card when
           transactions post to your Apple Card account. If you do not have an Apple Cash card, Daily
           Cash can be applied by you as a credit on your statement balance. 3% is the total amount
           of Daily Cash earned for these purchases. See the Apple Card Customer Agreement for more
           details on Daily Cash and qualifying transactions.</mj-text
         >
-        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="12px"
+          line-height="1.2"
+          color="#666666"
+          css-class="apple-legal"
           >2. Subject to credit approval.</mj-text
         >
-        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="12px"
+          line-height="1.2"
+          color="#666666"
+          css-class="apple-legal"
           >To access and use all the features of Apple Card, you must add Apple Card to Wallet on an
           iPhone or iPad with iOS or iPadOS 13.2 or later. Update to the latest version of iOS or
           iPadOS by going to Settings &gt; General &gt; Software Update. Tap Download and
           Install.</mj-text
         >
-        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="12px"
+          line-height="1.2"
+          color="#666666"
+          css-class="apple-legal"
           >Available for qualifying applicants in the United States.</mj-text
         >
-        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="12px"
+          line-height="1.2"
+          color="#666666"
+          css-class="apple-legal"
           >Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch.</mj-text
         >
-        <mj-text padding="0px 0px 16px" font-size="12px" line-height="1.2" color="#666666"
+        <mj-text
+          padding="0px 0px 16px"
+          font-size="12px"
+          line-height="1.2"
+          color="#666666"
+          css-class="apple-legal"
           >If you reside in the US territories, please call Goldman Sachs at 877-255-5923 with
           questions about Apple Card.</mj-text
         >
@@ -335,7 +381,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           line-height="1.2"
           color="#666666"
           align="center"
-          css-class="community-rich-6"
+          css-class="apple-legal community-rich-6"
           >Privacy: We use a <a href="https://www.apple.com/"> Subscriber ID </a>to provide reports
           to developers.</mj-text
         >
@@ -345,7 +391,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           line-height="1.2"
           color="#666666"
           align="center"
-          css-class="community-rich-7"
+          css-class="apple-legal community-rich-7"
           >Get help with subscriptions and purchases.<a href="https://www.apple.com/"
             >Visit Apple Support.</a
           >
@@ -356,7 +402,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           line-height="1.2"
           color="#666666"
           align="center"
-          css-class="community-rich-8"
+          css-class="apple-legal community-rich-8"
           >Learn how to <a href="https://www.apple.com/">manage your password preferences</a> for
           iTunes, Apple Books, and App Store purchases.</mj-text
         >
@@ -366,7 +412,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           line-height="1.2"
           color="#666666"
           align="center"
-          css-class="community-rich-9"
+          css-class="apple-legal community-rich-9"
           >You have the option to stop receiving email receipts for your subscription renewals. If
           you have opted out, you can still view your receipts in your account under Purchase
           History. To manage receipts or to opt in again, go to

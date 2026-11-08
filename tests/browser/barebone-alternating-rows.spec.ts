@@ -111,7 +111,7 @@ for (const width of [800, 390]) {
         reference,
         readFileSync(
           new URL(
-            "../fixtures/react-email-reference/01-Barebone/product-update.html",
+            "../../.cache/react-email-reference/01-Barebone/product-update.html",
             import.meta.url,
           ),
           "utf8",

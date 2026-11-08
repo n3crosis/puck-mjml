@@ -13,7 +13,7 @@ function read(template: string, original = false) {
   return readFileSync(
     new URL(
       original
-        ? `../../tests/fixtures/react-email-reference/${template}.html`
+        ? `../../.cache/react-email-reference/${template}.html`
         : `../../templates/${template}.mjml`,
       import.meta.url,
     ),

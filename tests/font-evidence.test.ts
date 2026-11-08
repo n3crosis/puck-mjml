@@ -2,6 +2,7 @@ import { EventEmitter } from "node:events";
 import type { Page } from "@playwright/test";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  assertReferenceFont404s,
   declaredMjmlFonts,
   expectedCanvasFonts,
   fontFailures,
@@ -387,5 +388,36 @@ describe("browser font-readiness evidence", () => {
     expect(
       result.failedRequests.filter(({ resourceType }) => resourceType === "font"),
     ).toHaveLength(1);
+  });
+});
+
+describe("immutable reference font 404 evidence", () => {
+  const failed = [{ family: "Inter", weight: "400" }];
+  const known = [{ ...failed[0], url: "https://fonts.example/pinned.woff2" }];
+
+  it("checks the settled response snapshot rather than a pre-readiness snapshot", async () => {
+    const responses: { url: string; status: number }[] = [];
+    const earlySnapshot = [...responses];
+    await Promise.resolve().then(() => responses.push({ url: known[0].url, status: 404 }));
+    expect(() => assertReferenceFont404s(failed, known, earlySnapshot)).toThrow("HTTP 404");
+    expect(() => assertReferenceFont404s(failed, known, responses)).not.toThrow();
+  });
+
+  it.each([
+    { responses: [] },
+    { responses: [{ url: known[0].url, status: 200 }] },
+    { responses: [{ url: known[0].url, status: 500 }] },
+    { responses: [{ url: "https://fonts.example/other.woff2", status: 404 }] },
+  ])("rejects missing, non-404, or unrelated response evidence: %j", ({ responses }) => {
+    expect(() => assertReferenceFont404s(failed, known, responses)).toThrow("Inter 400");
+  });
+
+  it("rejects unknown faces or weights even with a known URL 404", () => {
+    const responses = [{ url: known[0].url, status: 404 }];
+    for (const face of [
+      { family: "Heading", weight: "400" },
+      { family: "Inter", weight: "600" },
+    ])
+      expect(() => assertReferenceFont404s([face], known, responses)).toThrow("HTTP 404");
   });
 });

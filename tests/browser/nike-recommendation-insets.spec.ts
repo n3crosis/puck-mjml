@@ -170,7 +170,7 @@ test("Nike recommendations retain source insets and editable mobile pairs withou
       original,
       readFileSync(
         new URL(
-          "../fixtures/react-email-reference/Community/receipts/nike-receipt.html",
+          "../../.cache/react-email-reference/Community/receipts/nike-receipt.html",
           import.meta.url,
         ),
         "utf8",

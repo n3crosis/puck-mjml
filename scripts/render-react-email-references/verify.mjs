@@ -5,8 +5,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
-const fixtures = join(root, "../../tests/fixtures/react-email-reference");
-const manifest = JSON.parse(readFileSync(join(fixtures, "manifest.json"), "utf8"));
+const fixtures = join(root, "../../.cache/react-email-reference");
+const baseline = join(root, "../../tests/fixtures/react-email-reference");
+const manifest = JSON.parse(readFileSync(join(baseline, "manifest.json"), "utf8"));
+assert.deepEqual(JSON.parse(readFileSync(join(fixtures, "manifest.json"), "utf8")), manifest);
 const canonical = JSON.parse(
   readFileSync(join(root, "../../src/templates/upstream-content.json"), "utf8"),
 );
@@ -22,6 +24,11 @@ const walk = (directory) =>
   readdirSync(directory, { withFileTypes: true }).flatMap((entry) =>
     entry.isDirectory() ? walk(join(directory, entry.name)) : [join(directory, entry.name)],
   );
+assert.equal(
+  walk(baseline).filter((file) => file.endsWith(".html")).length,
+  0,
+  "Reference HTML must remain in the ignored cache, not the committed fixtures",
+);
 assert.equal(walk(fixtures).filter((file) => file.endsWith(".html")).length, 62);
 let total = 0;
 for (const entry of manifest.templates) {

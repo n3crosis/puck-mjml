@@ -4,25 +4,26 @@ This is an isolated test-fixture generator. It adds no dependency to the applica
 
 ## Reproduce
 
-Use Bun 1.4.2. From this directory:
+Use Bun 1.4.2. From the repository root:
 
 ```sh
-bun install --frozen-lockfile --ignore-scripts
-bun run render
-bun run verify
+bun run references:prepare
+bun run references:verify
 ```
 
-The first render fetches pinned source files from the official `resend/react-email` GitHub repository. Subsequent runs reuse the checksum-verified `.cache/upstream` files. Registry/network access is required to install dependencies and populate an empty cache. No upstream scripts are executed, and npm lifecycle scripts are disabled. Only the pinned email modules, their theme/font helpers, and official rendering dependencies are evaluated.
+`prepare` verifies an existing cache offline first. If missing or invalid, it installs the isolated renderer with `--frozen-lockfile --ignore-scripts`, fetches pinned upstream source, renders all 62 originals twice, and verifies the results against the committed manifest. `bun run test` and `bun run test:browser` prepare automatically; CI also prepares explicitly before validation. Direct `vitest` or `playwright` invocations require preparation first.
 
-The script writes `../../tests/fixtures/react-email-reference/`. Then run the repository's formatter from its root (`bun run format`) and run the offline verification again. Generated HTML and the verbatim upstream license are excluded from formatting so their original bytes are preserved.
+Generated HTML, a copy of the manifest, and the license live only in the Git-ignored root `.cache/react-email-reference/`. No rendered reference HTML is checked in. The committed `tests/fixtures/react-email-reference/manifest.json` retains the expected hashes and provenance, and the license remains there for attribution. Rendering never updates this baseline: any source, dependency, runtime, or output drift fails.
 
-For existing checked-in fixtures, no install or network access is needed:
+The first render fetches pinned source files from the official `resend/react-email` GitHub repository. Subsequent renders reuse this tool's checksum-verified `.cache/upstream` files. Registry/network access is required to install dependencies and populate an empty cache. No upstream package scripts are executed, and npm lifecycle scripts are disabled. Only the pinned email modules, their theme/font helpers, and official rendering dependencies are evaluated. An invalid cached source fails rather than being silently replaced.
+
+To force a fresh render using installed dependencies, run `bun run --cwd scripts/render-react-email-references render`, then `bun run references:verify`. To test a fully cold setup, remove the ignored root reference cache and this tool's ignored source cache and `node_modules`, then prepare again. The independent offline verifier requires no renderer dependencies:
 
 ```sh
 node scripts/render-react-email-references/verify.mjs
 ```
 
-This verifies all 62 canonical paths, every HTML byte count and SHA-256, the license, renderer lockfile, and provenance metadata. It does not claim visual equality; browser comparisons must inspect the rendered original, compiled MJML output, and actual editing canvas at matching viewports.
+Verification checks the committed baseline against all 62 generated canonical paths, every HTML byte count and SHA-256, license, renderer lockfile, and provenance metadata. It does not claim visual equality; browser comparisons must inspect the rendered original, compiled MJML output, and actual editing canvas at matching viewports.
 
 ## Source and renderer pinning
 
@@ -35,4 +36,4 @@ These upstream examples import their components from `react-email`, which now ex
 
 The actual call is `render(createElement(module.default, module.default.PreviewProps ?? {}))`, with default render options. `VERCEL_URL=demo.react.email` matches the canonical MJML artwork origin, and `TZ=UTC` makes the original public date props deterministic. Original Date objects are passed to the components; their JSON ISO representations appear only in the manifest. Every email is rendered twice and must produce byte-identical output. Neither source nor HTML is transformed. No private user data, machine paths, timestamps, or secrets enter the output manifest.
 
-The source-code MIT license is retained in the fixtures and the repository's third-party notices. Artwork and fonts remain external references and retain their separate ownership and terms.
+The source-code MIT license is retained alongside the manifest and the repository's third-party notices. Artwork and fonts remain external references and retain their separate ownership and terms.

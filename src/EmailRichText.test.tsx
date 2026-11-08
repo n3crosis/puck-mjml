@@ -137,22 +137,39 @@ it("preserves every href-less anchor across all 62 canonical imports", () => {
   expect({ total, affected }).toEqual({ total: 43, affected: 5 });
 });
 
-it("targets only the five original Apple invoice labels, not synthetic value paragraphs", () => {
+it("targets only the five original Apple invoice labels, not their value paragraphs", () => {
   const source = readFileSync("templates/Community/receipts/apple-receipt.mjml", "utf8");
   const $ = load(source, { xml: true });
   const labels = ["APPLE ID", "BILLED TO", "INVOICE DATE", "ORDER ID", "DOCUMENT NO."];
+  const values = [
+    ["alan.turing@gmail.com"],
+    [
+      "Visa .... 7461 (Apple Pay)",
+      "Alan Turing",
+      "2125 Chestnut St",
+      "San Francisco, CA 94123",
+      "USA",
+    ],
+    ["18 Jan 2023"],
+    ["ML4F5L8522"],
+    ["186623754793"],
+  ];
   const cells = $("mj-table[css-class=apple-invoice] td").toArray();
   expect(cells).toHaveLength(labels.length);
   expect(source).toContain(".apple-invoice p:first-child");
   const reference = load(
-    readFileSync(
-      "tests/fixtures/react-email-reference/Community/receipts/apple-receipt.html",
-      "utf8",
-    ),
+    readFileSync(".cache/react-email-reference/Community/receipts/apple-receipt.html", "utf8"),
   );
   for (const [index, cell] of cells.entries()) {
     expect($(cell).children().first().prop("tagName")).toBe("P");
-    expect($(cell).find("p")).toHaveLength(1);
+    expect($(cell).find("p")).toHaveLength(1 + values[index].length);
+    expect(
+      $(cell)
+        .children("p")
+        .slice(1)
+        .map((_, p) => $(p).text())
+        .get(),
+    ).toEqual(values[index]);
     expect($(cell).children().first().text()).toBe(labels[index]);
     const original = reference("p").filter((_, node) => reference(node).text() === labels[index]);
     expect(original.index()).toBe(0);
@@ -163,7 +180,9 @@ it("targets only the five original Apple invoice labels, not synthetic value par
     expect([...host.querySelectorAll("p:first-child")].map((p) => p.textContent)).toEqual([
       labels[index],
     ]);
-    expect(host.querySelectorAll("p:not(:first-child)").length).toBeGreaterThan(0);
+    expect([...host.querySelectorAll("p:not(:first-child)")].map((p) => p.textContent)).toEqual(
+      values[index],
+    );
   }
 });
 

@@ -6,10 +6,13 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     <mj-title>#CodePenChallenge: Cubes</mj-title>
     <mj-preview>#CodePenChallenge: Cubes</mj-preview>
     <mj-attributes>
-      <mj-all font-family="Google Sans,Roboto,RobotoDraft,Helvetica,Arial,sans-serif" />
+      <mj-all font-family="inherit" />
       <mj-text padding="0px" />
     </mj-attributes>
     <mj-style>
+      body {
+        font-family: "Google Sans", Roboto, RobotoDraft, Helvetica, Arial, sans-serif !important;
+      }
       p {
         margin: 0;
       }

@@ -18,10 +18,7 @@ const source = readFileSync(
 );
 const reference = load(
   readFileSync(
-    new URL(
-      "../../tests/fixtures/react-email-reference/01-Barebone/product-update.html",
-      import.meta.url,
-    ),
+    new URL("../../.cache/react-email-reference/01-Barebone/product-update.html", import.meta.url),
     "utf8",
   ),
 );

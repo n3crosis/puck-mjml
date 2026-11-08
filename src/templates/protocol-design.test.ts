@@ -51,10 +51,7 @@ function cssValue($: CheerioAPI, selector: string, property: string) {
 function reference(name: string) {
   return load(
     readFileSync(
-      new URL(
-        `../../tests/fixtures/react-email-reference/03-Protocol/${name}.html`,
-        import.meta.url,
-      ),
+      new URL(`../../.cache/react-email-reference/03-Protocol/${name}.html`, import.meta.url),
       "utf8",
     ),
   );

@@ -8,9 +8,7 @@ The 628px outer canvas retains the original 580px desktop content width inside t
     <mj-title>Read Alex&#x27;s review</mj-title>
     <mj-preview>Read Alex&#x27;s review</mj-preview>
     <mj-attributes>
-      <mj-all
-        font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&#x27;Helvetica Neue&#x27;,sans-serif"
-      />
+      <mj-all font-family="inherit" />
       <mj-text padding="0px" />
     </mj-attributes>
     <mj-style>
@@ -18,6 +16,9 @@ The 628px outer canvas retains the original 580px desktop content width inside t
         line-height: normal !important;
       }
       body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+          "Helvetica Neue", sans-serif !important;
         padding: 8px !important;
       }
       p {

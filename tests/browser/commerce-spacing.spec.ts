@@ -78,7 +78,7 @@ async function representations(page: Page, family: string, name: string, width: 
   await loadReactEmailReference(
     reference,
     readFileSync(
-      new URL(`../fixtures/react-email-reference/${family}/${name}.html`, import.meta.url),
+      new URL(`../../.cache/react-email-reference/${family}/${name}.html`, import.meta.url),
       "utf8",
     ),
   );

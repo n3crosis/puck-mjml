@@ -29,7 +29,7 @@ function source(name: string) {
 function original(name: string) {
   return load(
     readFileSync(
-      new URL(`../../tests/fixtures/react-email-reference/Community/${name}.html`, import.meta.url),
+      new URL(`../../.cache/react-email-reference/Community/${name}.html`, import.meta.url),
       "utf8",
     ),
   );

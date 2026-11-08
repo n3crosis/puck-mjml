@@ -11,7 +11,7 @@ import type { EmailBlock } from "../types";
 
 const source = readFileSync("templates/Community/receipts/nike-receipt.mjml", "utf8");
 const original = load(
-  readFileSync("tests/fixtures/react-email-reference/Community/receipts/nike-receipt.html", "utf8"),
+  readFileSync(".cache/react-email-reference/Community/receipts/nike-receipt.html", "utf8"),
 );
 const attributes = load(source, { xml: true });
 const sourceImages = original('img[src*="/nike-recomendation-"]');

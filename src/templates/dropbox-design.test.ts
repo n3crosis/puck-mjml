@@ -39,7 +39,10 @@ describe.each([false, true])("Dropbox design, editor round trip: %s", (roundTrip
     });
     const button = $("a").filter((_index, node) => $(node).text().trim() === "Reset password");
     expect(button.attr("style")).toContain("line-height:100%");
-    expect(button.attr("style")).toContain("font-family:Open Sans,'Helvetica Neue',Arial");
+    expect(button.css("font-family")).toBe("inherit");
+    expect(document.root.props!.fontImports).toEqual([]);
+    expect(result.html).not.toMatch(/fonts\.googleapis\.com|@font-face/);
+    expect(button.closest(".dropbox-reset-button")).toHaveLength(1);
     expect(button.attr("style")).toContain("padding:14px 7px");
     expect(button.closest("table").attr("style")).toContain("width:224px");
     const styles = postcss.parse(
@@ -48,6 +51,29 @@ describe.each([false, true])("Dropbox design, editor round trip: %s", (roundTrip
         .get()
         .join("\n"),
     );
+    const families: Record<string, string[]> = {};
+    styles.walkRules((rule) => {
+      rule.walkDecls("font-family", (declaration) => {
+        families[rule.selector] = postcss.list
+          .comma(declaration.value)
+          .map((family) => family.replace(/^(['"])(.*)\1$/, "$2"));
+        expect(declaration.important).toBe(true);
+      });
+    });
+    expect(families.body).toEqual([
+      "Open Sans",
+      "HelveticaNeue-Light",
+      "Helvetica Neue Light",
+      "Helvetica Neue",
+      "Helvetica",
+      "Arial",
+      "Lucida Grande",
+      "sans-serif",
+    ]);
+    expect(families[".dropbox-reset-button a"]).toEqual(["Open Sans", "Helvetica Neue", "Arial"]);
+    paragraphs.each((_index, paragraph) => {
+      expect($(paragraph).css("font-family")).toBe("inherit");
+    });
     let linkColor = "";
     styles.walkRules(".community-rich-0 a:nth-of-type(1)", (rule) => {
       rule.walkDecls("color", (declaration) => {

@@ -6,6 +6,7 @@ import {
   waitForImportedFontCss,
 } from "./font-evidence";
 import { readFileSync } from "node:fs";
+import { inspectCanvasFontInputs } from "../../src/canvas-font-inputs";
 
 const fontManifest: { variableAdvanceUnits: Record<string, number> } = JSON.parse(
   readFileSync(new URL("./fixtures/fonts/manifest.json", import.meta.url), "utf8"),
@@ -213,7 +214,8 @@ test("child-only font changes cannot reuse the previous ready snapshot before ob
   await page.getByRole("button", { name: "Set font Roboto" }).click();
   const immediate = await page.evaluate(() => window.fontTransitionSnapshot!);
   expect(immediate[0]).toMatchObject({ status: "ready", inputsCurrent: false });
-  expect(immediate[0].families.some((family) => family.startsWith("Roboto-"))).toBe(true);
+  // Before discovery, the newly authored family has no imported alias yet.
+  expect(immediate[0].families).toContain("Roboto");
   await expect(waitForImportedFontCss([], async () => immediate, 0)).rejects.toThrow(
     "current inline font families have not been observed",
   );
@@ -221,6 +223,11 @@ test("child-only font changes cannot reuse the previous ready snapshot before ob
     "data-pm-canvas-font-status",
     "loading",
   );
+  expect(
+    (await canvas.evaluate(inspectCanvasFontInputs))[0].families.some((family) =>
+      family.startsWith("Roboto-"),
+    ),
+  ).toBe(true);
   const waiting = waitForCanvasFontCss(canvas);
   expect(
     await Promise.race([

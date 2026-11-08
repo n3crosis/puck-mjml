@@ -15,7 +15,7 @@ const source = readFileSync(
 const original = load(
   readFileSync(
     new URL(
-      "../../tests/fixtures/react-email-reference/05-Studio/order-confirmation.html",
+      "../../.cache/react-email-reference/05-Studio/order-confirmation.html",
       import.meta.url,
     ),
     "utf8",

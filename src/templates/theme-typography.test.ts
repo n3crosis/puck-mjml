@@ -20,7 +20,7 @@ function reference(name: string) {
   // Actual React Email output at the pinned source commit, not MJML snapshots.
   return load(
     readFileSync(
-      new URL(`../../tests/fixtures/react-email-reference/${name}.html`, import.meta.url),
+      new URL(`../../.cache/react-email-reference/${name}.html`, import.meta.url),
       "utf8",
     ),
   );

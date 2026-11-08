@@ -194,3 +194,104 @@ for (const decision of ["dismiss", "accept"] as const) {
     }
   });
 }
+
+async function dropSource(page: Page, text: string, fileSource?: string) {
+  const data = await page.evaluateHandle(
+    ({ text, fileSource }) => {
+      const transfer = new DataTransfer();
+      transfer.setData("text/plain", text);
+      if (fileSource !== undefined)
+        transfer.items.add(new File([fileSource], "dropped.mjml", { type: "application/xml" }));
+      return transfer;
+    },
+    { text, fileSource },
+  );
+  const area = page.locator(".demo-import-source");
+  await area.dispatchEvent("dragover", { dataTransfer: data });
+  await expect(area).toHaveAttribute("data-dragging", "true");
+  await area.dispatchEvent("drop", { dataTransfer: data });
+  await expect(area).not.toHaveAttribute("data-dragging");
+  await data.dispose();
+}
+
+test("imports external dropped text and gives a dropped file precedence over text", async ({
+  page,
+}) => {
+  await dropSource(page, source("External text"));
+  expect(await exportedMjml(page)).toContain("External text");
+  await dropSource(page, source("Ignored text"), source("File wins"));
+  const result = await exportedMjml(page);
+  expect(result).toContain("File wins");
+  expect(result).not.toContain("Ignored text");
+});
+
+for (const decision of ["dismiss", "accept"] as const) {
+  test(`dropped text respects dirty confirmation: ${decision}`, async ({ page }) => {
+    await page.getByRole("combobox", { name: "Email template" }).selectOption("blank");
+    await page.getByRole("textbox", { name: "Preview text", exact: true }).fill("Keep draft");
+    const draft = await exportedMjml(page);
+    page.once("dialog", async (dialog) => {
+      expect(dialog.message()).toBe(discardMessage);
+      await dialog[decision]();
+    });
+    await dropSource(page, source("Dropped replacement"));
+    const result = await exportedMjml(page);
+    if (decision === "dismiss") expect(result).toBe(draft);
+    else expect(result).toContain("Dropped replacement");
+  });
+}
+
+test("invalid dropped text preserves a dirty draft and its undo history without asking to discard", async ({
+  page,
+}) => {
+  await page.getByRole("combobox", { name: "Email template" }).selectOption("blank");
+  await page.getByRole("textbox", { name: "Preview text", exact: true }).fill("Keep draft");
+  const draft = await exportedMjml(page);
+  const dialogs: string[] = [];
+  page.on("dialog", async (dialog) => {
+    dialogs.push(dialog.message());
+    await dialog.dismiss();
+  });
+  for (const invalid of [
+    "",
+    "ordinary selected text",
+    "<mjml><mj-body><mj-raw><script>alert(1)</script></mj-raw></mj-body></mjml>",
+  ]) {
+    await dropSource(page, invalid);
+    await expect(page.locator('.demo-status[role="status"]')).toContainText(
+      "Your previous email is unchanged.",
+    );
+    expect(await exportedMjml(page)).toBe(draft);
+    await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();
+  }
+  expect(dialogs).toEqual([]);
+});
+
+test("paste stays editable until explicit import, and drag leave/cancel clears highlighting", async ({
+  page,
+}) => {
+  const area = page.locator(".demo-import-source");
+  await area.locator("summary").click();
+  const field = page.getByRole("textbox", { name: "MJML source to import" });
+  await field.fill(source("Pasted source"));
+  await field.press("ControlOrMeta+A");
+  await field.press("ControlOrMeta+C");
+  await field.fill("");
+  await field.press("ControlOrMeta+V");
+  await expect(field).toHaveValue(source("Pasted source"));
+  await field.fill(source("Edited pasted source"));
+  await page.getByRole("button", { name: "Import text", exact: true }).click();
+  expect(await exportedMjml(page)).toContain("Edited pasted source");
+  const data = await page.evaluateHandle(() => {
+    const data = new DataTransfer();
+    data.setData("text/plain", "text");
+    return data;
+  });
+  await area.dispatchEvent("dragover", { dataTransfer: data });
+  await area.dispatchEvent("dragleave", { dataTransfer: data });
+  await expect(area).not.toHaveAttribute("data-dragging");
+  await area.dispatchEvent("dragover", { dataTransfer: data });
+  await page.keyboard.press("Escape");
+  await expect(area).not.toHaveAttribute("data-dragging");
+  await data.dispose();
+});

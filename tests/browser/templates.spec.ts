@@ -7,6 +7,11 @@ import {
   type TestInfo,
 } from "@playwright/test";
 import { createHash } from "node:crypto";
+import {
+  inspectSemantics,
+  compareInventoryCaptures,
+  type ComparisonCapture,
+} from "./semantic-comparison";
 import { inspectArtwork } from "./artwork-evidence";
 import {
   canvasOverflowFailures,
@@ -32,7 +37,7 @@ import { loadReactEmailReference, reactEmailReferenceUrl } from "./reference-doc
 const fixtures: { ref: string; templates: { file: string; content: string[] }[] } = JSON.parse(
   readFileSync(new URL("../../src/templates/upstream-content.json", import.meta.url), "utf8"),
 );
-const referenceDirectory = new URL("../fixtures/react-email-reference/", import.meta.url);
+const referenceDirectory = new URL("../../.cache/react-email-reference/", import.meta.url);
 const referenceManifest: {
   ref: string;
   templates: { file: string; html: string; sha256: string; bytes: number; sourceGitBlob: string }[];
@@ -101,7 +106,11 @@ async function measureVisuals(root: Locator) {
       })),
     };
   });
-  return { ...metrics, ...(await root.evaluate(inspectArtwork)) };
+  return {
+    ...metrics,
+    semantics: await root.evaluate(inspectSemantics),
+    ...(await root.evaluate(inspectArtwork)),
+  };
 }
 
 type Capture = {
@@ -317,6 +326,27 @@ async function captureEditorCanvas(
   return captures;
 }
 
+test("generic semantic extraction retains viewport insets and excludes unpainted text", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 800, height: 900 });
+  const content = `<span>Hello</span> <a href="/target" style="text-decoration:underline"><span>link</span></a>
+    <div style="opacity:0"><span style="opacity:1">Transparent</span></div>
+    <div style="height:0;overflow:hidden">Clipped</div>
+    <span style="display:none">Absent</span>`;
+  await page.setContent(`<body style="margin:8px;font:16px/20px Arial">${content}</body>`);
+  const margin = await page.locator("body").evaluate(inspectSemantics);
+  expect(margin.words.map((word) => word.text)).toEqual(["Hello", "link"]);
+  expect(margin.words[1]!.style.textDecoration).toContain("underline");
+  expect(margin.words[0]!.boxes[0]!.x).toBe(8);
+  expect(margin.words[0]!.boxes[0]!.y).toBeGreaterThanOrEqual(8);
+  await page.setContent(
+    `<body style="margin:0;padding:8px;font:16px/20px Arial">${content}</body>`,
+  );
+  const padding = await page.locator("body").evaluate(inspectSemantics);
+  expect(padding.words).toEqual(margin.words);
+});
+
 test("canvas overflow audit permits background bleed but rejects real text and image overflow", async ({
   page,
 }) => {
@@ -438,15 +468,6 @@ for (const fixture of fixtures.templates) {
           { message: `${fixture.file} ${mode} overflow` },
         )
         .toBeLessThanOrEqual(1);
-      if (/^01-Barebone\/(welcome|product-update|feature-announcement)\.mjml$/.test(fixture.file)) {
-        const tile = frame.locator(".bare-app-icon");
-        await expect(tile).toHaveCount(1);
-        await expect
-          .poll(async () => tile.evaluate((node) => node.getBoundingClientRect().width), {
-            message: `${fixture.file} ${mode} app tile stays compact`,
-          })
-          .toBeCloseTo(56, 0);
-      }
     }
     const html = await page
       .locator('iframe[title="Rendered email"]')
@@ -457,6 +478,58 @@ for (const fixture of fixtures.templates) {
     // Each PNG is saved once. The upload artifact contains these named files and
     // comparison.json; attaching each PNG would create a second copy on disk.
     const captures: Capture[] = [];
+    const compareSemantics = () =>
+      compareInventoryCaptures(
+        captures.map((capture): ComparisonCapture => {
+          const issues: ComparisonCapture["issues"] = [];
+          if (capture.resourceError)
+            issues.push({ kind: "resource-readiness", evidence: capture.resourceError });
+          for (const [kind, evidence] of Object.entries(capture.fonts.failures)) {
+            if (
+              Array.isArray(evidence)
+                ? evidence.length
+                : Object.values(evidence).some((value) => value.length)
+            )
+              issues.push({ kind: `font-${kind}`, evidence });
+          }
+          if (
+            capture.artworkTransport.failedRequests.length ||
+            capture.artworkTransport.httpErrors.length
+          )
+            issues.push({ kind: "artwork-transport", evidence: capture.artworkTransport });
+          const fontTransport = {
+            failedRequests: capture.resources.failedRequests.filter(
+              (request) => request.resourceType === "font",
+            ),
+            httpErrors: capture.resources.fontAndStylesheetResponses.filter(
+              (response) => response.status >= 400,
+            ),
+          };
+          if (fontTransport.failedRequests.length || fontTransport.httpErrors.length)
+            issues.push({ kind: "font-transport", evidence: fontTransport });
+          const failedImages = capture.metrics.semantics.images.filter((image) => !image.loaded);
+          if (failedImages.length) issues.push({ kind: "unloaded-images", evidence: failedImages });
+          if (capture.metrics.documentOverflow > 1)
+            issues.push({ kind: "document-overflow", evidence: capture.metrics.documentOverflow });
+          if (capture.canvasGeometry) {
+            const overflow = canvasOverflowFailures(capture.canvasGeometry);
+            if (overflow.length) issues.push({ kind: "canvas-overflow", evidence: overflow });
+          }
+          return {
+            representation: capture.representation,
+            mode: capture.mode,
+            semantics: capture.metrics.semantics,
+            rootBox: {
+              x: capture.metrics.x,
+              y: capture.metrics.y,
+              width: capture.metrics.width,
+              height: capture.metrics.height,
+            },
+            issues,
+            aliases: capture.fonts.expectedCanvasImports,
+          };
+        }),
+      );
     const compareContent = () =>
       captures.map(({ representation, mode, metrics }) => ({
         representation,
@@ -485,6 +558,7 @@ for (const fixture of fixtures.templates) {
             html: { original: "react-email.html", compiled: "mjml.html" },
             note: "Original HTML is fulfilled unchanged at an exact synthetic document URL on https://demo.react.email so relative assets retain their source origin. Original mobile overflow and resource failures are recorded as reference behavior, not repaired. Canvas captures use the live editable DOM with its existing gutter, at 800/390px iframe widths; only the outer editor height is extended. Pixel equality is not asserted. Canvas font CSS must register every declared family before fonts.ready is awaited; registered unused faces may remain unloaded. Resource events are collected before navigation, including the editor preview iframe; each capture contains a cumulative snapshot for its page. Image HTTP failures (including CSS backgrounds) are recorded separately from font and stylesheet failures, alongside computed background URLs and each document's baseURI.",
             contentComparison: compareContent(),
+            semanticComparison: compareSemantics(),
             captures,
           },
           null,

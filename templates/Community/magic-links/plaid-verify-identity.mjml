@@ -20,12 +20,17 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         color: inherit;
       }
       .plaid-card {
-        box-shadow: 0 4px 6px rgba(20, 50, 70, 0.2);
+        /* The pinned reference shadow has invalid five-component rgb() colors and paints none. */
+        box-shadow: none;
       }
       .community-rich-0 em:nth-of-type(1) {
         font-style: normal;
         display: block;
-        background-color: #f2f2f2;
+        background-color: rgba(0, 0, 0, 0.05);
+        box-sizing: border-box;
+        width: 280px;
+        max-width: 100%;
+        margin: 0 auto;
         border-radius: 4px;
         padding: 8px;
       }
@@ -68,7 +73,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="16px 8px 8px"
           font-size="11px"
-          line-height="1.5"
+          line-height="16px"
           color="#0a85ea"
           font-weight="700"
           align="center"
@@ -78,6 +83,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="0px"
           font-size="20px"
+          font-family="HelveticaNeue-Medium,Helvetica,Arial,sans-serif"
           line-height="24px"
           font-weight="500"
           align="center"
@@ -85,7 +91,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           ><h1>Enter the following code to finish linking Venmo.</h1></mj-text
         >
         <mj-text
-          padding="16px 40px 14px"
+          padding="16px 0px 14px"
+          font-family="HelveticaNeue-Bold"
           font-size="32px"
           line-height="40px"
           font-weight="700"
@@ -119,7 +126,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="20px 0px 0px"
           font-size="12px"
-          line-height="1.5"
+          line-height="23px"
           font-weight="800"
           align="center"
           text-transform="uppercase"

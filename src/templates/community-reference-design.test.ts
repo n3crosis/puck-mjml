@@ -16,7 +16,7 @@ const files = {
 function original(name: keyof typeof files) {
   return cheerio.load(
     readFileSync(
-      new URL(`../../tests/fixtures/react-email-reference/${files[name]}.html`, import.meta.url),
+      new URL(`../../.cache/react-email-reference/${files[name]}.html`, import.meta.url),
       "utf8",
     ),
   );
@@ -109,18 +109,31 @@ describe.each([false, true])(
 
     it("keeps Netlify resource and preference links grouped and retains its original footer typography", async () => {
       const $ = await compiled("netlify", roundTrip);
-      for (const [name, count, width] of [
-        ["resource", 3, "33.333%"],
-        ["footer", 2, "50%"],
+      for (const [name, count] of [
+        ["resource", 3],
+        ["footer", 2],
       ] as const) {
-        const columns = $(`.netlify-${name}-links > div`);
+        const table = $(`.netlify-${name}-links > table`);
+        expect(table).toHaveLength(1);
+        expect(declaration(table.attr("style"), "table-layout")).toBe("auto");
+        const columns = table.find("tr > td");
         expect(columns).toHaveLength(count);
         columns.each((_index, element) => {
-          expect(declaration($(element).attr("style"), "display")).toBe("inline-block");
-          expect(declaration($(element).attr("style"), "width")).toBe(width);
+          expect(declaration($(element).attr("style"), "width")).toBeUndefined();
+          expect($(element).attr("width")).toBeUndefined();
         });
       }
-      const footerLinks = $(".netlify-footer-link a");
+      expect(declaration($(".community-rich-0").attr("style"), "padding")).toBe("0px");
+      expect(declaration($(".community-rich-0 ul").attr("style"), "margin")).toBe("16px 0");
+      const resourceLinks = $(".netlify-resource-links a");
+      expect(resourceLinks).toHaveLength(3);
+      resourceLinks.each((_index, element) => {
+        expect(declaration($(element).attr("style"), "font-weight")).toBe("700");
+      });
+      $(".netlify-resource-links em").each((_index, element) => {
+        expect(declaration($(element).attr("style"), "font-weight")).toBeUndefined();
+      });
+      const footerLinks = $(".netlify-footer-links a");
       expect(footerLinks.map((_index, element) => $(element).text()).get()).toEqual([
         "Unsubscribe",
         "Manage Preferences",

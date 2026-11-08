@@ -40,7 +40,7 @@ function staticFaces(html: string, selector = "style") {
 describe.each([false, true])("Studio source font faces, round trip: %s", (roundTrip) => {
   it.each(names)("%s preserves all nine exact source registrations", async (name) => {
     const reference = readFileSync(
-      new URL(`../../tests/fixtures/react-email-reference/05-Studio/${name}.html`, import.meta.url),
+      new URL(`../../.cache/react-email-reference/05-Studio/${name}.html`, import.meta.url),
       "utf8",
     );
     const source = readFileSync(

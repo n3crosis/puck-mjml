@@ -19,7 +19,7 @@ bun install
 bun run dev
 ```
 
-Open the Vite URL. The demo starts with the Collage product update, adapted from React Email's Matte template. The template picker includes a blank email and all 62 React Email examples: Barebone, Matte, Protocol, Arcane, Studio, and Community. Each example is a standalone, editable `.mjml` source in [`templates/`](templates/README.md), not a TypeScript email component. You can import a local `.mjml` file and download MJML or HTML. Drafts are not saved. The demo warns before replacing edited content or leaving the page; download MJML to keep your work. Imported documents are checked before replacement and rejected if they need trusted HTML or cannot be safely exported. All import notes remain accessible. Example images and web fonts require network access.
+Open the Vite URL. The demo starts with the Collage product update, adapted from React Email's Matte template. The template picker includes a blank email and all 62 React Email examples: Barebone, Matte, Protocol, Arcane, Studio, and Community. Each example is a standalone, editable `.mjml` source in [`templates/`](templates/README.md), not a TypeScript email component. You can import a local `.mjml` file, paste and edit MJML source, or drop source text or a file into the import area. Files take precedence when a drag contains both. Download MJML or HTML to keep your work; drafts are not saved. The demo warns before replacing edited content or leaving the page. Imported documents are checked before replacement and rejected if they need trusted HTML or cannot be safely exported. All import notes remain accessible. Example images and web fonts require network access.
 
 ## Use in a host app
 

@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { readFileSync } from "node:fs";
+import postcss from "postcss";
 import { act, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { createUsePuck, type PuckApi } from "@puckeditor/core";
@@ -43,7 +44,7 @@ function Host({ initial, cloneEcho }: { initial: EmailDocument; cloneEcho: boole
 
 beforeEach(() => {
   vi.stubGlobal("localStorage", { getItem: () => null, setItem: () => undefined });
-  // Font registration is deterministic here; real loading is covered in browser tests.
+  // Unexpected font requests remain observable; source fallback stacks need none.
   vi.stubGlobal(
     "fetch",
     vi.fn(
@@ -141,18 +142,54 @@ it.each([false, true])(
     // The stored baseline must match the initial export before any onChange.
     expect(toMjml(api.appState.data as EmailDocument)).toBe(initialSource);
     const originalFont = canvas().querySelector<HTMLElement>(".pm-text")!.style.fontFamily;
-    expect(originalFont).toMatch(/OpenSans-pm-canvas-/);
+    expect(originalFont).toBe("inherit");
+    const originalCss = canvas().querySelector("[data-pm-canvas-css]")!.textContent!;
+    const familyRules: { selector: string; stack: string[] }[] = [];
+    postcss.parse(originalCss).walkRules((rule) => {
+      rule.walkDecls("font-family", (declaration) => {
+        familyRules.push({
+          selector: rule.selector,
+          stack: postcss.list
+            .comma(declaration.value)
+            .map((family) => family.replace(/^(['"])(.*)\1$/, "$2")),
+        });
+      });
+    });
+    expect(familyRules.map(({ stack }) => stack)).toContainEqual([
+      "Open Sans",
+      "HelveticaNeue-Light",
+      "Helvetica Neue Light",
+      "Helvetica Neue",
+      "Helvetica",
+      "Arial",
+      "Lucida Grande",
+      "sans-serif",
+    ]);
+    expect(
+      familyRules
+        .filter(({ selector }) => selector.includes(".dropbox-reset-button a"))
+        .map(({ stack }) => stack),
+    ).toEqual([["Open Sans", "Helvetica Neue", "Arial"]]);
+    const expectSourceFonts = () => {
+      expect(canvas().querySelector<HTMLElement>(".pm-text")!.style.fontFamily).toBe(originalFont);
+      expect(canvas().querySelector("[data-pm-canvas-css]")!.textContent).toBe(originalCss);
+      expect(canvas().querySelector("[data-pm-canvas-fonts]")).toBeNull();
+      expect(api.appState.data.root.props!.fontImports).toEqual([]);
+      expect(fetch).not.toHaveBeenCalled();
+    };
+    expectSourceFonts();
     await typeInline("text-2");
     expect(api.getItemById("text-2")!.props.content).toContain("here: Edited.");
     const edited = structuredClone(initial);
     findBlock(edited, "text-2")!.props.content = api.getItemById("text-2")!.props.content;
     await expectDocument(edited);
+    expectSourceFonts();
     await act(async () => api.history.back());
     await expectDocument(initial);
-    expect(canvas().querySelector<HTMLElement>(".pm-text")!.style.fontFamily).toBe(originalFont);
+    expectSourceFonts();
     await act(async () => api.history.forward());
     await expectDocument(edited);
-    expect(canvas().querySelector<HTMLElement>(".pm-text")!.style.fontFamily).toBe(originalFont);
+    expectSourceFonts();
     expect(container.querySelector(".Puck")).toBe(puck);
     expect(toMjml(initial)).toBe(initialSource);
   },

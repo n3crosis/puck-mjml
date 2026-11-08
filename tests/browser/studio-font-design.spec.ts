@@ -78,7 +78,7 @@ for (const width of [800, 390]) {
       await loadReactEmailReference(
         reference,
         readFileSync(
-          new URL("../fixtures/react-email-reference/05-Studio/newsletter.html", import.meta.url),
+          new URL("../../.cache/react-email-reference/05-Studio/newsletter.html", import.meta.url),
           "utf8",
         ),
       );

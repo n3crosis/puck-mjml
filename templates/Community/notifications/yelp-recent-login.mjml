@@ -1,6 +1,7 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/notifications/yelp-recent-login.tsx
-Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
+The footer artwork's bottom padding retains the following Text's 16px top margin. -->
 <mjml>
   <mj-head>
     <mj-title>Yelp recent login</mj-title>
@@ -117,7 +118,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         </mj-column>
       </mj-section>
     </mj-wrapper>
-    <mj-section padding="45px 0px 12px">
+    <mj-section padding="45px 0px 16px">
       <mj-column padding="0px">
         <mj-image
           src="https://demo.react.email/static/yelp-footer.png"

@@ -442,6 +442,9 @@
 .pm-image img {
   height: auto;
   vertical-align: middle;
+  /* MJML sizes image content; borders add to the exported dimensions. Keep
+     host-wide resets out; the document's scoped CSS can override this default. */
+  box-sizing: content-box;
 }
 .pm-image {
   line-height: 0;

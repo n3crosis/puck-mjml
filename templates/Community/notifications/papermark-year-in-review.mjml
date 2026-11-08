@@ -4,7 +4,10 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
 Activity statistics retain the source auto-layout table: equal preferred desktop
 columns, intrinsic mobile widths, and editable cell text. Body padding reproduces
 the original browser margin. Divider padding represents collapsed 24px/8.04px
-source margins after the preceding paragraph's 16px bottom space. -->
+source margins after the preceding paragraph's 16px bottom space. Location badges
+retain adjacent source paragraphs without inter-element text spacing. Keep the
+formatter from inserting visible spaces between these inline-block paragraphs. -->
+<!-- prettier-ignore -->
 <mjml>
   <mj-head>
     <mj-title>Your Year with Papermark</mj-title>
@@ -16,6 +19,15 @@ source margins after the preceding paragraph's 16px bottom space. -->
       <mj-text padding="0px" color="#101828" />
     </mj-attributes>
     <mj-style inline="inline">
+      .paper-location-badges p {
+        display: inline-block;
+        border-radius: 9999px;
+        background-color: #10b981;
+        font-weight: 500;
+        padding: 4px 12px;
+        margin: 4px;
+        color: #ffffff;
+      }
       .paper-activity-stats td p {
         overflow-wrap: normal;
         word-break: normal;
@@ -84,46 +96,6 @@ source margins after the preceding paragraph's 16px bottom space. -->
       }
       a {
         color: inherit;
-      }
-      .community-rich-0 em:nth-of-type(1) {
-        font-style: normal;
-        display: inline-block;
-        border-radius: 999px;
-        background-color: #10b981;
-        font-weight: 500;
-        padding: 4px 12px;
-        margin: 4px;
-        color: #ffffff;
-      }
-      .community-rich-0 em:nth-of-type(2) {
-        font-style: normal;
-        display: inline-block;
-        border-radius: 999px;
-        background-color: #10b981;
-        font-weight: 500;
-        padding: 4px 12px;
-        margin: 4px;
-        color: #ffffff;
-      }
-      .community-rich-0 em:nth-of-type(3) {
-        font-style: normal;
-        display: inline-block;
-        border-radius: 999px;
-        background-color: #10b981;
-        font-weight: 500;
-        padding: 4px 12px;
-        margin: 4px;
-        color: #ffffff;
-      }
-      .community-rich-0 em:nth-of-type(4) {
-        font-style: normal;
-        display: inline-block;
-        border-radius: 999px;
-        background-color: #10b981;
-        font-weight: 500;
-        padding: 4px 12px;
-        margin: 4px;
-        color: #ffffff;
       }
       .community-rich-4 a:nth-of-type(1) {
         display: block;
@@ -434,8 +406,8 @@ source margins after the preceding paragraph's 16px bottom space. -->
           font-size="14px"
           line-height="20px"
           align="center"
-          css-class="community-rich-0"
-          ><em>United States</em> <em>United Kingdom</em> <em>Germany</em> <em>Japan</em>
+          css-class="paper-location-badges"
+          ><p>United States</p><p>United Kingdom</p><p>Germany</p><p>Japan</p>
         </mj-text>
         <mj-text
           padding="0px 0px 16px"

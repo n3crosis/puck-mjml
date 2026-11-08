@@ -1,7 +1,7 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/receipts/nike-receipt.tsx
 Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
-Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 leading for readable mobile cards; desktop retains the source line-height of 1 and source image/text insets. Equal native columns remain an approximation of the source auto-layout cell widths. The tracking row stacks before its fixed 220px button outgrows a half-column. Recommendation bottom spacing retains the source 20px row + 22px section, split across the 24px native card gap and 18px section gap. -->
+Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 leading for readable mobile cards; desktop retains the source line-height of 1 and source image/text insets. Equal native recommendation columns remain an approximation of the source auto-layout cell widths. The tracking row stacks before its 222px button border box (220px source content plus two 1px borders) outgrows a half-column. Footer navigation retains the source 370px auto-layout table on desktop and fills the available width with stacked links at narrow widths. Recommendation bottom spacing retains the source 20px row + 22px section, split across the 24px native card gap and 18px section gap. -->
 <mjml>
   <mj-head>
     <mj-title>Your Nike order is on its way</mj-title>
@@ -26,6 +26,20 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
       .nike-source-link > div {
         line-height: normal !important;
       }
+      .nike-source-control a,
+      .nike-source-control p,
+      .nike-source-control > span {
+        line-height: normal !important;
+      }
+      .nike-store-navigation > table {
+        max-width: 100%;
+        line-height: normal !important;
+      }
+      .nike-store-navigation a {
+        color: #000000;
+        text-decoration: none;
+        font-weight: 500;
+      }
       .community-rich-0 a:nth-of-type(1) {
         color: #000000;
         text-decoration: none;
@@ -46,31 +60,22 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
         color: #000000;
         text-decoration: none;
       }
-      .community-rich-5 a:nth-of-type(1) {
-        color: #000000;
-        text-decoration: none;
-      }
-      .community-rich-6 a:nth-of-type(1) {
-        color: #000000;
-        text-decoration: none;
-      }
-      .community-rich-7 a:nth-of-type(1) {
-        color: #000000;
-        text-decoration: none;
-      }
-      .community-rich-8 a:nth-of-type(1) {
-        color: #000000;
-        text-decoration: none;
-      }
-      /* Two 220px columns need 538px: 440px + 80px section padding,
+      /* Two 222px columns need 542px: 444px + 80px section padding,
          2px card border, and 16px body padding. Recommendations keep 480px. */
-      @media only screen and (max-width: 537px) {
+      @media only screen and (max-width: 541px) {
         .nike-tracking-column {
           width: 100% !important;
           max-width: 100% !important;
         }
       }
       @media only screen and (max-width: 479px) {
+        .nike-store-navigation > table {
+          width: 100% !important;
+        }
+        .nike-store-navigation > table > tbody > tr > td {
+          display: block;
+          width: auto;
+        }
         .nike-recommendations > table > tbody > tr > td {
           padding-left: 14px !important;
           padding-right: 14px !important;
@@ -108,7 +113,12 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
     ></mj-section>
     <mj-wrapper padding="0px" border="1px solid #e5e5e5" css-class="nike-receipt-card">
       <mj-section padding="22px 40px" background-color="#F7F7F7" css-class="nike-tracking">
-        <mj-column padding="0px" width="50%" css-class="nike-tracking-column">
+        <mj-column
+          padding="0px"
+          width="50%"
+          vertical-align="middle"
+          css-class="nike-tracking-column"
+        >
           <mj-text padding="0px" font-size="14px" line-height="2" font-weight="700"
             >Tracking Number</mj-text
           >
@@ -137,7 +147,8 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             color="#000000"
             border="1px solid #929292"
             font-weight="500"
-            width="220px"
+            width="222px"
+            css-class="nike-source-control"
             >Track Package</mj-button
           >
         </mj-column>
@@ -273,7 +284,8 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             color="#000000"
             border="1px solid #929292"
             font-weight="500"
-            width="220px"
+            width="222px"
+            css-class="nike-source-control"
             >Order Status</mj-button
           >
         </mj-column>
@@ -513,50 +525,22 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
           >
         </mj-column>
       </mj-section>
-      <mj-section padding="12px 115px 34px">
-        <mj-column padding="0px" width="25%">
-          <mj-text
+      <mj-section padding="12px 0px 34px">
+        <mj-column padding="0px">
+          <mj-table
             padding="0px"
             font-size="16px"
-            line-height="1.5"
-            font-weight="500"
+            width="370px"
+            table-layout="auto"
             align="center"
-            css-class="community-rich-5 nike-source-link"
-            ><a href="https://www.nike.com/">Men</a>
-          </mj-text>
-        </mj-column>
-        <mj-column padding="0px" width="25%">
-          <mj-text
-            padding="0px"
-            font-size="16px"
-            line-height="1.5"
-            font-weight="500"
-            align="center"
-            css-class="community-rich-6 nike-source-link"
-            ><a href="https://www.nike.com/">Women</a>
-          </mj-text>
-        </mj-column>
-        <mj-column padding="0px" width="25%">
-          <mj-text
-            padding="0px"
-            font-size="16px"
-            line-height="1.5"
-            font-weight="500"
-            align="center"
-            css-class="community-rich-7 nike-source-link"
-            ><a href="https://www.nike.com/">Kids</a>
-          </mj-text>
-        </mj-column>
-        <mj-column padding="0px" width="25%">
-          <mj-text
-            padding="0px"
-            font-size="16px"
-            line-height="1.5"
-            font-weight="500"
-            align="center"
-            css-class="community-rich-8 nike-source-link"
-            ><a href="https://www.nike.com/">Customize</a>
-          </mj-text>
+            css-class="nike-store-navigation"
+            ><tr>
+              <td style="text-align: center"><a href="https://www.nike.com/">Men</a></td>
+              <td style="text-align: center"><a href="https://www.nike.com/">Women</a></td>
+              <td style="text-align: center"><a href="https://www.nike.com/">Kids</a></td>
+              <td style="text-align: center"><a href="https://www.nike.com/">Customize</a></td>
+            </tr></mj-table
+          >
         </mj-column>
       </mj-section>
       <mj-section padding="0px">
@@ -566,8 +550,18 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
       </mj-section>
       <mj-section padding="22px 0px">
         <mj-column padding="0px">
-          <mj-text padding="0px" font-size="13px" line-height="24px" color="#AFAFAF" align="center"
-            >Web Version &nbsp;&nbsp;&nbsp; Privacy Policy</mj-text
+          <mj-table
+            padding="0px"
+            font-size="13px"
+            line-height="24px"
+            color="#AFAFAF"
+            width="166px"
+            table-layout="auto"
+            align="center"
+            ><tr>
+              <td style="text-align: center">Web Version</td>
+              <td style="text-align: center">Privacy Policy</td>
+            </tr></mj-table
           >
           <mj-text
             padding="30px 0px"

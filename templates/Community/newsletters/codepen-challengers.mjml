@@ -1,6 +1,8 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/newsletters/codepen-challengers.tsx
-Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
+The challenge link's bottom padding includes its own 10px and the following
+heading's collapsed 0.67em top margin at 32px (21.44px). -->
 <mjml>
   <mj-head>
     <mj-title>#CodePenChallenge: Cubes</mj-title>
@@ -235,7 +237,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     <mj-section padding="0px">
       <mj-column padding="0px">
         <mj-text
-          padding="10px 0px 26px"
+          padding="10px 0px 31.44px"
           font-size="13px"
           line-height="24px"
           align="center"

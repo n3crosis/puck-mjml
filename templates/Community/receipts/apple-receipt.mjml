@@ -104,9 +104,43 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       .community-rich-3 div {
         line-height: normal !important;
       }
+      /* Preserve the source table's intrinsic label/divider/90px price layout. */
+      .apple-total-row table {
+        font-weight: 600;
+        word-break: normal;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      .apple-total-row td {
+        vertical-align: middle;
+      }
+      .apple-total-row td:first-child p {
+        padding-right: 30px;
+        font-size: 10px;
+        color: #666666;
+      }
+      .apple-total-row td:nth-child(2) {
+        min-height: 48px;
+        border-left: 1px solid #eeeeee;
+      }
+      .apple-total-row td:last-child p {
+        margin-right: 20px;
+        white-space: nowrap;
+      }
       .apple-wallet-cta {
-        width: 220px !important;
+        width: auto !important;
         max-width: 100%;
+      }
+      .apple-wallet-icon {
+        width: 36px !important;
+        max-width: 36px;
+      }
+      .apple-wallet-label {
+        width: auto !important;
+        max-width: none;
+      }
+      .community-rich-5 div {
+        line-height: normal !important;
       }
       @media only screen and (max-width: 479px) {
         .apple-item-icon {
@@ -117,6 +151,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         }
         .apple-item-description {
           width: 64% !important;
+        }
+        .apple-item-copy {
+          padding: 0 12px !important;
         }
         .apple-item-price {
           width: 16% !important;
@@ -225,7 +262,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     </mj-section>
     <mj-section padding="15px 20px 0px">
       <mj-group width="100%" css-class="apple-item-row">
-        <mj-column padding="0px" width="14%" css-class="apple-item-icon">
+        <mj-column padding="0px" width="66px" vertical-align="middle" css-class="apple-item-icon">
           <mj-image
             src="https://demo.react.email/static/apple-hbo-max-icon.jpeg"
             alt="HBO Max"
@@ -237,19 +274,38 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
             border="1px solid #f2f2f2"
           />
         </mj-column>
-        <mj-column padding="0px 12px" width="72%" css-class="apple-item-description">
-          <mj-text padding="0px" font-size="12px" line-height="1.4" font-weight="600"
+        <mj-column
+          padding="0px"
+          width="454px"
+          vertical-align="middle"
+          css-class="apple-item-description"
+        >
+          <mj-text
+            padding="0px 0px 0px 22px"
+            font-size="12px"
+            line-height="1.4"
+            font-weight="600"
+            css-class="apple-item-copy"
             >HBO Max: Stream TV &amp; Movies</mj-text
           >
-          <mj-text padding="0px" font-size="12px" line-height="1.4" color="#666666"
+          <mj-text
+            padding="0px 0px 0px 22px"
+            font-size="12px"
+            line-height="1.4"
+            color="#666666"
+            css-class="apple-item-copy"
             >HBO Max Ad-Free (Monthly)<br />Renews Aug 20, 2023</mj-text
           >
-          <mj-text padding="0px" font-size="16px" line-height="1.5" css-class="community-rich-3"
+          <mj-text
+            padding="0px 0px 0px 22px"
+            font-size="16px"
+            line-height="1.5"
+            css-class="apple-item-copy community-rich-3"
             ><a href="https://www.apple.com/">Write a Review</a><em>|</em
             ><a href="https://www.apple.com/">Report a Problem</a>
           </mj-text>
         </mj-column>
-        <mj-column padding="0px" width="14%" css-class="apple-item-price">
+        <mj-column padding="0px" width="100px" css-class="apple-item-price">
           <mj-text padding="0px" font-size="12px" line-height="24px" font-weight="600" align="right"
             >$14.99</mj-text
           >
@@ -258,37 +314,23 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     </mj-section>
     <mj-section padding="0px">
       <mj-column padding="0px">
-        <mj-divider border-color="#eeeeee" border-width="1px" padding="30px 0px 0px" />
+        <mj-divider border-color="#eaeaea" border-width="1px" padding="30px 0px 0px" />
       </mj-column>
-    </mj-section>
-    <mj-section padding="0px 20px">
-      <mj-group width="100%" css-class="apple-total-row">
-        <mj-column padding="0px" width="80%" vertical-align="middle">
-          <mj-text
-            padding="0px 30px"
-            font-size="10px"
-            line-height="24px"
-            color="#666666"
-            font-weight="600"
-            align="right"
-            >TOTAL</mj-text
-          >
-        </mj-column>
-        <mj-column padding="0px" width="20%" border-left="1px solid #eeeeee">
-          <mj-text
-            padding="16px 0px"
-            font-size="16px"
-            line-height="1.5"
-            font-weight="600"
-            align="right"
-            >$14.99</mj-text
-          >
-        </mj-column>
-      </mj-group>
     </mj-section>
     <mj-section padding="0px">
       <mj-column padding="0px">
-        <mj-divider border-color="#eeeeee" border-width="1px" padding="0px 0px 75px" />
+        <mj-table padding="0px" font-size="16px" line-height="24px" css-class="apple-total-row"
+          ><tr>
+            <td style="text-align: right"><p>TOTAL</p></td>
+            <td style="padding: 48px 0px 0px"></td>
+            <td style="width: 90px; text-align: right"><p>$14.99</p></td>
+          </tr></mj-table
+        >
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0px">
+      <mj-column padding="0px">
+        <mj-divider border-color="#eaeaea" border-width="1px" padding="0px 0px 75px" />
         <mj-image
           src="https://demo.react.email/static/apple-card-icon.png"
           alt="Apple Card"
@@ -298,7 +340,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           padding="0px"
         />
         <mj-text
-          padding="15px 0px 10px"
+          padding="16px 0px"
           font-size="24px"
           line-height="1"
           font-weight="500"
@@ -309,18 +351,23 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     </mj-section>
     <mj-section padding="0px">
       <mj-group width="220px" css-class="apple-wallet-cta">
-        <mj-column padding="0px" width="16%" vertical-align="middle">
+        <mj-column padding="0px" width="36px" vertical-align="middle" css-class="apple-wallet-icon">
           <mj-image
             src="https://demo.react.email/static/apple-wallet.png"
             alt="Apple Wallet"
             width="28px"
             height="28px"
             align="right"
-            padding="0px 7px 0px 0px"
+            padding="0px 8px 0px 0px"
             href="https://www.apple.com/"
           />
         </mj-column>
-        <mj-column padding="0px" width="84%" vertical-align="middle">
+        <mj-column
+          padding="0px"
+          width="184px"
+          vertical-align="middle"
+          css-class="apple-wallet-label"
+        >
           <mj-text padding="0px" font-size="14px" line-height="1.5" css-class="community-rich-5"
             ><a href="https://www.apple.com/">Apply and use in minutes</a>
           </mj-text>
@@ -329,7 +376,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     </mj-section>
     <mj-section padding="0px">
       <mj-column padding="0px">
-        <mj-divider border-color="#eeeeee" border-width="1px" padding="65px 0px 20px" />
+        <mj-divider border-color="#eaeaea" border-width="1px" padding="65px 0px 20px" />
         <mj-text
           padding="0px 0px 16px"
           font-size="12px"
@@ -378,7 +425,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           >Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch.</mj-text
         >
         <mj-text
-          padding="0px 0px 16px"
+          padding="0px"
           font-size="12px"
           line-height="1.2"
           color="#666666"
@@ -435,7 +482,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           width="26px"
           height="26px"
           align="center"
-          padding="40px 0px 0px"
+          padding="60px 0px 0px"
         />
         <mj-text
           padding="8px 0px 0px"

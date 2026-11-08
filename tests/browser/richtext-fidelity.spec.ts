@@ -315,6 +315,21 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     await cell.getByText("Second value", { exact: true }).dblclick();
     const editor = cell.getByRole("textbox");
     await expect(editor).toBeVisible();
+    const separator = canvas.getByRole("separator", {
+      name: "Resize columns 1 and 2",
+      exact: true,
+    });
+    // Stacked cells have no shared vertical column edge. Keep the selection
+    // through a viewport round-trip so stale handles cannot cover their text.
+    for (const mode of [
+      viewport,
+      viewport === "Mobile" ? "Desktop" : "Mobile",
+      viewport,
+    ] as const) {
+      await selectCanvasViewport(page, mode);
+      await expect(separator).toHaveCount(mode === "Mobile" ? 0 : 1);
+    }
+    await expect.poll(() => measure(canvas)).toEqual(expected);
     await editor.click();
     await expect(editor).toBeFocused();
     await editor.press("ControlOrMeta+End");

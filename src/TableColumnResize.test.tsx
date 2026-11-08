@@ -86,11 +86,13 @@ const initial: TableProps = {
     },
   ],
 };
+type Layout = { stacked?: boolean; stackedBody?: boolean; hiddenHeader?: boolean };
 async function mount(
   props = initial,
   readOnly: Record<string, boolean | undefined> = {},
   edit = true,
   direction: "ltr" | "rtl" = "ltr",
+  layout: Layout = {},
 ) {
   const original = HTMLElement.prototype.getBoundingClientRect;
   vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
@@ -104,6 +106,12 @@ async function mount(
     if (this.matches(".pm-table th, .pm-table td")) {
       const cells = [...this.parentElement!.children] as HTMLElement[];
       const index = cells.indexOf(this);
+      const row = [...this.closest("table")!.rows].indexOf(
+        this.parentElement as HTMLTableRowElement,
+      );
+      if (layout.hiddenHeader && this.closest("thead")) return rect(0, 0, 0, 0);
+      if (layout.stacked || (layout.stackedBody && this.closest("tbody")))
+        return rect(100, 50 + row * 80 + index * 40, 500, 40);
       const explicit = cells.map((cell) => parseFloat(cell.style.width) || 0);
       const remaining = 100 - explicit.reduce((sum, width) => sum + width, 0);
       const implicit = explicit.filter((width) => !width).length;
@@ -111,7 +119,7 @@ async function mount(
       const preceding = widths.slice(0, index).reduce((a, b) => a + b, 0);
       return rect(
         100 + (direction === "rtl" ? 100 - preceding - widths[index] : preceding) * 5,
-        50,
+        50 + row * 40,
         widths[index] * 5,
         40,
       );
@@ -180,6 +188,18 @@ async function key(key: string) {
   );
   await settle();
 }
+function measureRows(rows: DOMRect[][]) {
+  const host = document.createElement("div");
+  const table = document.createElement("table");
+  for (const row of rows) {
+    const element = table.insertRow();
+    for (const box of row)
+      vi.spyOn(element.insertCell(), "getBoundingClientRect").mockReturnValue(box);
+  }
+  vi.spyOn(host, "getBoundingClientRect").mockReturnValue(rect(100, 50, 500, 200));
+  vi.spyOn(table, "getBoundingClientRect").mockReturnValue(rect(100, 50, 500, 200));
+  return measureTableColumns(table, host, 2);
+}
 
 describe("table column resize", () => {
   it("measures boundaries in overlay coordinates, including zoom and cell spacing", () => {
@@ -212,6 +232,185 @@ describe("table column resize", () => {
     expect(measureTableColumns(table, host, 2)?.direction).toBe(-1);
     expect(resizeColumnPair([40, 40, 20], 0, 100)).toEqual([75, 5, 20]);
     expect(resizeColumnPair([40, 40, 20], 0, -100)).toEqual([5, 75, 20]);
+  });
+
+  it.each([
+    {
+      name: "stacked cells",
+      rows: [[rect(100, 50, 500, 40), rect(100, 90, 500, 40)]],
+    },
+    {
+      name: "a stacked body below a horizontal header",
+      rows: [
+        [rect(100, 50, 200, 40), rect(300, 50, 300, 40)],
+        [rect(100, 90, 500, 40), rect(100, 130, 500, 40)],
+      ],
+    },
+    {
+      name: "vertically wrapped cells with adjacent x coordinates",
+      rows: [[rect(100, 50, 200, 40), rect(300, 90, 300, 40)]],
+    },
+    {
+      name: "overlapping cells",
+      rows: [[rect(100, 50, 300, 40), rect(300, 50, 300, 40)]],
+    },
+    {
+      name: "reordered columns in a later row",
+      rows: [
+        [rect(100, 50, 200, 40), rect(300, 50, 300, 40)],
+        [rect(300, 90, 300, 40), rect(100, 90, 200, 40)],
+      ],
+    },
+    {
+      name: "different column boundaries in a later row",
+      rows: [
+        [rect(100, 50, 200, 40), rect(300, 50, 300, 40)],
+        [rect(100, 90, 250, 40), rect(350, 90, 250, 40)],
+      ],
+    },
+    {
+      name: "a partially hidden row",
+      rows: [[rect(0, 0, 0, 0), rect(300, 50, 300, 40)]],
+    },
+    { name: "a ragged rendered row", rows: [[rect(100, 50, 500, 40)]] },
+    { name: "only hidden rows", rows: [[rect(0, 0, 0, 0), rect(0, 0, 0, 0)]] },
+    {
+      name: "non-finite bounds",
+      rows: [[rect(100, 50, Number.NaN, 40), rect(300, 50, 300, 40)]],
+    },
+  ])("does not invent a column boundary for $name", ({ rows }) => {
+    expect(measureRows(rows)).toBeNull();
+  });
+
+  it.each(["ltr", "rtl"] as const)(
+    "measures a visible %s grid without including hidden rows",
+    (direction) => {
+      const row = [rect(100, 90, 200, 40), rect(300, 90, 300, 40)];
+      const footer = [rect(100, 170, 200, 40), rect(300, 170, 300, 40)];
+      if (direction === "rtl") {
+        row.reverse();
+        footer.reverse();
+      }
+      const geometry = measureRows([
+        [rect(0, 0, 0, 0), rect(0, 0, 0, 0)],
+        row,
+        [rect(100, 130, 200, 0), rect(300, 130, 300, 0)],
+        footer,
+      ])!;
+      expect(geometry.top).toBe(40);
+      expect(geometry.height).toBe(160);
+      expect(geometry.boundaries).toEqual([200]);
+      expect(geometry.widths).toEqual(direction === "rtl" ? [60, 40] : [40, 60]);
+      expect(geometry.direction).toBe(direction === "rtl" ? -1 : 1);
+    },
+  );
+
+  it.each(["ltr", "rtl"] as const)(
+    "removes stacked %s controls, cancels a pending drag, and restores the grid without history",
+    async (direction) => {
+      const layout: Layout = {};
+      await mount(initial, {}, true, direction, layout);
+      const before = saved();
+      const start = direction === "rtl" ? 400 : 300;
+      const left = handle().style.left;
+      expect(handle().tabIndex).toBe(0);
+      await pointer("pointerdown", start);
+      await pointer("pointermove", start + 50);
+      expect(handle().dataset.resizing).toBe("true");
+      layout.stackedBody = true;
+      window.dispatchEvent(new Event("resize"));
+      await settle();
+      expect(handle()).toBeNull();
+      expect(saved()).toBe(before);
+      expect(api!.history.hasPast).toBe(false);
+      layout.stackedBody = false;
+      window.dispatchEvent(new Event("resize"));
+      await settle();
+      expect(handle().style.left).toBe(left);
+      expect(handle().dataset.resizing).toBeUndefined();
+      await pointer("pointerup", start + 50);
+      expect(saved()).toBe(before);
+      expect(api!.history.hasPast).toBe(false);
+      await key("ArrowRight");
+      expect(saved().bodyRows![0].cells[0].width).toBe(direction === "rtl" ? "39%" : "41%");
+    },
+  );
+
+  it("rejects stale pointer-up and keyboard edits before responsive remeasurement runs", async () => {
+    const layout: Layout = {};
+    await mount(initial, {}, true, "ltr", layout);
+    const before = saved();
+    await pointer("pointerdown", 300);
+    await pointer("pointermove", 350);
+    layout.stacked = true;
+    // No resize event or observer callback: the interaction itself must verify
+    // that the previously measured column grid still exists.
+    await pointer("pointerup", 350);
+    await key("ArrowRight");
+    expect(saved()).toBe(before);
+    expect(api!.history.hasPast).toBe(false);
+    expect(handle().dataset.resizing).toBeUndefined();
+    window.dispatchEvent(new Event("resize"));
+    await settle();
+    expect(handle()).toBeNull();
+  });
+
+  it("cancels a drag when a still-horizontal grid changes before pointer-up", async () => {
+    await mount();
+    const before = saved();
+    await pointer("pointerdown", 300);
+    await pointer("pointermove", 350);
+    for (const cell of container!.querySelectorAll<HTMLTableCellElement>(
+      ".pm-table th, .pm-table td",
+    ))
+      vi.spyOn(cell, "getBoundingClientRect").mockReturnValue(
+        rect(cell.cellIndex === 0 ? 100 : 260, 50, cell.cellIndex === 0 ? 160 : 240, 40),
+      );
+    await pointer("pointerup", 350);
+    expect(saved()).toBe(before);
+    expect(api!.history.hasPast).toBe(false);
+  });
+
+  it("remeasures cell-only layout changes even when the table and host sizes stay unchanged", async () => {
+    const observers: TestResizeObserver[] = [];
+    class TestResizeObserver implements ResizeObserver {
+      targets = new Set<Element>();
+      constructor(readonly callback: ResizeObserverCallback) {
+        observers.push(this);
+      }
+      observe(target: Element) {
+        this.targets.add(target);
+      }
+      unobserve(target: Element) {
+        this.targets.delete(target);
+      }
+      disconnect() {
+        this.targets.clear();
+      }
+    }
+    vi.stubGlobal("ResizeObserver", TestResizeObserver);
+    const layout: Layout = { hiddenHeader: true };
+    await mount(initial, {}, true, "ltr", layout);
+    const before = saved();
+    expect(handle()).not.toBeNull();
+    const cell = container!.querySelector(".pm-table tbody td")!;
+    const observer = observers.find((candidate) => candidate.targets.has(cell))!;
+    expect(observer).toBeDefined();
+    expect(observer.targets.has(cell.parentElement!)).toBe(true);
+    await pointer("pointerdown", 300);
+    await pointer("pointermove", 350);
+    layout.stackedBody = true;
+    observer.callback([], observer);
+    await settle();
+    expect(handle()).toBeNull();
+    layout.stackedBody = false;
+    observer.callback([], observer);
+    await settle();
+    expect(handle()).not.toBeNull();
+    expect(handle().dataset.resizing).toBeUndefined();
+    await pointer("pointerup", 350);
+    expect(saved()).toBe(before);
+    expect(api!.history.hasPast).toBe(false);
   });
 
   it("moves an RTL boundary with the pointer and arrow keys while preserving undo", async () => {

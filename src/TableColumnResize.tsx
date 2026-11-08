@@ -20,11 +20,11 @@ type Drag = {
   pointer: number;
   index: number;
   startX: number;
-  widths: number[];
-  pixels: number;
-  direction: 1 | -1;
+  geometry: Geometry;
   next: number[];
 };
+const sameGeometry = (a: Geometry | null, b: Geometry | null) =>
+  JSON.stringify(a) === JSON.stringify(b);
 
 /** Modern rows retain all original cell content and style values. */
 export function rectangularTableRows(props: TableProps): Rows | null {
@@ -87,17 +87,51 @@ export function measureTableColumns(
   host: HTMLElement,
   count: number,
 ): Geometry | null {
-  const cells = [...(table.rows[0]?.cells ?? [])];
-  if (cells.length !== count || cells.length < 2) return null;
-  const boxes = cells.map((cell) => cell.getBoundingClientRect());
-  const pixels = boxes.reduce((sum, box) => sum + box.width, 0);
-  if (!pixels || boxes.some((box) => !box.width)) return null;
+  const renderedRows = [...table.rows]
+    .map((row) => [...row.cells].map((cell) => cell.getBoundingClientRect()))
+    // Hidden/collapsed rows have no hit area and must not hide controls for the
+    // remaining visible grid. A partially hidden row is still checked below.
+    .filter((boxes) => boxes.some((box) => box.height !== 0));
+  const boxes = renderedRows[0];
+  if (!boxes || count < 2) return null;
   const rect = table.getBoundingClientRect();
   const base = host.getBoundingClientRect();
   const scale = host.offsetWidth > 0 && base.width > 0 ? base.width / host.offsetWidth : 1;
   // Use rendered cell order: direction can come from the document or custom
   // CSS, and RTL places the first logical cell to the right of the next cell.
+  if (boxes.length !== count) return null;
   const direction = boxes[0].left > boxes[1].left ? -1 : 1;
+  const tolerance = scale / 2;
+  if (
+    renderedRows.some(
+      (row) =>
+        row.length !== count ||
+        row.some((box, index) => {
+          if (
+            ![box.left, box.right, box.top, box.bottom, box.width, box.height].every(
+              Number.isFinite,
+            ) ||
+            box.width <= 0 ||
+            box.height <= 0 ||
+            Math.abs(box.left - boxes[index].left) > tolerance ||
+            Math.abs(box.right - boxes[index].right) > tolerance
+          )
+            return true;
+          const previous = row[index - 1];
+          return (
+            previous !== undefined &&
+            (Math.min(previous.bottom, box.bottom) <= Math.max(previous.top, box.top) ||
+              (direction === 1
+                ? previous.right > box.left + tolerance
+                : box.right > previous.left + tolerance))
+          );
+        }),
+    )
+  )
+    // Authored CSS may stack, wrap, hide or reorder cells independently of the
+    // logical table model. Only a shared horizontal grid has column boundaries.
+    return null;
+  const pixels = boxes.reduce((sum, box) => sum + box.width, 0);
   return {
     top: (boxes[0].top - base.top) / scale,
     height: (rect.bottom - boxes[0].top) / scale,
@@ -127,6 +161,7 @@ export function TableColumnResize({
   const count = rows ? groups.flatMap((group) => rows[group])[0].cells.length : 0;
   const marker = useRef<HTMLSpanElement>(null);
   const drag = useRef<Drag | null>(null);
+  const readGeometry = useRef<(() => Geometry | null) | null>(null);
   const [geometry, setGeometry] = useState<Geometry | null>(null);
   const [preview, setPreview] = useState<{ index: number; widths: number[] } | null>(null);
   const allowed = (
@@ -152,6 +187,7 @@ export function TableColumnResize({
     // A host replacement, undo, or changed lock invalidates measurements captured
     // at pointerdown. Never apply that pending drag to a different table state.
     drag.current = null;
+    readGeometry.current = null;
     setPreview(null);
     const element = marker.current;
     const host = element?.parentElement;
@@ -169,13 +205,16 @@ export function TableColumnResize({
       setGeometry(null);
       return;
     }
+    readGeometry.current = () => measureTableColumns(table, host, count);
     let frame: number | undefined;
     const measure = () => {
       frame = undefined;
       const next = measureTableColumns(table, host, count);
-      setGeometry((previous) =>
-        JSON.stringify(previous) === JSON.stringify(next) ? previous : next,
-      );
+      if (drag.current && !sameGeometry(drag.current.geometry, next)) {
+        drag.current = null;
+        setPreview(null);
+      }
+      setGeometry((previous) => (sameGeometry(previous, next) ? previous : next));
     };
     const schedule = () => {
       if (frame === undefined) frame = view.requestAnimationFrame(measure);
@@ -185,6 +224,10 @@ export function TableColumnResize({
     const resize = new view.ResizeObserver(schedule);
     resize.observe(table);
     resize.observe(host);
+    for (const row of table.rows) {
+      resize.observe(row);
+      for (const cell of row.cells) resize.observe(cell);
+    }
     const mutations = new view.MutationObserver(schedule);
     mutations.observe(table, { attributes: true, childList: true, subtree: true });
     for (let ancestor: HTMLElement | null = host; ancestor; ancestor = ancestor.parentElement)
@@ -192,6 +235,7 @@ export function TableColumnResize({
     view.addEventListener("resize", schedule);
     view.addEventListener("scroll", schedule, true);
     return () => {
+      readGeometry.current = null;
       if (frame !== undefined) view.cancelAnimationFrame(frame);
       resize.disconnect();
       mutations.disconnect();
@@ -239,10 +283,16 @@ export function TableColumnResize({
     if (!state || state.pointer !== event.pointerId) return null;
     event.preventDefault();
     event.stopPropagation();
+    // A responsive switch can arrive before the scheduled observer callback.
+    // Never commit widths captured from a grid that no longer exists.
+    if (!sameGeometry(readGeometry.current?.() ?? null, state.geometry)) {
+      cancel();
+      return null;
+    }
     state.next = resizeColumnPair(
-      state.widths,
+      state.geometry.widths,
       state.index,
-      ((event.clientX - state.startX) / state.pixels) * 100 * state.direction,
+      ((event.clientX - state.startX) / state.geometry.pixels) * 100 * state.geometry.direction,
     );
     return state;
   };
@@ -287,6 +337,8 @@ export function TableColumnResize({
                 }}
                 onPointerDown={(event) => {
                   if (event.button !== 0) return;
+                  const current = readGeometry.current?.();
+                  if (!current) return;
                   event.preventDefault();
                   event.stopPropagation();
                   event.currentTarget.focus({ preventScroll: true });
@@ -295,12 +347,11 @@ export function TableColumnResize({
                     pointer: event.pointerId,
                     index,
                     startX: event.clientX,
-                    widths: geometry.widths,
-                    pixels: geometry.pixels,
-                    direction: geometry.direction,
-                    next: geometry.widths,
+                    geometry: current,
+                    next: current.widths,
                   };
-                  setPreview({ index, widths: geometry.widths });
+                  setGeometry(current);
+                  setPreview({ index, widths: current.widths });
                 }}
                 onPointerMove={(event) => {
                   const state = nextDrag(event);
@@ -313,7 +364,7 @@ export function TableColumnResize({
                   event.currentTarget.releasePointerCapture?.(event.pointerId);
                   if (
                     state.next.some(
-                      (width, column) => Math.abs(width - state.widths[column]) > 0.01,
+                      (width, column) => Math.abs(width - state.geometry.widths[column]) > 0.01,
                     )
                   )
                     commit(state.index, state.next);
@@ -330,12 +381,14 @@ export function TableColumnResize({
                   if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
                   event.preventDefault();
                   event.stopPropagation();
+                  const current = readGeometry.current?.();
+                  if (!current) return;
                   const next = resizeColumnPair(
-                    geometry.widths,
+                    current.widths,
                     index,
-                    (event.key === "ArrowRight" ? 1 : -1) * geometry.direction,
+                    (event.key === "ArrowRight" ? 1 : -1) * current.direction,
                   );
-                  if (next !== geometry.widths) commit(index, next);
+                  if (next !== current.widths) commit(index, next);
                 }}
               >
                 <span className="pm-table-resize-grip" aria-hidden="true">

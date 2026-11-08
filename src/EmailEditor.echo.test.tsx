@@ -126,6 +126,18 @@ it("retains the editor and history for equivalent host clones, including after s
   await act(async () => replaceHost(clone));
   expect(container.querySelector(".Puck")).toBe(puck);
   expect(api.history.index).toBe(history);
+  // JSON object key order is not document content. Hosts may canonicalize it
+  // when persisting or echoing a draft without replacing the user's session.
+  const reordered = JSON.parse(
+    JSON.stringify(clone, (_key, entry: unknown) =>
+      entry && typeof entry === "object" && !Array.isArray(entry)
+        ? Object.fromEntries(Object.entries(entry).reverse())
+        : entry,
+    ),
+  ) as EmailDocument;
+  await act(async () => replaceHost(reordered));
+  expect(container.querySelector(".Puck")).toBe(puck);
+  expect(api.history.index).toBe(history);
   const equivalent = structuredClone(clone);
   textBlock(equivalent).props.content = '<p onclick="unsafe()">Edited<script>unsafe()</script></p>';
   await act(async () => replaceHost(equivalent));
@@ -141,6 +153,10 @@ it("sanitizes materially changed host replacements and resets only the replaced 
   const puck = container.querySelector(".Puck");
   const replacement = structuredClone(value);
   replacement.root.props!.previewText = "Replacement preview";
+  replacement.root.props!.headStyles = [
+    { css: ".example { color: red; }", inline: "head" },
+    { css: ".example { color: blue; }", inline: "head" },
+  ];
   textBlock(replacement).props.content =
     '<p onclick="unsafe()">Replacement<script>unsafe()</script></p>';
   await act(async () => replaceHost(replacement));
@@ -149,4 +165,12 @@ it("sanitizes materially changed host replacements and resets only the replaced 
   expect(api.appState.data.root.props?.previewText).toBe("Replacement preview");
   expect(api.history.hasPast).toBe(false);
   expect(textBlock(replacement).props.content).toContain("onclick");
+
+  // Unlike object keys, array order is meaningful (for example the CSS cascade).
+  const beforeReorder = container.querySelector(".Puck");
+  const reordered = structuredClone(replacement);
+  reordered.root.props!.headStyles!.reverse();
+  await act(async () => replaceHost(reordered));
+  expect(container.querySelector(".Puck")).not.toBe(beforeReorder);
+  expect(api.appState.data.root.props?.headStyles).toEqual(reordered.root.props!.headStyles);
 });

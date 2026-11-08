@@ -439,3 +439,22 @@ test("import dialog traps focus, fits a narrow screen and restores focus after c
   await expect(dialog).toBeHidden();
   await expect(page.getByRole("button", { name: "Import", exact: true })).toBeFocused();
 });
+
+test("a successful delayed file import restores focus after the editor replaces its header", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Import", exact: true }).evaluate((button) => {
+    button.setAttribute("data-import-focus-before-replacement", "true");
+  });
+  await beginDelayedImport(page, source("Asynchronous import"));
+  await finishDelayedImport(page);
+  await expect(page.getByRole("dialog", { name: "Import MJML", exact: true })).toBeHidden();
+  await expect(page.getByRole("combobox", { name: "Email template" })).toHaveValue("imported");
+  await expect(page.getByRole("textbox", { name: "Preview text", exact: true })).toHaveValue(
+    "Asynchronous import preview",
+  );
+  // Puck intentionally remounts on document replacement. Wait for the original
+  // trigger to disappear, then check its successor rather than an old node.
+  await expect(page.locator("[data-import-focus-before-replacement]")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Import", exact: true })).toBeFocused();
+});

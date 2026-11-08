@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/csr/CaretDown";
 import { UploadSimpleIcon } from "@phosphor-icons/react/dist/csr/UploadSimple";
@@ -24,6 +24,24 @@ export function App() {
   const [status, setStatus] = useState("");
   const [importOpen, setImportOpen] = useState(false);
   const importButtonRef = useRef<HTMLButtonElement>(null);
+  const importFocusPending = useRef(false);
+  const setImportButtonRef = useCallback((button: HTMLButtonElement | null) => {
+    const previous = importButtonRef.current;
+    if (!button) {
+      // Successful async imports can close the dialog before Puck reconciles
+      // the replacement document. Transfer only focus owned by the old trigger.
+      importFocusPending.current = Boolean(
+        previous && previous.ownerDocument.activeElement === previous,
+      );
+    }
+    importButtonRef.current = button;
+    if (button && importFocusPending.current) {
+      importFocusPending.current = false;
+      const document = button.ownerDocument;
+      if (!document.activeElement || document.activeElement === document.body)
+        button.focus({ preventScroll: true });
+    }
+  }, []);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [baseline, setBaseline] = useState(() => documentSnapshot(value));
   const dirty = useMemo(() => hasUnsavedChanges(value, baseline), [value, baseline]);
@@ -164,7 +182,7 @@ export function App() {
                 </label>
                 <span className="demo-divider" />
                 <button
-                  ref={importButtonRef}
+                  ref={setImportButtonRef}
                   type="button"
                   className="demo-import"
                   aria-haspopup="dialog"

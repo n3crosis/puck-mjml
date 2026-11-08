@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   Puck,
   createUsePuck,
@@ -26,7 +35,14 @@ import { usePreviewFocus } from "./preview-focus";
 import { RawHtmlPolicy } from "./RawHtmlPolicy";
 import type { CompiledEmail, EmailDocument, EmailEditorProps } from "./types";
 
-const fingerprint = (value: EmailDocument) => JSON.stringify(value);
+// Hosts may reorder JSON object keys while saving or echoing a draft. Only
+// document content, including array order, should reset selection and history.
+const fingerprint = (value: EmailDocument) =>
+  JSON.stringify(value, (_key, entry: unknown) =>
+    entry && typeof entry === "object" && !Array.isArray(entry)
+      ? Object.fromEntries(Object.entries(entry).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      : entry,
+  );
 // Puck otherwise creates a new empty plugin array when host props update,
 // rebuilding slot renderers and unmounting focused inline text editors.
 const editorPlugins: Plugin[] = [];
@@ -37,6 +53,25 @@ const editorViewports: Viewports = [
   { width: 390, label: "Mobile" },
 ];
 const usePuck = createUsePuck();
+
+const HeaderActionsContext = createContext<{
+  allowRawHtml: boolean;
+  showPublish: boolean;
+  actions: ReactNode;
+}>({ allowRawHtml: false, showPublish: false, actions: null });
+
+// Puck uses overrides as component types. Keep this type stable while context
+// supplies current host content, so a host render cannot replace focused controls.
+const EditorHeaderActions: Overrides["headerActions"] = ({ children }) => {
+  const { allowRawHtml, showPublish, actions } = useContext(HeaderActionsContext);
+  return (
+    <>
+      <RawHtmlPolicy enabled={allowRawHtml} />
+      {showPublish && children}
+      {actions}
+    </>
+  );
+};
 
 // Retain Puck's native controls while giving tablet canvases room to work.
 // This stable override changes only UI state, never document data or history.
@@ -92,9 +127,22 @@ export function EmailEditor({
   const previewOpen = previewDocument !== null;
   const [exportDocument, setExportDocument] = useState<EmailDocument | null>(null);
   const [previewWidth, setPreviewWidth] = useState<"desktop" | "mobile">("desktop");
-  const [compiled, setCompiled] = useState<CompiledEmail | null>(null);
-  const [previewError, setPreviewError] = useState("");
-  const [compiling, setCompiling] = useState(false);
+  const previewInput = useMemo(
+    () => previewDocument && { document: previewDocument, allowRawHtml, allowLocalImages },
+    [previewDocument, allowRawHtml, allowLocalImages],
+  );
+  const [previewCompilation, setPreviewCompilation] = useState<{
+    input: typeof previewInput;
+    result?: CompiledEmail;
+    error?: string;
+  }>();
+  // Never commit HTML or warnings from an older document, trust policy, or
+  // closed preview, including the render before compilation effects run.
+  const currentPreview =
+    previewCompilation?.input === previewInput ? previewCompilation : undefined;
+  const compiled = currentPreview?.result;
+  const previewError = currentPreview?.error;
+  const compiling = Boolean(previewInput && !currentPreview);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previewButtonRef = useRef<HTMLButtonElement>(null);
   const exportButtonRef = useRef<HTMLButtonElement>(null);
@@ -146,34 +194,35 @@ export function EmailEditor({
       setEditorData(next);
       setEditorKey((key) => key + 1);
       setPreviewDocument(null);
-      setCompiled(null);
       setExportDocument((openDocument) => (openDocument ? next : null));
     }
   }, [value]);
 
   useEffect(() => {
-    if (!previewDocument) return;
+    if (!previewInput) return;
     let cancelled = false;
-    setCompiling(true);
-    setCompiled(null);
-    setPreviewError("");
-    compileEmail(previewDocument, { allowRawHtml, allowLocalImages })
-      .then((result) => {
-        if (!cancelled) setCompiled(result);
-      })
-      .catch((error: unknown) => {
-        if (!cancelled) {
-          setCompiled(null);
-          setPreviewError(error instanceof Error ? error.message : "Unable to compile email");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setCompiling(false);
-      });
+    const { document, allowRawHtml, allowLocalImages } = previewInput;
+    Promise.resolve()
+      .then(() =>
+        cancelled ? undefined : compileEmail(document, { allowRawHtml, allowLocalImages }),
+      )
+      .then(
+        (result) => {
+          if (!cancelled && result) setPreviewCompilation({ input: previewInput, result });
+        },
+        (error: unknown) => {
+          if (!cancelled)
+            setPreviewCompilation({
+              input: previewInput,
+              error:
+                error instanceof Error && error.message ? error.message : "Unable to compile email",
+            });
+        },
+      );
     return () => {
       cancelled = true;
     };
-  }, [previewDocument, allowRawHtml, allowLocalImages]);
+  }, [previewInput]);
 
   useEffect(() => {
     if (!previewOpen) return;
@@ -195,35 +244,30 @@ export function EmailEditor({
     onChange(document);
   };
 
-  const renderHeaderActions = useCallback<Overrides["headerActions"]>(
-    ({ children }) => (
-      <>
-        <RawHtmlPolicy enabled={allowRawHtml} />
-        {onPublish && children}
-        {headerActions}
-        <button
-          type="button"
-          className="pm-preview-button"
-          ref={previewButtonRef}
-          aria-label="Preview email"
-          onClick={() => setPreviewDocument(currentData.current)}
-        >
-          <EyeIcon aria-hidden="true" />
-          Preview
-        </button>
-        <button
-          type="button"
-          className="pm-preview-button"
-          ref={exportButtonRef}
-          aria-label="Export email"
-          onClick={() => setExportDocument(currentData.current)}
-        >
-          <ExportIcon aria-hidden="true" />
-          Export
-        </button>
-      </>
-    ),
-    [allowRawHtml, onPublish, headerActions],
+  const headerContent = (
+    <>
+      {headerActions}
+      <button
+        type="button"
+        className="pm-preview-button"
+        ref={previewButtonRef}
+        aria-label="Preview email"
+        onClick={() => setPreviewDocument(currentData.current)}
+      >
+        <EyeIcon aria-hidden="true" />
+        Preview
+      </button>
+      <button
+        type="button"
+        className="pm-preview-button"
+        ref={exportButtonRef}
+        aria-label="Export email"
+        onClick={() => setExportDocument(currentData.current)}
+      >
+        <ExportIcon aria-hidden="true" />
+        Export
+      </button>
+    </>
   );
 
   return (
@@ -239,30 +283,34 @@ export function EmailEditor({
           style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
         >
           <NativeDragPreviewProvider bridge={dragPreview}>
-            <Puck
-              key={editorKey}
-              config={config}
-              plugins={plugins}
-              dnd={{ enableDragHandle: true }}
-              height="100%"
-              data={editorData as Data}
-              onChange={handleChange}
-              onAction={dragPreview.onAction}
-              onPublish={onPublish ? (data) => onPublish(data as EmailDocument) : undefined}
-              overrides={{
-                puck: ResponsiveEditorLayout,
-                drawerItem: BlockPaletteItem,
-                outline: EmailOutline,
-                actionBar: SelectionActionBar,
-                componentOverlay: EditorComponentOverlay,
-                fieldTypes: emailFieldTypes,
-                fields: PropertyInspector,
-                fieldLabel: PropertyFieldLabel,
-                headerActions: renderHeaderActions,
-              }}
-              headerTitle={headerTitle}
-              viewports={editorViewports}
-            />
+            <HeaderActionsContext.Provider
+              value={{ allowRawHtml, showPublish: Boolean(onPublish), actions: headerContent }}
+            >
+              <Puck
+                key={editorKey}
+                config={config}
+                plugins={plugins}
+                dnd={{ enableDragHandle: true }}
+                height="100%"
+                data={editorData as Data}
+                onChange={handleChange}
+                onAction={dragPreview.onAction}
+                onPublish={onPublish ? (data) => onPublish(data as EmailDocument) : undefined}
+                overrides={{
+                  puck: ResponsiveEditorLayout,
+                  drawerItem: BlockPaletteItem,
+                  outline: EmailOutline,
+                  actionBar: SelectionActionBar,
+                  componentOverlay: EditorComponentOverlay,
+                  fieldTypes: emailFieldTypes,
+                  fields: PropertyInspector,
+                  fieldLabel: PropertyFieldLabel,
+                  headerActions: EditorHeaderActions,
+                }}
+                headerTitle={headerTitle}
+                viewports={editorViewports}
+              />
+            </HeaderActionsContext.Provider>
           </NativeDragPreviewProvider>
         </div>
         {exportDocument && (

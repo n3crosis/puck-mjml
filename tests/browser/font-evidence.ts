@@ -1,4 +1,4 @@
-import type { Locator, Page, Request } from "@playwright/test";
+import type { Frame, Locator, Page, Request } from "@playwright/test";
 import { load } from "cheerio";
 import { createFontAliases, familyKey } from "../../src/canvas-css";
 import { mjmlDefaultFonts } from "../../src/canvas-font-resolver";
@@ -19,6 +19,12 @@ export type CanvasFontCssEvidence = {
   errors: string | null;
   missingAliases?: string[];
   inputsCurrent?: boolean;
+};
+export type ResourceOwnership = {
+  requestId?: number;
+  frameId?: number | null;
+  requestUrls?: string[];
+  sequence?: number;
 };
 
 /** Static head faces must not satisfy readiness for a pending imported face. */
@@ -135,19 +141,48 @@ export async function waitForFontRegistrations(
 /** Install before navigation/setContent: canvas warnings are deduplicated globally. */
 export function observeResources(page: Page, fonts: DeclaredFont[]) {
   const started = Date.now();
+  const frames = new WeakMap<Frame, number>();
+  const requests = new WeakMap<Request, number>();
+  let nextFrame = 0;
+  let nextRequest = 0;
+  let sequence = 0;
+  const frameId = (frame: Frame | null) => {
+    if (!frame) return null;
+    if (!frames.has(frame)) frames.set(frame, ++nextFrame);
+    return frames.get(frame)!;
+  };
+  const ownership = (request: Request): ResourceOwnership => {
+    if (!requests.has(request)) requests.set(request, ++nextRequest);
+    const requestUrls: string[] = [];
+    for (let current: Request | null = request; current; current = current.redirectedFrom())
+      requestUrls.push(current.url());
+    let owner: Frame | null = null;
+    // Service-worker requests (and detached frames) may have no available frame.
+    try {
+      owner = request.frame();
+    } catch {
+      // Unknown ownership is evidence, not a reason to discard a failure.
+    }
+    return {
+      requestId: requests.get(request),
+      frameId: frameId(owner),
+      requestUrls,
+      sequence: ++sequence,
+    };
+  };
   const fontStylesheets = new Set(fonts.map(({ stylesheetUrl }) => new URL(stylesheetUrl).href));
   const implicitStylesheets = new Set(mjmlDefaultFonts.map(({ href }) => new URL(href).href));
   const warnings: { text: string; url: string; line: number; type: string; elapsedMs: number }[] =
     [];
-  const failedRequests: {
+  const failedRequests: (ResourceOwnership & {
     url: string;
     resourceType: string;
     declaredFontStylesheet: boolean;
     implicitFontStylesheet?: boolean;
     error: string | null;
     elapsedMs: number;
-  }[] = [];
-  type ResourceResponse = {
+  })[] = [];
+  type ResourceResponse = ResourceOwnership & {
     url: string;
     resourceType: string;
     declaredFontStylesheet: boolean;
@@ -177,6 +212,7 @@ export function observeResources(page: Page, fonts: DeclaredFont[]) {
   });
   page.on("requestfailed", (request) => {
     failedRequests.push({
+      ...ownership(request),
       url: request.url(),
       resourceType: request.resourceType(),
       declaredFontStylesheet: isFontStylesheet(request),
@@ -193,6 +229,7 @@ export function observeResources(page: Page, fonts: DeclaredFont[]) {
       isFontStylesheet(request, implicitStylesheets) && !declaredFontStylesheet;
     const resourceType = request.resourceType();
     const evidence = {
+      ...ownership(request),
       url: response.url(),
       resourceType,
       declaredFontStylesheet,
@@ -212,14 +249,19 @@ export function observeResources(page: Page, fonts: DeclaredFont[]) {
     // Keep their HTTP status evidence separate from font/stylesheet failures.
     if (resourceType === "image") imageResponses.push(evidence);
   });
-  return () => ({
-    observedThroughMs: elapsedMs(),
-    warnings: [...warnings],
-    failedRequests: [...failedRequests],
-    fontAndStylesheetResponses: [...fontAndStylesheetResponses],
-    imageResponses: [...imageResponses],
-  });
+  return Object.assign(
+    () => ({
+      observedThroughMs: elapsedMs(),
+      warnings: [...warnings],
+      failedRequests: [...failedRequests],
+      fontAndStylesheetResponses: [...fontAndStylesheetResponses],
+      imageResponses: [...imageResponses],
+    }),
+    { frameId },
+  );
 }
+
+export type ResourceSnapshot = ReturnType<ReturnType<typeof observeResources>>;
 
 export function imageFailures(resources: ReturnType<ReturnType<typeof observeResources>>) {
   return {

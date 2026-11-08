@@ -49,16 +49,18 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       // Exercise the one visible inspector, not an arbitrary matching copy.
       const sidebarContent = page.locator('[data-table-cell-property="content"]:visible');
       if (surface === "sidebar") await expect(sidebarContent).toHaveCount(1);
+      // The lazy editor first renders an editable .rich-text fallback. Wait
+      // for its initialized textbox before clicking or sending navigation keys;
+      // otherwise hydration can replace the caret halfway through selection.
       const editor =
-        surface === "canvas"
-          ? target.locator('[contenteditable="true"]')
-          : sidebarContent.locator('[contenteditable="true"]');
+        surface === "canvas" ? target.getByRole("textbox") : sidebarContent.getByRole("textbox");
       await expect(editor).toHaveCount(1);
       await expect(editor).toBeVisible();
       const controls =
         surface === "canvas"
           ? canvas.locator(".pm-richtext-toolbar--inline")
           : sidebarContent.locator(".pm-richtext-toolbar");
+      await expect(controls.getByRole("button", { name: "Bold", exact: true })).toBeEnabled();
       await selectWord(editor);
       for (const name of ["Bold", "Italic", "Underline", "Strikethrough"]) {
         const button = controls.getByRole("button", { name, exact: true });

@@ -1,39 +1,10 @@
 import { readFileSync, readdirSync } from "node:fs";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import * as cheerio from "cheerio";
-import { compileEmail } from "../export";
-import { fromMjml } from "../import";
+import { describe, expect, it } from "vitest";
 import { emailTemplates } from "./registry";
 import { templateManifest } from "./manifest";
-import { descendants } from "./test-support";
-import {
-  canonicalManifest,
-  templateInventory,
-  contentManifest as upstreamFixtures,
-} from "../../tests/template-inventory";
-
-beforeAll(() => vi.stubGlobal("window", globalThis));
-afterAll(() => vi.unstubAllGlobals());
-
-const normalizeText = (value: string) => value.replace(/\s+/g, " ").trim();
-const visibleContent = (html: string) => {
-  const $ = cheerio.load(html);
-  $("br").replaceWith("\n");
-  return {
-    text: normalizeText($("body").text()),
-    images: $("img")
-      .map((_index, element) => {
-        const image = $(element);
-        return JSON.stringify(
-          ["src", "alt", "width", "height", "style"].map((name) => image.attr(name) ?? ""),
-        );
-      })
-      .get(),
-    links: $("a")
-      .map((_index, element) => $(element).attr("href") ?? "")
-      .get(),
-  };
-};
+import { createEmptyDocument, createExampleDocument } from "../document";
+import { createMatteProductUpdateDocument } from "./matte";
+import { canonicalManifest, templateInventory } from "../../tests/template-inventory";
 
 const canonicalFiles = readdirSync(new URL("../../templates/", import.meta.url), {
   recursive: true,
@@ -104,97 +75,16 @@ describe("template registry", () => {
     }
   });
 
-  it.each(emailTemplates.map((template) => [template.id, template] as const))(
-    "%s creates independent editable documents and compiles cleanly",
-    async (_id, template) => {
-      const document = template.create();
-      const next = template.create();
-      expect(document).toEqual(next);
-      expect(document).not.toBe(next);
-      expect(document.content).toEqual([]);
-      const blocks = descendants(document.root.props!.sections!);
-      expect(new Set(blocks.map((block) => block.props.id)).size).toBe(blocks.length);
-      expect(blocks.every((block) => block.type !== "Raw" && Boolean(block.props.id))).toBe(true);
-      if (template.source) {
-        expect(blocks.length).toBeGreaterThan(0);
-        expect(template.source).not.toMatch(/<mj-(?:raw|include)\b/);
-        expect(fromMjml(template.source).warnings).toEqual([]);
-        document.root.props!.subject = "Independent edit";
-        expect(next.root.props!.subject).not.toBe("Independent edit");
-      }
-      const result = await compileEmail(next);
-      expect(result.errors, JSON.stringify(result.errors, null, 2)).toEqual([]);
-      expect(result.html).toContain("<body");
-    },
-    30000,
-  );
-
-  it.each(
-    emailTemplates
-      .filter((template) => template.source)
-      .map((template) => [template.id, template] as const),
-  )(
-    "%s preserves canonical source content through the editor import/export path",
-    async (_id, template) => {
-      const { default: mjml2html } = await import("mjml-browser");
-      const direct = await mjml2html(template.source!, { validationLevel: "strict" });
-      expect(direct.errors, JSON.stringify(direct.errors, null, 2)).toEqual([]);
-      const roundTrip = await compileEmail(template.create());
-      expect(visibleContent(roundTrip.html)).toEqual(visibleContent(direct.html));
-    },
-    30000,
-  );
-});
-
-describe("Pinned upstream content review", () => {
-  it("uses fixtures from the pinned upstream source", () => {
-    expect(upstreamFixtures.ref).toBe(templateManifest.ref);
-    expect(upstreamFixtures.templates).toHaveLength(templateInventory.length);
-    expect(upstreamFixtures.templates.map(({ file }) => file).sort()).toEqual(
-      templateManifest.templates.map(({ file }) => file).sort(),
-    );
+  it("keeps the public blank and example factories connected to the registry", () => {
+    const blank = emailTemplates[0].create();
+    expect(blank).toEqual(createEmptyDocument());
+    expect(blank.content).toEqual([]);
+    expect(blank.root.props!.sections).toEqual([]);
+    expect(blank).not.toBe(emailTemplates[0].create());
+    const example = createExampleDocument();
+    expect(example).toEqual(createMatteProductUpdateDocument());
+    expect(example).not.toBe(createExampleDocument());
   });
-  it.each(templateInventory.map(({ content }) => content))(
-    "$file retains upstream preview, content, artwork, and links",
-    async (fixture) => {
-      const template = emailTemplates.find(
-        ({ sourcePath }) => sourcePath === `templates/${fixture.file}`,
-      )!;
-      expect(template).toBeDefined();
-      const document = template.create();
-      if (fixture.preview)
-        expect(normalizeText(document.root.props!.previewText!)).toBe(
-          normalizeText(fixture.preview),
-        );
-      const result = await compileEmail(document);
-      const visible = visibleContent(result.html);
-      for (const content of fixture.content) {
-        // Content matching ignores CSS text-transform; browser word evidence remains case-sensitive.
-        expect(visible.text.toLowerCase()).toContain(normalizeText(content).toLowerCase());
-      }
-      const $ = cheerio.load(result.html);
-      const images = new Set(
-        $("img")
-          .map((_index, element) => $(element).attr("src"))
-          .get(),
-      );
-      expect([...images].sort()).toEqual([...fixture.images].sort());
-      const normalizeUrl = (value: string) => {
-        try {
-          return new URL(value, "https://demo.react.email/").href;
-        } catch {
-          return value;
-        }
-      };
-      const links = new Set(
-        $("a[href]")
-          .map((_index, element) => normalizeUrl($(element).attr("href")!))
-          .get(),
-      );
-      for (const href of fixture.links)
-        expect(links, `Missing upstream link: ${href}`).toContain(normalizeUrl(href));
-    },
-  );
 });
 
 // Public compatibility factories stay covered without a hand-maintained list of

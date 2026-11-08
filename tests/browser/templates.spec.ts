@@ -20,6 +20,10 @@ import {
   type ComparisonCapture,
 } from "./semantic-comparison";
 import { inspectArtwork } from "./artwork-evidence";
+import {
+  collectResourceAttribution,
+  inspectCaptureResources,
+} from "./capture-resource-attribution";
 import { inspectContrast } from "./contrast-evidence";
 import {
   canvasOverflowFailures,
@@ -112,6 +116,9 @@ type Capture = {
   fonts: Awaited<ReturnType<typeof fontEvidence>>;
   artworkTransport: ReturnType<typeof imageFailures>;
   resources: ReturnType<ReturnType<typeof observeResources>>;
+  resourceAttribution: Awaited<
+    ReturnType<typeof collectResourceAttribution>
+  >["resourceAttribution"];
   metrics: Awaited<ReturnType<typeof measureVisuals>>;
 };
 
@@ -150,6 +157,29 @@ async function fontEvidence(
           canvas.querySelector("style[data-pm-canvas-fonts]")?.textContent?.length ?? 0,
       })),
     }))),
+  };
+}
+
+async function captureResourceEvidence(
+  root: Locator,
+  observe: ReturnType<typeof observeResources>,
+  expected: ExpectedCanvasFont[] = [],
+) {
+  const evidence = await collectResourceAttribution(observe, async (kinds) => {
+    const handle = await root.elementHandle();
+    const frameId = observe.frameId((await handle?.ownerFrame()) ?? null);
+    await handle?.dispose();
+    const inventory = await root.evaluate(inspectCaptureResources, {
+      kinds,
+      expectedFonts: expected,
+    });
+    return { inventory, frameId };
+  });
+  const { resources } = evidence;
+  return {
+    ...evidence,
+    fonts: await fontEvidence(root, resources, expected),
+    artworkTransport: imageFailures(resources),
   };
 }
 
@@ -219,9 +249,7 @@ async function captureCompleteEmail(
         mode,
         screenshot,
         resourceError,
-        fonts: await fontEvidence(email.locator("body"), resources()),
-        artworkTransport: imageFailures(resources()),
-        resources: resources(),
+        ...(await captureResourceEvidence(email.locator("body"), resources)),
         metrics,
       });
       // Some originals have fixed-width tables. Record their native overflow;
@@ -303,9 +331,7 @@ async function captureEditorCanvas(
       screenshotBounds,
       canvasGeometry,
       resourceError,
-      fonts: await fontEvidence(email, resources(), expected),
-      artworkTransport: imageFailures(resources()),
-      resources: resources(),
+      ...(await captureResourceEvidence(email, resources, expected)),
       metrics,
     });
     expect
@@ -454,6 +480,9 @@ for (const fixture of templateInventory) {
           if (capture.resourceError)
             issues.push({ kind: "resource-readiness", evidence: capture.resourceError });
           for (const [kind, evidence] of Object.entries(capture.fonts.failures)) {
+            // Raw stylesheet failures remain recorded, but only their current
+            // dependency attribution may make this capture inconclusive.
+            if (kind === "stylesheetTransport") continue;
             if (
               Array.isArray(evidence)
                 ? evidence.length
@@ -461,21 +490,11 @@ for (const fixture of templateInventory) {
             )
               issues.push({ kind: `font-${kind}`, evidence });
           }
-          if (
-            capture.artworkTransport.failedRequests.length ||
-            capture.artworkTransport.httpErrors.length
-          )
-            issues.push({ kind: "artwork-transport", evidence: capture.artworkTransport });
-          const fontTransport = {
-            failedRequests: capture.resources.failedRequests.filter(
-              (request) => request.resourceType === "font",
-            ),
-            httpErrors: capture.resources.fontAndStylesheetResponses.filter(
-              (response) => response.status >= 400,
-            ),
-          };
-          if (fontTransport.failedRequests.length || fontTransport.httpErrors.length)
-            issues.push({ kind: "font-transport", evidence: fontTransport });
+          if (capture.resourceAttribution.unresolved.length)
+            issues.push({
+              kind: "resource-transport",
+              evidence: capture.resourceAttribution.unresolved,
+            });
           const failedImages = capture.metrics.semantics.images.filter((image) => !image.loaded);
           if (failedImages.length) issues.push({ kind: "unloaded-images", evidence: failedImages });
           if (capture.metrics.documentOverflow > 1)
@@ -525,7 +544,7 @@ for (const fixture of templateInventory) {
             declaredMjmlFonts: fonts,
             editorResources: resources(),
             html: { original: "react-email.html", compiled: "mjml.html" },
-            note: "Original HTML is fulfilled unchanged at an exact synthetic document URL on https://demo.react.email so relative assets retain their source origin. Original mobile overflow and resource failures are recorded as reference behavior, not repaired. Canvas captures use the live editable DOM with its existing gutter, at 800/390px iframe widths; only the outer editor height is extended. Pixel equality is not asserted. Canvas font CSS must register every declared family before fonts.ready is awaited; registered unused faces may remain unloaded. Resource events are collected before navigation, including the editor preview iframe; each capture contains a cumulative snapshot for its page. Image HTTP failures (including CSS backgrounds) are recorded separately from font and stylesheet failures, alongside computed background URLs and each document's baseURI.",
+            note: "Original HTML is fulfilled unchanged at an exact synthetic document URL on https://demo.react.email so relative assets retain their source origin. Original mobile overflow and resource failures are recorded as reference behavior, not repaired. Canvas captures use the live editable DOM with its existing gutter, at 800/390px iframe widths; only the outer editor height is extended. Pixel equality is not asserted. Canvas font CSS must register every declared family before fonts.ready is awaited; registered unused faces may remain unloaded. Resource events are collected before navigation, including the editor preview iframe; each capture contains a cumulative snapshot for its page. Image HTTP failures (including CSS backgrounds) are recorded separately from font and stylesheet failures, alongside computed background URLs and each document's baseURI. Raw cumulative observations remain intact; resourceAttribution separately records current dependencies, uncertainty and each historical failure's disposition. Dependency inspection is skipped when the captured snapshot has no relevant transport failure; otherwise only failed resource kinds are inspected, and late failures of uninspected kinds remain ambiguous. Only unresolved or ambiguous transport affects semantic readiness. Current decoded artwork/loaded faces plus later successful owned transport may supersede earlier failures. Backgrounds without decode proof and unknown stylesheet provenance remain unresolved.",
             contentComparison: compareContent(),
             semanticComparison: compareSemantics(),
             captures,

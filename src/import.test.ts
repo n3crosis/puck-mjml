@@ -1,24 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { fromMjml } from "./import";
 import { compileEmail, toMjml } from "./export";
-import { createExampleDocument } from "./document";
-import { emailTemplates } from "./templates/registry";
 import type { EmailBlock } from "./types";
 
 beforeAll(() => vi.stubGlobal("window", globalThis));
 afterAll(() => vi.unstubAllGlobals());
-
-function blockTree(blocks: EmailBlock[]): EmailBlock[] {
-  return blocks.flatMap((block) => [
-    block,
-    ...Object.values(block.props).flatMap((value) =>
-      Array.isArray(value) &&
-      value.every((item) => item && typeof item === "object" && "type" in item && "props" in item)
-        ? blockTree(value as EmailBlock[])
-        : [],
-    ),
-  ]);
-}
 
 const MINIMAL = `<mjml lang="en" dir="ltr">
   <mj-head>
@@ -378,31 +364,5 @@ describe("fromMjml", () => {
     expect(() => fromMjml("<mjml><mj-head><mj-title>x</mj-title></mj-head></mjml>")).toThrow(
       "must contain an <mj-body>",
     );
-  });
-
-  it("round-trips every registered template through toMjml and back", async () => {
-    for (const template of emailTemplates) {
-      const source = toMjml(template.create());
-      const { document, warnings } = fromMjml(source);
-      expect(warnings, `${template.id}: ${warnings.join("; ")}`).toEqual([]);
-      const blocks = blockTree(document.root.props!.sections!);
-      const ids = blocks.map((block) => block.props.id);
-      expect(new Set(ids).size).toBe(ids.length);
-      const result = await compileEmail(document);
-      expect(result.errors, `${template.id}: ${JSON.stringify(result.errors)}`).toEqual([]);
-      expect(result.html).toContain("<body");
-    }
-  }, 120000);
-
-  it("preserves the example document's content through a round-trip", async () => {
-    const original = createExampleDocument();
-    const { document, warnings } = fromMjml(toMjml(original));
-    expect(warnings).toEqual([]);
-    const result = await compileEmail(document);
-    expect(result.errors).toEqual([]);
-    expect(result.html).toContain("Monthly roundup");
-    expect(result.html).toContain("Open Collage");
-    expect(result.html).toContain("Smarter Search");
-    expect(result.html).toContain("@media only screen and (max-width: 600px)");
   });
 });

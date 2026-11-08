@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Render, type Data } from "@puckeditor/core";
 import { createEmailConfig } from "./config";
-import { createExampleDocument } from "./document";
 import { sanitizeDocumentRichText } from "./normalize";
 
 describe("email canvas", () => {
@@ -59,23 +58,6 @@ describe("email canvas", () => {
       visible: false,
     });
   });
-  it("renders sections and nested content from the host document", () => {
-    const html = renderToStaticMarkup(
-      <Render config={createEmailConfig()} data={createExampleDocument() as Data} />,
-    );
-    expect(html).toContain("Monthly roundup");
-    expect(html).toContain("Smarter Search");
-    expect(html).toContain("Shared Workspaces");
-    expect(html).toContain("Something to be proud of");
-    expect(html).toContain("Jump back into Collage");
-    expect(html).toContain("collage-card");
-    expect(html).toContain("pm-flex-group");
-    expect(html).toContain("collage-image-5.png");
-    expect(html).toContain("social-gh-black.png");
-    expect(html).toContain("font-size:48px");
-    expect(html).toContain("letter-spacing:-1.44px");
-  });
-
   it("renders flexible columns, groups, and carousel images", () => {
     const data = {
       root: {

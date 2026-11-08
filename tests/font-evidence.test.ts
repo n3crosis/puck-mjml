@@ -30,6 +30,55 @@ const face = (family: string, status: FontFaceEvidence["status"] = "unloaded") =
 afterEach(() => vi.useRealTimers());
 
 describe("browser font-readiness evidence", () => {
+  it("retains request, frame, redirect and event-order ownership without resetting raw history", () => {
+    const page = new EventEmitter();
+    const snapshot = observeResources(page as unknown as Page, []);
+    const frame = {} as ReturnType<Page["mainFrame"]>;
+    const redirected = {
+      url: () => "https://assets.example/original.png",
+      redirectedFrom: () => null,
+    };
+    const request = {
+      url: () => "https://cdn.example/final.png",
+      resourceType: () => "image",
+      redirectedFrom: () => redirected,
+      frame: () => frame,
+      failure: () => ({ errorText: "net::ERR_ABORTED" }),
+    };
+    page.emit("response", {
+      url: request.url,
+      request: () => request,
+      status: () => 200,
+      ok: () => true,
+    });
+    page.emit("requestfailed", request);
+    const result = snapshot();
+    expect(result.imageResponses[0]).toMatchObject({
+      requestId: 1,
+      frameId: snapshot.frameId(frame),
+      sequence: 1,
+      requestUrls: [request.url(), redirected.url()],
+    });
+    expect(result.failedRequests[0]).toMatchObject({
+      requestId: 1,
+      frameId: snapshot.frameId(frame),
+      sequence: 2,
+    });
+    page.emit("requestfailed", {
+      ...request,
+      frame: () => {
+        throw new Error("No frame available");
+      },
+    });
+    expect(snapshot().failedRequests[1]).toMatchObject({
+      requestId: 2,
+      frameId: null,
+      sequence: 3,
+    });
+    expect(result.failedRequests).toHaveLength(1);
+    expect(snapshot().failedRequests).toHaveLength(2);
+  });
+
   it("reads declared families and decoded stylesheet URLs without changing the source", () => {
     const source = `<mjml><mj-head><mj-font name=" Instrument Serif " href="https://fonts.example/css?family=Instrument+Serif&amp;display=swap" /></mj-head><mj-body><mj-font name="Not head metadata" href="other" /></mj-body></mjml>`;
     expect(declaredMjmlFonts(source)).toEqual([

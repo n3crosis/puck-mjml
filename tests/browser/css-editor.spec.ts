@@ -122,6 +122,19 @@ test("Custom CSS uses CodeMirror in the real Puck field and preserves edited sou
   await expect(field.locator(".cm-lineNumbers")).toBeVisible();
   await editor.fill(".card{color:blue}");
   await expect(editor).toBeFocused();
+  const canvas = page.frameLocator("#preview-frame").locator("[data-puck-entry]");
+  await expect(canvas).toHaveAttribute("data-puck-preview-mode", "edit");
+  // Mod-i selects a CSS syntax node. Puck binds the same shortcut to interactive
+  // mode, so a handled code-editor command must not reach its global listener.
+  await editor.press("End");
+  await editor.press("ArrowLeft");
+  await editor.press("ArrowLeft");
+  await editor.press("ControlOrMeta+i");
+  await expect
+    .poll(() => editor.evaluate((element) => element.ownerDocument.getSelection()?.toString()))
+    .toBe("blue");
+  await expect(editor).toBeFocused();
+  await expect(canvas).toHaveAttribute("data-puck-preview-mode", "edit");
   await field.getByRole("button", { name: "Format CSS", exact: true }).click();
   await page.getByRole("button", { name: "Export email" }).click();
   await page.getByRole("button", { name: "MJML", exact: true }).click();

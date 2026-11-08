@@ -80,6 +80,54 @@ describe("CSS code editor", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it("keeps handled syntax-selection shortcuts local without swallowing other host keys", () => {
+    const hostKeyDown = vi.fn();
+    const onChange = vi.fn();
+    const view = mount(
+      <div onKeyDown={hostKeyDown}>
+        <CSSCodeEditor ariaLabel="CSS" value=".card{color:red}" onChange={onChange} />
+        <button type="button">Outside the editor</button>
+      </div>,
+    );
+    act(() => {
+      view.focus();
+      view.dispatch({ selection: { anchor: 10 } });
+    });
+    const syntax = new KeyboardEvent("keydown", {
+      key: "i",
+      code: "KeyI",
+      keyCode: 73,
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    act(() => view.contentDOM.dispatchEvent(syntax));
+    expect(view.state.sliceDoc(view.state.selection.main.from, view.state.selection.main.to)).toBe(
+      "color",
+    );
+    expect(syntax.defaultPrevented).toBe(true);
+    // Puck also binds Mod-i to interactive mode and ignores defaultPrevented.
+    expect(hostKeyDown).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
+    expect(undoDepth(view.state)).toBe(0);
+
+    const unhandled = new KeyboardEvent("keydown", {
+      key: "F8",
+      code: "F8",
+      bubbles: true,
+      cancelable: true,
+    });
+    act(() => view.contentDOM.dispatchEvent(unhandled));
+    expect(unhandled.defaultPrevented).toBe(false);
+    expect(hostKeyDown).toHaveBeenCalledOnce();
+    act(() =>
+      container!.firstElementChild!.lastElementChild!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "i", code: "KeyI", ctrlKey: true, bubbles: true }),
+      ),
+    );
+    expect(hostKeyDown).toHaveBeenCalledTimes(2);
+  });
+
   it("keeps the view, focus, cursor, and local history through controlled host echoes", () => {
     const commits: string[] = [];
     function Controlled() {

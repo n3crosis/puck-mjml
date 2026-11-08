@@ -130,7 +130,10 @@ export function CSSCodeEditor({
               stopPropagation: true,
             })),
             indentWithTab,
-            ...defaultKeymap,
+            // Handled commands belong to this field. In particular Mod-i selects
+            // CSS syntax, while Puck also binds it to interactive mode and does
+            // not check defaultPrevented. Unhandled keys still reach the host.
+            ...defaultKeymap.map((binding) => ({ ...binding, stopPropagation: true })),
           ]),
           configuration.permissions.of([]),
           configuration.attributes.of([]),

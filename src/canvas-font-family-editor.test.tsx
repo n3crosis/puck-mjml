@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { EmailEditor } from "./EmailEditor";
 import { toMjml } from "./export";
 import { fromMjml } from "./import";
@@ -9,10 +9,21 @@ import { fromMjml } from "./import";
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 let root: Root | undefined;
 let container: HTMLDivElement | undefined;
+beforeEach(() => vi.useFakeTimers());
 afterEach(async () => {
-  await act(async () => root?.unmount());
-  container?.remove();
-  vi.unstubAllGlobals();
+  try {
+    await act(async () => root?.unmount());
+    // Puck's delayed loader update outlives unmount. Run pending callbacks while
+    // happy-dom still provides window, and fail if they schedule more work.
+    await act(async () => vi.runOnlyPendingTimersAsync());
+    expect(vi.getTimerCount()).toBe(0);
+  } finally {
+    root = undefined;
+    container?.remove();
+    container = undefined;
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }
 });
 
 it.each(["Instrument Serif, serif", "Instrument Serif, Arial, serif"])(

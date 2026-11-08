@@ -62,6 +62,12 @@ const menuButton = (row: number, text: string) =>
   [...rows()[row].querySelectorAll<HTMLButtonElement>(".pm-attribute-popover button")].find(
     (button) => button.textContent === text,
   )!;
+function dragEvent(type: string, dataTransfer: DataTransfer) {
+  const event = new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer });
+  // Happy DOM aliases DragEvent to Event and ignores the dataTransfer initializer.
+  Object.defineProperty(event, "dataTransfer", { value: dataTransfer });
+  return event;
+}
 async function edit(action: () => void) {
   await act(async () => {
     action();
@@ -233,12 +239,21 @@ describe("compact native attribute controls", () => {
     expect(readNativeAttributes("mj-body", entries()).width).toBe("600px");
     await edit(() => {
       const transfer = new DataTransfer();
-      rows()[0]
-        .querySelector(".pm-attribute-grip")!
-        .dispatchEvent(new DragEvent("dragstart", { bubbles: true, dataTransfer: transfer }));
-      rows()[1].dispatchEvent(
-        new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: transfer }),
-      );
+      const grip = rows()[0].querySelector<HTMLButtonElement>(".pm-attribute-grip")!;
+      expect(grip.getAttribute("draggable")).toBe("true");
+      expect(grip.disabled).toBe(false);
+      const start = dragEvent("dragstart", transfer);
+      grip.dispatchEvent(start);
+      expect(start.dataTransfer).toBe(transfer);
+      expect(transfer.effectAllowed).toBe("move");
+      expect(transfer.getData("text/plain")).toBe("0");
+      const over = dragEvent("dragover", transfer);
+      rows()[1].dispatchEvent(over);
+      expect(over.defaultPrevented).toBe(true);
+      const drop = dragEvent("drop", transfer);
+      rows()[1].dispatchEvent(drop);
+      expect(drop.defaultPrevented).toBe(true);
+      grip.dispatchEvent(dragEvent("dragend", transfer));
     });
     expect(entries()).toEqual([first, second]);
     await edit(() => container!.querySelector<HTMLButtonElement>(".pm-attribute-add")!.click());
@@ -249,6 +264,47 @@ describe("compact native attribute controls", () => {
     expect(entries()).toEqual([first, second, { name: "", value: "", inherit: false }]);
     await act(async () => api!.history.forward());
     expect(entries()).toEqual([first, { name: "", value: "", inherit: false }]);
+  });
+
+  it("ignores external drops and clears row drag state after cancellation or a drop", async () => {
+    const first = { name: "width", value: "600px" };
+    const second = { name: "width", value: "640px" };
+    await mount([first, second]);
+    const transfer = new DataTransfer();
+    transfer.setData("text/plain", "1");
+    const expectIgnoredDrop = async () => {
+      await edit(() => {
+        const over = dragEvent("dragover", transfer);
+        rows()[0].dispatchEvent(over);
+        expect(over.defaultPrevented).toBe(false);
+        const drop = dragEvent("drop", transfer);
+        rows()[0].dispatchEvent(drop);
+        expect(drop.defaultPrevented).toBe(false);
+      });
+    };
+    await expectIgnoredDrop();
+    expect(entries()).toEqual([first, second]);
+    await act(async () => {
+      const grip = rows()[1].querySelector(".pm-attribute-grip")!;
+      grip.dispatchEvent(dragEvent("dragstart", transfer));
+      expect(transfer.effectAllowed).toBe("move");
+      expect(transfer.getData("text/plain")).toBe("1");
+      grip.dispatchEvent(dragEvent("dragend", transfer));
+    });
+    await expectIgnoredDrop();
+    expect(entries()).toEqual([first, second]);
+    await edit(() => {
+      rows()[1]
+        .querySelector(".pm-attribute-grip")!
+        .dispatchEvent(dragEvent("dragstart", transfer));
+      const drop = dragEvent("drop", transfer);
+      rows()[0].dispatchEvent(drop);
+      expect(drop.defaultPrevented).toBe(true);
+    });
+    expect(entries()).toEqual([second, first]);
+    // A completed drop clears the source even before the browser sends dragend.
+    await expectIgnoredDrop();
+    expect(entries()).toEqual([second, first]);
   });
 
   it("honors Puck read-only fields for values, modes, and array actions", async () => {

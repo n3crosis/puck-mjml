@@ -335,6 +335,60 @@ describe("controlled EmailEditor typing", { timeout: 20_000 }, () => {
     expect(restored.closest("[inert]")).toBeNull();
     expect(document.activeElement).toBe(restored);
   });
+  it.each(["Preview", "Export"] as const)(
+    "commits workspace inert before %s opens and releases it before restoring focus",
+    async (mode) => {
+      await mount({ root: { props: { sections: [] } }, content: [] });
+      const workspace = container!.querySelector<HTMLElement>(".pm-editor-workspace")!;
+      const opener = container!.querySelector<HTMLButtonElement>(`[aria-label="${mode} email"]`)!;
+      const nativeShowModal = HTMLDialogElement.prototype.showModal;
+      const inertWhenOpening: (string | null)[] = [];
+      const inertWhenFocusing: boolean[] = [];
+      const showModal = vi
+        .spyOn(HTMLDialogElement.prototype, "showModal")
+        .mockImplementation(function (this: HTMLDialogElement) {
+          inertWhenOpening.push(workspace.getAttribute("inert"));
+          nativeShowModal.call(this);
+        });
+      const nativeFocus = opener.focus.bind(opener);
+      const focus = vi.spyOn(opener, "focus").mockImplementation((options) => {
+        inertWhenFocusing.push(workspace.hasAttribute("inert"));
+        nativeFocus(options);
+      });
+      try {
+        for (const method of ["button", "cancel", "backdrop"] as const) {
+          opener.focus();
+          await act(async () => opener.click());
+          const dialog = container!.querySelector<HTMLDialogElement>("dialog")!;
+          expect(dialog.open).toBe(true);
+          expect(inertWhenOpening.at(-1)).toBe("");
+          expect(workspace.getAttribute("inert")).toBe("");
+          expect(dialog.closest("[inert]")).toBeNull();
+          await act(async () => {
+            if (method === "cancel")
+              dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
+            else if (method === "backdrop")
+              dialog.dispatchEvent(
+                new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+              );
+            else
+              dialog
+                .querySelector<HTMLButtonElement>(`[aria-label="Close ${mode.toLowerCase()}"]`)!
+                .click();
+          });
+          expect(container!.querySelector("dialog")).toBeNull();
+          expect(workspace.hasAttribute("inert")).toBe(false);
+          expect(document.activeElement).toBe(opener);
+        }
+        expect(showModal).toHaveBeenCalledTimes(3);
+        expect(inertWhenFocusing).not.toContain(true);
+        expect(container!.querySelector(".pm-editor-workspace")).toBe(workspace);
+      } finally {
+        showModal.mockRestore();
+        focus.mockRestore();
+      }
+    },
+  );
   it("exports current edits without remounting Puck or changing document/history", async () => {
     const publish = vi.fn();
     await mount(undefined, publish);

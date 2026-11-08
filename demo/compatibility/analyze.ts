@@ -20,6 +20,28 @@ export const compatibilityData = snapshot as {
   clients: { id: string; label: string }[];
   features: Feature[];
 };
+// A curated default, not every upstream provider or a market-share ranking.
+// Keep classic Outlook, but leave retired Windows Mail in the optional full set.
+const mainstreamClientIds = new Set([
+  "apple-mail/ios",
+  "apple-mail/macos",
+  "gmail/android",
+  "gmail/desktop-webmail",
+  "gmail/mobile-webmail",
+  "gmail/ios",
+  "outlook/android",
+  "outlook/outlook-com",
+  "outlook/windows",
+  "outlook/ios",
+  "outlook/macos",
+  "samsung-email/android",
+  "yahoo/android",
+  "yahoo/desktop-webmail",
+  "yahoo/ios",
+]);
+export const mainstreamClients = compatibilityData.clients.filter(({ id }) =>
+  mainstreamClientIds.has(id),
+);
 const featureIds = new Set(compatibilityData.features.map((feature) => feature.slug));
 export const supportLabel: Record<Support, string> = {
   unsupported: "Not supported",
@@ -45,7 +67,10 @@ export function supportNotes(feature: Feature, code: string): string[] {
   );
 }
 export function clientResults(feature: Feature, clientId: string) {
-  const clients = compatibilityData.clients.filter((client) => !clientId || client.id === clientId);
+  const clients =
+    clientId === "mainstream"
+      ? mainstreamClients
+      : compatibilityData.clients.filter((client) => !clientId || client.id === clientId);
   return clients.map((client) => ({
     ...client,
     test: feature.stats[client.id],

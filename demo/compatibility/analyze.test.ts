@@ -3,6 +3,7 @@ import {
   analyzeEmailHtml,
   clientResults,
   compatibilityData,
+  mainstreamClients,
   needsReview,
   supportFor,
   supportNotes,
@@ -152,6 +153,53 @@ describe("pinned Can I email data", () => {
   it("includes supported results with caveats in Needs review", () => {
     expect(needsReview(feature("css-display-flex"), "yahoo/desktop-webmail")).toBe(true);
     expect(needsReview(feature("css-border-radius"), "apple-mail/macos")).toBe(false);
+  });
+  it("limits the mainstream preset to the curated client/platform combinations", () => {
+    expect(mainstreamClients.map(({ id }) => id)).toEqual([
+      "apple-mail/ios",
+      "apple-mail/macos",
+      "gmail/android",
+      "gmail/desktop-webmail",
+      "gmail/mobile-webmail",
+      "gmail/ios",
+      "outlook/android",
+      "outlook/outlook-com",
+      "outlook/windows",
+      "outlook/ios",
+      "outlook/macos",
+      "samsung-email/android",
+      "yahoo/android",
+      "yahoo/desktop-webmail",
+      "yahoo/ios",
+    ]);
+    expect(clientResults(feature("css-border-radius"), "mainstream").map(({ id }) => id)).toEqual(
+      mainstreamClients.map(({ id }) => id),
+    );
+  });
+  it("ignores other providers in the mainstream review filter but keeps their optional results", () => {
+    const supported = {
+      ...feature("css-border-radius"),
+      notes: "",
+      stats: Object.fromEntries(
+        mainstreamClients.map(({ id }) => [id, { version: "test", code: "y" }]),
+      ),
+    };
+    expect(needsReview(supported, "mainstream")).toBe(false);
+    expect(needsReview(supported, "")).toBe(true);
+    expect(clientResults(supported, "ionos-1and1/android")[0]?.support).toBe("unknown");
+    for (const code of ["n", "a", "u", "y #1", "y x"]) {
+      const mainstreamIssue = {
+        ...supported,
+        stats: { ...supported.stats, "gmail/ios": { version: "test", code } },
+      };
+      expect(needsReview(mainstreamIssue, "mainstream")).toBe(true);
+      expect(needsReview(mainstreamIssue, "apple-mail/macos")).toBe(false);
+    }
+    delete supported.stats["gmail/ios"];
+    expect(needsReview(supported, "mainstream")).toBe(true);
+    expect(
+      clientResults(supported, "mainstream").find(({ id }) => id === "gmail/ios")?.support,
+    ).toBe("unknown");
   });
   it("includes every recorded client and flags any client's review needs in the all-client view", () => {
     const radius = feature("css-border-radius");

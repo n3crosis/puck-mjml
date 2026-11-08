@@ -72,13 +72,6 @@
 .compatibility-heading p {
   color: #58677c;
 }
-.compatibility-eyebrow {
-  text-transform: uppercase;
-  font-size: 9px;
-  letter-spacing: 0.7px;
-  color: #52627a;
-  font-weight: 700;
-}
 .compatibility-help {
   margin-bottom: 16px;
   font-size: 11px;

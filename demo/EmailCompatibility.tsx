@@ -6,6 +6,7 @@ import {
   clientResults,
   compatibilityData,
   featureUrl,
+  mainstreamClients,
   needsReview,
   supportLabel,
   supportNotes,
@@ -94,7 +95,7 @@ export function EmailCompatibility({
 }) {
   const [result, setResult] = useState<Result>();
   const [attempt, setAttempt] = useState(0);
-  const [clientId, setClientId] = useState("");
+  const [clientId, setClientId] = useState("mainstream");
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"detected" | "catalog">("detected");
   const [reviewOnly, setReviewOnly] = useState(true);
@@ -147,11 +148,16 @@ export function EmailCompatibility({
         .includes(query.trim().toLowerCase()),
   );
   const analysis = current?.analysis;
+  const singleClient = clientId !== "" && clientId !== "mainstream";
+  const clientScopeLabel = singleClient
+    ? "this client"
+    : clientId === "mainstream"
+      ? "mainstream clients"
+      : "all recorded clients";
 
   return (
     <section className="compatibility" aria-label="Email compatibility">
       <header className="compatibility-heading">
-        <span className="compatibility-eyebrow">Powered by Can I email</span>
         <h2>Email compatibility</h2>
         <p>Static checks of this email, not inbox rendering.</p>
       </header>
@@ -180,6 +186,7 @@ export function EmailCompatibility({
             value={clientId}
             onChange={(event) => setClientId(event.target.value)}
           >
+            <option value="mainstream">Mainstream clients ({mainstreamClients.length})</option>
             <option value="">All recorded clients ({compatibilityData.clients.length})</option>
             {compatibilityData.clients.map((client) => (
               <option key={client.id} value={client.id}>
@@ -189,9 +196,8 @@ export function EmailCompatibility({
           </select>
         </label>
         <p id={clientCoverageId} className="compatibility-muted">
-          By default, checks cover every recorded client, including Apple Mail, Gmail, Outlook and
-          Yahoo Mail. iCloud.com webmail is not in this snapshot; Apple Mail results do not cover
-          it.
+          The mainstream preset covers Apple Mail, Gmail, Outlook, Yahoo Mail and Samsung Email.
+          iCloud.com webmail is not in this snapshot; Apple Mail results do not cover it.
         </p>
         <label htmlFor={searchId}>
           Find a feature
@@ -226,9 +232,7 @@ export function EmailCompatibility({
             </div>
             <div>
               <strong>{reviewCount}</strong>
-              <span>
-                features to review for {clientId ? "this client" : "all recorded clients"}
-              </span>
+              <span>features to review for {clientScopeLabel}</span>
             </div>
             <div>
               <strong>{compatibilityData.features.length}</strong>
@@ -318,7 +322,7 @@ export function EmailCompatibility({
                   </small>
                 </span>
                 <span className="compatibility-feature-status">
-                  {clientId ? (
+                  {singleClient ? (
                     <span
                       className={`compatibility-badge compatibility-badge--${results[0]?.support ?? "unknown"}`}
                     >

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { safeImageSource } from "./image-upload";
 import { ImageSourceField } from "./ImageSourceField";
 import { withFieldPermissions } from "./FieldPermissions";
-import type { Config, RichText, Slot } from "@puckeditor/core";
+import type { Config, Field, RichText, Slot } from "@puckeditor/core";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
 import { emailRichTextConfig } from "./EmailRichText";
 import { AttributeNameInput, htmlAttributeNameGroups } from "./AttributeNameInput";
@@ -1269,4 +1269,114 @@ export function createEmailConfig(
     },
   };
   return withFieldPermissions(withNativeCanvas(withNativeFields(config, allowRawHtml)));
+}
+
+const blockOperationsPolicyBrand = Symbol("EmailEditor block operations");
+/** Internal capability. Public createEmailConfig does not issue this policy. */
+export type BlockOperationsPolicy = Readonly<{ [blockOperationsPolicyBrand]: true }>;
+type SlotRuleSnapshot = {
+  name: string;
+  field: object;
+  allow: readonly string[] | undefined;
+  disallow: readonly string[] | undefined;
+};
+type ComponentPolicySnapshot = {
+  render: unknown;
+  resolveFields: unknown;
+  resolveData: unknown;
+  resolvePermissions: unknown;
+  fields: unknown;
+  slots: readonly SlotRuleSnapshot[];
+};
+const blockOperationsPolicies = new WeakMap<
+  BlockOperationsPolicy,
+  { config: Config; components: Map<string, ComponentPolicySnapshot> }
+>();
+
+/**
+ * Internal factory bundle for EmailEditor only, not a package export. Never
+ * accepts a host config to attest. Hero's factory resolver changes height
+ * visibility only; its content slot and render path are part of this contract.
+ */
+export function createEmailEditorConfig(...args: Parameters<typeof createEmailConfig>) {
+  const config = createEmailConfig(...args);
+  const components = new Map<string, ComponentPolicySnapshot>();
+  for (const [name, component] of [
+    ["root", config.root],
+    ...Object.entries(config.components),
+  ] as const) {
+    components.set(name, {
+      render: component?.render,
+      resolveFields: component?.resolveFields,
+      resolveData: component?.resolveData,
+      resolvePermissions: component?.resolvePermissions,
+      fields: component?.fields,
+      slots: Object.entries(component?.fields ?? {}).flatMap(([key, field]) =>
+        field.type === "slot"
+          ? [
+              {
+                name: key,
+                field,
+                allow: field.allow === undefined ? undefined : Object.freeze([...field.allow]),
+                disallow:
+                  field.disallow === undefined ? undefined : Object.freeze([...field.disallow]),
+              },
+            ]
+          : [],
+      ),
+    });
+  }
+  const blockOperationsPolicy = Object.freeze({ [blockOperationsPolicyBrand]: true as const });
+  blockOperationsPolicies.set(blockOperationsPolicy, { config, components });
+  return { config, blockOperationsPolicy };
+}
+
+/** Validate the entire factory contract before the controller examines data. */
+export function isEmailEditorBlockOperationsPolicy(config: Config, policy: BlockOperationsPolicy) {
+  const attestation = blockOperationsPolicies.get(policy);
+  if (!attestation || attestation.config !== config) return false;
+  const components = [["root", config.root], ...Object.entries(config.components)] as const;
+  if (components.length !== attestation.components.size) return false;
+  for (const [name, component] of components) {
+    const snapshot = attestation.components.get(name);
+    if (
+      !component ||
+      !snapshot ||
+      component.render !== snapshot.render ||
+      component.resolveFields !== snapshot.resolveFields ||
+      component.resolveData !== snapshot.resolveData ||
+      component.resolvePermissions !== snapshot.resolvePermissions ||
+      component.fields !== snapshot.fields
+    )
+      return false;
+    const slots = Object.entries(component.fields ?? {}).filter(
+      ([, field]) => field.type === "slot",
+    );
+    if (slots.length !== snapshot.slots.length) return false;
+    for (const rule of snapshot.slots) {
+      const field = component.fields?.[rule.name];
+      if (field !== rule.field || field?.type !== "slot") return false;
+      // Every factory component slot starts empty. Puck materializes defaults
+      // during insert, after existing-tree validation, so reject hidden seeded
+      // descendants before dispatch. Root is never inserted, and imported
+      // documents intentionally omit its defaults. Scalar defaults stay intact.
+      if (name !== "root") {
+        const defaults = component.defaultProps?.[rule.name];
+        if (!Array.isArray(defaults) || defaults.length !== 0) return false;
+      }
+      for (const name of ["allow", "disallow"] as const) {
+        const current = (field as Extract<Field, { type: "slot" }>)[name];
+        const recorded = rule[name];
+        if (
+          recorded === undefined
+            ? current !== undefined
+            : !Array.isArray(current) ||
+              current.length !== recorded.length ||
+              current.some((value, index) => value !== recorded[index])
+        )
+          return false;
+      }
+    }
+  }
+  return true;
 }

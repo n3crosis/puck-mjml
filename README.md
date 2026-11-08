@@ -2,7 +2,7 @@
 
 A visual drag and drop editor for responsive email, built with [Puck](https://github.com/puckeditor/puck) and [MJML](https://github.com/mjmlio/mjml). Edit a host-controlled JSON document, import supported MJML, and export MJML or email HTML.
 
-- Build layouts with sections, columns, groups, wrappers, and heroes.
+- Build layouts with sections, columns, groups, wrappers, and heroes. Use the Add or move blocks form to add blocks or reorder within a slot without dragging.
 - Edit text, images, buttons, tables, social links, navigation, accordions, and carousels.
 - Preview desktop and mobile email, with native MJML attributes, classes, custom CSS, and web fonts.
 - Review HTML or MJML source and download either from the built-in Export dialog.
@@ -30,7 +30,7 @@ Once the package is published to your registry, install it and its peer dependen
 bun add puck-mjml @puckeditor/core react react-dom
 ```
 
-For TypeScript hosts, also install `typescript`, `@types/react`, `@types/react-dom`, and `@types/node`. Puck 0.24's editor declarations reference Node types even in browser projects; include `node` if your `tsconfig.json` restricts `compilerOptions.types` and checks dependency declarations. The conversion-only `puck-mjml/core` declarations do not require React, Puck, or browser types.
+For TypeScript hosts, also install `typescript`, `@types/react`, `@types/react-dom`, and `@types/node`. Match the React type packages to your host’s React major version (18 or 19). Puck 0.24's editor declarations reference Node types even in browser projects; include `node` if your `tsconfig.json` restricts `compilerOptions.types` and checks dependency declarations. The conversion-only `puck-mjml/core` declarations do not require React, Puck, or browser types.
 
 For local package development and build outputs, see [Development](docs/DEVELOPMENT.md).
 

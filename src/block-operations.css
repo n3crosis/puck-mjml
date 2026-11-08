@@ -1,0 +1,71 @@
+.pm-block-operations {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  margin-bottom: 12px;
+  border: 1px solid #dfe3e9;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.pm-block-operations summary {
+  padding: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pm-block-operations-panel {
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 10px 10px;
+}
+.pm-block-operations-panel p {
+  margin: 0 0 10px;
+}
+.pm-block-operations form {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.pm-block-operations label {
+  font-weight: 600;
+}
+.pm-block-operations :is(select, button) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #fff;
+  color: #334155;
+  padding: 6px;
+  font: inherit;
+}
+.pm-block-operations select {
+  width: 100%;
+}
+.pm-block-operations button {
+  cursor: pointer;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.pm-block-operations button[aria-disabled="true"] {
+  color: #64748b;
+  cursor: not-allowed;
+}
+.pm-block-operations :is(summary, select, button):focus-visible {
+  outline: 2px solid #3157d5;
+  outline-offset: 2px;
+}
+.pm-block-operations-move {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.pm-block-operations-panel [role="status"] {
+  margin-bottom: 0;
+}

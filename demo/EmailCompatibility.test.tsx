@@ -3,7 +3,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { EmailCompatibility } from "./EmailCompatibility";
-import { compatibilityData } from "./compatibility/analyze";
+import { compatibilityData, mainstreamClients } from "./compatibility/analyze";
 import { createEmptyDocument } from "../src/document";
 import type { CompiledEmail, EmailDocument } from "../src/types";
 
@@ -58,24 +58,31 @@ it("shows real support notes and test dates, never an inbox-rendering guarantee"
     container.querySelector('a[href="https://www.caniemail.com/features/css-border-radius/"]'),
   ).toBeTruthy();
 });
-it("defaults to every recorded client and explains the unrecorded iCloud webmail gap", async () => {
+it("defaults only to mainstream clients and explains the unrecorded iCloud webmail gap", async () => {
   compile.mockResolvedValue(result('<p style="border-radius:10px">Example</p>'));
   await render(createEmptyDocument());
   const select = container.querySelector("select")!;
-  expect(select.value).toBe("");
+  expect(select.value).toBe("mainstream");
   expect(select.selectedOptions[0]?.textContent).toBe(
-    `All recorded clients (${compatibilityData.clients.length})`,
+    `Mainstream clients (${mainstreamClients.length})`,
   );
   const feature = container.querySelector(".compatibility-feature")!;
   expect(feature.querySelectorAll(".compatibility-client-result")).toHaveLength(
+    mainstreamClients.length,
+  );
+  expect(feature.querySelectorAll(".compatibility-client-result").length).toBeLessThan(
     compatibilityData.clients.length,
   );
   for (const client of ["Outlook · Windows", "Gmail · Desktop Webmail", "Apple Mail · macOS"])
     expect(feature.textContent).toContain(client);
   expect(feature.querySelector("summary")?.textContent).toMatch(/unsupported · \d+ partial/);
   expect(container.querySelector('[aria-label="Analysis summary"]')?.textContent).toContain(
-    "features to review for all recorded clients",
+    "features to review for mainstream clients",
   );
+  expect(feature.textContent).not.toContain("1&1");
+  expect(feature.textContent).not.toContain("Windows Mail");
+  expect(container.textContent).not.toContain("Powered by Can I email");
+  expect(container.querySelector(".compatibility-footer a")?.textContent).toContain("Can I email");
   const coverage = document.getElementById(select.getAttribute("aria-describedby")!);
   expect(coverage?.textContent).toContain("iCloud.com webmail is not in this snapshot");
   expect(coverage?.textContent).toContain("Apple Mail results do not cover it");
@@ -93,7 +100,7 @@ it("filters to a client and separates detected features from the browse catalog"
   expect(container.querySelectorAll(".compatibility-feature")).toHaveLength(56);
   expect(container.textContent).toContain("Catalog entries are not necessarily present");
 });
-it("keeps the chosen filter across tab changes and supports returning to all clients", async () => {
+it("keeps filters across tab changes and switches between mainstream, all and individual clients", async () => {
   compile.mockResolvedValue(result('<p style="border-radius:10px">Example</p>'));
   const document = createEmptyDocument();
   await render(document);
@@ -107,6 +114,13 @@ it("keeps the chosen filter across tab changes and supports returning to all cli
   expect(container.querySelectorAll(".compatibility-client-result")).toHaveLength(
     compatibilityData.clients.length,
   );
+  expect(container.querySelector('[aria-label="Analysis summary"]')?.textContent).toContain(
+    "features to review for all recorded clients",
+  );
+  await selectClient("mainstream");
+  expect(container.querySelectorAll(".compatibility-client-result")).toHaveLength(
+    mainstreamClients.length,
+  );
   await act(async () => button("Browse 56 checks").click());
   await selectClient("apple-mail/macos");
   expect(
@@ -114,7 +128,7 @@ it("keeps the chosen filter across tab changes and supports returning to all cli
       (item) => item.querySelector("summary strong")?.textContent,
     ),
   ).not.toContain("border-radius");
-  await selectClient("");
+  await selectClient("mainstream");
   expect(
     [...container.querySelectorAll(".compatibility-feature")].map(
       (item) => item.querySelector("summary strong")?.textContent,

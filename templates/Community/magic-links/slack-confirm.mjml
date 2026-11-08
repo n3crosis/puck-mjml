@@ -40,6 +40,9 @@ Responsive adaptation: Keep the logo and social icons in one row; 40% leaves roo
       }
     </mj-style>
     <mj-style inline="inline">
+      .slack-social img {
+        height: 32px;
+      }
       .community-rich-0 > div {
         line-height: normal !important;
       }
@@ -117,6 +120,7 @@ Responsive adaptation: Keep the logo and social icons in one row; 40% leaves roo
               icon-size="32px"
               padding="0px"
               border-radius="0px"
+              css-class="slack-social"
             >
               <mj-social-element
                 name="web"

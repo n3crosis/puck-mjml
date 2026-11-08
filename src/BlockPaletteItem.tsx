@@ -86,7 +86,7 @@ const blocks: Record<string, { label: string; description: string; icon: Icon; l
     Raw: { label: "HTML", description: "Trusted raw HTML", icon: CodeIcon },
   };
 
-/** Only replaces the contents: Puck keeps the drag ref, keyboard events, and permissions. */
+/** Only replaces the contents: Puck keeps its pointer-drag ref, event handlers, and permissions. */
 export function BlockPaletteItem({ name, children }: { name: string; children: ReactNode }) {
   const block = blocks[name];
   if (!block) return <>{children}</>;

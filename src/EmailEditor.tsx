@@ -27,7 +27,8 @@ import { EditorComponentOverlay } from "./EditorComponentOverlay";
 import { emailFieldTypes } from "./editor-field-types";
 import { PropertyFieldLabel, PropertyInspector } from "./PropertyInspector";
 import { createNativeDragPreview, NativeDragPreviewProvider } from "./native-drag-preview";
-import { createEmailConfig } from "./config";
+import { createEmailEditorConfig } from "./config";
+import { BlockOperationsDrawer, BlockOperationsPolicyContext } from "./BlockOperations";
 import { compileEmail } from "./export";
 import { sanitizeDocumentRichText } from "./normalize";
 import { TailwindRuntimeContext } from "./canvas-tailwind";
@@ -148,6 +149,15 @@ export function EmailEditor({
   const previewButtonRef = useRef<HTMLButtonElement>(null);
   const exportButtonRef = useRef<HTMLButtonElement>(null);
   usePreviewFocus(previewOpen, dialogRef, previewButtonRef);
+  const workspaceInert = previewOpen || Boolean(exportDocument);
+  const workspaceRef = useCallback(
+    (workspace: HTMLDivElement | null) => {
+      // React 18 drops the unknown boolean JSX attribute. Setting the DOM
+      // attribute in the commit works with both supported React versions.
+      workspace?.toggleAttribute("inert", workspaceInert);
+    },
+    [workspaceInert],
+  );
   const currentData = useRef(editorData);
   // Keep Puck's component renderers stable when the host recreates its upload callback.
   const uploadCallback = useRef(onUploadImage);
@@ -164,8 +174,8 @@ export function EmailEditor({
   ].some(
     (entries) => Array.isArray(entries) && entries.some((entry) => entry?.source === "import"),
   );
-  const config = useMemo(() => {
-    const next = createEmailConfig(
+  const { config, blockOperationsPolicy } = useMemo(() => {
+    const next = createEmailEditorConfig(
       uploadEnabled ? uploadImage : undefined,
       allowRawHtml,
       allowLocalImages,
@@ -176,7 +186,7 @@ export function EmailEditor({
     // to the import baselines (font, body width/background, and future fields).
     // Do this before hydration; later user choices, including default values,
     // remain ordinary editable data and undo restores the exact source omissions.
-    if (importedRoot && next.root) next.root.defaultProps = undefined;
+    if (importedRoot && next.config.root) next.config.root.defaultProps = undefined;
     return next;
   }, [uploadEnabled, uploadImage, allowRawHtml, allowLocalImages, importedRoot]);
 
@@ -280,37 +290,40 @@ export function EmailEditor({
       >
         <div
           className="pm-editor-workspace"
-          inert={previewOpen || Boolean(exportDocument) || undefined}
+          ref={workspaceRef}
           style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
         >
           <NativeDragPreviewProvider bridge={dragPreview}>
             <HeaderActionsContext.Provider
               value={{ allowRawHtml, showPublish: Boolean(onPublish), actions: headerContent }}
             >
-              <Puck
-                key={editorKey}
-                config={config}
-                plugins={plugins}
-                dnd={{ enableDragHandle: true }}
-                height="100%"
-                data={editorData as Data}
-                onChange={handleChange}
-                onAction={dragPreview.onAction}
-                onPublish={onPublish ? (data) => onPublish(data as EmailDocument) : undefined}
-                overrides={{
-                  puck: ResponsiveEditorLayout,
-                  drawerItem: BlockPaletteItem,
-                  outline: EmailOutline,
-                  actionBar: SelectionActionBar,
-                  componentOverlay: EditorComponentOverlay,
-                  fieldTypes: emailFieldTypes,
-                  fields: PropertyInspector,
-                  fieldLabel: PropertyFieldLabel,
-                  headerActions: EditorHeaderActions,
-                }}
-                headerTitle={headerTitle}
-                viewports={editorViewports}
-              />
+              <BlockOperationsPolicyContext.Provider value={blockOperationsPolicy}>
+                <Puck
+                  key={editorKey}
+                  config={config}
+                  plugins={plugins}
+                  dnd={{ enableDragHandle: true }}
+                  height="100%"
+                  data={editorData as Data}
+                  onChange={handleChange}
+                  onAction={dragPreview.onAction}
+                  onPublish={onPublish ? (data) => onPublish(data as EmailDocument) : undefined}
+                  overrides={{
+                    puck: ResponsiveEditorLayout,
+                    drawer: BlockOperationsDrawer,
+                    drawerItem: BlockPaletteItem,
+                    outline: EmailOutline,
+                    actionBar: SelectionActionBar,
+                    componentOverlay: EditorComponentOverlay,
+                    fieldTypes: emailFieldTypes,
+                    fields: PropertyInspector,
+                    fieldLabel: PropertyFieldLabel,
+                    headerActions: EditorHeaderActions,
+                  }}
+                  headerTitle={headerTitle}
+                  viewports={editorViewports}
+                />
+              </BlockOperationsPolicyContext.Provider>
             </HeaderActionsContext.Provider>
           </NativeDragPreviewProvider>
         </div>

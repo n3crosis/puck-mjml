@@ -18,6 +18,12 @@ The editor includes fixed one-, two-, and three-column sections, flexible sectio
 
 Blocks appear in a compact two-column palette with [Phosphor icons](https://phosphoricons.com/). The sidebar groups controls into Content, Layout, Spacing, Typography, Appearance, and Advanced, omitting empty groups. Groups start open and can be collapsed. Advanced contains native attributes, classes, and document source settings. Color fields include a native picker beside editable text, including table cells and native MJML colors.
 
+For a non-drag workflow, open **Add or move blocks** at the top of Blocks. Choose a destination and an allowed block, then activate **Add block** to append it to that slot. To reorder, select a block in Outline or on the canvas, return to Blocks, and use **Move earlier** or **Move later**. These controls move one position within the current slot, retain keyboard focus at the first/last position, and use the editor's normal undo/redo history. A status message confirms each action. Moving between slots still requires a pointer.
+
+The form respects allowed child types, Raw HTML opt-in, permissions, and read-only owner/ancestor/subtree locks. Protected or unsupported destinations are omitted, and stale choices are not silently redirected. These controls belong to `EmailEditor`; custom Puck hosts retain their own UI and policies. They are an alternative to dragging, not keyboard drag-and-drop: Puck 0.24's announced Space/arrow drag instructions do not provide working keyboard dragging in this editor.
+
+The form cannot insert or move Table blocks, or move a block whose subtree contains a Table, because Table uses a dynamic data resolver (`resolveData`). Use the ordinary palette and pointer controls for those operations; their existing behavior is unchanged.
+
 Selected and hovered blocks show green padding and amber margins with side measurements, including their owned inner layout boxes. Selection tools prefer space above or below the content; tall selections keep controls within the visible preview. These editing aids are excluded from exported email.
 
 The selection toolbar includes Puck's drag handle for moving nested blocks without grabbing their editable content. It respects the block's drag permission and retains Puck's normal undo/redo behavior.

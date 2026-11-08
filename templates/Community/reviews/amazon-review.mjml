@@ -2,6 +2,8 @@
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/reviews/amazon-review.tsx
 Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
 The source container's 37.5em maximum caps its 640px width at 600px.
+The 274px/286px desktop split uses full-precision fluid proportions to avoid truncating the book image.
+The banner's 16px bottom margin combines with the divider's 8px top margin into 24px padding.
 Responsive adaptation: Keep the upstream desktop book/review row, but let it stack on mobile for legible copy. -->
 <mjml>
   <mj-head>
@@ -82,7 +84,7 @@ Responsive adaptation: Keep the upstream desktop book/review row, but let it sta
       </mj-column>
     </mj-section>
     <mj-section padding="0px 20px">
-      <mj-column padding="0px" width="50%" vertical-align="middle">
+      <mj-column padding="0px" width="48.92857142857143%" vertical-align="middle">
         <mj-image
           src="https://demo.react.email/static/amazon-book.jpg"
           alt="Amazon Book"
@@ -94,11 +96,11 @@ Responsive adaptation: Keep the upstream desktop book/review row, but let it sta
       </mj-column>
       <mj-column
         padding="0px 0px 0px 30px"
-        width="50%"
+        width="51.07142857142857%"
         vertical-align="middle"
         css-class="amazon-review-copy"
       >
-        <mj-text padding="0px 0px 16px" font-size="14px" line-height="24px"
+        <mj-text padding="16px 0px" font-size="14px" line-height="24px"
           >14 Habits of Highly Productive Developers (English Edition)</mj-text
         >
         <mj-text padding="0px 0px 16px" font-size="14px" line-height="24px"
@@ -160,7 +162,7 @@ Responsive adaptation: Keep the upstream desktop book/review row, but let it sta
         </mj-text>
       </mj-column>
     </mj-section>
-    <mj-section padding="0px 20px">
+    <mj-section padding="16px 20px 0px">
       <mj-column padding="0px">
         <mj-text
           padding="8px 0px"
@@ -172,7 +174,7 @@ Responsive adaptation: Keep the upstream desktop book/review row, but let it sta
           css-class="community-rich-1"
           >How about evaluating a previous purchase? <a>View more</a>
         </mj-text>
-        <mj-divider border-color="#cccccc" border-width="1px" padding="20px 0px" />
+        <mj-divider border-color="#eaeaea" border-width="1px" padding="24px 0px 8px" />
       </mj-column>
     </mj-section>
     <mj-section padding="0px 20px">
@@ -250,7 +252,7 @@ Responsive adaptation: Keep the upstream desktop book/review row, but let it sta
           >© 2023 Amazon.com, Inc. or its affiliates. Amazon and all associated marks are trademarks
           of Amazon.com, Inc. or its affiliates.</mj-text
         >
-        <mj-text padding="8px 0px 0px" font-size="10px" line-height="24px" color="#666666"
+        <mj-text padding="8px 0px" font-size="10px" line-height="24px" color="#666666"
           >Reference: 706784740</mj-text
         >
       </mj-column>

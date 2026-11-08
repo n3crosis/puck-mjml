@@ -40,7 +40,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
     <mj-attributes
       ><mj-all font-family="Inter, system-ui, Arial, sans-serif" /><mj-section
         padding="0px" /><mj-column padding="0px" /><mj-text padding="0px" /><mj-image
-        padding="0px" /><mj-button font-family="Inter, system-ui, Arial, sans-serif"
+        padding="0px" /><mj-button font-family="Inter, Arial, sans-serif"
     /></mj-attributes>
     <mj-style inline="inline">
       .bare-app-icon {
@@ -75,6 +75,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
       }
       .bare-plain-link a {
         text-decoration: none;
+      }
+      .bare-unsubscribe a {
+        font-family: Inter, Arial, sans-serif;
       }
       .bare-shell a {
         color: inherit;
@@ -166,6 +169,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
               align="left" /></mj-column
           ><mj-column width="50%" padding="7px 0px"
             ><mj-text
+              font-family="Inter, Arial, sans-serif"
               font-size="13px"
               font-weight="420"
               line-height="1.5"
@@ -221,6 +225,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             padding="0px 0px 24px"
             border-radius="12px"
           /><mj-text
+            font-family="Inter, Arial, sans-serif"
             font-size="24px"
             font-weight="600"
             line-height="1"
@@ -234,6 +239,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             padding-right="8px"
             >Hello feature. Goodbye old feature.</mj-text
           ><mj-text
+            font-family="Inter, Arial, sans-serif"
             font-size="16px"
             font-weight="420"
             line-height="1.5"
@@ -268,6 +274,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             padding="0px 0px 24px"
             border-radius="12px"
           /><mj-text
+            font-family="Inter, Arial, sans-serif"
             font-size="24px"
             font-weight="600"
             line-height="1"
@@ -281,6 +288,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             padding-right="8px"
             >Hello feature. Goodbye old feature.</mj-text
           ><mj-text
+            font-family="Inter, Arial, sans-serif"
             font-size="16px"
             font-weight="420"
             line-height="1.5"
@@ -445,6 +453,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             padding="0px 0px 24px"
             border-radius="12px"
           /><mj-text
+            font-family="Inter, Arial, sans-serif"
             font-size="24px"
             font-weight="600"
             line-height="1"
@@ -458,6 +467,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             padding-right="8px"
             >Hello feature. Goodbye old feature.</mj-text
           ><mj-text
+            font-family="Inter, Arial, sans-serif"
             font-size="16px"
             font-weight="420"
             line-height="1.5"
@@ -631,7 +641,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
             color="#7B7D81"
             align="center"
             padding="0px 0px 0px"
-            css-class="bare-plain-link"
+            css-class="bare-plain-link bare-unsubscribe"
             ><a href="https://example.com/">Unsubscribe</a> from Barebones marketing
             emails.</mj-text
           ></mj-column

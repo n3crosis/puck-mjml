@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { safeImageSource } from "./image-upload";
 import { ImageSourceField } from "./ImageSourceField";
 import { withFieldPermissions } from "./FieldPermissions";
-import type { Config, Field, RichText, Slot } from "@puckeditor/core";
+import type { Config, CustomField, Field, RichText, Slot } from "@puckeditor/core";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
 import { emailRichTextConfig } from "./EmailRichText";
 import { AttributeNameInput, htmlAttributeNameGroups } from "./AttributeNameInput";
@@ -16,6 +16,8 @@ import { ImplicitColumnWidth } from "./native-layout-context";
 import { TrustedHtmlPreview, withNativeFields } from "./NativeFields";
 import { withNativeCanvas } from "./NativeCanvas";
 import type { EmailSettings } from "./types";
+import { IntrinsicRowView, IntrinsicCellView } from "./IntrinsicLayout";
+import { findIntrinsicOwner, IntrinsicImageSourceField } from "./IntrinsicImageSourceField";
 
 const alignment = {
   type: "select" as const,
@@ -66,6 +68,7 @@ const slotField = {
     "Table",
     "Accordion",
     "Carousel",
+    "IntrinsicRow",
   ],
 };
 
@@ -105,6 +108,24 @@ export function createEmailConfig(
   allowRawHtml = false,
   allowLocalImages = false,
 ): Config {
+  // Puck uses custom renderers as component identities. Keep this stable during
+  // field resolution so sibling edits do not cancel a pending image upload.
+  const intrinsicImageRender: CustomField<string>["render"] = ({
+    id,
+    value,
+    onChange,
+    readOnly,
+  }) => (
+    <IntrinsicImageSourceField
+      key={id}
+      id={id}
+      value={value}
+      onChange={onChange}
+      readOnly={readOnly}
+      upload={onUploadImage}
+      allowLocalImages={allowLocalImages}
+    />
+  );
   const contentSlotField = allowRawHtml
     ? { ...slotField, allow: [...slotField.allow, "Raw"] }
     : slotField;
@@ -160,6 +181,19 @@ export function createEmailConfig(
       content: Slot;
     };
     Group: { width: number; cssClass: string; columns: Slot };
+    IntrinsicRow: {
+      cells: Slot;
+      padding: string;
+      width: "100%" | "auto";
+      mobile: "stack" | "two" | "keep";
+      cssClass: string;
+    };
+    IntrinsicCell: {
+      content: Slot;
+      padding: string;
+      verticalAlign: "top" | "middle" | "bottom";
+      cssClass: string;
+    };
     Hero: {
       backgroundUrl: string;
       backgroundColor: string;
@@ -466,6 +500,8 @@ export function createEmailConfig(
           "Group",
           "Hero",
           "Wrapper",
+          "IntrinsicRow",
+          "IntrinsicCell",
         ],
       },
       Content: {
@@ -485,6 +521,52 @@ export function createEmailConfig(
       Advanced: { components: ["Raw"], visible: allowRawHtml },
     },
     components: {
+      IntrinsicRow: {
+        label: "Content-sized row",
+        fields: {
+          cells: { type: "slot", label: "Cells", allow: ["IntrinsicCell"] },
+          padding: paddingField,
+          width: {
+            type: "select",
+            label: "Row width",
+            options: [
+              { label: "Fill available width", value: "100%" },
+              { label: "Fit content", value: "auto" },
+            ],
+          },
+          mobile: {
+            type: "select",
+            label: "Cells on mobile",
+            options: [
+              { label: "One per row", value: "stack" },
+              { label: "Two per row", value: "two" },
+              { label: "Keep together", value: "keep" },
+            ],
+          },
+          cssClass: cssClassField,
+        },
+        defaultProps: { cells: [], padding: "0px", width: "100%", mobile: "stack", cssClass: "" },
+        render: (props) => <IntrinsicRowView {...props} />,
+      },
+      IntrinsicCell: {
+        label: "Content-sized cell",
+        inline: true,
+        fields: {
+          content: { type: "slot", label: "Content", allow: ["Text", "Image", "IntrinsicRow"] },
+          padding: paddingField,
+          verticalAlign: {
+            type: "select",
+            label: "Vertical alignment",
+            options: ["top", "middle", "bottom"].map((value) => ({
+              label: value[0].toUpperCase() + value.slice(1),
+              value,
+            })),
+          },
+          cssClass: cssClassField,
+        },
+        defaultProps: { content: [], padding: "0px", verticalAlign: "top", cssClass: "" },
+        render: (props) => <IntrinsicCellView {...props} />,
+      },
       Wrapper: {
         label: "Section wrapper",
         fields: {
@@ -863,6 +945,18 @@ export function createEmailConfig(
         ),
       },
       Image: {
+        resolveFields: (data, { fields, appState }) => {
+          if (!findIntrinsicOwner(appState.data, data.props.id)) return fields;
+          return {
+            ...fields,
+            src: {
+              ...fields.src,
+              type: "custom",
+              label: "Image URL",
+              render: intrinsicImageRender,
+            },
+          };
+        },
         fields: {
           src: {
             type: "custom",
@@ -1296,7 +1390,8 @@ const blockOperationsPolicies = new WeakMap<
 /**
  * Internal factory bundle for EmailEditor only, not a package export. Never
  * accepts a host config to attest. Hero's factory resolver changes height
- * visibility only; its content slot and render path are part of this contract.
+ * visibility only. Image's factory resolver swaps only the src renderer for
+ * intrinsic ownership. Their static slots/render paths are part of the contract.
  */
 export function createEmailEditorConfig(...args: Parameters<typeof createEmailConfig>) {
   const config = createEmailConfig(...args);

@@ -11,6 +11,8 @@ const slots: Record<string, string[]> = {
   Column: ["content"],
   Group: ["columns"],
   Hero: ["content"],
+  IntrinsicRow: ["cells"],
+  IntrinsicCell: ["content"],
 };
 
 function sanitizeForEditor(value: string): string {

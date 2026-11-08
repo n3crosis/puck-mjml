@@ -458,6 +458,26 @@
   color: #64748b;
   background: #f8fafc;
 }
+.pm-intrinsic-row,
+.pm-intrinsic-cell {
+  min-width: 0;
+  max-width: 100%;
+}
+.pm-intrinsic-table > .pm-intrinsic-cell {
+  display: table-cell;
+}
+.pm-intrinsic-text {
+  /* Anywhere changes min-content contributions and therefore sibling widths. */
+  overflow-wrap: normal;
+}
+.pm-intrinsic-error {
+  padding: 12px;
+  color: #991b1b;
+  background: #fef2f2;
+  font:
+    14px/1.4 Arial,
+    sans-serif;
+}
 .pm-button {
   display: inline-block;
   vertical-align: middle;

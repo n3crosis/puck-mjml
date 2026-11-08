@@ -9,6 +9,11 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-all font-family="inherit" />
       <mj-text padding="0px" />
     </mj-attributes>
+    <mj-style inline="inline">
+      .google-play-header img {
+        margin-top: -1px;
+      }
+    </mj-style>
     <mj-style>
       body {
         font-family:
@@ -54,6 +59,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-section padding="0px">
         <mj-column padding="0px">
           <mj-image
+            css-class="google-play-header"
             src="https://demo.react.email/static/google-play-header.png"
             alt="Google Play developers header blue transparent"
             width="305px"

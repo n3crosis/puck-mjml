@@ -108,6 +108,7 @@ afterEach(async () => {
 
 it("opens the dialog from Import and announces a successful paste", async () => {
   expect(container.querySelector("dialog")).toBeNull();
+  expect(container.querySelector(".demo-notice")).toBeNull();
   await click("Import");
   await fill("textarea", source("Pasted email"));
   await click("Import text");
@@ -156,18 +157,15 @@ it.each([false, true])(
       expect(serialized()).toContain("Replacement");
       expect(serialized()).not.toContain("Changed while reading");
       expect(container.querySelector("dialog")).toBeNull();
-      expect(container.querySelector(".demo-notice")?.textContent).not.toContain(
-        "You have unsaved edits.",
-      );
     } else {
       expect(serialized()).toBe(before);
       expect(container.querySelector('dialog [role="status"]')?.textContent).toContain(
         "current email is unchanged",
       );
-      expect(container.querySelector(".demo-notice")?.textContent).toContain(
-        "You have unsaved edits.",
-      );
     }
+    const beforeUnload = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(beforeUnload);
+    expect(beforeUnload.defaultPrevented).toBe(!replace);
   },
 );
 

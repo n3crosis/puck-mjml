@@ -220,14 +220,52 @@ describe("native MJML editor fields", () => {
     expect($(".pm-attribute-add").length).toBe(0);
   });
 
-  it("covers every palette component with exactly its supported native attributes", () => {
+  it("classifies every palette component and exposes only its supported attribute controls", () => {
     const config = createEmailConfig();
-    expect(Object.keys(nativeComponentTags).sort()).toEqual(Object.keys(config.components).sort());
-    for (const [name, component] of Object.entries(config.components)) {
+    const structuralFields = {
+      IntrinsicRow: {
+        cells: { type: "slot", allow: ["IntrinsicCell"] },
+        padding: { type: "text" },
+        width: { type: "select", options: [{ value: "100%" }, { value: "auto" }] },
+        mobile: {
+          type: "select",
+          options: [{ value: "stack" }, { value: "two" }, { value: "keep" }],
+        },
+        cssClass: { type: "text" },
+      },
+      IntrinsicCell: {
+        content: { type: "slot", allow: ["Text", "Image", "IntrinsicRow"] },
+        padding: { type: "text" },
+        verticalAlign: {
+          type: "select",
+          options: [{ value: "top" }, { value: "middle" }, { value: "bottom" }],
+        },
+        cssClass: { type: "text" },
+      },
+    };
+    expect([...Object.keys(nativeComponentTags), ...Object.keys(structuralFields)].sort()).toEqual(
+      Object.keys(config.components).sort(),
+    );
+    // Structural HTML layout blocks never acquire native/raw controls, even
+    // when the host enables trusted HTML for ordinary native components.
+    for (const allowRawHtml of [false, true]) {
+      const structuralConfig = createEmailConfig(undefined, allowRawHtml);
+      for (const [name, fields] of Object.entries(structuralFields)) {
+        expect(nativeComponentTags).not.toHaveProperty(name);
+        const component = structuralConfig.components[name];
+        expect(Object.keys(component.fields ?? {}).sort()).toEqual(Object.keys(fields).sort());
+        expect(component.fields).toMatchObject(fields);
+        expect(Object.keys(component.defaultProps ?? {}).sort()).toEqual(
+          Object.keys(fields).sort(),
+        );
+        for (const unsupported of ["mjClass", "mjmlAttributes", "htmlContent"])
+          expect(component.fields).not.toHaveProperty(unsupported);
+      }
+    }
+    for (const [name, tag] of Object.entries(nativeComponentTags)) {
+      const component = config.components[name];
       expect(component.fields?.mjClass).toMatchObject({ type: "text" });
-      expect(attributeNames(component.fields?.mjmlAttributes)).toEqual(
-        nativeAttributeNames(nativeComponentTags[name]),
-      );
+      expect(attributeNames(component.fields?.mjmlAttributes)).toEqual(nativeAttributeNames(tag));
       const attributes = component.fields?.mjmlAttributes as CustomField<MjmlAttribute[]>;
       expect(attributes).toMatchObject({ type: "custom", key: "native-attributes" });
       expect(component.defaultProps).toMatchObject({ mjmlAttributes: [] });

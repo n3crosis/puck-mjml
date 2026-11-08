@@ -57,6 +57,18 @@ const blocks: Record<string, { label: string; description: string; icon: Icon; l
       icon: StackIcon,
       layout: true,
     },
+    IntrinsicRow: {
+      label: "Auto row",
+      description: "Content-sized cells with responsive stacking",
+      icon: ColumnsIcon,
+      layout: true,
+    },
+    IntrinsicCell: {
+      label: "Auto cell",
+      description: "Cell inside a content-sized row",
+      icon: RectangleIcon,
+      layout: true,
+    },
     Wrapper: {
       label: "Wrapper",
       description: "Wrapper around email sections",

@@ -15,6 +15,8 @@ const slotsByType: Record<string, readonly string[]> = {
   Section1: ["column"],
   Section2: ["left", "right"],
   Section3: ["left", "middle", "right"],
+  IntrinsicRow: ["cells"],
+  IntrinsicCell: ["content"],
   Text: [],
   Image: [],
   Button: [],
@@ -99,9 +101,11 @@ function dynamic(config: Config, item: ComponentData | null) {
   const component = item ? config.components[item.type] : config.root;
   if (!component || component.resolveData || component.resolvePermissions) return true;
   // inspect() has verified the entire factory-issued policy first. Only its
-  // exact Hero resolver is known to preserve static slots. Even a resolver on
-  // a currently slot-free component could introduce new dynamic slots.
-  return Boolean(component.resolveFields && item?.type !== "Hero");
+  // exact Hero and Image resolvers are known to preserve static slots: Hero
+  // changes height visibility, Image only changes its src field renderer.
+  // An arbitrary resolver on a currently slot-free component could introduce
+  // new dynamic slots.
+  return Boolean(component.resolveFields && item?.type !== "Hero" && item?.type !== "Image");
 }
 function locks(
   api: PuckApi,

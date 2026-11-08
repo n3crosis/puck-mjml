@@ -62,6 +62,7 @@
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.15",
     "@lezer/highlight": "^1.2.5",
+    "@noble/hashes": "2.0.1",
     "@phosphor-icons/react": "^2.1.10",
     "@tiptap/extension-bold": "3.32.0",
     "@tiptap/extension-link": "3.32.0",

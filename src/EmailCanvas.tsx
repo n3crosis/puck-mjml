@@ -29,6 +29,7 @@ import {
   TailwindRuntimeContext,
 } from "./canvas-tailwind";
 import { NativeLayoutContext } from "./native-layout-context";
+import { intrinsicResponsiveCss } from "./intrinsic-layout";
 
 type EmailCanvasProps = {
   children: ReactNode;
@@ -221,7 +222,9 @@ export function EmailCanvas({
       ) : null}
       <style data-pm-native-widths={scope}>{desktopWidthStyles}</style>
       {scopedCss.css ? <style data-pm-canvas-css={scope}>{scopedCss.css}</style> : null}
-      <style data-pm-responsive={scope}>{mobileStyles}</style>
+      <style data-pm-responsive={scope}>
+        {mobileStyles + intrinsicResponsiveCss(responsiveWidth, scope)}
+      </style>
       <div
         className={["pm-email", bodyClass].filter(Boolean).join(" ")}
         style={{ maxWidth: emailWidthStyle }}

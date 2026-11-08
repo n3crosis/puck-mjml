@@ -14,6 +14,8 @@ export function ImageSourceField({
   upload,
   readOnly = false,
   allowLocalImages = false,
+  validateSource,
+  validationError,
 }: {
   id: string;
   value: unknown;
@@ -21,6 +23,10 @@ export function ImageSourceField({
   upload?: (file: File) => Promise<string>;
   readOnly?: boolean;
   allowLocalImages?: boolean;
+  /** Optional owning-layout preflight. Throw to leave the current image intact. */
+  validateSource?: (source: string, kind: "input" | "upload") => void;
+  /** Current owning-layout errors remain visible without remounting this field. */
+  validationError?: string;
 }) {
   // Puck mounts hidden and visible field instances with the same supplied id.
   // Labels and help text must belong to this rendered instance, not its sibling.
@@ -29,8 +35,8 @@ export function ImageSourceField({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const request = useRef(0);
-  const latest = useRef({ onChange, readOnly, upload, allowLocalImages });
-  latest.current = { onChange, readOnly, upload, allowLocalImages };
+  const latest = useRef({ onChange, readOnly, upload, allowLocalImages, validateSource });
+  latest.current = { onChange, readOnly, upload, allowLocalImages, validateSource };
   const uploadEnabled = Boolean(upload);
   // Selection changes remount this field by id. External updates, undo, locks,
   // host policy changes, and unmounting invalidate uploads without claiming to
@@ -67,6 +73,7 @@ export function ImageSourceField({
       readNativeAttributes("mj-image", [{ name: "src", value: url }], {
         allowLocalImages: latest.current.allowLocalImages,
       });
+      latest.current.validateSource?.(url, "upload");
       latest.current.onChange(url);
     } catch (cause) {
       if (token === request.current)
@@ -81,6 +88,7 @@ export function ImageSourceField({
   };
   const description = `${inputId}-upload-help`;
   const errorId = `${inputId}-upload-error`;
+  const visibleError = validationError || error;
   return (
     <div className="pm-field" aria-busy={busy}>
       <label htmlFor={inputId}>Image URL</label>
@@ -90,14 +98,20 @@ export function ImageSourceField({
         value={String(value ?? "")}
         readOnly={readOnly}
         aria-describedby={
-          [upload ? description : "", error ? errorId : ""].filter(Boolean).join(" ") || undefined
+          [upload ? description : "", visibleError ? errorId : ""].filter(Boolean).join(" ") ||
+          undefined
         }
         onChange={(event) => {
           if (latest.current.readOnly) return;
           request.current++;
           setBusy(false);
           setError("");
-          latest.current.onChange(event.target.value);
+          try {
+            latest.current.validateSource?.(event.target.value, "input");
+            latest.current.onChange(event.target.value);
+          } catch (cause) {
+            setError(cause instanceof Error ? cause.message : "Image exceeds this layout's limits");
+          }
         }}
         placeholder="https://example.com/image.png"
       />
@@ -107,8 +121,10 @@ export function ImageSourceField({
             {busy ? "Uploading…" : "Upload image"}
             <input
               aria-label="Upload image"
-              aria-describedby={[description, error ? errorId : ""].filter(Boolean).join(" ")}
-              aria-invalid={error ? true : undefined}
+              aria-describedby={[description, visibleError ? errorId : ""]
+                .filter(Boolean)
+                .join(" ")}
+              aria-invalid={visibleError ? true : undefined}
               type="file"
               accept={IMAGE_UPLOAD_ACCEPT}
               disabled={readOnly || busy}
@@ -128,9 +144,9 @@ export function ImageSourceField({
           Uploading image…
         </span>
       )}
-      {error && (
+      {visibleError && (
         <small id={errorId} role="alert">
-          {error}
+          {visibleError}
         </small>
       )}
     </div>

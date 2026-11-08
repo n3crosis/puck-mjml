@@ -5,7 +5,7 @@ test("demo loads, exports source, and rejects trusted imports without replacemen
   page,
 }) => {
   await page.goto("/");
-  await expect(page.getByText("Demo only: drafts are not saved.", { exact: false })).toBeVisible();
+  await expect(page.locator(".demo-notice")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Preview email" })).toBeVisible();
   await page.getByRole("button", { name: "Export email" }).click();
   await page.getByRole("button", { name: "MJML", exact: true }).click();
@@ -89,9 +89,8 @@ for (const viewport of [
   test(`demo and preview fit ${viewport.width}px viewport`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("/");
-    await expect(
-      page.getByText("Demo only: drafts are not saved.", { exact: false }),
-    ).toBeVisible();
+    await expect(page.locator(".demo-app .pm-editor")).toBeVisible();
+    await expect(page.locator(".demo-notice")).toHaveCount(0);
     const preview = page.getByRole("button", { name: "Preview email" });
     if (!(await preview.isVisible())) {
       await page.getByRole("button", { name: "Toggle menu bar" }).click();

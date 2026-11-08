@@ -1,3 +1,4 @@
+import { expectUnsavedChanges } from "./import-email";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 /** Exercise Puck's pointer sensor, including the iframe boundary and canvas zoom. */
@@ -132,6 +133,6 @@ for (const canvas of ["Desktop", "Mobile"] as const) {
     await dragBlock(page, page.getByRole("button", { name: "Text", exact: true }), column);
     await expect(column.locator('[data-puck-component^="Text-"]')).toHaveCount(1);
     await expect(column.getByText("Your text here", { exact: true })).toBeVisible();
-    await expect(page.getByText("You have unsaved edits.", { exact: false })).toBeVisible();
+    await expectUnsavedChanges(page, true);
   });
 }

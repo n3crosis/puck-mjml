@@ -9,6 +9,13 @@ import { readNativeAttributes } from "./native-attributes";
 import { encodeEndingWhitespace, trustedEndingContent } from "./ending-content";
 import type { NativeAttributeSources } from "./imported-attribute-source";
 import { renderHeadSettings } from "./head";
+import { resolveBreakpointWidth } from "./head";
+import {
+  wrapIntrinsicContent,
+  intrinsicResponsiveCss,
+  isIntrinsicResponsiveCss,
+  renderIntrinsicContent,
+} from "./intrinsic-layout";
 import type {
   CompiledEmail,
   EmailBlock,
@@ -180,6 +187,8 @@ function renderRaw(
 
 function renderContent(block: EmailBlock, options: RenderOptions): string {
   switch (block.type) {
+    case "IntrinsicRow":
+      return wrapIntrinsicContent(renderIntrinsicContent(block, options));
     case "Text":
       return `<mj-text${nativeAttributes("mj-text", block.props, getNativeBaseAttributes("mj-text", block.props, options), options)}>${endingContent("mj-text", block.props, () => importedRichText(block.props) ?? sanitizeEmailRichText(block.props.content), options)}</mj-text>`;
     case "Image":
@@ -371,6 +380,7 @@ function renderLayout(block: EmailBlock, options: RenderOptions): string {
     "Social",
     "Navbar",
     "Table",
+    "IntrinsicRow",
     "Accordion",
     "Carousel",
     "Raw",
@@ -401,9 +411,35 @@ function renderHead(
   settings: NonNullable<EmailDocument["root"]["props"]>,
   options: RenderOptions,
 ): string {
-  const { breakpoint, fontImports, styles, htmlAttributes } = renderHeadSettings(settings, options);
+  const hasIntrinsic = (value: unknown): boolean =>
+    Array.isArray(value)
+      ? value.some(hasIntrinsic)
+      : Boolean(
+          value &&
+          typeof value === "object" &&
+          ((value as { type?: string }).type === "IntrinsicRow" ||
+            Object.values(value).some(hasIntrinsic)),
+        );
+  const intrinsic = hasIntrinsic(settings.sections);
+  const headSettings = intrinsic
+    ? {
+        ...settings,
+        headStyles: settings.headStyles?.filter(
+          (entry) =>
+            !(entry.inline === "head" && isIntrinsicResponsiveCss(entry.css)) &&
+            !(entry.inline === "inline" && entry.css.trim() === richTextStyles.trim()),
+        ),
+      }
+    : settings;
+  const { breakpoint, fontImports, styles, htmlAttributes } = renderHeadSettings(
+    headSettings,
+    options,
+  );
   const rawHead = settings.rawHead ? renderRaw(settings.rawHead, options) : "";
-  return `<mj-head><mj-title>${endingContent("mj-title", { htmlContent: settings.subjectHtmlContent }, () => endingText(settings.subject), options)}</mj-title><mj-preview>${endingContent("mj-preview", { htmlContent: settings.previewHtmlContent }, () => endingText(settings.previewText), options)}</mj-preview>${breakpoint}${fontImports}${renderNativeDefaults(options.nativeContext)}<mj-style inline="inline">${richTextStyles}</mj-style>${styles}${htmlAttributes}${rawHead}</mj-head>`;
+  const intrinsicStyles = intrinsic
+    ? `<mj-style>${intrinsicResponsiveCss(resolveBreakpointWidth(settings) || "480px")}</mj-style>`
+    : "";
+  return `<mj-head><mj-title>${endingContent("mj-title", { htmlContent: settings.subjectHtmlContent }, () => endingText(settings.subject), options)}</mj-title><mj-preview>${endingContent("mj-preview", { htmlContent: settings.previewHtmlContent }, () => endingText(settings.previewText), options)}</mj-preview>${breakpoint}${fontImports}${renderNativeDefaults(options.nativeContext)}<mj-style inline="inline">${richTextStyles}</mj-style>${intrinsicStyles}${styles}${htmlAttributes}${rawHead}</mj-head>`;
 }
 
 export function toMjml(document: EmailDocument, options: ExportOptions = {}): string {

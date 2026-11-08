@@ -1,4 +1,7 @@
 import * as cheerio from "cheerio";
+import { parseIntrinsicMarkup, preflightIntrinsicSource } from "./intrinsic-import";
+import { createNativeContext, type NativeContext } from "./native-cascade";
+import { resolveIntrinsicLeaf, intrinsicLeafPresentation } from "./intrinsic-layout";
 import { isLocalImageSource } from "./image-upload";
 import type { Element, Text } from "domhandler";
 import { normalizeMjClass, nativeCatalog, readNativeAttributes } from "./native-attributes";
@@ -256,6 +259,7 @@ interface SourceElement {
   tag: string;
   attributes: Record<string, string>;
   attributeSources?: Record<string, string>;
+  ancestorClasses?: string;
   children: SourceElement[];
   textContent: string;
   innerHtml: string;
@@ -268,6 +272,8 @@ class Importer {
   ) {}
 
   readonly warnings: string[] = [];
+  intrinsicSource = new Map<string, boolean>();
+  intrinsicSettings: Partial<EmailSettings> = {};
   private readonly ids = new Set<string>();
   private readonly counters: Record<string, number> = {};
 
@@ -524,6 +530,26 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
     );
     const sourceContent = children.length === 0 ? endings.get(wrapped.html() ?? "") : undefined;
     if (sourceContent !== undefined) {
+      // Intrinsic source has already passed bounded lexical preflight. Table
+      // import owns parsing; avoid eager HTML repair and repeated serialization.
+      if (tag === "mj-table") {
+        let ancestorClasses: string | undefined;
+        for (let parent = node.parent; parent; parent = parent.parent) {
+          if ("attribs" in parent && Object.hasOwn(parent.attribs, "mj-class")) {
+            ancestorClasses = sourceAttribute(parent.name, "mj-class", parent.attribs["mj-class"]!);
+            break;
+          }
+        }
+        return {
+          tag,
+          attributes,
+          attributeSources: { ...node.attribs },
+          children: [],
+          textContent: "",
+          innerHtml: sourceContent,
+          ancestorClasses,
+        };
+      }
       const html = cheerio.load(sourceContent.trim(), {}, false);
       return {
         tag,
@@ -1363,6 +1389,52 @@ function parseContent(element: SourceElement, importer: Importer): EmailBlock | 
 }
 
 function parseTable(element: SourceElement, importer: Importer): EmailBlock {
+  if (importer.intrinsicSource.get(element.innerHtml) === true) {
+    let context: NativeContext | undefined;
+    const intrinsic = parseIntrinsicMarkup(
+      element.innerHtml,
+      element.attributes,
+      importer.options,
+      {
+        id: (prefix) => importer.id(prefix),
+        visible: (block) => {
+          const settings = importer.intrinsicSettings;
+          const nativeContext = (context ??= createNativeContext(
+            {
+              ...settings,
+              attributeDefaults: settings.attributeDefaults?.some(
+                (entry) => entry.name === "font-family",
+              )
+                ? settings.attributeDefaults
+                : [
+                    { name: "font-family", inherit: true, source: "import" },
+                    ...(settings.attributeDefaults ?? []),
+                  ],
+            },
+            { ...importer.options, allowRawHtml: false },
+          ));
+          const resolved = resolveIntrinsicLeaf(block, {
+            ...importer.options,
+            nativeContext,
+            ancestorClasses: element.ancestorClasses,
+          });
+          return intrinsicLeafPresentation(resolved.tag, resolved.attributes).visible;
+        },
+        leaf: (tag, attributes, innerHtml) =>
+          parseContent(
+            {
+              tag,
+              attributes,
+              children: [],
+              textContent: "",
+              innerHtml,
+            },
+            importer,
+          )!,
+      },
+    );
+    if (intrinsic) return intrinsic;
+  }
   const props = importer.attributes("mj-table", element, TABLE_ATTRS);
   const $ = cheerio.load(`<table>${element.innerHtml}</table>`, {}, false);
   let cellLoss = false;
@@ -1489,6 +1561,8 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
     return parsed.html();
   };
   const trusted =
+    element.innerHtml.includes("data-pm-layout") ||
+    importer.intrinsicSource.get(element.innerHtml) === false ||
     cellLoss ||
     normalizedTableHtml(element.innerHtml) !==
       normalizedTableHtml(sanitizeEmailTableContent(element.innerHtml)) ||
@@ -1551,7 +1625,9 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
  * warning. `mj-include` and custom components are not supported.
  */
 export function fromMjml(source: string, options: ImportOptions = {}): ImportedEmail {
+  const intrinsicSource = preflightIntrinsicSource(source);
   const importer = new Importer(options, hasSourceWhitespaceStyles(source));
+  importer.intrinsicSource = intrinsicSource;
   const roots = parseElements(source, importer);
   const mjml = roots.find((element) => element.tag === "mjml");
   if (!mjml) throw new Error("MJML source must contain an <mjml> root element.");
@@ -1567,6 +1643,7 @@ export function fromMjml(source: string, options: ImportOptions = {}): ImportedE
   if (owa === "desktop" || owa === "none") settings.owa = owa;
   const head = mjml.children.find((element) => element.tag === "mj-head");
   if (head) parseHead(head, settings, importer);
+  importer.intrinsicSettings = settings;
   for (const element of mjml.children) {
     if (element.tag === "mj-raw" && element.attributes.position?.trim() === "file-start") {
       settings.rawFileStart = (settings.rawFileStart ?? "") + element.innerHtml;

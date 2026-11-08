@@ -163,15 +163,6 @@ button {
   }
 }
 
-.demo-notice {
-  padding: 6px 20px;
-  background: #eff6ff;
-  color: #1e3a8a;
-  font:
-    12px/1.5 system-ui,
-    sans-serif;
-}
-
 /* Long import diagnostics must not push the editor below the viewport. */
 .demo-status {
   max-height: 25dvh;
@@ -181,10 +172,6 @@ button {
 .demo-status summary {
   cursor: pointer;
   font-weight: 600;
-}
-.demo-notice {
-  flex-shrink: 0;
-  border-bottom: 1px solid #dbeafe;
 }
 @media (max-width: 600px) {
   .demo-app .pm-editor :where([class*="_MenuBar-inner_"]) {
@@ -221,7 +208,6 @@ button {
   .demo-divider {
     display: none;
   }
-  .demo-notice,
   .demo-status {
     padding-inline: 12px;
   }

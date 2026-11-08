@@ -9,6 +9,9 @@ import {
   type Ref,
 } from "react";
 import type { Config } from "@puckeditor/core";
+import { IntrinsicLayoutContext, IntrinsicLeafView } from "./IntrinsicLayout";
+import { resolveIntrinsicLeaf } from "./intrinsic-layout";
+import { aliasFontFamilyList } from "./canvas-css";
 import { nativeComponentTags } from "./NativeFields";
 import { TableBlock } from "./TableBlock";
 import type { TableProps } from "./table";
@@ -652,10 +655,57 @@ function NativeBlock({
   fallback: ComponentType<Props>;
 }) {
   const parent = useNativeCanvasScope();
+  const intrinsic = useContext(IntrinsicLayoutContext);
   const source = useLayoutBlockProps(props.id);
   props = canvasProps(props, source);
   const layout = useContext(NativeLayoutContext);
   const childBlocks = useLayoutChildren(props.id, "columns");
+  if (name === "IntrinsicRow" || name === "IntrinsicCell") return <Fallback {...props} />;
+  if (intrinsic) {
+    if (name !== "Text" && name !== "Image")
+      return <div role="alert">Unsupported intrinsic content: {name}</div>;
+    if (
+      props.htmlContent !== undefined ||
+      (Array.isArray(props.mjmlAttributes) && props.mjmlAttributes.some((entry) => entry?.template))
+    )
+      return (
+        <div role="alert">Intrinsic layouts do not accept trusted HTML or template attributes.</div>
+      );
+    try {
+      const node = resolveIntrinsicLeaf(
+        { type: name, props },
+        {
+          nativeContext: parent.context,
+          ancestorClasses: parent.ancestorClasses,
+          allowLocalImages: parent.context.allowLocalImages,
+          validationKey: source ?? props,
+        },
+      );
+      const attributes = { ...node.attributes } as NativeCanvasAttributes;
+      if (parent.fontAliases && attributes["font-family"])
+        attributes["font-family"] = aliasFontFamilyList(
+          attributes["font-family"],
+          parent.fontAliases,
+        );
+      return (
+        <IntrinsicLeafView name={name} props={props} source={source} attributes={attributes} />
+      );
+    } catch (cause) {
+      if (
+        name === "Image" &&
+        cause instanceof Error &&
+        cause.message === "Intrinsic image source must be a valid image URL"
+      )
+        return <div className="pm-image-empty">Select an image URL</div>;
+      return (
+        <div role="alert">
+          {cause instanceof Error
+            ? cause.message
+            : `Invalid intrinsic ${name.toLowerCase()} attributes.`}
+        </div>
+      );
+    }
+  }
   const fallback = () => {
     let content = <Fallback {...props} />;
     if (name === "Wrapper")
@@ -763,8 +813,9 @@ function NativeBlock({
  * must expose its own baseline instead of borrowing a later text line. */
 function NativeCanvasComponent(props: Parameters<typeof NativeBlock>[0]) {
   const inColumn = useContext(ColumnContentContext);
+  const intrinsic = useContext(IntrinsicLayoutContext);
   const content = <NativeBlock {...props} />;
-  if (!inColumn || props.name === "Raw") return content;
+  if (!inColumn || intrinsic || props.name === "Raw") return content;
   return (
     <div className="pm-native-content-table">
       <div className="pm-native-content-cell">

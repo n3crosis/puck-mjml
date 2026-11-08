@@ -439,6 +439,9 @@ export function withNativeFields(config: Config, allowRawHtml = false): Config {
   const components = Object.fromEntries(
     Object.entries(config.components).map(([name, component]) => {
       const tag = nativeComponentTags[name];
+      // Intrinsic layouts are safe HTML structures within mj-table, not native
+      // MJML components with their own arbitrary native attribute controls.
+      if (name === "IntrinsicRow" || name === "IntrinsicCell") return [name, component];
       if (!tag) throw new Error(`Missing native MJML tag for ${name}`);
       return [
         name,

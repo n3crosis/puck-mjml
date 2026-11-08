@@ -22,3 +22,16 @@ export async function chooseImportFile(
   await dialog.getByRole("button", { name: "Choose file", exact: true }).click();
   await (await chooser).setFiles(file);
 }
+
+/** Check the draft's unload guard without navigating or opening a native dialog. */
+export async function expectUnsavedChanges(page: Page, dirty: boolean) {
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const event = new Event("beforeunload", { cancelable: true });
+        window.dispatchEvent(event);
+        return event.defaultPrevented;
+      }),
+    )
+    .toBe(dirty);
+}

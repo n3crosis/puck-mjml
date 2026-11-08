@@ -1,4 +1,4 @@
-import { chooseImportFile, openImportDialog } from "./import-email";
+import { chooseImportFile, expectUnsavedChanges, openImportDialog } from "./import-email";
 import { templateInventory } from "../template-inventory";
 import { expect, test, type Page } from "@playwright/test";
 
@@ -97,7 +97,7 @@ for (const selection of [
     await expect(picker).toHaveValue(selection.id);
     await expect(page.locator('.demo-status[role="status"]')).toHaveCount(0);
     await expect(page.locator("details.demo-status")).toHaveCount(0);
-    await expect(page.getByText("You have unsaved edits.", { exact: false })).toBeHidden();
+    await expectUnsavedChanges(page, false);
   });
 }
 
@@ -133,7 +133,7 @@ for (const outcome of ["release", "reject"] as const) {
     await expect(notes.locator("li")).toHaveText([
       "Ignored unsupported head element <mj-import-note>.",
     ]);
-    await expect(page.getByText("You have unsaved edits.", { exact: false })).toBeHidden();
+    await expectUnsavedChanges(page, false);
     await expect(page.getByRole("button", { name: /^undo$/i })).toBeDisabled();
   });
 }
@@ -147,8 +147,7 @@ for (const decision of ["dismiss", "accept"] as const) {
     await expect(picker).toHaveValue("blank");
     const preview = page.getByRole("textbox", { name: "Preview text", exact: true });
     await expect(preview).toHaveValue("");
-    const dirtyNotice = page.getByText("You have unsaved edits.", { exact: false });
-    await expect(dirtyNotice).toBeHidden();
+    await expectUnsavedChanges(page, false);
     await beginDelayedImport(page, source("Delayed replacement", true));
 
     // Simulate a host update after file.text() starts. The modal correctly
@@ -165,7 +164,7 @@ for (const decision of ["dismiss", "accept"] as const) {
       );
       field.dispatchEvent(new Event("input", { bubbles: true }));
     });
-    await expect(dirtyNotice).toBeVisible();
+    await expectUnsavedChanges(page, true);
     const undo = page.getByRole("button", { name: /^undo$/i });
 
     // Install the listener before release. Do not await page.evaluate first:
@@ -189,16 +188,16 @@ for (const decision of ["dismiss", "accept"] as const) {
       expect(await exportedMjml(page)).toContain("<mj-preview>Keep my in-flight edit</mj-preview>");
       await expect(picker).toHaveValue("blank");
       await expect(preview).toHaveValue("Keep my in-flight edit");
-      await expect(dirtyNotice).toBeVisible();
+      await expectUnsavedChanges(page, true);
       await expect(page.locator('.demo-status[role="status"]')).toHaveCount(0);
       await expect(page.locator("details.demo-status")).toHaveCount(0);
       await expect(undo).toBeEnabled();
       await undo.click();
       await expect(preview).toHaveValue("");
-      await expect(dirtyNotice).toBeHidden();
+      await expectUnsavedChanges(page, false);
       await page.getByRole("button", { name: /^redo$/i }).click();
       await expect(preview).toHaveValue("Keep my in-flight edit");
-      await expect(dirtyNotice).toBeVisible();
+      await expectUnsavedChanges(page, true);
     } else {
       await expect(picker).toHaveValue("imported");
       await expect(preview).toHaveValue("Delayed replacement preview");
@@ -208,7 +207,7 @@ for (const decision of ["dismiss", "accept"] as const) {
       await expect(page.locator('.demo-status[role="status"]')).toContainText(
         `Imported ${delayedFile} with 1 note:`,
       );
-      await expect(dirtyNotice).toBeHidden();
+      await expectUnsavedChanges(page, false);
       await expect(undo).toBeDisabled();
     }
   });

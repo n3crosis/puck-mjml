@@ -27,6 +27,9 @@ function createEmailConfig(...args: Parameters<typeof createPublicConfig>) {
 import { createEmptyDocument } from "./document";
 import { createBlockOperations } from "./block-operations";
 import { BlockOperations } from "./BlockOperations";
+import { fromMjml } from "./import";
+import { toMjml } from "./export";
+import type { EmailDocument } from "./types";
 
 type Data = PuckData<
   Record<string, Record<string, unknown>>,
@@ -96,6 +99,13 @@ const section = (id: string, items = [text(`${id}-a`), text(`${id}-b`)]) => ({
   type: "Section1",
   props: { id, column: items },
 });
+function allBlocks(value: unknown): ComponentData[] {
+  if (!value || typeof value !== "object") return [];
+  return [
+    ...("type" in value && "props" in value ? [value as ComponentData] : []),
+    ...Object.values(value).flatMap(allBlocks),
+  ];
+}
 async function select(id: string) {
   await act(async () =>
     getPuck().dispatch({
@@ -197,6 +207,190 @@ describe("bounded block operations with actual Puck", () => {
     }
     expect(actions).toHaveLength(unchanged);
   });
+
+  it.each([false, true])(
+    "supports attested intrinsic slots and slot-neutral Image fields with imported=%s",
+    async (imported) => {
+      const picture = (id: string): ComponentData => ({
+        type: "Image",
+        props: { id, src: "https://example.com/picture.png", width: 24, padding: "0px" },
+      });
+      const original = dataWith(
+        {
+          type: "Section1",
+          props: {
+            id: "one",
+            column: [
+              picture("outside"),
+              {
+                type: "IntrinsicRow",
+                props: {
+                  id: "row",
+                  cells: [
+                    {
+                      type: "IntrinsicCell",
+                      props: { id: "first", content: [picture("inside"), text("caption")] },
+                    },
+                    { type: "IntrinsicCell", props: { id: "second", content: [] } },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        section("two", []),
+      );
+      const data = imported
+        ? (fromMjml(toMjml(original as EmailDocument)).document as Data)
+        : original;
+      const config = createEmailConfig(undefined, true);
+      const operations = await mount(config, data);
+      const initialIds = allBlocks(data).map((item) => item.props.id);
+      const row = allBlocks(data).find((item) => item.type === "IntrinsicRow")!;
+      const [first, second] = row.props.cells as ComponentData[];
+      const [outside, inside] = allBlocks(data).filter((item) => item.type === "Image");
+      const outerZone = getPuck().getSelectorForId(row.props.id)!.zone!;
+      expect(
+        operations
+          .model()
+          .destinations.find((zone) => zone.id === "root:sections")!
+          .types.some((type) => type.name === "Section1"),
+      ).toBe(true);
+      const fields = config.components.Image.fields!;
+      for (const item of [outside, inside]) {
+        const resolve = () =>
+          config.components.Image.resolveFields!(item, {
+            changed: {},
+            fields,
+            lastFields: fields,
+            lastData: null,
+            metadata: {},
+            appState: getPuck().appState,
+            parent: null,
+          });
+        const resolved = await resolve();
+        expect(Object.keys(resolved)).toEqual(Object.keys(fields));
+        expect(Object.values(resolved).some((field) => field.type === "slot")).toBe(false);
+        for (const name of Object.keys(fields).filter((name) => name !== "src"))
+          expect(resolved[name]).toBe(fields[name]);
+        if (item === outside) expect(resolved).toBe(fields);
+        else
+          expect((resolved.src as { render: unknown }).render).toBe(
+            ((await resolve()).src as { render: unknown }).render,
+          );
+      }
+      const beforeInvalid = actions.length;
+      for (const [zone, type] of [
+        ["root:sections", "IntrinsicCell"],
+        [outerZone, "IntrinsicCell"],
+        [`${row.props.id}:cells`, "Text"],
+        [`${row.props.id}:cells`, "Image"],
+        [`${first.props.id}:content`, "Raw"],
+      ])
+        expect(await run(() => operations.add(zone, type))).toBe(false);
+      expect(actions).toHaveLength(beforeInvalid);
+      expect(await run(() => operations.add(`${second.props.id}:content`, "IntrinsicRow"))).toBe(
+        true,
+      );
+      const nested = getPuck().selectedItem!;
+      expect(nested.props.cells).toEqual([]);
+      expect(await run(() => operations.add(`${nested.props.id}:cells`, "IntrinsicCell"))).toBe(
+        true,
+      );
+      const nestedCell = getPuck().selectedItem!;
+      expect(nestedCell.props.content).toEqual([]);
+      for (const type of ["Text", "Image"]) {
+        expect(await run(() => operations.add(`${nestedCell.props.id}:content`, type))).toBe(true);
+        expect(initialIds).not.toContain(getPuck().selectedItem!.props.id);
+      }
+      const newImage = getPuck().selectedItem!;
+      expect(newImage.props.src).toBe(config.components.Image.defaultProps!.src);
+      await pause();
+      const before = structuredClone(getPuck().appState.data);
+      expect(await run(() => operations.move(newImage.props.id, -1))).toBe(true);
+      expect(getPuck().getSelectorForId(newImage.props.id)).toEqual({
+        index: 0,
+        zone: `${nestedCell.props.id}:content`,
+      });
+      await pause();
+      await act(async () => getPuck().history.back());
+      expect(value).toEqual(before);
+      await act(async () => getPuck().history.forward());
+      expect(getPuck().selectedItem!.props.id).toBe(newImage.props.id);
+      await select(first.props.id);
+      expect(await run(() => operations.move(first.props.id, 1))).toBe(true);
+      await select(row.props.id);
+      expect(await run(() => operations.move(row.props.id, -1))).toBe(true);
+      // The same subtree/ancestor rules apply to both native and imported IDs.
+      const unlocked = structuredClone(getPuck().appState.data);
+      for (const lock of ["ancestor", "subtree", "neighbor"]) {
+        const locked = structuredClone(unlocked);
+        const target = allBlocks(locked).find(
+          (item) =>
+            item.props.id ===
+            (lock === "ancestor"
+              ? row.props.id
+              : lock === "subtree"
+                ? inside.props.id
+                : second.props.id),
+        )!;
+        target.readOnly = {
+          [lock === "ancestor" ? "cells" : lock === "subtree" ? "src" : "content"]: true,
+        };
+        await act(async () =>
+          getPuck().dispatch({ type: "setData", data: locked, recordHistory: false }),
+        );
+        await select(first.props.id);
+        const count = actions.length;
+        expect(await run(() => operations.move(first.props.id, -1))).toBe(false);
+        if (lock === "ancestor")
+          expect(await run(() => operations.add(`${first.props.id}:content`, "Text"))).toBe(false);
+        expect(actions).toHaveLength(count);
+        await act(async () =>
+          getPuck().dispatch({
+            type: "setData",
+            data: structuredClone(unlocked),
+            recordHistory: false,
+          }),
+        );
+      }
+      if (!imported) {
+        // Add uses the same explicit invalid-state/Undo contract as pointer
+        // editing, rather than imposing a second private insertion policy.
+        let deep: ComponentData | undefined;
+        for (let level = 8; level >= 1; level--)
+          deep = {
+            type: "IntrinsicRow",
+            props: {
+              id: `depth-${level}`,
+              cells: [
+                {
+                  type: "IntrinsicCell",
+                  props: { id: `depth-cell-${level}`, content: deep ? [deep] : [] },
+                },
+              ],
+            },
+          };
+        const boundary = dataWith({ type: "Section1", props: { id: "boundary", column: [deep!] } });
+        await act(async () =>
+          getPuck().dispatch({ type: "setData", data: boundary, recordHistory: true }),
+        );
+        await pause();
+        const beforeLimit = structuredClone(getPuck().appState.data);
+        expect(await run(() => operations.add("depth-cell-8:content", "IntrinsicRow"))).toBe(true);
+        expect(container.querySelector(".pm-intrinsic-error")?.textContent).toContain(
+          "at most 8 nested rows",
+        );
+        expect(() => toMjml(getPuck().appState.data as EmailDocument)).toThrow(
+          /at most 8 nested rows/,
+        );
+        await pause();
+        await act(async () => getPuck().history.back());
+        expect(value).toEqual(beforeLimit);
+        expect(container.querySelector(".pm-intrinsic-error")).toBeNull();
+      }
+    },
+  );
 
   it.each([false, true])(
     "inherits Raw trust constraints from the actual config: %s",
@@ -354,10 +548,10 @@ describe("bounded block operations with actual Puck", () => {
     expect(await run(() => operations.add("one:column", "Text"))).toBe(false);
   });
 
-  it.each(["root-child", "nested-child"])(
+  it.each(["root-child", "nested-child", "intrinsic-row-child", "intrinsic-cell-child"])(
     "refuses existing invalid %s placement without changing the document",
     async (placement) => {
-      const data =
+      let data =
         placement === "root-child"
           ? dataWith(text("bad"), section("one"))
           : dataWith(
@@ -370,6 +564,28 @@ describe("bounded block operations with actual Puck", () => {
               },
               section("two"),
             );
+      if (placement.startsWith("intrinsic")) {
+        const invalid: ComponentData =
+          placement === "intrinsic-row-child"
+            ? text("bad")
+            : {
+                type: "IntrinsicCell",
+                props: {
+                  id: "bad-cell",
+                  content: [{ type: "Raw", props: { id: "bad", html: "<p>Untrusted</p>" } }],
+                },
+              };
+        data = dataWith(
+          {
+            type: "Section1",
+            props: {
+              id: "one",
+              column: [{ type: "IntrinsicRow", props: { id: "bad-row", cells: [invalid] } }],
+            },
+          },
+          section("two"),
+        );
+      }
       const operations = await mount(createEmailConfig(), data);
       await select("one");
       const before = structuredClone(getPuck().appState.data);
@@ -495,6 +711,38 @@ describe("bounded block operations with actual Puck", () => {
     const hero = config.components.Hero;
     const slot = hero.fields!.content as Extract<Field, { type: "slot" }>;
     const changes: (() => () => void)[] = [
+      () => {
+        const image = config.components.Image;
+        const previous = image.resolveFields;
+        image.resolveFields = (_, { fields }) => fields;
+        return () => {
+          image.resolveFields = previous;
+        };
+      },
+      () => {
+        config.components.Image.fields!.hiddenSlot = { type: "slot", allow: ["Raw"] };
+        return () => {
+          delete config.components.Image.fields!.hiddenSlot;
+        };
+      },
+      () => {
+        const field = config.components.IntrinsicCell.fields!.content as Extract<
+          Field,
+          { type: "slot" }
+        >;
+        field.allow!.push("Raw");
+        return () => {
+          field.allow!.pop();
+        };
+      },
+      () => {
+        const defaults = config.components.IntrinsicRow.defaultProps!;
+        const previous = defaults.cells;
+        defaults.cells = [{ type: "IntrinsicCell", props: { id: "seeded", content: [] } }];
+        return () => {
+          defaults.cells = previous;
+        };
+      },
       () => {
         const defaults = config.components.Section1.defaultProps!;
         const previous = defaults.column;

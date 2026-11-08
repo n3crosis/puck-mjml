@@ -14,7 +14,6 @@ import { reviewImport, hasUnsavedChanges, documentSnapshot } from "./import-revi
 import { uploadLocalImage } from "./local-images";
 import { ImportSource, type ImportResult } from "./import-source";
 import { DemoWorkspace, demoWorkspacePlugins } from "./DemoWorkspace";
-import { LOCAL_IMAGE_WARNING } from "../src/image-upload";
 
 const DEFAULT_TEMPLATE_ID = "02-matte/product-update";
 
@@ -114,14 +113,6 @@ export function App() {
 
   return (
     <div className="demo-app">
-      <div className="demo-notice">
-        Demo only: drafts are not saved. Download MJML before leaving.{" "}
-        {dirty ? "You have unsaved edits." : ""}
-        <span className="demo-local-images">
-          {" "}
-          Image uploads stay in this browser draft. {LOCAL_IMAGE_WARNING}
-        </span>
-      </div>
       {importWarnings.length > 0 && (
         <details className="demo-status">
           <summary>All import notes ({importWarnings.length})</summary>

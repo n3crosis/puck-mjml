@@ -48,9 +48,13 @@ test("local demo uploads render, export with a warning, and reimport without hos
   page,
 }) => {
   const image = await openImageField(page);
-  await expect(
-    page.getByText("Image uploads stay in this browser draft.", { exact: false }),
-  ).toBeVisible();
+  const uploadHelp = page.locator(".pm-upload-help").filter({ visible: true });
+  await expect(uploadHelp).toBeVisible();
+  await expect(uploadHelp).toContainText("not uploaded or hosted");
+  await expect(uploadHelp).toContainText("Many email clients block embedded images");
+  await expect(uploadHelp).toContainText(
+    "Replace them with hosted HTTPS image URLs before sending",
+  );
   await chooseVisibleUpload(page, { name: "pixel.png", mimeType: "image/png", buffer: png });
   await expect(page.getByRole("textbox", { name: "Image URL", exact: true })).toHaveValue(
     PNG_IMAGE_SOURCE,

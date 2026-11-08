@@ -1,3 +1,4 @@
+import { chooseImportFile, openImportDialog } from "./import-email";
 import { templateInventory } from "../template-inventory";
 import { expect, test, type Page } from "@playwright/test";
 
@@ -15,7 +16,7 @@ function source(text: string, withNote = false) {
 }
 
 async function importFile(page: Page, name: string, mjml: string) {
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name,
     mimeType: "application/xml",
     buffer: Buffer.from(mjml),
@@ -75,8 +76,14 @@ for (const selection of [
   { id: "blank", preview: "" },
   { id: templateInventory[0].id, preview: templateInventory[0].content.preview },
 ]) {
-  test(`a delayed import cannot replace a later ${selection.id} selection`, async ({ page }) => {
+  test(`a cancelled delayed import cannot replace a later ${selection.id} selection`, async ({
+    page,
+  }) => {
     await beginDelayedImport(page, source("Superseded import", true));
+    await page
+      .getByRole("dialog", { name: "Import MJML", exact: true })
+      .getByRole("button", { name: "Cancel", exact: true })
+      .click();
     const picker = page.getByRole("combobox", { name: "Email template" });
     await picker.selectOption(selection.id);
     await expect(picker).toHaveValue(selection.id);
@@ -144,14 +151,22 @@ for (const decision of ["dismiss", "accept"] as const) {
     await expect(dirtyNotice).toBeHidden();
     await beginDelayedImport(page, source("Delayed replacement", true));
 
-    // This edit occurs after file.text() starts, so a dirty flag captured when
-    // choosing the file would miss it. Wait for real undo history, not a timer.
-    await preview.fill("Keep my in-flight edit");
+    // Simulate a host update after file.text() starts. The modal correctly
+    // prevents user edits behind it, but the import must still check the latest
+    // dirty state rather than a flag captured when the file was selected.
+    await page.locator('[data-property-name="previewText"] input').evaluateAll((fields) => {
+      const field = fields.find(
+        (element) => (element as HTMLElement).offsetParent !== null,
+      ) as HTMLInputElement;
+      if (!field) throw new Error("Missing preview text field");
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+        field,
+        "Keep my in-flight edit",
+      );
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+    });
     await expect(dirtyNotice).toBeVisible();
     const undo = page.getByRole("button", { name: /^undo$/i });
-    await expect(undo).toBeEnabled();
-    const draftSource = await exportedMjml(page);
-    expect(draftSource).toContain("<mj-preview>Keep my in-flight edit</mj-preview>");
 
     // Install the listener before release. Do not await page.evaluate first:
     // window.confirm blocks that evaluation until the dialog is handled.
@@ -168,7 +183,10 @@ for (const decision of ["dismiss", "accept"] as const) {
     ]);
 
     if (decision === "dismiss") {
-      expect(await exportedMjml(page)).toBe(draftSource);
+      const dialog = page.getByRole("dialog", { name: "Import MJML", exact: true });
+      await expect(dialog.getByRole("status")).toContainText("current email is unchanged");
+      await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+      expect(await exportedMjml(page)).toContain("<mj-preview>Keep my in-flight edit</mj-preview>");
       await expect(picker).toHaveValue("blank");
       await expect(preview).toHaveValue("Keep my in-flight edit");
       await expect(dirtyNotice).toBeVisible();
@@ -197,6 +215,7 @@ for (const decision of ["dismiss", "accept"] as const) {
 }
 
 async function dropSource(page: Page, text: string, fileSource?: string) {
+  const dialog = await openImportDialog(page);
   const data = await page.evaluateHandle(
     ({ text, fileSource }) => {
       const transfer = new DataTransfer();
@@ -207,11 +226,10 @@ async function dropSource(page: Page, text: string, fileSource?: string) {
     },
     { text, fileSource },
   );
-  const area = page.locator(".demo-import-source");
+  const area = dialog.locator(".demo-import-panel");
   await area.dispatchEvent("dragover", { dataTransfer: data });
   await expect(area).toHaveAttribute("data-dragging", "true");
   await area.dispatchEvent("drop", { dataTransfer: data });
-  await expect(area).not.toHaveAttribute("data-dragging");
   await data.dispose();
 }
 
@@ -236,6 +254,11 @@ for (const decision of ["dismiss", "accept"] as const) {
       await dialog[decision]();
     });
     await dropSource(page, source("Dropped replacement"));
+    if (decision === "dismiss") {
+      const dialog = page.getByRole("dialog", { name: "Import MJML", exact: true });
+      await expect(dialog.getByRole("status")).toContainText("current email is unchanged");
+      await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+    }
     const result = await exportedMjml(page);
     if (decision === "dismiss") expect(result).toBe(draft);
     else expect(result).toContain("Dropped replacement");
@@ -259,9 +282,9 @@ test("invalid dropped text preserves a dirty draft and its undo history without 
     "<mjml><mj-body><mj-raw><script>alert(1)</script></mj-raw></mj-body></mjml>",
   ]) {
     await dropSource(page, invalid);
-    await expect(page.locator('.demo-status[role="status"]')).toContainText(
-      "Your previous email is unchanged.",
-    );
+    const dialog = page.getByRole("dialog", { name: "Import MJML", exact: true });
+    await expect(dialog.getByRole("alert")).toContainText("Your previous email is unchanged.");
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
     expect(await exportedMjml(page)).toBe(draft);
     await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();
   }
@@ -271,8 +294,8 @@ test("invalid dropped text preserves a dirty draft and its undo history without 
 test("paste stays editable until explicit import, and drag leave/cancel clears highlighting", async ({
   page,
 }) => {
-  const area = page.locator(".demo-import-source");
-  await area.locator("summary").click();
+  const dialog = await openImportDialog(page);
+  const area = dialog.locator(".demo-import-panel");
   const field = page.getByRole("textbox", { name: "MJML source to import" });
   await field.fill(source("Pasted source"));
   await field.press("ControlOrMeta+A");
@@ -283,6 +306,7 @@ test("paste stays editable until explicit import, and drag leave/cancel clears h
   await field.fill(source("Edited pasted source"));
   await page.getByRole("button", { name: "Import text", exact: true }).click();
   expect(await exportedMjml(page)).toContain("Edited pasted source");
+  await openImportDialog(page);
   const data = await page.evaluateHandle(() => {
     const data = new DataTransfer();
     data.setData("text/plain", "text");
@@ -293,6 +317,125 @@ test("paste stays editable until explicit import, and drag leave/cancel clears h
   await expect(area).not.toHaveAttribute("data-dragging");
   await area.dispatchEvent("dragover", { dataTransfer: data });
   await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole("button", { name: "Import", exact: true })).toBeFocused();
+  await openImportDialog(page);
   await expect(area).not.toHaveAttribute("data-dragging");
   await data.dispose();
+});
+
+test("Import opens one paste/drop dialog without opening the file chooser, then supports cancel and retry", async ({
+  page,
+}) => {
+  const original = await exportedMjml(page);
+  let choosers = 0;
+  page.on("filechooser", () => {
+    choosers += 1;
+  });
+  await expect(page.getByRole("textbox", { name: "MJML source to import" })).toHaveCount(0);
+  const dialog = await openImportDialog(page);
+  expect(choosers).toBe(0);
+  const field = dialog.getByRole("textbox", { name: "MJML source to import" });
+  await expect(field).toBeFocused();
+  await expect(dialog.getByRole("button", { name: "Import text", exact: true })).toBeDisabled();
+  await field.fill(source("Cancelled paste"));
+  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole("button", { name: "Import", exact: true })).toBeFocused();
+  expect(await exportedMjml(page)).toBe(original);
+
+  await openImportDialog(page);
+  await expect(field).toHaveValue("");
+  await field.fill("ordinary selected text");
+  await dialog.getByRole("button", { name: "Import text", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toContainText("Your previous email is unchanged.");
+  await expect(field).toHaveValue("ordinary selected text");
+  await field.fill(source("Corrected paste"));
+  await dialog.getByRole("button", { name: "Import text", exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole("button", { name: "Import", exact: true })).toBeFocused();
+  await expect(page.locator('.demo-status[role="status"]')).toHaveText("Imported MJML text.");
+  expect(await exportedMjml(page)).toContain("Corrected paste");
+  expect(choosers).toBe(0);
+});
+
+for (const dismissal of ["Cancel", "Close import", "Escape"] as const) {
+  for (const outcome of ["release", "reject"] as const) {
+    test(`${dismissal} cancels an in-flight read and its late ${outcome} does not affect a reopened dialog`, async ({
+      page,
+    }) => {
+      const original = await exportedMjml(page);
+      await beginDelayedImport(page, source("Cancelled read", true));
+      const dialog = page.getByRole("dialog", { name: "Import MJML", exact: true });
+      await expect(dialog.getByRole("status")).toContainText("Reading and checking MJML");
+      if (dismissal === "Escape") await page.keyboard.press("Escape");
+      else await dialog.getByRole("button", { name: dismissal, exact: true }).click();
+      await expect(dialog).toBeHidden();
+      await expect(page.getByRole("button", { name: "Import", exact: true })).toBeFocused();
+      await openImportDialog(page);
+      const field = dialog.getByRole("textbox", { name: "MJML source to import" });
+      await field.fill("New unfinished paste");
+      await finishDelayedImport(page, outcome);
+      await expect(dialog).toBeVisible();
+      await expect(field).toHaveValue("New unfinished paste");
+      await expect(dialog.getByRole("alert")).toHaveCount(0);
+      await expect(dialog.getByRole("status")).toBeEmpty();
+      await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+      expect(await exportedMjml(page)).toBe(original);
+      await expect(page.locator('.demo-status[role="status"]')).toHaveCount(0);
+      await expect(page.locator("details.demo-status")).toHaveCount(0);
+    });
+  }
+}
+
+test("file chooser cancellation leaves the dialog usable and the same file can be imported again", async ({
+  page,
+}) => {
+  const dialog = await openImportDialog(page);
+  const field = dialog.getByRole("textbox", { name: "MJML source to import" });
+  await field.fill(source("Untouched paste"));
+  const chooser = page.waitForEvent("filechooser");
+  await dialog.getByRole("button", { name: "Choose file", exact: true }).click();
+  await (await chooser).setFiles([]);
+  await expect(dialog).toBeVisible();
+  await expect(field).toHaveValue(source("Untouched paste"));
+  await expect(dialog.getByRole("status")).toBeEmpty();
+  for (let round = 0; round < 2; round++) {
+    await importFile(page, "repeat.mjml", source("Repeatable file"));
+    await expect(dialog).toBeHidden();
+    await expect(page.locator('.demo-status[role="status"]')).toHaveText("Imported repeat.mjml.");
+    expect(await exportedMjml(page)).toContain("Repeatable file");
+  }
+});
+
+test("import dialog traps focus, fits a narrow screen and restores focus after close", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const dialog = await openImportDialog(page);
+  await dialog.getByRole("textbox", { name: "MJML source to import" }).fill(source("Focus test"));
+  const submit = dialog.getByRole("button", { name: "Import text", exact: true });
+  await submit.focus();
+  await page.keyboard.press("Tab");
+  await expect(dialog.getByRole("button", { name: "Close import", exact: true })).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(submit).toBeFocused();
+  const geometry = await dialog.locator(".demo-import-panel").evaluate((panel) => {
+    const rect = panel.getBoundingClientRect();
+    return {
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      bottom: rect.bottom,
+      overflow: panel.scrollWidth > panel.clientWidth,
+    };
+  });
+  expect(geometry.left).toBeGreaterThanOrEqual(0);
+  expect(geometry.right).toBeLessThanOrEqual(390);
+  expect(geometry.top).toBeGreaterThanOrEqual(0);
+  expect(geometry.bottom).toBeLessThanOrEqual(844);
+  expect(geometry.overflow).toBe(false);
+  await dialog.getByRole("button", { name: "Close import", exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole("button", { name: "Import", exact: true })).toBeFocused();
 });

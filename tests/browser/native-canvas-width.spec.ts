@@ -1,3 +1,4 @@
+import { chooseImportFile } from "./import-email";
 import { expect, test } from "@playwright/test";
 
 for (const width of [390, 600, 601, 800]) {
@@ -48,7 +49,7 @@ test("edge-to-edge mobile email retains selection, editing, drag handle, and und
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "edge-width.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(

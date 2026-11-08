@@ -1,7 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
+import { chooseImportFile } from "./import-email";
 
 async function importEmail(page: Page) {
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "compatibility.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(
@@ -21,15 +22,35 @@ test("compatibility detects current compiled CSS and exposes client-specific cav
   page.on("request", (request) => {
     if (/caniemail\.com/.test(request.url())) remote.push(request.url());
   });
-  await page.getByRole("tab", { name: "Compatibility", exact: true }).click();
-  const panel = page.getByRole("tabpanel", { name: "Compatibility", exact: true });
+  const compatibility = page.getByRole("button", { name: "Compatibility", exact: true });
+  await expect(page.getByRole("tab", { name: "Editor", exact: true })).toHaveCount(0);
+  expect(
+    await compatibility.evaluate((element) => {
+      const nav = element.closest("nav");
+      return Boolean(
+        nav?.querySelector('button[aria-label="Blocks"]') &&
+        nav.querySelector('button[aria-label="Outline"]'),
+      );
+    }),
+  ).toBe(true);
+  await compatibility.focus();
+  await compatibility.press("Enter");
+  await expect(compatibility).toHaveAttribute("aria-pressed", "true");
+  const panel = page.getByRole("region", { name: "Compatibility panel", exact: true });
   await expect(panel.getByRole("heading", { name: "Email compatibility" })).toBeVisible();
   await expect(panel.getByLabel("Analysis summary")).toBeVisible();
   await panel.getByLabel("Find a feature").fill("border-radius");
   const feature = panel.locator(".compatibility-feature");
   await expect(feature).toHaveCount(1);
   await feature.locator("summary").click();
-  await expect(feature.getByRole("cell", { name: "2019", exact: true })).toBeVisible();
+  await expect(
+    feature
+      .locator("dt")
+      .filter({ hasText: /^Recorded version \/ date$/ })
+      .locator("+ dd"),
+  ).toHaveText("2019");
+  await expect(feature.locator("table")).toHaveCount(0);
+  expect(await panel.evaluate((element) => element.scrollWidth - element.clientWidth)).toBe(0);
   await expect(feature).toContainText("Round corners can be used in VML");
   await expect(feature.getByRole("link", { name: /Full support table/ })).toHaveAttribute(
     "href",
@@ -76,11 +97,12 @@ test("tab round trips preserve authored text, canvas geometry, undo/redo and the
     .locator("html")
     .evaluate((element) => element.ownerDocument.defaultView!.innerWidth);
   for (let round = 0; round < 2; round++) {
-    await page.getByRole("tab", { name: "Compatibility", exact: true }).click();
+    await page.getByRole("button", { name: "Compatibility", exact: true }).click();
     await expect(page.getByLabel("Analysis summary")).toBeVisible();
-    const tab = page.getByRole("tab", { name: "Compatibility", exact: true });
+    await expect(page.locator("#preview-frame")).toBeVisible();
+    const tab = page.getByRole("button", { name: "Compatibility", exact: true });
     await tab.press("Home");
-    await expect(page.getByRole("tab", { name: "Editor", exact: true })).toBeFocused();
+    await expect(page.getByRole("button", { name: "Blocks", exact: true })).toBeFocused();
     await expect(page.locator("#preview-frame")).toHaveAttribute(
       "data-compatibility-test",
       "preserved",
@@ -107,11 +129,12 @@ for (const width of [390, 768]) {
   test(`compatibility tabs and controls remain usable at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    const tab = page.getByRole("tab", { name: "Compatibility", exact: true });
+    const tab = page.getByRole("button", { name: "Compatibility", exact: true });
     await expect(tab).toBeVisible();
     await tab.click();
-    const panel = page.getByRole("tabpanel", { name: "Compatibility", exact: true });
+    const panel = page.getByRole("region", { name: "Compatibility panel", exact: true });
     await expect(panel.getByLabel("Analysis summary")).toBeVisible();
+    expect(await panel.evaluate((element) => element.scrollWidth - element.clientWidth)).toBe(0);
     const client = panel.getByRole("combobox", { name: "Email client", exact: true });
     await expect(client).toBeVisible();
     await expect(client).toHaveAccessibleName("Email client");
@@ -120,8 +143,8 @@ for (const width of [390, 768]) {
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),
     ).toBe(0);
-    await tab.press("ArrowLeft");
-    await expect(page.getByRole("tab", { name: "Editor", exact: true })).toBeFocused();
+    await tab.press("Home");
+    await expect(page.getByRole("button", { name: "Blocks", exact: true })).toBeFocused();
     await expect(page.locator("#preview-frame")).toBeVisible();
   });
 }

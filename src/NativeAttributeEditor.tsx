@@ -3,6 +3,7 @@ import { DotsSixVertical } from "@phosphor-icons/react/dist/csr/DotsSixVertical"
 import { DotsThree } from "@phosphor-icons/react/dist/csr/DotsThree";
 import { BracketsCurly } from "@phosphor-icons/react/dist/csr/BracketsCurly";
 import { Plus } from "@phosphor-icons/react/dist/csr/Plus";
+import { AttributeNameInput } from "./AttributeNameInput";
 import { ColorInput } from "./ColorInput";
 import { nativeAttributeNames, nativeCatalog } from "./native-attributes";
 import type { MjmlAttribute } from "./types";
@@ -132,6 +133,24 @@ export function NativeAttributeEditor({
     });
   const editorRef = useRef<HTMLDivElement>(null);
   const dragIndex = useRef<number | null>(null);
+  const focusNewRow = useRef(false);
+  const focusCommittedRow = useRef<number | null>(null);
+  const focusValue = (index: number) => {
+    const row = editorRef.current?.querySelectorAll(".pm-attribute-row")[index];
+    row?.querySelector<HTMLElement>(".pm-attribute-value:not(:disabled), summary")?.focus();
+  };
+  useEffect(() => {
+    if (focusCommittedRow.current === null) return;
+    const index = focusCommittedRow.current;
+    focusCommittedRow.current = null;
+    focusValue(index);
+  }, [value]);
+  useEffect(() => {
+    if (!focusNewRow.current) return;
+    focusNewRow.current = false;
+    const inputs = editorRef.current?.querySelectorAll<HTMLInputElement>(".pm-attribute-name");
+    inputs?.[inputs.length - 1]?.focus();
+  }, [entries.length]);
   useEffect(() => {
     const editor = editorRef.current;
     if (!editor) return;
@@ -149,6 +168,12 @@ export function NativeAttributeEditor({
         event.isComposing ||
         !(event.target instanceof Node) ||
         !editor.contains(event.target)
+      )
+        return;
+      // Let the active name completion cancel its own draft before row menus.
+      if (
+        event.target instanceof Element &&
+        event.target.matches('.pm-attribute-name[aria-expanded="true"]')
       )
         return;
       const menus = openMenus();
@@ -267,32 +292,20 @@ export function NativeAttributeEditor({
               >
                 <DotsSixVertical size={14} weight="bold" aria-hidden="true" />
               </button>
-              <select
-                className="pm-attribute-name"
+              <AttributeNameInput
                 id={`${rowId}-name`}
                 name={`${name}[${index}].name`}
-                aria-label={`Attribute ${index + 1}`}
-                title={attributeName || "Choose an attribute"}
+                ariaLabel={`Attribute ${index + 1}`}
                 value={attributeName}
+                contextKey={JSON.stringify(entry)}
+                groups={options}
                 disabled={locked(index, "name")}
-                onChange={(event) => update(index, { name: event.target.value })}
-              >
-                <option value="">Property…</option>
-                {attributeName && !names.includes(attributeName) ? (
-                  <option value={attributeName}>{attributeName} (unsupported)</option>
-                ) : null}
-                {options
-                  .filter((group) => group.values.length > 0)
-                  .map((group) => (
-                    <optgroup key={group.label} label={group.label}>
-                      {group.values.map((attribute) => (
-                        <option key={attribute} value={attribute}>
-                          {attribute}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-              </select>
+                onChange={(name) => update(index, { name })}
+                onCommit={(next) => {
+                  if (next !== attributeName) focusCommittedRow.current = index;
+                  else focusValue(index);
+                }}
+              />
               <span className="pm-attribute-colon" aria-hidden="true">
                 :
               </span>
@@ -452,7 +465,10 @@ export function NativeAttributeEditor({
           type="button"
           disabled={structureLocked}
           onClick={() => {
-            if (!structureLocked) onChange([...entries, { name: "", value: "", inherit: false }]);
+            if (!structureLocked) {
+              focusNewRow.current = true;
+              onChange([...entries, { name: "", value: "", inherit: false }]);
+            }
           }}
         >
           <Plus size={13} aria-hidden="true" /> Add attribute

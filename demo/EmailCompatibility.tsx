@@ -36,38 +36,42 @@ function FeatureDetails({ feature, clientId }: { feature: Feature; clientId: str
         different dates or version numbers.
       </p>
       {feature.notes && <p className="compatibility-callout">{plainNote(feature.notes)}</p>}
-      <div className="compatibility-table-scroll">
-        <table>
-          <caption>Recorded support for {feature.title}</caption>
-          <thead>
-            <tr>
-              <th scope="col">Client</th>
-              <th scope="col">Recorded version / date</th>
-              <th scope="col">Support</th>
-              <th scope="col">Caveats</th>
-            </tr>
-          </thead>
-          <tbody>
-            {clientResults(feature, clientId).map(({ id, label, test, support }) => (
-              <tr key={id}>
-                <th scope="row">{label}</th>
-                <td>{test?.version ?? "Not recorded"}</td>
-                <td>
-                  <span className={`compatibility-badge compatibility-badge--${support}`}>
-                    {supportLabel[support]}
-                  </span>
-                </td>
-                <td>
+      <div
+        className="compatibility-client-results"
+        aria-label={`Recorded support for ${feature.title}`}
+      >
+        {clientResults(feature, clientId).map(({ id, label, test, support }) => (
+          <dl key={id} className="compatibility-client-result">
+            <div>
+              <dt>Client</dt>
+              <dd>{label}</dd>
+            </div>
+            <div>
+              <dt>Recorded version / date</dt>
+              <dd>{test?.version ?? "Not recorded"}</dd>
+            </div>
+            <div>
+              <dt>Support</dt>
+              <dd>
+                <span className={`compatibility-badge compatibility-badge--${support}`}>
+                  {supportLabel[support]}
+                </span>
+              </dd>
+            </div>
+            {(!test || supportNotes(feature, test.code).length > 0) && (
+              <div>
+                <dt>Caveats</dt>
+                <dd>
                   {test
                     ? supportNotes(feature, test.code).map((note, index) => (
                         <p key={index}>{plainNote(note)}</p>
                       ))
                     : "No matching result in this snapshot."}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </dd>
+              </div>
+            )}
+          </dl>
+        ))}
       </div>
       <a href={featureUrl(feature.slug)} target="_blank" rel="noopener noreferrer">
         Full support table and tests on Can I email ↗
@@ -80,10 +84,13 @@ export function EmailCompatibility({
   document,
   active = true,
   allowLocalImages = false,
+  debounceMs = 0,
 }: {
   document: EmailDocument;
   active?: boolean;
   allowLocalImages?: boolean;
+  /** Delay live sidebar checks while typing; zero keeps explicit checks immediate. */
+  debounceMs?: number;
 }) {
   const [result, setResult] = useState<Result>();
   const [attempt, setAttempt] = useState(0);
@@ -103,21 +110,25 @@ export function EmailCompatibility({
   useEffect(() => {
     if (!active) return;
     let cancelled = false;
-    Promise.resolve()
-      .then(() => (cancelled ? undefined : compileEmail(document, { allowLocalImages })))
-      .then((compiled) => {
-        if (!compiled || cancelled) return;
-        const analysis = analyzeEmailHtml(compiled.html);
-        setResult({ document, attempt, allowLocalImages, compiled, analysis });
-      })
-      .catch((error: unknown) => {
-        if (!cancelled)
-          setResult({ document, attempt, allowLocalImages, error: messageFor(error) });
-      });
+    const run = () =>
+      Promise.resolve()
+        .then(() => (cancelled ? undefined : compileEmail(document, { allowLocalImages })))
+        .then((compiled) => {
+          if (!compiled || cancelled) return;
+          const analysis = analyzeEmailHtml(compiled.html);
+          setResult({ document, attempt, allowLocalImages, compiled, analysis });
+        })
+        .catch((error: unknown) => {
+          if (!cancelled)
+            setResult({ document, attempt, allowLocalImages, error: messageFor(error) });
+        });
+    const timer = debounceMs > 0 ? window.setTimeout(run, debounceMs) : undefined;
+    if (timer === undefined) void run();
     return () => {
       cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, [document, attempt, active, allowLocalImages]);
+  }, [document, attempt, active, allowLocalImages, debounceMs]);
 
   const detections = useMemo(
     () => new Map(current?.analysis?.detected.map((item) => [item.slug, item])),
@@ -139,20 +150,26 @@ export function EmailCompatibility({
   return (
     <section className="compatibility" aria-label="Email compatibility">
       <header className="compatibility-heading">
-        <div>
-          <span className="compatibility-eyebrow">Powered by Can I email</span>
-          <h1>Email compatibility</h1>
-          <p>Find features worth testing in your current email, using real client support data.</p>
-        </div>
+        <span className="compatibility-eyebrow">Powered by Can I email</span>
+        <h2>Email compatibility</h2>
+        <p>Static checks of this email, not inbox rendering.</p>
+      </header>
+      <details className="compatibility-help">
+        <summary>How to read these checks</summary>
+        <p>
+          This is a static check of compiled HTML, not a rendering test. MJML fallbacks can mitigate
+          warnings. A supported result does not guarantee the email will look correct. Test your
+          important clients before sending.
+        </p>
+        <p>
+          Each feature uses the last listed test for each client in the pinned upstream data.
+          Version/date labels are shown below, and can be years old. Outlook Windows refers to the
+          recorded classic client tests, not new Outlook.
+        </p>
         <a href="https://www.caniemail.com/" target="_blank" rel="noopener noreferrer">
           Explore Can I email ↗
         </a>
-      </header>
-      <p className="compatibility-callout" role="note">
-        This is a static check of compiled HTML, not a rendering test. MJML fallbacks can mitigate
-        warnings. A supported result does not guarantee the email will look correct. Test your
-        important clients before sending.
-      </p>
+      </details>
       <div className="compatibility-controls">
         <label htmlFor={clientSelectId}>
           Email client
@@ -180,11 +197,6 @@ export function EmailCompatibility({
           />
         </label>
       </div>
-      <p className="compatibility-muted">
-        Each feature uses the last listed test for each client in the pinned upstream data.
-        Version/date labels are shown below, and can be years old. Outlook Windows refers to the
-        recorded classic client tests, not new Outlook.
-      </p>
       {!current && (
         <p role="status" className="compatibility-callout">
           Compiling and inspecting your current email…

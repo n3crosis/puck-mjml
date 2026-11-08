@@ -1,3 +1,4 @@
+import { chooseImportFile } from "./import-email";
 import { expect, test, type Page } from "@playwright/test";
 
 async function exportedMjml(page: Page) {
@@ -28,7 +29,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
   }, testInfo) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto("/");
-    await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+    await chooseImportFile(page, {
       name: "formatted-text.mjml",
       mimeType: "application/xml",
       buffer: Buffer.from(`<mjml><mj-body><mj-section><mj-column>
@@ -90,7 +91,7 @@ test("import preserves preformatted code, NBSP, and inline links on the canvas",
   page,
 }) => {
   await page.goto("/");
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "whitespace.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(`<mjml><mj-body><mj-section><mj-column><mj-text>

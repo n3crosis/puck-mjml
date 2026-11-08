@@ -211,14 +211,10 @@ describe("native attribute permissions", () => {
       );
     await expand(0);
     expect(rows()).toHaveLength(1);
-    expect(
-      control(0, ".pm-attribute-name").querySelector('option[value="position"]'),
-    ).not.toBeNull();
+    expect(rows()[0].querySelector('[data-property="position"]')).not.toBeNull();
     expect(control(0, ".pm-attribute-value").disabled).toBe(true);
     await expand(1);
-    expect(
-      control(0, ".pm-attribute-name").querySelector('option[value="icon-size"]'),
-    ).not.toBeNull();
+    expect(rows()[0].querySelector('[data-property="icon-size"]')).not.toBeNull();
     expect(control(0, ".pm-attribute-value").disabled).toBe(false);
     await input(control(0, ".pm-attribute-value"), "24px");
     expect(api!.selectedItem!.props.links[1].mjmlAttributes[0].value).toBe("24px");

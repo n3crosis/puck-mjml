@@ -6,7 +6,7 @@ A visual drag and drop editor for responsive email, built with [Puck](https://gi
 - Edit text, images, buttons, tables, social links, navigation, accordions, and carousels.
 - Preview desktop and mobile email, with native MJML attributes, classes, custom CSS, and web fonts.
 - Review HTML or MJML source and download either from the built-in Export dialog.
-- Inspect the current email in the demo’s Compatibility tab, with locally embedded Can I email support data and client-specific caveats.
+- Inspect the current email in the Compatibility sidebar tab beside Blocks and Outline, with local Can I email support data and client-specific caveats.
 - Keep persistence, image uploads, and publishing in your host application.
 
 ## Run the demo
@@ -20,7 +20,7 @@ bun install
 bun run dev
 ```
 
-Open the Vite URL. The demo starts with the Collage product update, adapted from React Email's Matte template. The template picker includes a blank email and all 62 React Email examples: Barebone, Matte, Protocol, Arcane, Studio, and Community. Each example is a standalone, editable `.mjml` source in [`templates/`](templates/README.md), not a TypeScript email component. You can import a local `.mjml` file, paste and edit MJML source, or drop source text or a file into the import area. Files take precedence when a drag contains both. Download MJML or HTML to keep your work; drafts are not saved. The demo warns before replacing edited content or leaving the page. Imported documents are checked before replacement and rejected if they need trusted HTML or cannot be safely exported. All import notes remain accessible. Example images and web fonts require network access.
+Open the Vite URL. The demo starts with the Collage product update, adapted from React Email's Matte template. The template picker includes a blank email and all 62 React Email examples: Barebone, Matte, Protocol, Arcane, Studio, and Community. Each example is a standalone, editable `.mjml` source in [`templates/`](templates/README.md), not a TypeScript email component. Click Import to paste and edit MJML, choose a local `.mjml` file, or drop source text or a file into the dialog. Choosing or dropping a file imports it immediately; pasted source stays editable until you click Import text. Successful imports close the dialog; errors remain available for correction. Files take precedence when a drag contains both. Download MJML or HTML to keep your work; drafts are not saved. The demo warns before replacing edited content or leaving the page. Imported documents are checked before replacement and rejected if they need trusted HTML or cannot be safely exported. All import notes remain accessible. Example images and web fonts require network access.
 
 ## Use in a host app
 
@@ -52,18 +52,19 @@ The host owns persistence. Replacing `value` with a different document resets un
 
 ### Editor props
 
-| Prop                  | Purpose                                                                     |
-| --------------------- | --------------------------------------------------------------------------- |
-| `value`               | Current `EmailDocument` (required).                                         |
-| `onChange(document)`  | Receives document edits (required).                                         |
-| `onPublish(document)` | Optional host publishing callback; may return a promise.                    |
-| `onUploadImage(file)` | Host-owned upload callback; resolves to a public HTTP(S) image URL.         |
-| `headerTitle`         | Header branding; defaults to `"Puck MJML"`.                                 |
-| `headerActions`       | Host controls beside preview and history controls.                          |
-| `allowLocalImages`    | Opt-in for bounded embedded raster images; off by default.                  |
-| `allowRawHtml`        | Enables trusted HTML and template source controls.                          |
-| `tailwindRuntime`     | Host opt-in: `true` for the pinned runtime or a trusted HTTP(S) script URL. |
-| `className`           | Additional editor wrapper class.                                            |
+| Prop                  | Purpose                                                                                      |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| `value`               | Current `EmailDocument` (required).                                                          |
+| `onChange(document)`  | Receives document edits (required).                                                          |
+| `onPublish(document)` | Optional host publishing callback; may return a promise.                                     |
+| `onUploadImage(file)` | Host-owned upload callback; resolves to a public HTTP(S) image URL.                          |
+| `headerTitle`         | Header branding; defaults to `"Puck MJML"`.                                                  |
+| `headerActions`       | Host controls beside preview and history controls.                                           |
+| `plugins`             | Public Puck plugin additions and overrides by name; keep array and render identities stable. |
+| `allowLocalImages`    | Opt-in for bounded embedded raster images; off by default.                                   |
+| `allowRawHtml`        | Enables trusted HTML and template source controls.                                           |
+| `tailwindRuntime`     | Host opt-in: `true` for the pinned runtime or a trusted HTTP(S) script URL.                  |
+| `className`           | Additional editor wrapper class.                                                             |
 
 See [Image uploads](docs/IMAGE_UPLOADS.md) for provider-independent host wiring, validation, and the demo’s local-only embedded images. Local demo assets are not hosted; many email clients block them.
 

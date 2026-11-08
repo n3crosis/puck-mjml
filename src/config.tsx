@@ -5,6 +5,7 @@ import { withFieldPermissions } from "./FieldPermissions";
 import type { Config, RichText, Slot } from "@puckeditor/core";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
 import { emailRichTextConfig } from "./EmailRichText";
+import { AttributeNameInput, htmlAttributeNameGroups } from "./AttributeNameInput";
 import { CodeArea } from "./CodeField";
 import { colorField } from "./ColorField";
 import { safeRichTextUrl } from "./richtext";
@@ -315,7 +316,21 @@ export function createEmailConfig(
           label: "Generated HTML attributes",
           arrayFields: {
             selector: { type: "text", label: "CSS selector" },
-            name: { type: "text", label: "Attribute name" },
+            name: {
+              type: "custom",
+              label: "Attribute name",
+              render: ({ id, name, value, onChange, readOnly }) => (
+                <AttributeNameInput
+                  id={id}
+                  name={name}
+                  value={typeof value === "string" ? value : ""}
+                  groups={htmlAttributeNameGroups}
+                  ariaLabel="Attribute name"
+                  disabled={readOnly}
+                  onChange={onChange}
+                />
+              ),
+            },
             value: { type: "text", label: "Value" },
           },
           defaultItemProps: { selector: ".promo div", name: "data-id", value: "" },

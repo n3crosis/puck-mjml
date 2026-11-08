@@ -1,57 +1,57 @@
-.demo-workspace-tabs {
-  display: flex;
-  flex: none;
-  gap: 4px;
-  padding: 7px 16px 0;
-  border-bottom: 1px solid #dce1e8;
-  background: #fff;
-}
-.demo-workspace-tabs button {
-  cursor: pointer;
-  padding: 10px 15px;
-  color: #536176;
-  border: 0;
-  border-bottom: 3px solid transparent;
-  background: none;
-  font-size: 13px;
-  font-weight: 650;
-}
-.demo-workspace-tabs button[aria-selected="true"] {
-  color: #244cc1;
-  border-color: #3157d5;
-}
-.demo-workspace-panel {
-  flex: 1;
-  min-height: 0;
+/* The demo supplies public Puck plugin content without replacing its layout. */
+.demo-workspace {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
 }
-.demo-workspace-panel[hidden] {
-  display: none;
+.demo-plugin-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
 }
-.demo-workspace-panel--compatibility {
-  overflow: auto;
-  background: #f6f8fb;
-}
-.demo-workspace-tabs button:focus-visible,
+.demo-plugin-button:focus-visible,
 .compatibility :is(button, input, select, summary, a):focus-visible {
   outline: 3px solid #3157d5;
   outline-offset: 3px;
 }
+/* Keep native text labels within the existing rail, including Compatibility. */
+.demo-workspace nav:has(.demo-plugin-button) span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.demo-plugin-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+}
+.demo-plugin-panel[hidden] {
+  display: none;
+}
+.demo-plugin-panel--compatibility {
+  background: #f6f8fb;
+}
 .compatibility {
   width: 100%;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 32px;
+  max-width: 100%;
+  min-width: 0;
+  padding: 12px;
   color: #25354a;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.55;
-}
-.compatibility h1 {
-  font-size: 28px;
-  letter-spacing: -0.6px;
-  line-height: 1.2;
-  margin: 5px 0 10px;
+  overflow-wrap: anywhere;
 }
 .compatibility p {
   margin: 8px 0;
@@ -61,45 +61,55 @@
   text-underline-offset: 3px;
 }
 .compatibility-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 22px;
+  margin-bottom: 12px;
 }
-.compatibility-heading > a {
-  white-space: nowrap;
+.compatibility-heading h2 {
+  margin: 5px 0;
+  font-size: 19px;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+}
+.compatibility-heading p {
+  color: #58677c;
 }
 .compatibility-eyebrow {
   text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1.1px;
+  font-size: 9px;
+  letter-spacing: 0.7px;
   color: #52627a;
   font-weight: 700;
+}
+.compatibility-help {
+  margin-bottom: 16px;
+  font-size: 11px;
+}
+.compatibility summary {
+  cursor: pointer;
 }
 .compatibility-callout {
   background: #edf2fe;
   border: 1px solid #d4dff9;
-  padding: 14px 16px;
-  border-radius: 9px;
+  padding: 12px;
+  border-radius: 7px;
 }
 .compatibility-controls {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin: 24px 0 8px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin: 12px 0;
 }
 .compatibility-controls label {
   display: grid;
   gap: 6px;
+  min-width: 0;
   font-weight: 650;
 }
 .compatibility-controls :is(input, select) {
   min-width: 0;
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px;
   border: 1px solid #c9d1de;
-  border-radius: 7px;
+  border-radius: 6px;
   color: #25354a;
   background: #fff;
   font: inherit;
@@ -107,51 +117,51 @@
 }
 .compatibility-muted {
   color: #58677c;
-  font-size: 12px;
+  font-size: 11px;
 }
 .compatibility-summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin: 22px 0 15px;
+  margin: 15px 0;
+  border: 1px solid #dce1e8;
+  border-radius: 7px;
+  background: #fff;
+  padding: 8px;
 }
 .compatibility-summary > div {
   display: flex;
   align-items: baseline;
-  gap: 12px;
-  border: 1px solid #dce1e8;
-  border-radius: 9px;
-  padding: 17px;
-  background: #fff;
+  padding: 4px 0;
+  gap: 8px;
 }
 .compatibility-summary strong {
-  font-size: 27px;
+  font-size: 18px;
+  min-width: 23px;
   line-height: 1;
   color: #1d3f9e;
 }
 .compatibility-summary span {
-  font-size: 12px;
+  font-size: 11px;
   color: #58677c;
 }
 .compatibility-analysis-notes {
-  font-size: 13px;
-  margin: 12px 0 22px;
+  font-size: 11px;
+  margin: 12px 0 16px;
 }
-.compatibility summary {
-  cursor: pointer;
+.compatibility-analysis-notes ul {
+  padding-left: 18px;
 }
 .compatibility-results-toolbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin: 26px 0 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  margin: 16px 0 10px;
 }
 .compatibility-results-toolbar [role="group"] {
   display: flex;
+  flex-wrap: wrap;
   padding: 3px;
   border: 1px solid #dce1e8;
-  border-radius: 8px;
+  border-radius: 7px;
   background: #eaf0f7;
 }
 .compatibility-results-toolbar button,
@@ -161,8 +171,11 @@
   background: transparent;
   color: #4a5c75;
   border-radius: 5px;
-  font-size: 13px;
-  padding: 8px 12px;
+  font: inherit;
+  padding: 7px 5px;
+}
+.compatibility-results-toolbar button {
+  flex: 1 1 140px;
 }
 .compatibility-results-toolbar button[aria-pressed="true"] {
   background: white;
@@ -174,12 +187,12 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 13px;
 }
 .compatibility-check input {
   width: 16px;
   height: 16px;
   accent-color: #3157d5;
+  flex: none;
 }
 .compatibility-results {
   display: grid;
@@ -187,16 +200,16 @@
 }
 .compatibility-feature {
   border: 1px solid #dce1e8;
-  border-radius: 9px;
+  border-radius: 7px;
   background: #fff;
   overflow: clip;
 }
 .compatibility-feature > summary {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 18px;
-  padding: 16px 18px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 9px;
   list-style: none;
 }
 .compatibility-feature > summary::-webkit-details-marker {
@@ -204,7 +217,7 @@
 }
 .compatibility-feature > summary::before {
   content: "+";
-  font-size: 20px;
+  font-size: 18px;
   color: #677990;
   flex: none;
 }
@@ -216,22 +229,19 @@
   min-width: 0;
 }
 .compatibility-feature summary strong {
-  font-size: 15px;
+  font-size: 13px;
 }
 .compatibility-feature summary small {
   display: block;
   color: #67758a;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
+  white-space: normal;
 }
 .compatibility-feature-status {
-  text-align: right;
-  font-size: 12px;
-  flex: none;
+  width: 100%;
+  text-align: left;
+  padding-left: 20px;
 }
 .compatibility-badge {
   display: inline-block;
@@ -239,7 +249,7 @@
   border-radius: 5px;
   font-size: 11px;
   font-weight: 650;
-  white-space: nowrap;
+  white-space: normal;
 }
 .compatibility-badge--unsupported {
   background: #fdeceb;
@@ -258,59 +268,52 @@
   color: #226340;
 }
 .compatibility-evidence {
-  padding: 12px 18px;
+  padding: 10px;
   border-top: 1px solid #e6eaf1;
-  font-size: 12px;
+  font-size: 11px;
   background: #f8fafc;
-  overflow-wrap: anywhere;
 }
 .compatibility-evidence ul {
   margin-bottom: 0;
   padding-left: 18px;
 }
 .compatibility-details {
-  padding: 4px 18px 18px;
+  padding: 0 10px 12px;
 }
-.compatibility-table-scroll {
-  overflow-x: auto;
-  margin: 15px 0;
+.compatibility-details a {
+  display: inline-block;
+  max-width: 100%;
 }
-.compatibility table {
-  border-collapse: collapse;
-  width: 100%;
-  font-size: 12px;
-  text-align: left;
+.compatibility-client-result {
+  margin: 12px 0;
+  padding: 10px 0;
+  border-block: 1px solid #dce1e8;
 }
-.compatibility caption {
-  text-align: left;
+.compatibility-client-result > div + div {
+  margin-top: 9px;
+}
+.compatibility-client-result dt {
   font-weight: 650;
-  padding-bottom: 8px;
+  color: #58677c;
+  font-size: 10px;
 }
-.compatibility :is(th, td) {
-  padding: 10px 8px;
-  vertical-align: top;
-  border-bottom: 1px solid #e6eaf1;
+.compatibility-client-result dd {
+  margin: 3px 0 0;
 }
-.compatibility th {
-  font-weight: 650;
-}
-.compatibility thead {
-  background: #f4f6fa;
-}
-.compatibility td p {
-  margin-top: 0;
+.compatibility-client-result dd p {
+  margin: 0 0 6px;
 }
 .compatibility-empty {
   border: 1px dashed #bcc8d9;
-  border-radius: 9px;
-  padding: 25px;
+  border-radius: 7px;
+  padding: 12px;
   text-align: center;
 }
 .compatibility-error {
-  padding: 18px;
+  padding: 12px;
   background: #fdeceb;
   color: #922d29;
-  border-radius: 9px;
+  border-radius: 7px;
 }
 .compatibility-error button {
   border-color: #b16b68;
@@ -319,54 +322,8 @@
 }
 .compatibility-footer {
   color: #64748b;
-  font-size: 12px;
+  font-size: 11px;
   border-top: 1px solid #dce1e8;
-  margin-top: 28px;
-  padding-top: 16px;
-}
-@media (max-width: 700px) {
-  .compatibility {
-    padding: 22px 16px;
-  }
-  .compatibility-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .compatibility-controls {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  .compatibility-summary {
-    grid-template-columns: 1fr;
-    gap: 7px;
-  }
-  .compatibility-summary > div {
-    padding: 12px 15px;
-  }
-  .compatibility-results-toolbar {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .compatibility-feature > summary {
-    padding: 14px 12px;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .compatibility-feature-status {
-    width: 100%;
-    padding-left: 22px;
-    text-align: left;
-  }
-  .compatibility table {
-    min-width: 540px;
-  }
-}
-
-.demo-workspace {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  height: 100%;
+  margin-top: 22px;
+  padding-top: 12px;
 }

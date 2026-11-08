@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/csr/CaretDown";
 import { UploadSimpleIcon } from "@phosphor-icons/react/dist/csr/UploadSimple";
@@ -12,16 +12,18 @@ import {
 import "./style.css";
 import { reviewImport, hasUnsavedChanges, documentSnapshot } from "./import-review";
 import { uploadLocalImage } from "./local-images";
-import { ImportSource } from "./import-source";
-import { DemoWorkspace } from "./DemoWorkspace";
+import { ImportSource, type ImportResult } from "./import-source";
+import { DemoWorkspace, demoWorkspacePlugins } from "./DemoWorkspace";
 import { LOCAL_IMAGE_WARNING } from "../src/image-upload";
 
 const DEFAULT_TEMPLATE_ID = "02-matte/product-update";
 
-function App() {
+export function App() {
   const [templateId, setTemplateId] = useState(DEFAULT_TEMPLATE_ID);
   const [value, setValue] = useState<EmailDocument>(() => createExampleDocument());
   const [status, setStatus] = useState("");
+  const [importOpen, setImportOpen] = useState(false);
+  const importButtonRef = useRef<HTMLButtonElement>(null);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [baseline, setBaseline] = useState(() => documentSnapshot(value));
   const dirty = useMemo(() => hasUnsavedChanges(value, baseline), [value, baseline]);
@@ -62,13 +64,13 @@ function App() {
     setStatus("");
   };
 
-  const importMjml = async (input: File | string) => {
+  const importMjml = async (input: File | string): Promise<ImportResult> => {
     const request = ++importRequest.current;
     try {
       const source = typeof input === "string" ? input : await input.text();
-      if (request !== importRequest.current) return;
+      if (request !== importRequest.current) return { status: "superseded" };
       const { document, warnings } = reviewImport(source);
-      if (!canReplace()) return;
+      if (!canReplace()) return { status: "cancelled" };
       setValue(document);
       setBaseline(documentSnapshot(document));
       setImportWarnings(warnings);
@@ -76,20 +78,20 @@ function App() {
       setStatus(
         warnings.length
           ? `Imported ${typeof input === "string" ? "MJML text" : input.name} with ${warnings.length} note${warnings.length === 1 ? "" : "s"}: ${warnings.slice(0, 3).join(" ")}${warnings.length > 3 ? " …" : ""}`
-          : "",
+          : `Imported ${typeof input === "string" ? "MJML text" : input.name}.`,
       );
+      return { status: "imported" };
     } catch (error) {
-      if (request === importRequest.current)
-        setStatus(
-          `Import not loaded. Your previous email is unchanged. ${error instanceof Error ? error.message : "Import failed"}`,
-        );
+      if (request !== importRequest.current) return { status: "superseded" };
+      const message = `Import not loaded. Your previous email is unchanged. ${error instanceof Error ? error.message : "Import failed"}`;
+      setStatus(message);
+      return { status: "error", message };
     }
   };
 
-  const importMjmlFile = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (file) void importMjml(file);
+  const closeImport = () => {
+    importRequest.current += 1;
+    setImportOpen(false);
   };
 
   return (
@@ -117,10 +119,13 @@ function App() {
           {status}
         </div>
       )}
-      <ImportSource onImport={(source) => void importMjml(source)} />
+      {importOpen && (
+        <ImportSource onImport={importMjml} onClose={closeImport} restoreRef={importButtonRef} />
+      )}
       <main>
         <DemoWorkspace document={value}>
           <EmailEditor
+            plugins={demoWorkspacePlugins}
             value={value}
             onChange={setValue}
             onUploadImage={uploadLocalImage}
@@ -158,16 +163,16 @@ function App() {
                   </span>
                 </label>
                 <span className="demo-divider" />
-                <label className="demo-import" title="Import MJML">
+                <button
+                  ref={importButtonRef}
+                  type="button"
+                  className="demo-import"
+                  aria-haspopup="dialog"
+                  onClick={() => setImportOpen(true)}
+                >
                   <UploadSimpleIcon aria-hidden="true" />
                   Import
-                  <input
-                    aria-label="Import MJML"
-                    type="file"
-                    accept=".mjml,text/xml,application/xml,text/plain"
-                    onChange={importMjmlFile}
-                  />
-                </label>
+                </button>
               </div>
             }
           />

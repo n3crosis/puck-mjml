@@ -104,3 +104,62 @@
     transition: none;
   }
 }
+
+.pm-property-search {
+  display: flex;
+  gap: 5px;
+  padding: 10px 14px;
+  min-width: 0;
+}
+.pm-property-search input {
+  flex: 1;
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  background: #fff;
+  color: #334155;
+  font: inherit;
+}
+.pm-property-search button {
+  padding: 4px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #475569;
+  font: inherit;
+  cursor: pointer;
+}
+.pm-property-search :is(input, button):focus-visible {
+  outline: 2px solid #456ad2;
+  outline-offset: 1px;
+}
+.pm-property-search-empty {
+  margin: 0;
+  padding: 0 14px 12px;
+  color: #64748b;
+}
+.pm-property-section[hidden],
+.pm-property-row[hidden] {
+  display: none;
+}
+.pm-property-heading > button:disabled {
+  cursor: default;
+}
+/* Nested array panels and custom controls must shrink to the sidebar grid track. */
+.pm-property-body,
+.pm-property-label {
+  grid-template-columns: minmax(0, 1fr);
+}
+.pm-properties
+  :where(
+    [class*="_ArrayField_"],
+    [class*="_ArrayFieldItem_"],
+    [class*="_ArrayFieldItem-body_"],
+    [class*="_InputWrapper_"],
+    [class*="_PuckFields_"]
+  ) {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}

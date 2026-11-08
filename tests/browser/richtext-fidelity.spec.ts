@@ -1,7 +1,8 @@
+import { chooseImportFile } from "./import-email";
 import { expect, test, type FrameLocator, type Locator, type Page } from "@playwright/test";
 import { importedRichContentSource } from "./fixtures/imported-rich-content-source";
 async function importFixture(page: Page) {
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "rich-content.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(importedRichContentSource),
@@ -235,7 +236,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
   }) => {
     await page.setViewportSize({ width: 1600, height: 1000 });
     await page.goto("/");
-    await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+    await chooseImportFile(page, {
       name: "paragraph-cascade.mjml",
       mimeType: "application/xml",
       buffer: Buffer.from(`<mjml><mj-head>
@@ -363,7 +364,7 @@ test("imported native defaults resist host tag resets without adding synthetic p
   page,
 }) => {
   await page.goto("/");
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "native-typography.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(`<mjml><mj-head><mj-attributes>

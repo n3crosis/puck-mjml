@@ -1,3 +1,4 @@
+import { chooseImportFile } from "./import-email";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
@@ -82,7 +83,7 @@ test("Puck Custom CSS preview notes preserve original imported CSS in the MJML d
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
   const css = '@scope (.card){p{color:blue}} @keyframes "pulse"{to{opacity:1}}';
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "preview-notes.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(

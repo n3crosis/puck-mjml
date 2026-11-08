@@ -1,3 +1,4 @@
+import { chooseImportFile } from "./import-email";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
@@ -80,7 +81,7 @@ test("padding CSS updates and undo/redo restore source and viewport in the real 
   await page.goto("/");
   const css =
     "@media (max-width: 600px) { .inset > table > tbody > tr > td { padding-left: 24px !important; padding-right: 24px !important; } }";
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "native-padding.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(

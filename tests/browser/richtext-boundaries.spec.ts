@@ -1,3 +1,4 @@
+import { chooseImportFile } from "./import-email";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { adjacentLinkSource } from "./fixtures/richtext-interaction-source";
 
@@ -36,7 +37,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
   }) => {
     await page.setViewportSize({ width: 1600, height: 1000 });
     await page.goto("/");
-    await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+    await chooseImportFile(page, {
       name: "adjacent-links.mjml",
       mimeType: "application/xml",
       buffer: Buffer.from(adjacentLinkSource),

@@ -1,3 +1,4 @@
+import { chooseImportFile } from "./import-email";
 import { expect, test, type Page } from "@playwright/test";
 import { PNG_IMAGE_SOURCE } from "../fixtures/images";
 
@@ -22,7 +23,7 @@ async function openImageField(page: Page) {
   await page.route("**/fixture-image.png", (route) =>
     route.fulfill({ contentType: "image/png", body: png }),
   );
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "image.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(
@@ -79,9 +80,7 @@ test("local demo uploads render, export with a warning, and reimport without hos
   expect(saved.toString("utf8")).toContain(PNG_IMAGE_SOURCE);
   await dialog.getByRole("button", { name: "Close export", exact: true }).click();
   page.once("dialog", (confirmation) => confirmation.accept());
-  await page
-    .getByLabel("Import MJML", { exact: true })
-    .setInputFiles({ name: "email.mjml", mimeType: "application/xml", buffer: saved });
+  await chooseImportFile(page, { name: "email.mjml", mimeType: "application/xml", buffer: saved });
   await expect(page.frameLocator("#preview-frame").getByAltText("Upload test")).toHaveAttribute(
     "src",
     PNG_IMAGE_SOURCE,

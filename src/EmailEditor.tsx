@@ -82,6 +82,7 @@ export function EmailEditor({
   headerTitle = "Puck MJML",
   headerActions,
   className,
+  plugins = editorPlugins,
 }: EmailEditorProps) {
   const dragPreview = useMemo(createNativeDragPreview, []);
   useEffect(() => () => dragPreview.reset(), [dragPreview]);
@@ -241,7 +242,7 @@ export function EmailEditor({
             <Puck
               key={editorKey}
               config={config}
-              plugins={editorPlugins}
+              plugins={plugins}
               dnd={{ enableDragHandle: true }}
               height="100%"
               data={editorData as Data}

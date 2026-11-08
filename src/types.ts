@@ -112,6 +112,8 @@ export interface EmailEditorProps {
   headerTitle?: string;
   /** Host actions displayed beside preview and Puck's history controls. */
   headerActions?: ReactNode;
+  /** Public Puck plugin additions and overrides by name. Keep the array and render functions stable across document edits. */
+  plugins?: import("@puckeditor/core").Plugin[];
   className?: string;
 }
 import type { ReactNode } from "react";

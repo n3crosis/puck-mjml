@@ -114,3 +114,45 @@ it("does not compile until the tab is active and cancels hidden-tab results", as
   await act(async () => task.resolve(result('<div style="display:grid"></div>')));
   expect(container.querySelectorAll(".compatibility-feature")).toHaveLength(0);
 });
+
+it("renders complete client caveats as stacked records without a wide table", async () => {
+  compile.mockResolvedValue(result('<p style="border-radius:10px">Example</p>'));
+  await render(createEmptyDocument());
+  expect(container.querySelector("table")).toBeNull();
+  const record = container.querySelector(".compatibility-client-result")!;
+  expect([...record.querySelectorAll("dt")].map((item) => item.textContent)).toEqual([
+    "Client",
+    "Recorded version / date",
+    "Support",
+    "Caveats",
+  ]);
+  expect(record.textContent).toContain("2019");
+  expect(record.textContent).toContain("Round corners can be used in VML");
+});
+
+it("debounces live sidebar edits and cancels a pending check when the sidebar closes", async () => {
+  vi.useFakeTimers();
+  try {
+    compile.mockResolvedValue(result('<div style="display:flex"></div>'));
+    const first = createEmptyDocument(),
+      second = createEmptyDocument();
+    await act(async () => root.render(<EmailCompatibility document={first} debounceMs={200} />));
+    await act(async () => vi.advanceTimersByTimeAsync(100));
+    await act(async () => root.render(<EmailCompatibility document={second} debounceMs={200} />));
+    await act(async () => vi.advanceTimersByTimeAsync(199));
+    expect(compile).not.toHaveBeenCalled();
+    await act(async () => vi.advanceTimersByTimeAsync(1));
+    expect(compile).toHaveBeenCalledTimes(1);
+    expect(compile.mock.calls[0]?.[0]).toBe(second);
+    const third = createEmptyDocument();
+    await act(async () => root.render(<EmailCompatibility document={third} debounceMs={200} />));
+    expect(container.querySelectorAll(".compatibility-feature")).toHaveLength(0);
+    await act(async () =>
+      root.render(<EmailCompatibility document={third} debounceMs={200} active={false} />),
+    );
+    await act(async () => vi.advanceTimersByTimeAsync(250));
+    expect(compile).toHaveBeenCalledTimes(1);
+  } finally {
+    vi.useRealTimers();
+  }
+});

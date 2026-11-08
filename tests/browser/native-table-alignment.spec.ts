@@ -1,3 +1,4 @@
+import { chooseImportFile } from "./import-email";
 import { expect, test, type Page } from "@playwright/test";
 
 for (const width of [390, 800]) {
@@ -81,7 +82,7 @@ for (const align of ["left", "center"]) {
   test(`${align} table retains left labels, right amounts, and edit/undo`, async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto("/");
-    await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+    await chooseImportFile(page, {
       name: "table-alignment.mjml",
       mimeType: "application/xml",
       buffer:

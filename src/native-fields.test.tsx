@@ -40,9 +40,9 @@ const attributeNames = (entry: unknown) => {
       onChange: () => {},
     }),
   );
-  return load(markup)(".pm-attribute-name option")
+  return load(markup)('.pm-attribute-suggestions [role="option"]')
     .toArray()
-    .map((option) => option.attribs.value)
+    .map((option) => option.attribs["data-property"])
     .filter(Boolean)
     .sort();
 };
@@ -88,16 +88,16 @@ describe("native MJML editor fields", () => {
     );
     const $ = load(markup);
     expect($(".pm-attribute-row").length).toBe(1);
-    expect($(".pm-attribute-row > .pm-attribute-name").length).toBe(1);
+    expect($(".pm-attribute-row > .pm-attribute-name-control").length).toBe(1);
     expect($(".pm-attribute-row > .pm-attribute-value").length).toBe(1);
-    const groups = $("optgroup")
+    const groups = $(".pm-attribute-suggestion small")
       .toArray()
-      .map((group) => group.attribs.label);
+      .map((group) => $(group).text());
     expect(groups[0]).toBe("Content and links");
     expect(groups.at(-1)).toBe("Classes and identifiers");
-    expect($('optgroup[label="Content and links"] option[value="src"]').length).toBe(1);
-    expect($('optgroup[label="Layout and spacing"] option[value="width"]').length).toBe(1);
-    expect($('optgroup[label="Appearance"] option[value="border"]').length).toBe(1);
+    expect($('[data-property="src"] small').text()).toBe("Content and links");
+    expect($('[data-property="width"] small').text()).toBe("Layout and spacing");
+    expect($('[data-property="border"] small').text()).toBe("Appearance");
   });
 
   it.each([
@@ -241,7 +241,7 @@ describe("native MJML editor fields", () => {
           onChange: () => {},
         }),
       );
-      expect(load(markup)(".pm-attribute-name option").first().attr("value")).toBe("");
+      expect(load(markup)('.pm-attribute-name[role="combobox"]').val()).toBe("");
     }
   });
 
@@ -403,8 +403,8 @@ describe("native MJML editor fields", () => {
           })}
         </Puck>,
       );
-      expect(html).toContain(`<option value="${expected}">`);
-      expect(html).not.toContain(`<option value="${excluded}">`);
+      expect(html).toContain(`data-property="${expected}"`);
+      expect(html).not.toContain(`data-property="${excluded}"`);
     }
   });
 });
@@ -448,8 +448,8 @@ describe("trusted ending-tag source controls", () => {
             })}
           </Puck>,
         );
-        expect(html.includes('<option value="position">')).toBe(index === 0);
-        expect(html.includes('<option value="href">')).toBe(index === 1);
+        expect(html.includes('data-property="position"')).toBe(index === 0);
+        expect(html.includes('data-property="href"')).toBe(index === 1);
       }
     },
   );

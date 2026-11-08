@@ -230,4 +230,44 @@ describe("grouped property inspector", () => {
     await act(async () => api!.history.forward());
     expect(color("color", "text").value).toBe("rebeccapurple");
   });
+
+  it("filters property labels and native-style names without unmounting editors or changing the document", async () => {
+    await mount();
+    const before = JSON.stringify(api!.appState.data);
+    const width = control<HTMLInputElement>("width");
+    const background = control<HTMLInputElement>("backgroundColor");
+    const search = container!.querySelector<HTMLInputElement>('[aria-label="Search properties"]')!;
+    await act(async () => toggle("appearance").click());
+    await changeInput(search, "background-color");
+    expect(group("appearance").hidden).toBe(false);
+    expect(group("appearance").querySelector<HTMLElement>(".pm-property-body")!.hidden).toBe(false);
+    expect(width.closest<HTMLElement>(".pm-property-row")!.hidden).toBe(true);
+    expect(control("backgroundColor")).toBe(background);
+    expect(control("width")).toBe(width);
+    expect(JSON.stringify(api!.appState.data)).toBe(before);
+    await changeInput(search, "no-such-property");
+    expect(container!.querySelector('[role="status"]')?.textContent).toBe("No matching properties");
+    await act(async () =>
+      search.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })),
+    );
+    expect(search.value).toBe("");
+    expect(control("width")).toBe(width);
+    expect(width.closest<HTMLElement>(".pm-property-row")!.hidden).toBe(false);
+    expect(group("appearance").querySelector<HTMLElement>(".pm-property-body")!.hidden).toBe(true);
+    await changeInput(search, "Width");
+    await select("copy");
+    expect(
+      container!.querySelector<HTMLInputElement>('[aria-label="Search properties"]')!.value,
+    ).toBe("");
+  });
+
+  it("uses shrinkable tracks for stacked code fields while preserving inline property layout", async () => {
+    await mount();
+    const stacked = control<HTMLInputElement>("fontFamily").closest(".pm-property-label")!;
+    const inline = control<HTMLInputElement>("width").closest(".pm-property-label")!;
+    expect(getComputedStyle(stacked).gridTemplateColumns).toBe("minmax(0, 1fr)");
+    expect(getComputedStyle(inline).gridTemplateColumns).toBe(
+      "minmax(88px, 0.9fr) minmax(0, 1.3fr)",
+    );
+  });
 });

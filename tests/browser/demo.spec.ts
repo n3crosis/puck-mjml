@@ -1,3 +1,4 @@
+import { chooseImportFile } from "./import-email";
 import { expect, test } from "@playwright/test";
 
 test("demo loads, exports source, and rejects trusted imports without replacement", async ({
@@ -13,14 +14,16 @@ test("demo loads, exports source, and rejects trusted imports without replacemen
   expect((await download).suggestedFilename()).toBe("email.mjml");
   await page.getByRole("button", { name: "Close export" }).click();
   const template = await page.getByRole("combobox", { name: "Email template" }).inputValue();
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "trusted.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(
       "<mjml><mj-body><mj-raw><div>Untrusted source</div></mj-raw></mj-body></mjml>",
     ),
   });
-  await expect(page.locator('.demo-status[role="status"]')).toContainText("Import not loaded");
+  const importDialog = page.getByRole("dialog", { name: "Import MJML", exact: true });
+  await expect(importDialog.getByRole("alert")).toContainText("Import not loaded");
+  await importDialog.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(page.getByRole("combobox", { name: "Email template" })).toHaveValue(template);
 });
 

@@ -192,3 +192,89 @@
   outline: 2px solid #6b8ee8;
   outline-offset: 1px;
 }
+
+/* Free-form names retain tag-aware suggestions without a long native select menu. */
+.pm-attribute-name-control {
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+}
+.pm-attribute-name-control > .pm-attribute-name {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #fff;
+  color: #475f8f;
+  font:
+    11px/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+}
+.pm-attribute-row {
+  position: relative;
+}
+.pm-attribute-row > .pm-attribute-name-control {
+  position: static;
+}
+.pm-attribute-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 5px 20px #0f172a1a;
+}
+.pm-attribute-row .pm-attribute-suggestions {
+  left: 17px;
+}
+.pm-attribute-suggestions[hidden] {
+  display: none;
+}
+.pm-attribute-suggestion {
+  display: grid;
+  gap: 1px;
+  padding: 5px 8px;
+  color: #334155;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  font:
+    11px/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+}
+.pm-attribute-suggestion small {
+  color: #64748b;
+  font:
+    10px/1.4 ui-sans-serif,
+    system-ui,
+    sans-serif;
+}
+.pm-attribute-suggestion:hover,
+.pm-attribute-suggestion[aria-selected="true"] {
+  background: #eff6ff;
+}
+.pm-attribute-no-results {
+  padding: 8px;
+  color: #64748b;
+  font-size: 11px;
+}
+.pm-attribute-search-help {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

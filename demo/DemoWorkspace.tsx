@@ -1,12 +1,193 @@
-import { lazy, Suspense, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import {
+  createContext,
+  lazy,
+  Suspense,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
+import {
+  blocksPlugin,
+  createUsePuck,
+  fieldsPlugin,
+  outlinePlugin,
+  type Plugin,
+} from "@puckeditor/core";
+import { ShieldCheckIcon } from "@phosphor-icons/react/dist/csr/ShieldCheck";
 import type { EmailDocument } from "../src/types";
 import "./compatibility/style.css";
 
 const Compatibility = lazy(() =>
   import("./EmailCompatibility").then((module) => ({ default: module.EmailCompatibility })),
 );
+const usePuck = createUsePuck();
+const panelNames = ["blocks", "outline", "compatibility", "fields"] as const;
+type PanelName = (typeof panelNames)[number];
+const WorkspaceContext = createContext<{
+  document: EmailDocument;
+  id: string;
+  buttons: Map<string, HTMLButtonElement>;
+} | null>(null);
+function useWorkspace() {
+  const context = useContext(WorkspaceContext);
+  if (!context) throw new Error("Demo plugins require DemoWorkspace.");
+  return context;
+}
+function usePanelActive(name: PanelName) {
+  return usePuck(
+    (state) =>
+      state.appState.ui.leftSideBarVisible &&
+      (state.appState.ui.plugin.current ?? "blocks") === name,
+  );
+}
 
-/** Keep the editor mounted when inspecting compatibility, preserving its history. */
+/** Native plugin navigation, with actual keyboard-operable buttons in Puck's public icon slot. */
+function PluginButton({ name, label, icon }: { name: PanelName; label: string; icon: ReactNode }) {
+  const { id, buttons } = useWorkspace();
+  const active = usePanelActive(name);
+  const dispatch = usePuck((state) => state.dispatch);
+  const open = (next: PanelName, visible = true) =>
+    dispatch({
+      type: "setUi",
+      ui: { plugin: { current: next }, leftSideBarVisible: visible },
+      recordHistory: false,
+    });
+  const navigate = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.nativeEvent.isComposing) return;
+    const names: readonly PanelName[] = window.matchMedia("(max-width: 637px)").matches
+      ? panelNames
+      : panelNames.slice(0, 3);
+    const index = names.indexOf(name);
+    let next: PanelName;
+    if (event.key === "Home") next = names[0]!;
+    else if (event.key === "End") next = names[names.length - 1]!;
+    else if (event.key === "ArrowRight" || event.key === "ArrowDown")
+      next = names[(index + 1) % names.length]!;
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp")
+      next = names[(index + names.length - 1) % names.length]!;
+    else return;
+    event.preventDefault();
+    event.stopPropagation();
+    open(next);
+    buttons.get(next)?.focus();
+  };
+  return (
+    <button
+      type="button"
+      className="demo-plugin-button"
+      ref={(element) => {
+        if (element) buttons.set(name, element);
+        else buttons.delete(name);
+      }}
+      aria-label={label}
+      aria-pressed={active}
+      aria-controls={`${id}-${name}`}
+      onKeyDown={navigate}
+      onClick={(event) => {
+        event.stopPropagation();
+        open(name, !active);
+      }}
+    >
+      {icon}
+    </button>
+  );
+}
+
+function PluginPanel({
+  name,
+  label,
+  children,
+}: {
+  name: PanelName;
+  label: string;
+  children: ReactNode;
+}) {
+  const { id, buttons } = useWorkspace();
+  const active = usePanelActive(name);
+  const dispatch = usePuck((state) => state.dispatch);
+  return (
+    <section
+      id={`${id}-${name}`}
+      className={`demo-plugin-panel demo-plugin-panel--${name}`}
+      aria-label={`${label} panel`}
+      hidden={!active}
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || event.defaultPrevented || event.nativeEvent.isComposing)
+          return;
+        event.preventDefault();
+        event.stopPropagation();
+        dispatch({ type: "setUi", ui: { leftSideBarVisible: false }, recordHistory: false });
+        buttons.get(name)?.focus();
+      }}
+    >
+      {children}
+    </section>
+  );
+}
+
+function CompatibilityPanel() {
+  const { document } = useWorkspace();
+  const active = usePanelActive("compatibility");
+  const [opened, setOpened] = useState(false);
+  useEffect(() => {
+    if (active) setOpened(true);
+  }, [active]);
+  return (
+    <PluginPanel name="compatibility" label="Compatibility">
+      {opened && (
+        <Suspense
+          fallback={
+            <p role="status" className="compatibility">
+              Loading compatibility checks…
+            </p>
+          }
+        >
+          <Compatibility document={document} active={active} allowLocalImages debounceMs={200} />
+        </Suspense>
+      )}
+    </PluginPanel>
+  );
+}
+
+function accessiblePlugin(plugin: Plugin, name: PanelName, label: string): Plugin {
+  const Render = plugin.render!;
+  return {
+    ...plugin,
+    icon: <PluginButton name={name} label={label} icon={plugin.icon} />,
+    render: () => (
+      <PluginPanel name={name} label={label}>
+        <Render />
+      </PluginPanel>
+    ),
+  };
+}
+
+// Stable identities keep Puck renderers and undo state intact on every host echo.
+// Factories retain Puck's own Blocks/Outline/Fields renderers and mobile rules.
+export const demoWorkspacePlugins: Plugin[] = [
+  accessiblePlugin(blocksPlugin(), "blocks", "Blocks"),
+  accessiblePlugin(outlinePlugin(), "outline", "Outline"),
+  {
+    name: "compatibility",
+    label: "Compatibility",
+    icon: (
+      <PluginButton
+        name="compatibility"
+        label="Compatibility"
+        icon={<ShieldCheckIcon aria-hidden="true" />}
+      />
+    ),
+    render: CompatibilityPanel,
+  },
+  accessiblePlugin(fieldsPlugin(), "fields", "Fields"),
+];
+
+/** Supplies the current email to the native sidebar plugin, without replacing Puck's layout. */
 export function DemoWorkspace({
   document,
   children,
@@ -14,88 +195,12 @@ export function DemoWorkspace({
   document: EmailDocument;
   children: ReactNode;
 }) {
-  const [tab, setTab] = useState<"editor" | "compatibility">("editor");
-  const [opened, setOpened] = useState(false);
   const id = useId();
-  const editorTab = useRef<HTMLButtonElement>(null);
-  const compatibilityTab = useRef<HTMLButtonElement>(null);
-  const select = (next: typeof tab) => {
-    setTab(next);
-    if (next === "compatibility") setOpened(true);
-  };
-  const navigate = (event: KeyboardEvent<HTMLDivElement>) => {
-    let next: typeof tab;
-    if (event.key === "Home") next = "editor";
-    else if (event.key === "End") next = "compatibility";
-    else if (event.key === "ArrowLeft" || event.key === "ArrowRight")
-      next = tab === "editor" ? "compatibility" : "editor";
-    else return;
-    event.preventDefault();
-    select(next);
-    (next === "editor" ? editorTab : compatibilityTab).current?.focus();
-  };
+  const buttons = useRef(new Map<string, HTMLButtonElement>()).current;
+  const value = useMemo(() => ({ document, id, buttons }), [document, id, buttons]);
   return (
-    <div className="demo-workspace">
-      <div
-        className="demo-workspace-tabs"
-        role="tablist"
-        aria-label="Email workspace"
-        onKeyDown={navigate}
-      >
-        <button
-          ref={editorTab}
-          type="button"
-          role="tab"
-          id={`${id}-editor-tab`}
-          aria-controls={`${id}-editor`}
-          aria-selected={tab === "editor"}
-          tabIndex={tab === "editor" ? 0 : -1}
-          onClick={() => select("editor")}
-        >
-          Editor
-        </button>
-        <button
-          ref={compatibilityTab}
-          type="button"
-          role="tab"
-          id={`${id}-compatibility-tab`}
-          aria-controls={`${id}-compatibility`}
-          aria-selected={tab === "compatibility"}
-          tabIndex={tab === "compatibility" ? 0 : -1}
-          onClick={() => select("compatibility")}
-        >
-          Compatibility
-        </button>
-      </div>
-      <div
-        className="demo-workspace-panel"
-        role="tabpanel"
-        id={`${id}-editor`}
-        aria-labelledby={`${id}-editor-tab`}
-        hidden={tab !== "editor"}
-      >
-        {children}
-      </div>
-      <div
-        className="demo-workspace-panel demo-workspace-panel--compatibility"
-        role="tabpanel"
-        id={`${id}-compatibility`}
-        aria-labelledby={`${id}-compatibility-tab`}
-        hidden={tab !== "compatibility"}
-        tabIndex={0}
-      >
-        {opened && (
-          <Suspense
-            fallback={
-              <p role="status" className="compatibility">
-                Loading compatibility checks…
-              </p>
-            }
-          >
-            <Compatibility document={document} active={tab === "compatibility"} allowLocalImages />
-          </Suspense>
-        )}
-      </div>
-    </div>
+    <WorkspaceContext.Provider value={value}>
+      <div className="demo-workspace">{children}</div>
+    </WorkspaceContext.Provider>
   );
 }

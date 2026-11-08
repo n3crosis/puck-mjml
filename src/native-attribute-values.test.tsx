@@ -259,7 +259,19 @@ describe("catalog-aware native attribute values", () => {
           new Event("change", { bubbles: true }),
         );
       });
-    changeSelect("Attribute 1", "fluid-on-mobile");
+    act(() => {
+      const input = query<HTMLInputElement>('input[aria-label="Attribute 1"]');
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+        input,
+        "fluid-on-mobile",
+      );
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    act(() =>
+      query<HTMLInputElement>('input[aria-label="Attribute 1"]').dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      ),
+    );
     expect(query<HTMLSelectElement>('select[aria-label="Value for fluid-on-mobile"]').value).toBe(
       "left",
     );

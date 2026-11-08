@@ -102,7 +102,7 @@ const groups = [
   },
 ] as const;
 type GroupId = (typeof groups)[number]["id"];
-type InspectorField = { type: string; key?: string; visible?: boolean };
+type InspectorField = { type: string; key?: string; label?: string; visible?: boolean };
 type InspectorEntry = { name: string; child: ReactNode; field?: InspectorField; order: number };
 
 const wideFields = new Set([
@@ -132,27 +132,37 @@ function InspectorSection({
   id,
   label,
   entries,
+  query,
 }: {
   id: GroupId;
   label: string;
   entries: InspectorEntry[];
+  query: string;
 }) {
   const [open, setOpen] = useState(true);
   const panelId = useId();
+  const matches = ({ name, field }: InspectorEntry) =>
+    `${name} ${field?.label ?? ""} ${label}`
+      .toLowerCase()
+      .replace(/[\s_-]+/g, "")
+      .includes(query);
+  const visible = !query || entries.some(matches);
+  const expanded = open || Boolean(query);
   return (
-    <section className="pm-property-section" data-property-group={id}>
+    <section className="pm-property-section" data-property-group={id} hidden={!visible}>
       <h3 className="pm-property-heading">
         <button
           type="button"
-          aria-expanded={open}
+          aria-expanded={expanded}
           aria-controls={panelId}
           onClick={() => setOpen((value) => !value)}
+          disabled={Boolean(query)}
         >
           <span>{label}</span>
           <CaretDownIcon size={14} aria-hidden="true" />
         </button>
       </h3>
-      <div id={panelId} className="pm-property-body" hidden={!open}>
+      <div id={panelId} className="pm-property-body" hidden={!expanded}>
         {entries.map(({ name, child, field }) => {
           const inline =
             field &&
@@ -163,6 +173,7 @@ function InspectorSection({
               key={name}
               className={`pm-property-row${inline ? " pm-property-row--inline" : ""}`}
               data-property-name={name}
+              hidden={Boolean(query) && !matches({ name, field, child, order: 0 })}
             >
               {child}
             </div>
@@ -184,6 +195,9 @@ function InspectorGroups({
   renderedFields: Partial<Record<string, ReactNode>>;
   isLoading: boolean;
 }) {
+  const [search, setSearch] = useState("");
+  const searchId = useId();
+  const query = search.toLowerCase().replace(/[\s_-]+/g, "");
   const entries = new Map<GroupId, InspectorEntry[]>();
   Object.entries(renderedFields).forEach(([name, child]) => {
     // Puck 0.24 supplies visible, connected fields through its public API.
@@ -200,6 +214,40 @@ function InspectorGroups({
   });
   return (
     <div className="pm-properties" aria-busy={isLoading}>
+      <div className="pm-property-search">
+        <input
+          id={searchId}
+          type="search"
+          aria-label="Search properties"
+          placeholder="Search properties…"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && !event.nativeEvent.isComposing) {
+              event.preventDefault();
+              setSearch("");
+            }
+          }}
+        />
+        {search && (
+          <button type="button" aria-label="Clear property search" onClick={() => setSearch("")}>
+            Clear
+          </button>
+        )}
+      </div>
+      {query &&
+        ![...entries].some(([id, list]) =>
+          list.some(({ name, field }) =>
+            `${name} ${field?.label ?? ""} ${groups.find((group) => group.id === id)!.label}`
+              .toLowerCase()
+              .replace(/[\s_-]+/g, "")
+              .includes(query),
+          ),
+        ) && (
+          <p className="pm-property-search-empty" role="status">
+            No matching properties
+          </p>
+        )}
       {groups.map(({ id, label }) => {
         const list = entries.get(id);
         return list?.length ? (
@@ -207,6 +255,7 @@ function InspectorGroups({
             key={id}
             id={id}
             label={label}
+            query={query}
             entries={list.sort((a, b) => a.order - b.order)}
           />
         ) : null;

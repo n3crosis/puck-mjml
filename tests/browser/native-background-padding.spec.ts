@@ -1,3 +1,4 @@
+import { chooseImportFile } from "./import-email";
 import { expect, test, type Locator } from "@playwright/test";
 import { waitForCanvasFontCss } from "./font-evidence";
 import { scopeDocumentCss } from "../../src/canvas-css";
@@ -151,7 +152,7 @@ test("background padding CSS survives editing and undo/redo in the actual editor
   await page.goto("/");
   const css =
     "@media(max-width:600px) { .background > div > table > tbody > tr > td { padding-left:24px!important; padding-right:24px!important; } }";
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "background-padding.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(

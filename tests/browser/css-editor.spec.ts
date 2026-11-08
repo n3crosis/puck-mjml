@@ -1,3 +1,4 @@
+import { chooseImportFile } from "./import-email";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
@@ -96,7 +97,7 @@ test("Custom CSS uses CodeMirror in the real Puck field and preserves edited sou
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
-  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+  await chooseImportFile(page, {
     name: "css.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(

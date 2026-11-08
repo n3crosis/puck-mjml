@@ -134,6 +134,33 @@ describe("custom field instance associations", () => {
     expect(api.history.hasPast).toBe(false);
   });
 
+  it("keeps searchable generated HTML name associations local to each instance", async () => {
+    const field = createEmailConfig().root!.fields!.htmlAttributes;
+    if (field.type !== "array" || !("arrayFields" in field))
+      throw new Error("Expected HTML attribute array");
+    const nameField = field.arrayFields.name as CustomField<unknown>;
+    const { wrappers, rerender, changed } = await mountDuplicates(
+      nameField,
+      "htmlAttributes[0].name",
+      "data-imported",
+    );
+    const ids = wrappers().map((wrapper) => {
+      const input = wrapper.querySelector<HTMLInputElement>('[role="combobox"]')!;
+      expect(input.value).toBe("data-imported");
+      expect(wrapper.contains(document.getElementById(input.getAttribute("aria-controls")!))).toBe(
+        true,
+      );
+      expect(
+        wrapper.contains(document.getElementById(input.getAttribute("aria-describedby")!)),
+      ).toBe(true);
+      return input.id;
+    });
+    expect(new Set(ids).size).toBe(2);
+    await rerender();
+    expect(wrappers().map((wrapper) => wrapper.querySelector("input")!.id)).toEqual(ids);
+    expect(changed.every((callback) => callback.mock.calls.length === 0)).toBe(true);
+  });
+
   it("keeps native-attribute group labels associated with the local rendered instance", async () => {
     const field = nativeAttributeField("mj-text") as CustomField<unknown>;
     const { wrappers, rerender, changed } = await mountDuplicates(field, "mjmlAttributes", []);

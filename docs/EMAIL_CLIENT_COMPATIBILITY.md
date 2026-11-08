@@ -1,6 +1,6 @@
 # Email client compatibility
 
-The demo's **Compatibility** tab uses [Can I email](https://www.caniemail.com/) data to help discover fragile HTML and CSS in the current email. Switching tabs keeps the editor mounted, so document state and undo history remain available. The integration is demo-only; it does not add a new package API.
+The demo's **Compatibility** sidebar tab, beside **Blocks** and **Outline**, uses [Can I email](https://www.caniemail.com/) data to help discover fragile HTML and CSS in the current email. Switching sidebar tabs keeps the editor and canvas mounted, so document state and undo history remain available. Client details and caveats stack within the panel without horizontal scrolling. The compatibility integration is demo-only. The public `EmailEditor.plugins` prop accepts Puck plugin additions and overrides by name; keep the array and render functions stable across document updates. The demo uses public plugin factories and UI state, preserving the native Blocks, Outline, and mobile Fields renderers.
 
 ## Using the tab
 
@@ -10,7 +10,7 @@ The demo's **Compatibility** tab uses [Can I email](https://www.caniemail.com/) 
 4. Turn off **Needs review only** to include supported results. Supported entries with caveats remain in the review filter. Missing results are **Unknown**, never supported.
 5. Use **Browse 56 checks** to research included features even when they were not detected. Search and client filters apply to both views.
 
-Loading, failure/retry, document replacement, and interrupted tab changes are handled without showing results from a different email. Tabs support arrow keys, Home, and End. Data and analysis load on first use; compilation happens only while the compatibility tab is active.
+Loading, failure/retry, document replacement, and interrupted tab changes are handled without showing results from a different email. The native navigation buttons support Enter/Space, arrow keys, Home, and End. Escape closes a sidebar panel and returns focus to its navigation button. Data and analysis load on first use; compilation happens only while the compatibility panel is active, with a short debounce during live edits.
 
 ## What the results mean
 

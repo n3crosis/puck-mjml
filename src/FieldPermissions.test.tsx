@@ -313,7 +313,9 @@ it("edits ordered child source using its document path and retains native attrib
   ].find((field) => field.value === "<p>Original raw</p>")!;
   expect(source.disabled).toBe(false);
   expect(source.readOnly).toBe(false);
-  expect(container.querySelector('.pm-attribute-name option[value="position"]')).not.toBeNull();
+  expect(
+    container.querySelector('.pm-attribute-suggestions [data-property="position"]'),
+  ).not.toBeNull();
   const before = api.getItemById("test")!;
   await act(async () => {
     Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")!.set!.call(

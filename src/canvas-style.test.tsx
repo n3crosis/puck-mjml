@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createEmailConfig } from "./config";
 import { fromMjml } from "./import";
+import { compileEmail } from "./export";
 import { createShapingSource } from "../tests/browser/fixtures/richtext-interaction-source";
 import type { EmailBlock, EmailDocument, EmailSettings, MjmlAttribute } from "./types";
 
@@ -172,7 +173,16 @@ describe("selection frame containment", () => {
 
 describe("canvas rich-text shaping", () => {
   it("round-trips the shaping probe through real intrinsic row and cell blocks", async () => {
-    const document = fromMjml(await createShapingSource()).document;
+    const font = readFileSync(
+      new URL("../tests/browser/fixtures/fonts/ligature.woff", import.meta.url),
+    );
+    const fontUrl = `data:font/woff;base64,${font.toString("base64")}`;
+    const source = await createShapingSource(fontUrl);
+    expect(source).toContain(fontUrl);
+    expect(source).not.toContain("/tests/browser/fixtures/fonts/ligature.woff");
+    const document = fromMjml(source).document;
+    expect(render(document)).toContain(fontUrl);
+    expect((await compileEmail(document)).html).toContain(fontUrl);
     const types: string[] = [];
     const visit = (value: unknown) => {
       if (!value || typeof value !== "object") return;

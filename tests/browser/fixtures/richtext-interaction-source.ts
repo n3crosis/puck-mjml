@@ -19,13 +19,13 @@ export const adjacentLinkSource = `<mjml><mj-head><mj-attributes>
   </mj-column></mj-section></mj-body></mjml>`;
 
 /** Original offline font deliberately substitutes ffi, including in synthetic bold. */
-export async function createShapingSource() {
+export async function createShapingSource(fontUrl: string) {
   const { fromMjml } = await import("../../../src/import");
   const { toMjml } = await import("../../../src/export");
   const shapingDocument = fromMjml(`<mjml><mj-head>
   <mj-attributes><mj-all font-family="LigatureProbe, monospace" font-size="16px" font-weight="400" /></mj-attributes>
   <mj-style>
-    @font-face { font-family:LigatureProbe; font-weight:400; src:url('/tests/browser/fixtures/fonts/ligature.woff') format('woff'); }
+    @font-face { font-family:LigatureProbe; font-weight:400; src:url('${fontUrl}') format('woff'); }
     :where(.shaping-direct .ProseMirror) { font-variant-ligatures:normal; font-feature-settings:normal; }
     .shaping-disabled, .shaping-direct { font-variant-ligatures:none; font-feature-settings:"liga" 0; }
     .shaping-direct p { font-variant-ligatures:normal; font-feature-settings:normal; }

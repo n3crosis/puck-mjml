@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { chooseImportFile } from "./import-email";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { richTextInteractionSource } from "./fixtures/richtext-interaction-source";
@@ -146,6 +147,28 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
   }
 }
 
+async function expectLoadedShapingFont(target: Locator) {
+  const result = await target.evaluate(async (element) => {
+    const doc = element.ownerDocument;
+    const style = doc.defaultView!.getComputedStyle(element);
+    const family = style.fontFamily
+      .split(",")[0]
+      .trim()
+      .replace(/^["']|["']$/g, "");
+    const faces = await doc.fonts.load(`400 16px "${family}"`, "office planet");
+    return {
+      probeFamily: family.startsWith("LigatureProbe"),
+      count: faces.length,
+      loaded: faces.every((face) => face.status === "loaded"),
+      registered: [...doc.fonts].some(
+        (face) => face.family.replace(/^["']|["']$/g, "") === family && face.status === "loaded",
+      ),
+    };
+  });
+  // fonts.ready also resolves on failed loads; a matching loaded FontFace is required.
+  expect(result).toEqual({ probeFamily: true, count: 1, loaded: true, registered: true });
+}
+
 async function shapingSnapshot(target: Locator) {
   return target.evaluate(async (element) => {
     const doc = element.ownerDocument;
@@ -178,16 +201,20 @@ test("canvas ligatures retain compiled shaping, authored overrides and character
 }) => {
   await page.setViewportSize({ width: 1600, height: 1000 });
   await page.goto("/");
+  // The compiled preview has an opaque sandbox origin. Embed the original
+  // fixture bytes instead of depending on the dev server's same-origin CORS.
+  const font = readFileSync(new URL("./fixtures/fonts/ligature.woff", import.meta.url));
+  const fontUrl = `data:font/woff;base64,${font.toString("base64")}`;
   await chooseImportFile(page, {
     name: "shaping.mjml",
     mimeType: "application/xml",
     buffer: Buffer.from(
-      await page.evaluate(async () => {
+      await page.evaluate(async (fontUrl) => {
         // Use Vite's module loader for the public exporter (including its JSON
         // catalog), rather than Playwright's Node-side TypeScript loader.
         const fixtureUrl = "/tests/browser/fixtures/richtext-interaction-source.ts";
-        return (await import(/* @vite-ignore */ fixtureUrl)).createShapingSource();
-      }),
+        return (await import(/* @vite-ignore */ fixtureUrl)).createShapingSource(fontUrl);
+      }, fontUrl),
     ),
   });
   const canvas = page.frameLocator("#preview-frame");
@@ -205,6 +232,8 @@ test("canvas ligatures retain compiled shaping, authored overrides and character
   const original = await exportedMjml(page);
   await page.getByRole("button", { name: "Preview email", exact: true }).click();
   const compiled = page.frameLocator('iframe[title="Rendered email"]');
+  await expectLoadedShapingFont(compiled.locator(".shaping-text p"));
+  await expectLoadedShapingFont(canvas.locator(".shaping-text p"));
   const expected = [];
   for (const selector of selectors)
     expected.push(await shapingSnapshot(compiled.locator(selector)));

@@ -1,9 +1,6 @@
 import { Window } from "happy-dom";
 import { describe, expect, it, vi } from "vitest";
-import {
-  readVisibleTextFragments,
-  visibleTextLineBounds,
-} from "../../tests/browser/text-line-geometry";
+import { readVisibleTextFragments, visibleTextLineBounds } from "./browser/text-line-geometry";
 
 describe("visible glyph-line evidence", () => {
   it("does not request rectangles for spaces, line breaks or inline-wrapper boundaries", () => {

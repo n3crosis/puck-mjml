@@ -161,13 +161,14 @@
           font-size="40px"
           font-family="IBM Plex Sans Condensed, Arial Narrow, Arial, sans-serif"
           font-weight="500"
+          text-transform="uppercase"
           line-height="1"
           letter-spacing="-1.2px"
           align="left"
           padding="0px 0px 24px"
           css-class="pm-email-text dither-h3 dither-note-title"
         >
-          <p>A NOTE FROM US</p>
+          <p>A note from us</p>
         </mj-text>
         <mj-text
           color="#C4C4C4"

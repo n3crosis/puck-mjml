@@ -42,7 +42,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       .community-rich-0 em:nth-of-type(1) {
         font-style: normal;
         vertical-align: super;
-        font-size: 10px;
+        font-size: smaller;
+        font-weight: 300;
       }
       .community-rich-0 a:nth-of-type(1) {
         text-decoration: none;
@@ -50,15 +51,24 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       .community-rich-0 em:nth-of-type(2) {
         font-style: normal;
         vertical-align: super;
-        font-size: 10px;
+        font-size: smaller;
+        font-weight: 300;
       }
       .community-rich-3 a:nth-of-type(1) {
+        font-size: 12px;
         color: #0070c9;
         text-decoration: none;
       }
       .community-rich-3 a:nth-of-type(2) {
+        font-size: 12px;
         color: #0070c9;
         text-decoration: none;
+      }
+      .community-rich-3 em {
+        margin: 0 4px;
+        color: #333333;
+        font-style: normal;
+        font-weight: 200;
       }
       .community-rich-5 a:nth-of-type(1) {
         color: #007eff;
@@ -90,7 +100,8 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       .community-rich-13 a:nth-of-type(1) {
         text-decoration: none;
       }
-      .apple-legal div {
+      .apple-legal div,
+      .community-rich-3 div {
         line-height: normal !important;
       }
       .apple-wallet-cta {
@@ -233,9 +244,9 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           <mj-text padding="0px" font-size="12px" line-height="1.4" color="#666666"
             >HBO Max Ad-Free (Monthly)<br />Renews Aug 20, 2023</mj-text
           >
-          <mj-text padding="0px" font-size="12px" line-height="1.5" css-class="community-rich-3"
-            ><a href="https://www.apple.com/">Write a Review</a> |
-            <a href="https://www.apple.com/">Report a Problem</a>
+          <mj-text padding="0px" font-size="16px" line-height="1.5" css-class="community-rich-3"
+            ><a href="https://www.apple.com/">Write a Review</a><em>|</em
+            ><a href="https://www.apple.com/">Report a Problem</a>
           </mj-text>
         </mj-column>
         <mj-column padding="0px" width="14%" css-class="apple-item-price">
@@ -256,7 +267,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           <mj-text
             padding="0px 30px"
             font-size="10px"
-            line-height="1.5"
+            line-height="24px"
             color="#666666"
             font-weight="600"
             align="right"

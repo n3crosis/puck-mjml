@@ -177,23 +177,21 @@ export function alignmentCases(): AlignmentCase[] {
       ),
     });
   }
-  for (const family of ["studio", "arcane"]) {
-    const id = `commerce-${family}`;
-    const imageClass = family === "studio" ? "studio-product-image" : "arcane-order-image";
-    const copyClass = family === "studio" ? "studio-product-copy" : "arcane-order-copy";
+  for (const width of [80, 68]) {
+    const id = `fixed-fill-${width}`;
     cases.push({
       id,
       mjml: section(
         id,
-        `<mj-group css-class="${id}-group" width="100%">${column(`${id}-a ${imageClass}`, "middle", false, 'width="25%"')}${column(`${id}-b ${copyClass}`, "top", true, 'width="75%"')}</mj-group>`,
+        `<mj-group css-class="${id}-group" width="100%">${column(`${id}-a fixed-${width}`, "middle", false, 'width="25%"')}${column(`${id}-b fill-${width}`, "top", true, 'width="75%"')}</mj-group>`,
       ),
     });
   }
   cases.push({
-    id: "commerce-apple",
+    id: "authored-percentages",
     mjml: section(
-      "commerce-apple",
-      `<mj-group css-class="commerce-apple-group" width="100%">${column("commerce-apple-a apple-item-icon", "top", false, 'width="25%"')}${column("commerce-apple-b apple-item-description", "middle", true, 'width="50%"')}${column("commerce-apple-c apple-item-price", "bottom", false, 'width="25%"')}</mj-group>`,
+      "authored-percentages",
+      `<mj-group css-class="authored-percentages-group" width="100%">${column("authored-percentages-a narrow-cell", "top", false, 'width="25%"')}${column("authored-percentages-b wide-cell", "middle", true, 'width="50%"')}${column("authored-percentages-c remainder-cell", "bottom", false, 'width="25%"')}</mj-group>`,
     ),
   });
   cases.push({
@@ -255,20 +253,20 @@ export function alignmentCases(): AlignmentCase[] {
 }
 
 export function alignmentSource(cases = alignmentCases()) {
-  const commerceWidthCss = `
+  const authoredWidthCss = `
     @media only screen and (max-width:600px) {
-      .studio-product-image { width:80px!important; max-width:80px!important; }
-      .studio-product-copy { width:calc(100% - 80px)!important; max-width:calc(100% - 80px)!important; }
-      .arcane-order-image { width:68px!important; max-width:68px!important; }
-      .arcane-order-copy { width:calc(100% - 68px)!important; max-width:calc(100% - 68px)!important; }
+      .fixed-80 { width:80px!important; max-width:80px!important; }
+      .fill-80 { width:calc(100% - 80px)!important; max-width:calc(100% - 80px)!important; }
+      .fixed-68 { width:68px!important; max-width:68px!important; }
+      .fill-68 { width:calc(100% - 68px)!important; max-width:calc(100% - 68px)!important; }
     }
     @media only screen and (max-width:479px) {
-      .apple-item-icon { width:20%!important; }
-      .apple-item-description { width:64%!important; }
-      .apple-item-price { width:16%!important; }
+      .narrow-cell { width:20%!important; }
+      .wide-cell { width:64%!important; }
+      .remainder-cell { width:16%!important; }
     }
   `;
-  return `<mjml><mj-head><mj-breakpoint width="601px"/><mj-attributes><mj-all font-family="Arial"/></mj-attributes><mj-style>${commerceWidthCss}@media (min-width:601px) { .desktop-width-flex { width:calc(100% - 178px)!important; max-width:calc(100% - 178px); } } .desktop-width-wide { width:250px!important; } .desktop-width-override { max-width:260px; } .authored-baseline { vertical-align:baseline!important; } @media (max-width:600px) { .author-width-fixed { width:80px!important; } .author-width-fill { width:calc(100% - 80px)!important; } }</mj-style></mj-head><mj-body width="600px">${cases.map((entry) => entry.mjml).join("")}</mj-body></mjml>`;
+  return `<mjml><mj-head><mj-breakpoint width="601px"/><mj-attributes><mj-all font-family="Arial"/></mj-attributes><mj-style>${authoredWidthCss}@media (min-width:601px) { .desktop-width-flex { width:calc(100% - 178px)!important; max-width:calc(100% - 178px); } } .desktop-width-wide { width:250px!important; } .desktop-width-override { max-width:260px; } .authored-baseline { vertical-align:baseline!important; } @media (max-width:600px) { .author-width-fixed { width:80px!important; } .author-width-fill { width:calc(100% - 80px)!important; } }</mj-style></mj-head><mj-body width="600px">${cases.map((entry) => entry.mjml).join("")}</mj-body></mjml>`;
 }
 
 export function applyImplicitColumns(document: EmailDocument, cases: AlignmentCase[]) {

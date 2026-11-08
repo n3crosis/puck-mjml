@@ -78,6 +78,10 @@
         color: inherit;
         text-decoration: none;
       }
+      .collage-confirm-help a,
+      .collage-unsubscribe a {
+        font-family: Inter, Arial, sans-serif;
+      }
       .collage-footer-copy > div {
         max-width: 320px;
       }

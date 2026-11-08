@@ -35,6 +35,10 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       }
     </mj-style>
     <mj-style inline="inline">
+      .community-rich-0 > div,
+      .community-rich-1 > div {
+        line-height: normal !important;
+      }
       .reference-heading h1,
       .reference-heading h2 {
         margin: 0;
@@ -90,18 +94,13 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
         <mj-text
           padding="0px"
           font-size="21px"
-          line-height="1.5"
           letter-spacing="-0.3px"
           color="#3c4149"
           css-class="community-rich-0"
           ><code>tt226-5398x</code>
         </mj-text>
         <mj-divider border-color="#eaeaea" border-width="1px" padding="42px 0px 26px" />
-        <mj-text
-          padding="0px 0px 16px"
-          font-size="14px"
-          line-height="1.5"
-          css-class="community-rich-1"
+        <mj-text padding="0px 0px 16px" font-size="14px" css-class="community-rich-1"
           ><a href="https://linear.app/">Linear</a>
         </mj-text>
       </mj-column>

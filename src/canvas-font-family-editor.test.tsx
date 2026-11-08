@@ -1,5 +1,4 @@
 // @vitest-environment happy-dom
-import { readFileSync } from "node:fs";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, expect, it, vi } from "vitest";
@@ -16,9 +15,9 @@ afterEach(async () => {
   vi.unstubAllGlobals();
 });
 
-it.each(["activation", "newsletter"])(
-  "uses the registered Instrument Serif alias inside the actual Arcane %s editor",
-  async (name) => {
+it.each(["Instrument Serif, serif", "Instrument Serif, Arial, serif"])(
+  "uses the registered family alias inside the actual editor: %s",
+  async (family) => {
     vi.stubGlobal("localStorage", { getItem: () => null, setItem: () => undefined });
     vi.stubGlobal(
       "fetch",
@@ -30,7 +29,10 @@ it.each(["activation", "newsletter"])(
           ),
       ),
     );
-    const source = readFileSync(`templates/04-Arcane/${name}.mjml`, "utf8");
+    const source = `<mjml><mj-head><mj-font name="Instrument Serif" href="https://fonts.example.test/font.css" />
+      <mj-font name="Inter" href="https://fonts.example.test/inter.css" /></mj-head><mj-body>
+      <mj-section><mj-column><mj-text font-family="${family}">Heading</mj-text>
+      <mj-text font-family="Inter, sans-serif">Body</mj-text></mj-column></mj-section></mj-body></mjml>`;
     const { document: value, warnings } = fromMjml(source);
     expect(warnings).toEqual([]);
     const serialized = JSON.stringify(value);
@@ -57,7 +59,7 @@ it.each(["activation", "newsletter"])(
     expect(alias).toBe(`InstrumentSerif-${scope}`);
     expect(JSON.stringify(value)).toBe(serialized);
     expect(toMjml(value)).toBe(exported);
-    expect(exported).toContain('font-family="Instrument Serif, Georgia, Times New Roman, serif"');
+    expect(exported).toContain(`font-family="${family}"`);
     expect(exported).not.toContain("pm-canvas-");
   },
 );

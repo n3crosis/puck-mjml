@@ -6,7 +6,11 @@ import { fromMjml } from "../import";
 import { emailTemplates } from "./registry";
 import { templateManifest } from "./manifest";
 import { descendants } from "./test-support";
-import upstreamFixtures from "./upstream-content.json";
+import {
+  canonicalManifest,
+  templateInventory,
+  contentManifest as upstreamFixtures,
+} from "../../tests/template-inventory";
 
 beforeAll(() => vi.stubGlobal("window", globalThis));
 afterAll(() => vi.unstubAllGlobals());
@@ -40,26 +44,17 @@ const canonicalFiles = readdirSync(new URL("../../templates/", import.meta.url),
   .sort();
 
 describe("template provenance", () => {
-  it("pins the exact 62-email upstream inventory, excluding theme and font helpers", () => {
+  it("pins the complete upstream inventory, excluding theme and font helpers", () => {
     expect(templateManifest.repository).toBe("https://github.com/resend/react-email");
     expect(templateManifest.ref).toBe("674d8ec2804b86be5d99156383fb1810179847bf");
     expect(templateManifest.license).toBe("MIT");
-    expect(templateManifest.templates).toHaveLength(62);
-    expect(new Set(templateManifest.templates.map(({ file }) => file)).size).toBe(62);
-    expect(new Set(templateManifest.templates.map(({ id }) => id)).size).toBe(62);
-    const expectedFamilies = {
-      "01-Barebone": 8,
-      "02-Matte": 8,
-      "03-Protocol": 8,
-      "04-Arcane": 8,
-      "05-Studio": 8,
-      Community: 22,
-    };
-    for (const [family, count] of Object.entries(expectedFamilies)) {
-      expect(
-        templateManifest.templates.filter(({ file }) => file.startsWith(`${family}/`)),
-      ).toHaveLength(count);
-    }
+    expect(templateManifest).toEqual(canonicalManifest);
+    expect(new Set(templateManifest.templates.map(({ file }) => file)).size).toBe(
+      templateInventory.length,
+    );
+    expect(new Set(templateManifest.templates.map(({ id }) => id)).size).toBe(
+      templateInventory.length,
+    );
     for (const entry of templateManifest.templates) {
       expect(entry.file).not.toMatch(/(?:fonts|theme)\.mjml$/);
       expect(entry.upstreamBlob).toMatch(/^[\da-f]{40}$/);
@@ -73,8 +68,8 @@ describe("template provenance", () => {
     expect(
       available.map(({ sourcePath }) => sourcePath!.replace(/^templates\//, "")).sort(),
     ).toEqual(canonicalFiles);
-    expect(canonicalFiles).toHaveLength(62);
-    expect(emailTemplates).toHaveLength(63);
+    expect(canonicalFiles).toHaveLength(templateInventory.length);
+    expect(emailTemplates).toHaveLength(templateInventory.length + 1);
     expect(canonicalFiles).toEqual(templateManifest.templates.map(({ file }) => file).sort());
     for (const template of available) {
       expect(template.source).toBe(
@@ -154,12 +149,12 @@ describe("template registry", () => {
 describe("Pinned upstream content review", () => {
   it("uses fixtures from the pinned upstream source", () => {
     expect(upstreamFixtures.ref).toBe(templateManifest.ref);
-    expect(upstreamFixtures.templates).toHaveLength(62);
+    expect(upstreamFixtures.templates).toHaveLength(templateInventory.length);
     expect(upstreamFixtures.templates.map(({ file }) => file).sort()).toEqual(
       templateManifest.templates.map(({ file }) => file).sort(),
     );
   });
-  it.each(upstreamFixtures.templates.filter(({ file }) => canonicalFiles.includes(file)))(
+  it.each(templateInventory.map(({ content }) => content))(
     "$file retains upstream preview, content, artwork, and links",
     async (fixture) => {
       const template = emailTemplates.find(
@@ -174,7 +169,7 @@ describe("Pinned upstream content review", () => {
       const result = await compileEmail(document);
       const visible = visibleContent(result.html);
       for (const content of fixture.content) {
-        // Protocol presents display headings in uppercase, matching upstream CSS.
+        // Content matching ignores CSS text-transform; browser word evidence remains case-sensitive.
         expect(visible.text.toLowerCase()).toContain(normalizeText(content).toLowerCase());
       }
       const $ = cheerio.load(result.html);
@@ -200,4 +195,36 @@ describe("Pinned upstream content review", () => {
         expect(links, `Missing upstream link: ${href}`).toContain(normalizeUrl(href));
     },
   );
+});
+
+// Public compatibility factories stay covered without a hand-maintained list of
+// template names or duplicate review logic. Their names follow create<Group><File>Document.
+const adapterModules = import.meta.glob<Record<string, unknown>>(
+  ["./*.ts", "!./*.test.ts", "!./test-support.ts"],
+  { eager: true },
+);
+const adapterFactories = Object.values(adapterModules).flatMap((module) =>
+  Object.entries(module).filter(
+    ([name, value]) => /^create.+Document$/.test(name) && typeof value === "function",
+  ),
+);
+it.each(adapterFactories)("%s delegates to its canonical registered source", (name, factory) => {
+  const key = name.replace(/^create|Document$/g, "").toLowerCase();
+  const entry = templateInventory.find(
+    ({ group, file }) =>
+      `${group.replace(/^\d+-/, "")}${file
+        .split("/")
+        .at(-1)!
+        .replace(/\.mjml$/, "")}`
+        .replace(/[^a-z0-9]/gi, "")
+        .toLowerCase() === key,
+  );
+  expect(entry, `Missing canonical source for exported factory ${name}`).toBeDefined();
+  const template = emailTemplates.find(({ id }) => id === entry!.id)!;
+  const create = factory as () => ReturnType<typeof template.create>;
+  const first = create(),
+    second = create();
+  expect(first).toEqual(template.create());
+  expect(first).toEqual(second);
+  expect(first).not.toBe(second);
 });

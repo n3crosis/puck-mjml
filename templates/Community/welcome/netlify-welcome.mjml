@@ -46,6 +46,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       .netlify-footer-links td,
       .netlify-footer-links td * {
         overflow-wrap: normal;
+        word-break: normal;
       }
       .community-rich-0 li:nth-of-type(1) {
         margin-bottom: 20px;

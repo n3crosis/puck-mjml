@@ -9,7 +9,7 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       <mj-all
         font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Helvetica,Arial,sans-serif,&#x27;Apple Color Emoji&#x27;,&#x27;Segoe UI Emoji&#x27;"
       />
-      <mj-text padding="0px" />
+      <mj-text padding="0px" color="#24292e" />
     </mj-attributes>
     <mj-style>
       body {
@@ -82,7 +82,6 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           font-size="14px"
           line-height="24px"
           align="center"
-          color="#0366d6"
           css-class="github-security-links"
           ><a>Your security audit log</a> ・ <a>Contact support</a></mj-text
         >

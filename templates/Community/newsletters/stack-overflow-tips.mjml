@@ -1,6 +1,10 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/newsletters/stack-overflow-tips.tsx
-Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license. -->
+Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
+The source CTA is inline: padding and borders paint outside its 17px line box.
+The heading's 16px bottom padding plus the CTA's 8px top padding preserve the
+source's collapsed 24px section margin. Footer links retain normal leading and
+per-link margins so wrapped mobile rows remain responsive. -->
 <mjml>
   <mj-head>
     <mj-title>Stack overflow tips for searching</mj-title>
@@ -38,24 +42,31 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
       .stack-tips li:last-child {
         margin-bottom: 0;
       }
-      .community-rich-0 a:nth-of-type(1) {
-        color: #9199a1;
-        text-decoration: underline;
-      }
-      .community-rich-0 a:nth-of-type(2) {
-        color: #9199a1;
-        text-decoration: underline;
-      }
-      .community-rich-0 a:nth-of-type(3) {
-        color: #9199a1;
-        text-decoration: underline;
-      }
-      .community-rich-0 a:nth-of-type(4) {
-        color: #9199a1;
-        text-decoration: underline;
+      .community-rich-0 > div {
+        line-height: normal !important;
       }
     </mj-style>
     <mj-style inline="inline">
+      .stack-cta a {
+        display: inline;
+        color: #ffffff;
+        text-decoration: none;
+        background-color: #0095ff;
+        border: 1px solid #0077cc;
+        font-size: 17px;
+        line-height: 17px;
+        padding: 13px 17px;
+        border-radius: 4px;
+        max-width: 120px;
+      }
+      .community-rich-0 a {
+        display: inline-block;
+        color: #9199a1;
+        text-decoration: underline;
+        font-size: 12px;
+        line-height: normal;
+        margin: 8px 10px 0px 0px;
+      }
       .reference-heading h1,
       .reference-heading h2 {
         margin: 0;
@@ -174,18 +185,13 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           css-class="reference-heading"
           ><h2>Take a break and read about the worst coder in the world</h2></mj-text
         >
-        <mj-button
-          href="https://stackoverflow.blog/2019/10/22/"
-          align="left"
+        <mj-text
           padding="8px 0px 0px"
-          inner-padding="13px 17px"
-          border-radius="4px"
           font-size="17px"
-          background-color="#0095ff"
-          color="#ffffff"
-          border="1px solid #0077cc"
           line-height="17px"
-          >I need a break</mj-button
+          color="#ffffff"
+          css-class="stack-cta"
+          ><a href="https://stackoverflow.blog/2019/10/22/">I need a break</a></mj-text
         >
       </mj-column>
     </mj-section>
@@ -195,15 +201,11 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
           >You're receiving this email because your Stack Overflow activity triggered this tip or
           reminder.</mj-text
         >
-        <mj-text
-          padding="8px 0px 0px"
-          font-size="12px"
-          line-height="1.5"
-          css-class="community-rich-0"
-          ><a href="https://demo.react.email/">Unsubscribe from emails like this</a> &nbsp;
-          <a href="https://demo.react.email/">Edit email settings</a> &nbsp;
-          <a href="https://demo.react.email/">Contact us</a> &nbsp;
-          <a href="https://demo.react.email/">Privacy</a>
+        <mj-text padding="0px" font-size="12px" line-height="1" css-class="community-rich-0"
+          ><a href="https://demo.react.email/">Unsubscribe from emails like this</a
+          ><a href="https://demo.react.email/">Edit email settings</a
+          ><a href="https://demo.react.email/">Contact us</a
+          ><a href="https://demo.react.email/">Privacy</a>
         </mj-text>
         <mj-divider border-color="#d6d8db" border-width="1px" padding="30px 0px" />
         <mj-image

@@ -47,6 +47,7 @@
         .arcane-mobile-title > div {
           font-size: 56px !important;
           line-height: 1 !important;
+          letter-spacing: -0.36px !important;
         }
         .arcane-mobile-gap > table > tbody > tr > td {
           padding-top: 40px !important;
@@ -127,6 +128,7 @@
             font-family="Instrument Serif, Georgia, Times New Roman, serif"
             font-size="64px"
             font-weight="400"
+            text-transform="capitalize"
             line-height="1"
             letter-spacing="-0.56px"
             color="#FCF3ED"

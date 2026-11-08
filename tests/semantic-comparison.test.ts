@@ -78,6 +78,56 @@ describe("generic three-representation comparison", () => {
     expect(result.counts.background).toBe(1);
   });
 
+  it("binds navigation to matched words without confusing split anchors with new destinations", () => {
+    const source = capture(),
+      target = capture();
+    const nav = { hasHref: true, href: "/target", destination: "https://demo.react.email/target" };
+    source.semantics.words[0].navigation = nav;
+    target.semantics.words[0].navigation = { ...nav, href: nav.destination };
+    expect(compareRepresentations(source, target).counts.link).toBe(0);
+    target.semantics.words[0].navigation!.destination = "https://example.com/changed";
+    expect(compareRepresentations(source, target).differences).toContainEqual({
+      category: "link",
+      path: "words[0→0].destination",
+      before: nav.destination,
+      after: "https://example.com/changed",
+    });
+  });
+
+  it("retains missing versus empty href and decorative-image navigation as separate evidence", () => {
+    const source = capture(),
+      target = capture();
+    source.semantics.links = [
+      { text: "Label", href: "", hasHref: false, destination: null, boxes: [] },
+    ];
+    target.semantics.links = [
+      {
+        text: "Label",
+        href: "",
+        hasHref: true,
+        destination: "https://demo.react.email/",
+        boxes: [],
+      },
+    ];
+    const asset = {
+      src: "https://example.com/arrow.png",
+      alt: "",
+      box: { x: 0, y: 0, width: 16, height: 16 },
+      loaded: true,
+      navigation: null,
+    };
+    source.semantics.images = [asset];
+    target.semantics.images = [
+      {
+        ...asset,
+        navigation: { hasHref: true, href: "/", destination: "https://demo.react.email/" },
+      },
+    ];
+    const result = compareRepresentations(source, target);
+    expect(result.counts.link).toBe(1);
+    expect(result.counts.image).toBe(1);
+  });
+
   it("never labels identical fallback rendering as parity when references failed or overflowed", () => {
     for (const kind of ["font-transport", "unloaded-images", "document-overflow"]) {
       const source = capture();

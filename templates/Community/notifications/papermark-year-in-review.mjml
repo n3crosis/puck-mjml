@@ -150,6 +150,7 @@ source margins after the preceding paragraph's 16px bottom space. -->
       <mj-column padding="0px">
         <mj-text
           padding="16px 0px 32px"
+          color="#000000"
           font-size="24px"
           line-height="32px"
           font-weight="700"
@@ -160,6 +161,7 @@ source margins after the preceding paragraph's 16px bottom space. -->
         <mj-text
           padding="0px 0px 16px"
           font-size="14px"
+          color="#000000"
           line-height="20px"
           align="center"
           letter-spacing="0.7px"
@@ -169,13 +171,19 @@ source margins after the preceding paragraph's 16px bottom space. -->
         <mj-text
           padding="0px 0px 16px"
           font-size="36px"
+          color="#000000"
           line-height="45px"
           font-weight="500"
           align="center"
           css-class="reference-heading"
           ><h1>Your Year with Papermark</h1></mj-text
         >
-        <mj-text padding="0px 0px 32px" font-size="18px" line-height="32px" align="center"
+        <mj-text
+          padding="0px 0px 32px"
+          font-size="18px"
+          color="#000000"
+          line-height="32px"
+          align="center"
           >What a year it's been! Let's take a look at how you've used Papermark to share your
           important documents.</mj-text
         >

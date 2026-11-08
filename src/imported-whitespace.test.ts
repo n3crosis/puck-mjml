@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { templateInventory, templateSource } from "../tests/template-inventory";
 import { load } from "cheerio";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { fromMjml } from "./import";
@@ -17,10 +17,6 @@ const fixture = (text: string, head = "") =>
   ).document;
 const textBlock = (document: EmailDocument) =>
   (document.root.props!.sections![0]!.props.column as EmailBlock[])[0]!;
-const templates = new URL("../templates/", import.meta.url);
-const dropbox = () =>
-  readFileSync(new URL("Community/reset-password/dropbox-reset-password.mjml", templates), "utf8");
-
 function textBlocks(value: unknown): EmailBlock[] {
   if (!value || typeof value !== "object") return [];
   if (Array.isArray(value)) return value.flatMap(textBlocks);
@@ -112,14 +108,19 @@ describe("imported HTML whitespace", () => {
     expect(originalHtml).toContain(source);
   });
 
-  it("fixes both Dropbox continuations while retaining canonical compiled HTML text", async () => {
-    const source = dropbox();
+  it("normalizes separate formatted continuations while retaining compiled HTML text", async () => {
+    const source = `<mjml><mj-body><mj-section><mj-column>
+      <mj-text>Review the changes,
+          then continue here:</mj-text>
+      <mj-text>Otherwise discard
+          this message.</mj-text>
+      </mj-column></mj-section></mj-body></mjml>`;
     const { document, warnings } = fromMjml(source);
     expect(warnings).toEqual([]);
     const blocks = textBlocks(document);
     for (const [start, continuation] of [
-      ["Someone recently", "you can set a new password here:"],
-      ["If you don't want", "this message."],
+      ["Review the changes", "then continue here:"],
+      ["Otherwise discard", "this message."],
     ]) {
       const block = blocks.find((entry) => String(entry.props.content).includes(start))!;
       expect(block.props.content).toContain(` ${continuation}`);
@@ -130,7 +131,7 @@ describe("imported HTML whitespace", () => {
     const canonical = await mjml2html(source, { validationLevel: "strict" });
     const compiled = await compileEmail(document);
     expect(compiled.errors).toEqual([]);
-    for (const start of ["Someone recently", "If you don't want"]) {
+    for (const start of ["Review the changes", "Otherwise discard"]) {
       const paragraph = (html: string) => {
         const $ = load(html);
         const element = $("div").filter(
@@ -142,35 +143,33 @@ describe("imported HTML whitespace", () => {
     }
   });
 
-  const files = readdirSync(templates, { recursive: true, encoding: "utf8" }).filter((file) =>
-    file.endsWith(".mjml"),
-  );
-  it("keeps Stack Overflow's intrinsic chip sizing from disabling ordinary text normalization", () => {
-    const source = readFileSync(
-      new URL("Community/newsletters/stack-overflow-tips.mjml", templates),
-      "utf8",
-    );
-    expect(source).toMatch(/\.stack-heart > div\s*\{[^}]*width:\s*max-content/);
+  it("keeps intrinsic sizing from disabling ordinary text normalization", () => {
+    const source = `<mjml><mj-head><mj-style>.chip > div { width:max-content; }</mj-style></mj-head>
+      <mj-body><mj-section><mj-column><mj-text css-class="chip">A compact label</mj-text>
+      <mj-text>The existing notes have provided a
+          solution for this issue.</mj-text></mj-column></mj-section></mj-body></mjml>`;
     expect(hasSourceWhitespaceStyles(source)).toBe(false);
     const { document, warnings } = fromMjml(source);
     expect(warnings).toEqual([]);
     const intro = textBlocks(document).find((block) =>
-      String(block.props.content).includes("With more than 18 million questions"),
+      String(block.props.content).includes("The existing notes"),
     )!;
     expect(load(String(intro.props.content)).root().text()).toBe(
-      "With more than 18 million questions, it's possible that someone has already provided a solution to the problem you're facing.",
+      "The existing notes have provided a solution for this issue.",
     );
     // Native editor text collapses source indentation; retained export stays exact.
     expect(importedRichText(intro.props)).toMatch(/provided a\s*\n\s+solution/);
   });
-  it("covers all 62 canonical files", () => expect(files).toHaveLength(62));
-  it.each(files)("removes source indentation from ordinary editable text in %s", (file) => {
-    const { document, warnings } = fromMjml(readFileSync(new URL(file, templates), "utf8"));
-    expect(warnings).toEqual([]);
-    for (const block of textBlocks(document)) {
-      const $ = load(String(block.props.content));
-      $("pre,code").remove();
-      expect($.root().text()).not.toMatch(/[\r\n\t]| {2}/);
-    }
-  });
+  it.each(templateInventory)(
+    "$file removes source indentation from ordinary editable text",
+    (entry) => {
+      const { document, warnings } = fromMjml(templateSource(entry));
+      expect(warnings).toEqual([]);
+      for (const block of textBlocks(document)) {
+        const $ = load(String(block.props.content));
+        $("pre,code").remove();
+        expect($.root().text()).not.toMatch(/[\r\n\t]| {2}/);
+      }
+    },
+  );
 });

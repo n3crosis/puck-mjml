@@ -20,6 +20,9 @@
       <mj-all font-family="Inter, Arial, sans-serif" />
     </mj-attributes>
     <mj-style inline="inline">
+      .arcane-summary td {
+        letter-spacing: 0.25px;
+      }
       .arcane-summary tr + tr td {
         border-top: 1px solid #300610;
       }
@@ -150,6 +153,7 @@
               font-family="Instrument Serif, Georgia, Times New Roman, serif"
               font-size="24px"
               font-weight="500"
+              text-transform="capitalize"
               line-height="1.4"
               letter-spacing="0.008px"
               color="#FCF3ED"
@@ -203,6 +207,7 @@
               font-family="Instrument Serif, Georgia, Times New Roman, serif"
               font-size="24px"
               font-weight="500"
+              text-transform="capitalize"
               line-height="1.4"
               letter-spacing="0.008px"
               color="#FCF3ED"

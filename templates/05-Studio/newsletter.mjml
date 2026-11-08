@@ -102,6 +102,13 @@
         max-width: 430px;
         margin: 0 auto;
       }
+      /* The source caps the padded footer section, not its text content. */
+      .studio-footer-copy > div {
+        box-sizing: border-box;
+        max-width: 430px;
+        padding: 0 24px;
+        margin: 0 auto;
+      }
       .studio-order-copy > div {
         max-width: 420px;
         margin: 0 auto;
@@ -377,7 +384,7 @@
         >
       </mj-column>
     </mj-section>
-    <mj-section padding="0px 24px 32px" background-color="#FFFFFF">
+    <mj-section padding="0px 0px 32px" background-color="#FFFFFF">
       <mj-column padding="0px" vertical-align="top">
         <mj-text
           font-family="Inter, Arial, sans-serif"
@@ -388,7 +395,7 @@
           color="#A2A9AA"
           padding="0px"
           align="center"
-          css-class="studio-letter"
+          css-class="studio-footer-copy"
           >Halo is the AI ring on your finger—easy shopping, clear shipping, and real support when
           you need it.</mj-text
         >

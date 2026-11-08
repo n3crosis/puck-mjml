@@ -1,5 +1,4 @@
 // @vitest-environment happy-dom
-import { readFileSync } from "node:fs";
 import postcss from "postcss";
 import { act, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -129,12 +128,14 @@ function replaceRoot(props: Partial<NonNullable<EmailDocument["root"]["props"]>>
 }
 
 it.each([false, true])(
-  "preserves the Dropbox source and font through inline text, undo/redo and cloneEcho=%s",
+  "preserves authored source and font through inline text, undo/redo and cloneEcho=%s",
   async (cloneEcho) => {
-    const source = readFileSync(
-      "templates/Community/reset-password/dropbox-reset-password.mjml",
-      "utf8",
-    );
+    const source = `<mjml><mj-head><mj-attributes><mj-all font-family="inherit" /></mj-attributes>
+      <mj-style>body { font-family:"Open Sans", "Helvetica Neue", Arial, sans-serif; }
+        .scoped-button a { font-family:"Open Sans", "Helvetica Neue", Arial; }
+      </mj-style></mj-head><mj-body><mj-section><mj-column>
+      <mj-text>First paragraph</mj-text><mj-text>Review the changes here:</mj-text>
+      <mj-button css-class="scoped-button">Continue</mj-button></mj-column></mj-section></mj-body></mjml>`;
     const initial = fromMjml(source).document;
     const initialSource = toMjml(initial);
     await mount(initial, cloneEcho);
@@ -157,17 +158,13 @@ it.each([false, true])(
     });
     expect(familyRules.map(({ stack }) => stack)).toContainEqual([
       "Open Sans",
-      "HelveticaNeue-Light",
-      "Helvetica Neue Light",
       "Helvetica Neue",
-      "Helvetica",
       "Arial",
-      "Lucida Grande",
       "sans-serif",
     ]);
     expect(
       familyRules
-        .filter(({ selector }) => selector.includes(".dropbox-reset-button a"))
+        .filter(({ selector }) => selector.includes(".scoped-button a"))
         .map(({ stack }) => stack),
     ).toEqual([["Open Sans", "Helvetica Neue", "Arial"]]);
     const expectSourceFonts = () => {

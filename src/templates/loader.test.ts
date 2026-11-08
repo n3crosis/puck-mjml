@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { loadMjmlTemplate } from "./loader";
-import source from "../../templates/02-Matte/welcome.mjml?raw";
+const source = `<mjml><mj-body><mj-section><mj-column><mj-text>Editable copy</mj-text></mj-column></mj-section></mj-body></mjml>`;
 import { descendants } from "./test-support";
 
 describe("canonical MJML loader", () => {
   it("imports fresh nested block trees without changing the source", () => {
-    const first = loadMjmlTemplate(source, "02-Matte/welcome.mjml");
-    const second = loadMjmlTemplate(source, "02-Matte/welcome.mjml");
+    const first = loadMjmlTemplate(source, "fixture.mjml");
+    const second = loadMjmlTemplate(source, "fixture.mjml");
     const blocks = descendants(first.root.props!.sections!);
     const otherBlocks = descendants(second.root.props!.sections!);
     const text = blocks.find((block) => block.type === "Text")!;

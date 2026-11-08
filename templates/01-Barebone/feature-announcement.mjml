@@ -38,9 +38,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
       }
     </mj-style>
     <mj-attributes
-      ><mj-all font-family="Inter, Arial, sans-serif" /><mj-section padding="0px" /><mj-column
-        padding="0px" /><mj-text padding="0px" /><mj-image padding="0px" /><mj-button
-        font-family="Inter, Arial, sans-serif"
+      ><mj-all font-family="Inter, system-ui, Arial, sans-serif" /><mj-section
+        padding="0px" /><mj-column padding="0px" /><mj-text padding="0px" /><mj-image
+        padding="0px" /><mj-button font-family="Inter, system-ui, Arial, sans-serif"
     /></mj-attributes>
     <mj-style inline="inline">
       .bare-app-icon {
@@ -65,6 +65,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
       }
       .bare-feature-description > div {
         max-width: 420px;
+      }
+      .bare-workflow-description > div {
+        max-width: 400px;
       }
       .bare-app-copy > div {
         max-width: 420px;
@@ -361,6 +364,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
               color="#43454B"
               align="left"
               padding="0px 0px 16px"
+              css-class="bare-workflow-description"
               >Bring your workflows into one place, cut manual handoffs, and give everyone the same
               source of truth.</mj-text
             ><mj-text
@@ -408,6 +412,7 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
               color="#43454B"
               align="left"
               padding="0px 0px 16px"
+              css-class="bare-workflow-description"
               >Bring your workflows into one place, cut manual handoffs, and give everyone the same
               source of truth.</mj-text
             ><mj-text

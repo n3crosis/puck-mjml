@@ -1,6 +1,5 @@
 import { Render, type Data } from "@puckeditor/core";
 import { load } from "cheerio";
-import { readFileSync } from "node:fs";
 import postcss, { type Rule } from "postcss";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -232,16 +231,19 @@ describe("compiler-backed background padding targets", () => {
     }
   });
 
-  it("corrects Arcane promo's compiled background cell without changing source into canvas CSS", async () => {
-    const source = readFileSync(
-      new URL("../templates/04-Arcane/promo.mjml", import.meta.url),
-      "utf8",
-    );
+  it("bridges responsive background-cell padding without changing authored source CSS", async () => {
+    const source = `<mjml><mj-head><mj-style>
+      @media (max-width: 600px) { .background-inset > div > table > tbody > tr > td {
+        padding-left: 24px !important; padding-right: 24px !important;
+      } }
+    </mj-style></mj-head><mj-body><mj-section css-class="background-inset" background-url="https://example.com/background.png">
+      <mj-column><mj-text>Editable copy</mj-text></mj-column>
+    </mj-section></mj-body></mjml>`;
     const { canvas, document } = canvasFor(source);
     const result = await compileEmail(document);
     expect(result.errors).toEqual([]);
     const compiled = load(result.html);
-    expect(compiled(".arcane-inset > div > table > tbody > tr > td")).toHaveLength(1);
+    expect(compiled(".background-inset > div > table > tbody > tr > td")).toHaveLength(1);
     const style =
       document.root.props?.headStyles?.find(({ css }) => css.includes("@media"))?.css ?? "";
     const rules = rulesFor(style);
@@ -253,9 +255,9 @@ describe("compiler-backed background padding targets", () => {
       "padding-left: 24px !important",
       "padding-right: 24px !important",
     ]);
-    expect(canvas('.arcane-inset[data-pm-mjml-padding="background"]')).toHaveLength(1);
+    expect(canvas('.background-inset[data-pm-mjml-padding="background"]')).toHaveLength(1);
     expect(source).not.toContain("data-pm-");
     expect(source).not.toContain("pm-canvas");
-    expect(toMjml(document)).toContain(".arcane-inset > div > table > tbody > tr > td");
+    expect(toMjml(document)).toContain(".background-inset > div > table > tbody > tr > td");
   });
 });

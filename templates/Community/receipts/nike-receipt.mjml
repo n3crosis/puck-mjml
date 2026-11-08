@@ -1,7 +1,7 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/receipts/nike-receipt.tsx
 Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
-Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 leading for readable mobile cards; desktop retains the source line-height of 1 and source image/text insets. Equal native columns remain an approximation of the source auto-layout cell widths. The tracking row stacks before its fixed 220px button outgrows a half-column. -->
+Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 leading for readable mobile cards; desktop retains the source line-height of 1 and source image/text insets. Equal native columns remain an approximation of the source auto-layout cell widths. The tracking row stacks before its fixed 220px button outgrows a half-column. Recommendation bottom spacing retains the source 20px row + 22px section, split across the 24px native card gap and 18px section gap. -->
 <mjml>
   <mj-head>
     <mj-title>Your Nike order is on its way</mj-title>
@@ -22,6 +22,9 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
       }
       a {
         color: inherit;
+      }
+      .nike-source-link > div {
+        line-height: normal !important;
       }
       .community-rich-0 a:nth-of-type(1) {
         color: #000000;
@@ -155,7 +158,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             padding="0px"
           />
           <mj-text
-            padding="32px 0px"
+            padding="21.44px 0px"
             font-size="32px"
             line-height="1.3"
             font-weight="700"
@@ -283,7 +286,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
       <mj-section padding="22px 0px 0px">
         <mj-column padding="0px">
           <mj-text
-            padding="0px 0px 16px"
+            padding="16px 0px"
             font-size="32px"
             line-height="1.3"
             font-weight="700"
@@ -293,7 +296,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
           >
         </mj-column>
       </mj-section>
-      <mj-section padding="20px 0px 0px" css-class="nike-recommendations">
+      <mj-section padding="20px 0px 18px" css-class="nike-recommendations">
         <mj-group width="50%" css-class="nike-recommendation-pair">
           <mj-column padding="0px 2px 24px 4px" width="50%" css-class="nike-recommendation-card">
             <mj-image
@@ -406,7 +409,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
       </mj-section>
       <mj-section padding="20px 40px 0px" background-color="#F7F7F7">
         <mj-column padding="0px">
-          <mj-text padding="0px" font-size="14px" line-height="24px" font-weight="700"
+          <mj-text padding="16px 0px" font-size="14px" line-height="24px" font-weight="700"
             >Get Help</mj-text
           >
         </mj-column>
@@ -418,7 +421,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             font-size="13.5px"
             line-height="1.5"
             font-weight="500"
-            css-class="community-rich-0"
+            css-class="community-rich-0 nike-source-link"
             ><a href="https://www.nike.com/">Shipping Status</a>
           </mj-text>
         </mj-column>
@@ -428,7 +431,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             font-size="13.5px"
             line-height="1.5"
             font-weight="500"
-            css-class="community-rich-1"
+            css-class="community-rich-1 nike-source-link"
             ><a href="https://www.nike.com/">Shipping &amp; Delivery</a>
           </mj-text>
         </mj-column>
@@ -438,7 +441,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             font-size="13.5px"
             line-height="1.5"
             font-weight="500"
-            css-class="community-rich-2"
+            css-class="community-rich-2 nike-source-link"
             ><a href="https://www.nike.com/">Returns &amp; Exchanges</a>
           </mj-text>
         </mj-column>
@@ -450,7 +453,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             font-size="13.5px"
             line-height="1.5"
             font-weight="500"
-            css-class="community-rich-3"
+            css-class="community-rich-3 nike-source-link"
             ><a href="https://www.nike.com/">How to Return</a>
           </mj-text>
         </mj-column>
@@ -460,12 +463,12 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             font-size="13.5px"
             line-height="1.5"
             font-weight="500"
-            css-class="community-rich-4"
+            css-class="community-rich-4 nike-source-link"
             ><a href="https://www.nike.com/">Contact Options</a>
           </mj-text>
         </mj-column>
       </mj-section>
-      <mj-section padding="0px">
+      <mj-section padding="0px 20px" background-color="#F7F7F7">
         <mj-column padding="0px">
           <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
         </mj-column>
@@ -500,7 +503,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
       <mj-section padding="22px 0px 0px">
         <mj-column padding="0px">
           <mj-text
-            padding="0px 0px 16px"
+            padding="16px 0px"
             font-size="32px"
             line-height="1.3"
             font-weight="700"
@@ -518,7 +521,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             line-height="1.5"
             font-weight="500"
             align="center"
-            css-class="community-rich-5"
+            css-class="community-rich-5 nike-source-link"
             ><a href="https://www.nike.com/">Men</a>
           </mj-text>
         </mj-column>
@@ -529,7 +532,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             line-height="1.5"
             font-weight="500"
             align="center"
-            css-class="community-rich-6"
+            css-class="community-rich-6 nike-source-link"
             ><a href="https://www.nike.com/">Women</a>
           </mj-text>
         </mj-column>
@@ -540,7 +543,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             line-height="1.5"
             font-weight="500"
             align="center"
-            css-class="community-rich-7"
+            css-class="community-rich-7 nike-source-link"
             ><a href="https://www.nike.com/">Kids</a>
           </mj-text>
         </mj-column>
@@ -551,7 +554,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             line-height="1.5"
             font-weight="500"
             align="center"
-            css-class="community-rich-8"
+            css-class="community-rich-8 nike-source-link"
             ><a href="https://www.nike.com/">Customize</a>
           </mj-text>
         </mj-column>
@@ -561,7 +564,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
           <mj-divider border-color="#E5E5E5" border-width="1px" padding="0px" />
         </mj-column>
       </mj-section>
-      <mj-section padding="22px">
+      <mj-section padding="22px 0px">
         <mj-column padding="0px">
           <mj-text padding="0px" font-size="13px" line-height="24px" color="#AFAFAF" align="center"
             >Web Version &nbsp;&nbsp;&nbsp; Privacy Policy</mj-text

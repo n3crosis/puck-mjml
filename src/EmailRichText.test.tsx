@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
-import { readFileSync } from "node:fs";
+import { templateInventory, templateSource } from "../tests/template-inventory";
+import { importedRichContentSource } from "../tests/browser/fixtures/imported-rich-content-source";
 import { act, useEffect, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { createUsePuck, type PuckApi } from "@puckeditor/core";
@@ -112,15 +113,14 @@ function importedTexts(
   return [...result, ...Object.values(entry).flatMap(importedTexts)];
 }
 
-it("preserves every href-less anchor across all 62 canonical imports", () => {
-  const manifest = JSON.parse(readFileSync("templates/manifest.json", "utf8")) as {
-    templates: { file: string }[];
-  };
-  expect(manifest.templates).toHaveLength(62);
+it("preserves every href-less anchor across the canonical inventory", () => {
   let total = 0;
-  let affected = 0;
-  for (const { file } of manifest.templates) {
-    const initial = fromMjml(readFileSync(`templates/${file}`, "utf8")).document;
+  let expectedTotal = 0;
+  for (const entry of templateInventory) {
+    const { file } = entry;
+    const source = templateSource(entry);
+    expectedTotal += load(source, { xml: true })("a:not([href])").length;
+    const initial = fromMjml(source).document;
     const before = toMjml(initial);
     let count = 0;
     for (const entry of importedTexts(initial)) {
@@ -132,34 +132,18 @@ it("preserves every href-less anchor across all 62 canonical imports", () => {
     }
     expect(toMjml(initial), file).toBe(before);
     total += count;
-    if (count) affected++;
   }
-  expect({ total, affected }).toEqual({ total: 43, affected: 5 });
+  expect(total).toBe(expectedTotal);
 });
 
-it("targets only the five original Apple invoice labels, not their value paragraphs", () => {
-  const source = readFileSync("templates/Community/receipts/apple-receipt.mjml", "utf8");
+it("targets only the first label paragraph, preserving multiple independent values", () => {
+  const source = importedRichContentSource;
   const $ = load(source, { xml: true });
-  const labels = ["APPLE ID", "BILLED TO", "INVOICE DATE", "ORDER ID", "DOCUMENT NO."];
-  const values = [
-    ["alan.turing@gmail.com"],
-    [
-      "Visa .... 7461 (Apple Pay)",
-      "Alan Turing",
-      "2125 Chestnut St",
-      "San Francisco, CA 94123",
-      "USA",
-    ],
-    ["18 Jan 2023"],
-    ["ML4F5L8522"],
-    ["186623754793"],
-  ];
-  const cells = $("mj-table[css-class=apple-invoice] td").toArray();
+  const labels = ["REFERENCE", "DATE"];
+  const values = [["First value", "Second value"], ["Sample date"]];
+  const cells = $("mj-table[css-class=details] td").toArray();
   expect(cells).toHaveLength(labels.length);
-  expect(source).toContain(".apple-invoice p:first-child");
-  const reference = load(
-    readFileSync(".cache/react-email-reference/Community/receipts/apple-receipt.html", "utf8"),
-  );
+  expect(source).toContain(".details p:first-child");
   for (const [index, cell] of cells.entries()) {
     expect($(cell).children().first().prop("tagName")).toBe("P");
     expect($(cell).find("p")).toHaveLength(1 + values[index].length);
@@ -171,11 +155,9 @@ it("targets only the five original Apple invoice labels, not their value paragra
         .get(),
     ).toEqual(values[index]);
     expect($(cell).children().first().text()).toBe(labels[index]);
-    const original = reference("p").filter((_, node) => reference(node).text() === labels[index]);
-    expect(original.index()).toBe(0);
     const editor = editorFor($(cell).html()!);
     const host = document.createElement("div");
-    host.className = "apple-invoice";
+    host.className = "details";
     host.innerHTML = editor.getHTML();
     expect([...host.querySelectorAll("p:first-child")].map((p) => p.textContent)).toEqual([
       labels[index],

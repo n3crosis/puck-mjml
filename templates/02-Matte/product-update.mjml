@@ -149,7 +149,7 @@
         <mj-column>
           <mj-image
             src="https://demo.react.email/static/collage/collage-image-5.png"
-            alt="Green collage of ideas and paper textures"
+            alt=""
             width="608px"
             align="center"
             padding="0px"
@@ -215,7 +215,7 @@
         >
           <mj-image
             src="https://demo.react.email/static/collage/collage-image-6.png"
-            alt="Smarter Search"
+            alt=""
             width="264px"
             align="center"
             padding="0px"
@@ -273,7 +273,7 @@
         >
           <mj-image
             src="https://demo.react.email/static/collage/collage-image-7.png"
-            alt="Shared Workspaces"
+            alt=""
             width="264px"
             align="center"
             padding="0px"
@@ -418,12 +418,11 @@
           <mj-column width="8%" padding="24px 0px" vertical-align="middle">
             <mj-image
               src="https://demo.react.email/static/collage/collage-image-9.png"
-              alt="Learn about New Help Center"
+              alt=""
               width="12px"
               height="12px"
               align="right"
               padding="0px"
-              href="https://example.com/"
               border-radius="0px"
             />
           </mj-column>
@@ -469,12 +468,11 @@
           <mj-column width="8%" padding="24px 0px" vertical-align="middle">
             <mj-image
               src="https://demo.react.email/static/collage/collage-image-9.png"
-              alt="Learn about Permissions"
+              alt=""
               width="12px"
               height="12px"
               align="right"
               padding="0px"
-              href="https://example.com/"
               border-radius="0px"
             />
           </mj-column>
@@ -521,12 +519,11 @@
           <mj-column width="8%" padding="24px 0px" vertical-align="middle">
             <mj-image
               src="https://demo.react.email/static/collage/collage-image-9.png"
-              alt="Learn about New Discovery Tools"
+              alt=""
               width="12px"
               height="12px"
               align="right"
               padding="0px"
-              href="https://example.com/"
               border-radius="0px"
             />
           </mj-column>
@@ -587,7 +584,7 @@
           </mj-button>
           <mj-image
             src="https://demo.react.email/static/collage/collage-image-8.png"
-            alt="Collage on mobile"
+            alt=""
             width="528px"
             align="center"
             padding="64px 0px 0px"

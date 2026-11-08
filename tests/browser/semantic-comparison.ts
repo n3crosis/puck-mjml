@@ -1,10 +1,32 @@
 /** Common, representation-independent evidence. No template names or DOM probes. */
 export type Box = { x: number; y: number; width: number; height: number };
-export type SemanticWord = { text: string; boxes: Box[]; style: Record<string, string> };
+export type NavigationEvidence = {
+  hasHref: boolean;
+  href: string | null;
+  destination: string | null;
+};
+export type SemanticWord = {
+  text: string;
+  boxes: Box[];
+  style: Record<string, string>;
+  navigation?: NavigationEvidence | null;
+};
 export type SemanticDocument = {
   words: SemanticWord[];
-  links: { text: string; href: string; boxes: Box[] }[];
-  images: { src: string; alt: string; box: Box; loaded: boolean }[];
+  links: {
+    text: string;
+    href: string;
+    hasHref?: boolean;
+    destination?: string | null;
+    boxes: Box[];
+  }[];
+  images: {
+    src: string;
+    alt: string;
+    box: Box;
+    loaded: boolean;
+    navigation?: NavigationEvidence | null;
+  }[];
   backgrounds: { image: string; color: string; border: string; box: Box }[];
 };
 
@@ -12,6 +34,20 @@ export type SemanticDocument = {
 export function inspectSemantics(root: HTMLElement): SemanticDocument {
   const document = root.ownerDocument;
   const view = document.defaultView!;
+  const navigation = (node: Element): NavigationEvidence | null => {
+    const anchor = node.closest("a");
+    if (!anchor) return null;
+    const href = anchor.getAttribute("href");
+    let destination: string | null = null;
+    if (href !== null) {
+      try {
+        destination = new URL(href, "https://demo.react.email/").href;
+      } catch {
+        destination = href;
+      }
+    }
+    return { hasHref: anchor.hasAttribute("href"), href, destination };
+  };
   const box = (rect: DOMRect): Box => ({
     // Each representation lives in its own matched viewport, including the canvas iframe.
     // Keep authored margins, padding and editor gutters in both axes.
@@ -86,7 +122,8 @@ export function inspectSemantics(root: HTMLElement): SemanticDocument {
       const boxes = Array.from(range.getClientRects())
         .filter((r) => painted(parent, r))
         .map(box);
-      if (boxes.length) words.push({ text: match[0], boxes, style });
+      if (boxes.length)
+        words.push({ text: match[0], boxes, style, navigation: navigation(parent) });
     }
   }
   return {
@@ -95,7 +132,9 @@ export function inspectSemantics(root: HTMLElement): SemanticDocument {
       .filter(visible)
       .map((node) => ({
         text: (node.innerText || node.textContent || "").replace(/\s+/gu, " ").trim(),
-        href: node.getAttribute("href") || "",
+        href: node.getAttribute("href") ?? "",
+        hasHref: node.hasAttribute("href"),
+        destination: navigation(node)?.destination ?? null,
         boxes: Array.from(node.getClientRects(), box),
       })),
     images: Array.from(root.querySelectorAll("img"))
@@ -105,6 +144,7 @@ export function inspectSemantics(root: HTMLElement): SemanticDocument {
         alt: node.alt,
         box: box(node.getBoundingClientRect()),
         loaded: node.complete && node.naturalWidth > 0,
+        navigation: navigation(node),
       })),
     backgrounds: [root, ...Array.from(root.querySelectorAll("*"))]
       .filter(visible)
@@ -232,6 +272,14 @@ export function compareRepresentations(before: ComparisonCapture, after: Compari
     for (const key of new Set([...Object.keys(as), ...Object.keys(bs)]))
       record("style", `words[${i}→${j}].${key}`, as[key], bs[key]);
     record("layout", `words[${i}→${j}].boxes`, geometry(a.boxes), geometry(b.boxes));
+    // Navigation is bound to matched content independently of split/merged
+    // anchor wrappers; raw ordered anchor evidence is still retained below.
+    record(
+      "link",
+      `words[${i}→${j}].destination`,
+      a.navigation?.destination ?? null,
+      b.navigation?.destination ?? null,
+    );
   }
   // Asset and link inventories are ordered; duplicates are not collapsed into sets.
   for (const kind of ["links", "images", "backgrounds"] as const) {
@@ -283,7 +331,7 @@ export function compareInventoryCaptures(captures: ComparisonCapture[]) {
       }
   }
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     status:
       missingCaptures.length || comparisons.some((pair) => pair.status === "inconclusive")
         ? "inconclusive"
@@ -293,7 +341,7 @@ export function compareInventoryCaptures(captures: ComparisonCapture[]) {
     policy: {
       geometryPrecisionCssPx: 1 / 64,
       matching:
-        "Case-sensitive ordered word LCS; ordered link/image/paint inventories; exact computed style values except explicit canvas font aliases.",
+        "Case-sensitive ordered word LCS with normalized navigation destinations; ordered image occurrences retain alt and nearest-anchor navigation; raw ordered link/paint inventories; exact computed style values except explicit canvas font aliases.",
       coordinates:
         "Word, asset and root boxes retain matched-viewport coordinates in both axes, including authored margins, padding and canvas gutters.",
       interpretation:

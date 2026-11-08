@@ -1,3 +1,4 @@
+import { templateInventory } from "../template-inventory";
 import { expect, test, type Page } from "@playwright/test";
 
 const delayedFile = "__deferred-demo-import__.mjml";
@@ -72,7 +73,7 @@ test.beforeEach(async ({ page }) => {
 
 for (const selection of [
   { id: "blank", preview: "" },
-  { id: "01-barebone/welcome", preview: "Welcome aboard—Barebones" },
+  { id: templateInventory[0].id, preview: templateInventory[0].content.preview },
 ]) {
   test(`a delayed import cannot replace a later ${selection.id} selection`, async ({ page }) => {
     await beginDelayedImport(page, source("Superseded import", true));

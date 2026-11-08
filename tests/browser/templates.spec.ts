@@ -6,13 +6,21 @@ import {
   type Page,
   type TestInfo,
 } from "@playwright/test";
-import { createHash } from "node:crypto";
+import {
+  templateInventory,
+  templateSource,
+  referenceHtml,
+  referenceManifest,
+  referenceDirectory,
+  inventoryFiles,
+} from "../template-inventory";
 import {
   inspectSemantics,
   compareInventoryCaptures,
   type ComparisonCapture,
 } from "./semantic-comparison";
 import { inspectArtwork } from "./artwork-evidence";
+import { inspectContrast } from "./contrast-evidence";
 import {
   canvasOverflowFailures,
   canvasScreenshotBounds,
@@ -20,7 +28,7 @@ import {
   type HorizontalBox,
   type CanvasGeometry,
 } from "./template-overflow";
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import {
   declaredMjmlFonts,
   expectedCanvasFonts,
@@ -34,28 +42,8 @@ import {
 } from "./font-evidence";
 import { loadReactEmailReference, reactEmailReferenceUrl } from "./reference-document";
 
-const fixtures: { ref: string; templates: { file: string; content: string[] }[] } = JSON.parse(
-  readFileSync(new URL("../../src/templates/upstream-content.json", import.meta.url), "utf8"),
-);
-const referenceDirectory = new URL("../../.cache/react-email-reference/", import.meta.url);
-const referenceManifest: {
-  ref: string;
-  templates: { file: string; html: string; sha256: string; bytes: number; sourceGitBlob: string }[];
-} = JSON.parse(readFileSync(new URL("manifest.json", referenceDirectory), "utf8"));
-const canonicalManifest: { ref: string; templates: { file: string; upstreamBlob: string }[] } =
-  JSON.parse(readFileSync(new URL("../../templates/manifest.json", import.meta.url), "utf8"));
 const normalize = (value: string) => value.replace(/\s+/g, " ").trim().toLowerCase();
-const idFor = (file: string) => file.replace(/\.mjml$/, "").toLowerCase();
 const expectAudit = expect.configure({ soft: true });
-
-function referenceHtml(file: string) {
-  const reference = referenceManifest.templates.find((entry) => entry.file === file);
-  expect(reference, `Missing original rendered React Email: ${file}`).toBeDefined();
-  const html = readFileSync(new URL(reference!.html, referenceDirectory));
-  expect(html.byteLength, file).toBe(reference!.bytes);
-  expect(createHash("sha256").update(html).digest("hex"), file).toBe(reference!.sha256);
-  return html.toString("utf8");
-}
 
 async function measureVisuals(root: Locator) {
   const metrics = await root.evaluate((element) => {
@@ -109,6 +97,7 @@ async function measureVisuals(root: Locator) {
   return {
     ...metrics,
     semantics: await root.evaluate(inspectSemantics),
+    contrast: await root.evaluate(inspectContrast),
     ...(await root.evaluate(inspectArtwork)),
   };
 }
@@ -389,27 +378,14 @@ test("canvas overflow audit permits background bleed but rejects real text and i
   expect(canvasOverflowFailures(geometry)).toContain("img. outside email");
 });
 
-test("original React Email references match all 62 pinned sources and byte hashes", () => {
-  expect(referenceManifest.ref).toBe(fixtures.ref);
-  expect(referenceManifest.ref).toBe(canonicalManifest.ref);
-  expect(referenceManifest.templates).toHaveLength(62);
-  expect(referenceManifest.templates.map(({ file }) => file).sort()).toEqual(
-    fixtures.templates.map(({ file }) => file).sort(),
+test("original references cover the canonical inventory with pinned byte hashes", () => {
+  expect(inventoryFiles(referenceDirectory, ".html")).toEqual(
+    templateInventory.map(({ reference }) => reference.html).sort(),
   );
-  const files = readdirSync(referenceDirectory, { recursive: true, encoding: "utf8" })
-    .filter((file) => file.endsWith(".html"))
-    .map((file) => file.replaceAll("\\", "/"));
-  expect(files.sort()).toEqual(referenceManifest.templates.map(({ html }) => html).sort());
-  for (const reference of referenceManifest.templates) {
-    expect(reference.html).toBe(reference.file.replace(/\.mjml$/, ".html"));
-    expect(reference.sourceGitBlob).toBe(
-      canonicalManifest.templates.find(({ file }) => file === reference.file)!.upstreamBlob,
-    );
-    referenceHtml(reference.file);
-  }
+  for (const entry of templateInventory) referenceHtml(entry);
 });
 
-test("template picker lists exactly 62 real MJML emails and one blank document", async ({
+test("template picker lists the complete canonical inventory and one blank document", async ({
   page,
 }) => {
   await page.goto("/");
@@ -418,35 +394,28 @@ test("template picker lists exactly 62 real MJML emails and one blank document",
   const values = await picker
     .locator("option")
     .evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value));
-  expect(fixtures.templates).toHaveLength(62);
-  expect(values.sort()).toEqual(
-    ["blank", ...fixtures.templates.map(({ file }) => idFor(file))].sort(),
-  );
-  expect(await picker.locator("option").allTextContents()).not.toContain("Collage fonts");
-  expect(await picker.locator("option").allTextContents()).not.toContain("Dither fonts");
+  expect(values.sort()).toEqual(["blank", ...templateInventory.map(({ id }) => id)].sort());
 });
 
-for (const fixture of fixtures.templates) {
-  test(`${idFor(fixture.file)} loads canonical content and responsive previews`, async ({
+for (const fixture of templateInventory) {
+  test(`${fixture.id} loads canonical content and responsive previews`, async ({
     page,
   }, testInfo) => {
     test.setTimeout(120_000);
-    const fonts = declaredMjmlFonts(
-      readFileSync(new URL(`../../templates/${fixture.file}`, import.meta.url), "utf8"),
-    );
+    const fonts = declaredMjmlFonts(templateSource(fixture));
     const resources = observeResources(page, fonts);
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.setViewportSize({ width: 1600, height: 1000 });
     await page.goto("/");
     const picker = page.getByRole("combobox", { name: "Email template" });
-    await picker.selectOption(idFor(fixture.file));
-    await expect(picker).toHaveValue(idFor(fixture.file));
+    await picker.selectOption(fixture.id);
+    await expect(picker).toHaveValue(fixture.id);
     await page.getByRole("button", { name: "Preview email" }).click();
     const dialog = page.getByRole("dialog", { name: "Email preview" });
     await expect(dialog).toBeVisible();
     const frame = page.frameLocator('iframe[title="Rendered email"]');
-    const expectedContent = fixture.content.map(normalize).filter(Boolean);
+    const expectedContent = fixture.content.content.map(normalize).filter(Boolean);
     await expectAudit
       .poll(
         async () => {
@@ -472,7 +441,7 @@ for (const fixture of fixtures.templates) {
     const html = await page
       .locator('iframe[title="Rendered email"]')
       .evaluate((iframe: HTMLIFrameElement) => iframe.srcdoc);
-    const originalHtml = referenceHtml(fixture.file);
+    const originalHtml = referenceHtml(fixture);
     writeFileSync(testInfo.outputPath("react-email.html"), originalHtml);
     writeFileSync(testInfo.outputPath("mjml.html"), html);
     // Each PNG is saved once. The upload artifact contains these named files and

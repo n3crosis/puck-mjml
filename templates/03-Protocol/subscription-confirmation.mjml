@@ -80,6 +80,10 @@
       .dither-confirm-body-copy > div {
         max-width: 490px;
       }
+      .dither-confirm-body-copy strong {
+        color: #ffffff;
+        font-weight: 600;
+      }
       .dither-confirm-title > div {
         max-width: 490px;
       }

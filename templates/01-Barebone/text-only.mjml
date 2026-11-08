@@ -38,9 +38,9 @@ Canonical editable MJML. Public PreviewProps only; see ../README.md and ../../TH
       }
     </mj-style>
     <mj-attributes
-      ><mj-all font-family="Inter, Arial, sans-serif" /><mj-section padding="0px" /><mj-column
-        padding="0px" /><mj-text padding="0px" /><mj-image padding="0px" /><mj-button
-        font-family="Inter, Arial, sans-serif"
+      ><mj-all font-family="Inter, system-ui, Arial, sans-serif" /><mj-section
+        padding="0px" /><mj-column padding="0px" /><mj-text padding="0px" /><mj-image
+        padding="0px" /><mj-button font-family="Inter, system-ui, Arial, sans-serif"
     /></mj-attributes>
     <mj-style inline="inline">
       .bare-footer-copy > div {

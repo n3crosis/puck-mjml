@@ -77,17 +77,20 @@ async function exportedMjml(page: Page) {
   await dialog.getByRole("button", { name: "Close export" }).click();
   return source;
 }
-for (const family of ["arcane", "studio"]) {
-  test(`${family} order summary retains left labels, right amounts, and edit/undo`, async ({
-    page,
-  }) => {
+for (const align of ["left", "center"]) {
+  test(`${align} table retains left labels, right amounts, and edit/undo`, async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: "Email template" })
-      .selectOption(`${family === "arcane" ? "04" : "05"}-${family}/order-confirmation`);
+    await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+      name: "table-alignment.mjml",
+      mimeType: "application/xml",
+      buffer:
+        Buffer.from(`<mjml><mj-body><mj-section><mj-column><mj-table css-class="summary" align="${align}">
+        ${["Subtotal", "Tax", "Shipping", "Total"].map((label) => `<tr><td style="text-align:left">${label}</td><td style="text-align:right">$12</td></tr>`).join("")}
+      </mj-table></mj-column></mj-section></mj-body></mjml>`),
+    });
     const frame = page.frameLocator("#preview-frame");
-    const table = frame.locator(`.${family}-summary`);
+    const table = frame.locator(".summary");
     for (const viewport of ["Desktop", "Mobile"] as const) {
       if (viewport === "Mobile")
         await page.getByRole("button", { name: "Switch to Mobile viewport" }).click();

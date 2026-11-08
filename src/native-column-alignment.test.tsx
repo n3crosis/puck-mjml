@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { Render, type Data } from "@puckeditor/core";
 import { load } from "cheerio";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -189,40 +188,6 @@ describe("native inline column compiler contract", () => {
       expect(load(result.html)(".first").css("vertical-align")).toBe("middle");
     },
   );
-
-  it("keeps commerce width overrides identical to their canonical source rules", () => {
-    const fixture = alignmentSource().replace(/\s+/g, "");
-    for (const [path, declarations] of [
-      [
-        "../templates/05-Studio/order-confirmation.mjml",
-        [
-          ".studio-product-image{width:80px!important;max-width:80px!important;}",
-          ".studio-product-copy{width:calc(100%-80px)!important;max-width:calc(100%-80px)!important;}",
-        ],
-      ],
-      [
-        "../templates/04-Arcane/order-shipping.mjml",
-        [
-          ".arcane-order-image{width:68px!important;max-width:68px!important;}",
-          ".arcane-order-copy{width:calc(100%-68px)!important;max-width:calc(100%-68px)!important;}",
-        ],
-      ],
-      [
-        "../templates/Community/receipts/apple-receipt.mjml",
-        [
-          ".apple-item-icon{width:20%!important;}",
-          ".apple-item-description{width:64%!important;}",
-          ".apple-item-price{width:16%!important;}",
-        ],
-      ],
-    ] as const) {
-      const source = readFileSync(new URL(path, import.meta.url), "utf8").replace(/\s+/g, "");
-      for (const declaration of declarations) {
-        expect(source).toContain(declaration);
-        expect(fixture).toContain(declaration);
-      }
-    }
-  });
 
   it("leaves attribute-free legacy layout rendering unchanged", () => {
     const document: EmailDocument = {

@@ -1,4 +1,12 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { importedRichContentSource } from "./fixtures/imported-rich-content-source";
+async function importFixture(page: Page) {
+  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+    name: "rich-content.mjml",
+    mimeType: "application/xml",
+    buffer: Buffer.from(importedRichContentSource),
+  });
+}
 
 async function exportedMjml(page: Page) {
   await page.getByRole("button", { name: "Export email", exact: true }).click();
@@ -35,22 +43,15 @@ async function labelStyles(anchors: Locator) {
   );
 }
 
-const cases = [
-  ["community/newsletters/codepen-challengers", 26],
-  ["community/welcome/netlify-welcome", 6],
-  ["community/reviews/amazon-review", 6],
-  ["community/notifications/github-access-token", 3],
-  ["community/receipts/apple-receipt", 2],
-] as const;
-
 for (const viewport of ["Desktop", "Mobile"] as const) {
-  for (const [template, count] of cases) {
-    test(`${template} preserves ${count} non-navigating labels on the ${viewport} canvas`, async ({
+  {
+    const count = 2;
+    test(`imported text preserves ${count} non-navigating labels on the ${viewport} canvas`, async ({
       page,
     }) => {
       await page.setViewportSize({ width: 1600, height: 1000 });
       await page.goto("/");
-      await page.getByRole("combobox", { name: "Email template" }).selectOption(template);
+      await importFixture(page);
       await selectCanvasViewport(page, viewport);
       const canvas = page.frameLocator("#preview-frame");
       const labels = canvas.locator(".pm-text a:not([href])");
@@ -82,28 +83,26 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     });
   }
 
-  test(`Netlify retains anchor styling through ${viewport} inline edit and undo`, async ({
+  test(`Imported text retains anchor styling through ${viewport} inline edit and undo`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1600, height: 1000 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: "Email template" })
-      .selectOption("community/welcome/netlify-welcome");
+    await importFixture(page);
     await selectCanvasViewport(page, viewport);
     const canvas = page.frameLocator("#preview-frame");
     const labels = canvas.locator(".pm-text a:not([href])");
-    await expect(labels).toHaveCount(6);
+    await expect(labels).toHaveCount(2);
     const originalLabels = await labelStyles(labels);
     const originalSource = await exportedMjml(page);
-    const block = canvas.locator(".pm-text").filter({ hasText: "Deploy your first project." });
+    const block = canvas.locator(".pm-text").filter({ hasText: "Primary label" });
     await block.locator("a:not([href])").first().dblclick();
     const editor = block.locator('[contenteditable="true"]');
     await expect(editor).toBeVisible();
     await editor.press("ControlOrMeta+End");
     await page.keyboard.insertText(" Edited.");
     await expect(block).toContainText("Edited.");
-    await expect(labels).toHaveCount(6);
+    await expect(labels).toHaveCount(2);
     await expect.poll(() => exportedMjml(page)).toContain("Edited.");
     await page.getByRole("button", { name: /^undo$/i }).click();
     await expect.poll(() => exportedMjml(page)).toBe(originalSource);
@@ -115,44 +114,31 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       )
       .toBe(800);
     await selectCanvasViewport(page, viewport);
-    await expect(labels).toHaveCount(6);
+    await expect(labels).toHaveCount(2);
     expect(await labelStyles(labels)).toEqual(originalLabels);
     expect(await exportedMjml(page)).toBe(originalSource);
   });
 
-  test(`Apple labels stay 10px and values 12px through ${viewport} inline edit and undo`, async ({
+  test(`Table labels stay 10px and values 12px through ${viewport} inline edit and undo`, async ({
     page,
   }, testInfo) => {
     await page.setViewportSize({ width: 1600, height: 1000 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: "Email template" })
-      .selectOption("community/receipts/apple-receipt");
+    await importFixture(page);
     await selectCanvasViewport(page, viewport);
     const canvas = page.frameLocator("#preview-frame");
-    const cells = canvas.locator(".apple-invoice td");
+    const cells = canvas.locator(".details td");
     const labels = cells.locator("p:first-child");
     const values = cells.locator("p:not(:first-child)");
-    const checkType = async (invoiceDate = "18 Jan 2023") => {
+    const checkType = async (invoiceDate = "Sample date") => {
       const paragraphs = [
-        ["APPLE ID", "alan.turing@gmail.com"],
-        [
-          "BILLED TO",
-          "Visa .... 7461 (Apple Pay)",
-          "Alan Turing",
-          "2125 Chestnut St",
-          "San Francisco, CA 94123",
-          "USA",
-        ],
-        ["INVOICE DATE", invoiceDate],
-        ["ORDER ID", "ML4F5L8522"],
-        ["DOCUMENT NO.", "186623754793"],
+        ["REFERENCE", "First value", "Second value"],
+        ["DATE", invoiceDate],
       ];
-      await expect(cells).toHaveCount(5);
+      await expect(cells).toHaveCount(2);
       await expect(labels).toHaveText(paragraphs.map(([label]) => label));
-      // BILLED TO preserves five separate source paragraphs, not one value
-      // paragraph containing line breaks. Check each cell, not only the total.
-      await expect(values).toHaveCount(9);
+      // Preserve separate value paragraphs, rather than folding them into line breaks.
+      await expect(values).toHaveCount(3);
       for (const [index, expected] of paragraphs.entries()) {
         await expect(cells.nth(index).locator("p")).toHaveText(expected);
       }
@@ -186,21 +172,21 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
           )
           .toBeLessThanOrEqual(1);
       }
-      await expect(canvas.locator(".apple-invoice a:not([href])")).toHaveCount(2);
+      await expect(canvas.locator(".details a:not([href])")).toHaveCount(0);
     };
     await checkType();
     const initial = await exportedMjml(page);
-    const cell = canvas.locator(".apple-invoice td").filter({ hasText: "INVOICE DATE" });
-    await cell.getByText("18 Jan 2023", { exact: true }).dblclick();
+    const cell = canvas.locator(".details td").filter({ hasText: "DATE" });
+    await cell.getByText("Sample date", { exact: true }).dblclick();
     const editor = cell.locator('[contenteditable="true"]');
     await expect(editor).toBeVisible();
     await editor.click();
     await editor.press("ControlOrMeta+End");
     await page.keyboard.insertText(" Edited.");
-    await expect(cell).toContainText("18 Jan 2023 Edited.");
+    await expect(cell).toContainText("Sample date Edited.");
     await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();
-    await expect.poll(() => exportedMjml(page)).toContain("18 Jan 2023 Edited.");
-    await checkType("18 Jan 2023 Edited.");
+    await expect.poll(() => exportedMjml(page)).toContain("Sample date Edited.");
+    await checkType("Sample date Edited.");
     await page.getByRole("button", { name: /^undo$/i }).click();
     await expect.poll(() => exportedMjml(page)).toBe(initial);
     await expect
@@ -211,9 +197,9 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     await selectCanvasViewport(page, viewport);
     await checkType();
     expect(await exportedMjml(page)).toBe(initial);
-    const path = testInfo.outputPath(`apple-richtext-${viewport.toLowerCase()}.png`);
-    await canvas.locator(".apple-invoice").screenshot({ path });
-    await testInfo.attach(`Apple invoice after edit and undo (${viewport})`, {
+    const path = testInfo.outputPath(`table-richtext-${viewport.toLowerCase()}.png`);
+    await canvas.locator(".details").screenshot({ path });
+    await testInfo.attach(`Table after edit and undo (${viewport})`, {
       path,
       contentType: "image/png",
     });

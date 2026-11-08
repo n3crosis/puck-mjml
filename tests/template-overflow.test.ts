@@ -3,9 +3,9 @@ import {
   canvasOverflowFailures,
   canvasScreenshotBounds,
   type CanvasGeometry,
-} from "../../tests/browser/template-overflow";
+} from "./browser/template-overflow";
 
-function codePen(): CanvasGeometry {
+function geometryFixture(): CanvasGeometry {
   return {
     viewport: 800,
     documentOverflow: 0,
@@ -40,40 +40,36 @@ function codePen(): CanvasGeometry {
         scrollOverflow: 0,
       },
     ],
-    text: [
-      { label: "This week: #CodePenChallenge: Cubes", x: 106, y: 315, width: 588, height: 80 },
-    ],
+    text: [{ label: "Synthetic heading", x: 106, y: 315, width: 588, height: 80 }],
   };
 }
 
 describe("canvas overflow evidence", () => {
-  it("keeps the proven CodePen background bleed while recording an 800px crop and 648px email", () => {
-    const geometry = codePen();
+  it("keeps renderer-owned background bleed while recording an 800px crop and 648px email", () => {
+    const geometry = geometryFixture();
     expect(canvasOverflowFailures(geometry)).toEqual([]);
     expect(canvasScreenshotBounds(geometry)).toEqual({ x: 0, y: 34, width: 800, height: 3071 });
     expect(geometry.email.width).toBe(648);
   });
   it("does not exempt an image inside the full-width section from email bounds", () => {
-    const geometry = codePen();
+    const geometry = geometryFixture();
     geometry.boxes[2].width = 640;
     expect(canvasOverflowFailures(geometry)).toContain("img outside email");
   });
   it("detects rendered text outside the email even when its element still fits", () => {
-    const geometry = codePen();
+    const geometry = geometryFixture();
     geometry.text[0].width = 650;
-    expect(canvasOverflowFailures(geometry)).toContain(
-      "text outside email: This week: #CodePenChallenge: Cubes",
-    );
+    expect(canvasOverflowFailures(geometry)).toContain("text outside email: Synthetic heading");
   });
   it("retains raw hanging-space evidence without treating it as a visible glyph", () => {
-    const geometry = codePen();
+    const geometry = geometryFixture();
     geometry.rawText = [{ label: "hanging space", x: 724, y: 315, width: 4, height: 18 }];
     expect(canvasOverflowFailures(geometry)).toEqual([]);
     geometry.text.push({ label: "visible glyph", x: 724, y: 315, width: 4, height: 18 });
     expect(canvasOverflowFailures(geometry)).toContain("text outside email: visible glyph");
   });
   it("does not accept a normal element masquerading as background bleed", () => {
-    const geometry = codePen();
+    const geometry = geometryFixture();
     geometry.boxes[0].fullWidth = false;
     expect(canvasOverflowFailures(geometry)).toContain(
       "div.pm-section.pm-native-full-width outside email",
@@ -81,7 +77,7 @@ describe("canvas overflow evidence", () => {
     expect(canvasScreenshotBounds(geometry).width).toBe(648);
   });
   it("rejects a full-width surface or document that spills past the canvas", () => {
-    const geometry = codePen();
+    const geometry = geometryFixture();
     geometry.boxes[0].width = 820;
     geometry.documentOverflow = 20;
     geometry.canvas.scrollOverflow = 20;
@@ -95,7 +91,7 @@ describe("canvas overflow evidence", () => {
     );
   });
   it("retains the email crop when no full-width surface is present", () => {
-    const geometry = codePen();
+    const geometry = geometryFixture();
     geometry.boxes.shift();
     expect(canvasScreenshotBounds(geometry)).toEqual({ x: 76, y: 34, width: 648, height: 3071 });
   });

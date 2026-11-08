@@ -23,27 +23,32 @@ async function selectCanvasViewport(page: Page, viewport: "Desktop" | "Mobile") 
 }
 
 for (const viewport of ["Desktop", "Mobile"] as const) {
-  test(`Dropbox formatting spaces do not indent the ${viewport} canvas, including edit and undo`, async ({
+  test(`Imported formatting spaces do not indent the ${viewport} canvas, including edit and undo`, async ({
     page,
   }, testInfo) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: "Email template" })
-      .selectOption("community/reset-password/dropbox-reset-password");
+    await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+      name: "formatted-text.mjml",
+      mimeType: "application/xml",
+      buffer: Buffer.from(`<mjml><mj-body><mj-section><mj-column>
+        <mj-text>Someone recently requested an update. If this was you,
+          you can review it here:</mj-text>
+        <mj-text>If you don't want the update, delete
+          this message.</mj-text>
+        </mj-column></mj-section></mj-body></mjml>`),
+    });
     await selectCanvasViewport(page, viewport);
     const frame = page.frameLocator("#preview-frame");
     const paragraph = frame.locator(".pm-text").filter({ hasText: "Someone recently requested" });
     const deletion = frame.locator(".pm-text").filter({ hasText: "If you don't want" });
     const original =
-      "Someone recently requested a password change for your Dropbox account. If this was you, you can set a new password here:";
+      "Someone recently requested an update. If this was you, you can review it here:";
     await expect(paragraph).toBeVisible();
     expect(await paragraph.textContent()).toBe(original);
-    expect(await deletion.textContent()).toBe(
-      "If you don't want to change your password or didn't request this, just ignore and delete this message.",
-    );
+    expect(await deletion.textContent()).toBe("If you don't want the update, delete this message.");
     const initialSource = await exportedMjml(page);
-    expect(initialSource).toContain("you,\n          you can set a new password here:");
+    expect(initialSource).toContain("you,\n          you can review it here:");
     expect(initialSource).toContain("delete\n          this message.");
 
     await paragraph.getByText(original, { exact: true }).dblclick();
@@ -68,15 +73,13 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     await selectCanvasViewport(page, viewport);
     expect(await paragraph.textContent()).toBe(original);
     expect(await paragraph.textContent()).not.toMatch(/[\r\n\t]| {2}/);
-    expect(await deletion.textContent()).toBe(
-      "If you don't want to change your password or didn't request this, just ignore and delete this message.",
-    );
+    expect(await deletion.textContent()).toBe("If you don't want the update, delete this message.");
     expect(await deletion.textContent()).not.toMatch(/[\r\n\t]| {2}/);
     expect(await exportedMjml(page)).toBe(initialSource);
 
-    const path = testInfo.outputPath(`dropbox-canvas-${viewport.toLowerCase()}.png`);
+    const path = testInfo.outputPath(`formatted-text-canvas-${viewport.toLowerCase()}.png`);
     await page.screenshot({ path, fullPage: true });
-    await testInfo.attach(`Dropbox canvas after edit and undo (${viewport})`, {
+    await testInfo.attach(`Formatted text canvas after edit and undo (${viewport})`, {
       path,
       contentType: "image/png",
     });

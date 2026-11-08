@@ -89,6 +89,40 @@ describe("actual email artwork versus editor decorations", () => {
     expect(result.images[0]).toMatchObject({ alt: "Logo", naturalWidth: 24, naturalHeight: 12 });
   });
 
+  it("records immutable reference font failures without suppressing broken artwork", async () => {
+    const image = fixture('<img alt="Logo" src="https://example.com/logo.png">');
+    image.decode = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperties(image, {
+      complete: { value: true },
+      naturalWidth: { value: 24 },
+    });
+    readyFonts([{ status: "error", family: "Example", weight: "400" }]);
+    const options = {
+      decode: true,
+      recordedReferenceFontFailures: [{ family: "Example", weight: "400" }],
+    };
+    const result = await inspectArtwork(document.body, options);
+    expect(result.fontFailures).toEqual([
+      expect.objectContaining({ family: "Example", weight: "400", status: "error" }),
+    ]);
+    image.decode = vi.fn().mockRejectedValue(new Error("Actual broken artwork"));
+    await expect(inspectArtwork(document.body, options)).rejects.toThrow("Actual broken artwork");
+  });
+
+  it("rejects other faces even when a known reference failure is recorded", async () => {
+    fixture();
+    readyFonts([
+      { status: "error", family: "Example", weight: "400" },
+      { status: "error", family: "Heading", weight: "400" },
+    ]);
+    await expect(
+      inspectArtwork(document.body, {
+        decode: true,
+        recordedReferenceFontFailures: [{ family: "Example", weight: "400" }],
+      }),
+    ).rejects.toThrow("Font failed to load: Heading 400");
+  });
+
   it("does not mask failed font faces", async () => {
     fixture();
     readyFonts([{ status: "error", family: "Example", weight: "400" }]);

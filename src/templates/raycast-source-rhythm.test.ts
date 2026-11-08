@@ -120,9 +120,13 @@ describe.each([false, true])("Raycast source rhythm, safe round trip: %s", (roun
         .map((_i, node) => reference(node).attr("src"))
         .get(),
     );
-    expect($(".reference-heading > div").css("font-family")).toBe(
-      reference("body > table > tbody > tr > td").css("font-family")?.replace(/"/g, "'"),
-    );
+    expect($(".reference-heading > div").css("font-family")).toBe("inherit");
+    expect(
+      rule($, "body")
+        ["font-family"].value.replace(/\s*,\s*/g, ",")
+        .replace(/"/g, "'"),
+    ).toBe(reference("body > table > tbody > tr > td").css("font-family")?.replace(/"/g, "'"));
+    expect(result.html).not.toMatch(/fonts\.googleapis\.com|@font-face/);
     expect(source).toContain('width="600px"');
     expect(source).toContain('background-size="auto"');
     expect(source).toContain('background-position="center bottom"');

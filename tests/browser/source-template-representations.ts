@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
-import { expect, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { inspectArtwork } from "./artwork-evidence";
-import { waitForCanvasFontCss } from "./font-evidence";
+import { observeResources, waitForCanvasFontCss } from "./font-evidence";
 import { loadReactEmailReference } from "./reference-document";
 
 /** Original, exported HTML and editable canvas after fonts and images settle. */
@@ -11,6 +11,7 @@ export async function sourceTemplateRepresentations(
   name: string,
   width: number,
   readyText: string,
+  options: { referenceFont404s?: { family: string; weight: string; url: string }[] } = {},
 ) {
   await page.setViewportSize({ width: 1600, height: 1000 });
   await page.goto("/");
@@ -43,6 +44,7 @@ export async function sourceTemplateRepresentations(
   await canvas.evaluate(inspectArtwork, { decode: true });
   const reference = await page.context().newPage();
   const compiled = await page.context().newPage();
+  const referenceResources = observeResources(reference, []);
   try {
     await reference.setViewportSize({ width, height: 900 });
     await compiled.setViewportSize({ width, height: 900 });
@@ -53,7 +55,20 @@ export async function sourceTemplateRepresentations(
         "utf8",
       ),
     );
-    await reference.locator("body").evaluate(inspectArtwork, { decode: true });
+    const referenceArtwork = await reference.locator("body").evaluate(inspectArtwork, {
+      decode: true,
+      // Only explicitly identified upstream 404s are evidence rather than a
+      // fatal readiness failure. Other faces and transport errors remain strict.
+      recordedReferenceFontFailures: options.referenceFont404s?.filter(({ url }) =>
+        referenceResources().fontAndStylesheetResponses.some(
+          (response) => response.url === url && response.status === 404,
+        ),
+      ),
+    });
+    await test.info().attach("original-reference-resources.json", {
+      body: JSON.stringify({ ...referenceArtwork, resources: referenceResources() }, null, 2),
+      contentType: "application/json",
+    });
     await compiled.setContent(html, { waitUntil: "load" });
     await compiled.locator("body").evaluate(inspectArtwork, { decode: true });
     return { reference, compiled, canvas, roots: [compiled.locator("body"), canvas] };

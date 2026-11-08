@@ -1,24 +1,12 @@
 import { expect, test, type Locator } from "@playwright/test";
-import { list, parse } from "postcss";
-import { familyKey } from "../../src/canvas-css";
+import { list } from "postcss";
 import { inspectCanvasFontInputs } from "../../src/canvas-font-inputs";
-import { mjmlDefaultFonts } from "../../src/canvas-font-resolver";
 import { inspectArtwork } from "./artwork-evidence";
-import {
-  expectedCanvasFonts,
-  missingFontRegistrations,
-  waitForCanvasFontCss,
-  type CanvasFontCssEvidence,
-} from "./font-evidence";
+import { waitForCanvasFontCss, type CanvasFontCssEvidence } from "./font-evidence";
 import { sourceTemplateRepresentations } from "./source-template-representations";
 import { canvasOverflowFailures, measureCanvasGeometry } from "./template-overflow";
 
-// These two named entries in the source's system stack are MJML defaults.
-// Native canvases isolate their registrations; the other stack entries must
-// remain unchanged and in the same order.
-const implicitFonts = mjmlDefaultFonts
-  .filter(({ name }) => name === "Roboto" || name === "Ubuntu")
-  .map(({ name, href }) => ({ family: name, stylesheetUrl: href }));
+// The source uses installed system fallbacks, not imported web fonts.
 const familyStack = (value: string) =>
   list.comma(value).map((family) => family.replace(/^(['"])(.*)\1$/, "$2"));
 
@@ -232,8 +220,7 @@ test("Raycast retains source rhythm and decorations in compiled and native email
         result.captures.push(capture);
         try {
           if (kind === "canvas") {
-            const [inputs] = await root.evaluate(inspectCanvasFontInputs, true);
-            await waitForCanvasFontCss(root, expectedCanvasFonts(implicitFonts, inputs.scope));
+            await waitForCanvasFontCss(root, []);
             [capture.fontCss] = await root.evaluate(inspectCanvasFontInputs, true);
           }
           await root.evaluate(inspectArtwork, { decode: true });
@@ -300,25 +287,13 @@ test("Raycast retains source rhythm and decorations in compiled and native email
     expect(source.link.decoration).toBe("none");
     expect(source.divider.borderTopColor).toBe("rgb(234, 234, 234)");
     for (const { kind, value: actual, fontCss } of captures) {
-      const aliases: Record<string, string> = {};
       if (kind === "canvas") {
         expect(fontCss?.scope, `${width}px canvas scope`).toMatch(/^pm-canvas-/);
-        expect(fontCss?.status, `${width}px canvas font CSS`).toBe("ready");
+        expect(fontCss?.status, `${width}px canvas font CSS`).toBe("idle");
         expect(fontCss?.inputsCurrent, `${width}px current font inputs`).toBe(true);
         expect(fontCss?.errors, `${width}px font import errors`).toBeNull();
         expect(fontCss?.missingAliases, `${width}px missing font aliases`).toEqual([]);
-        const expected = expectedCanvasFonts(implicitFonts, fontCss!.scope);
-        expect(missingFontRegistrations(expected, actual!.fontFaces)).toEqual([]);
-        const registeredFamilies: string[] = [];
-        parse(fontCss!.css).walkAtRules("font-face", (rule) => {
-          rule.walkDecls("font-family", (declaration) => {
-            registeredFamilies.push(...familyStack(declaration.value));
-          });
-        });
-        for (const { family, alias } of expected) {
-          expect(registeredFamilies, `${width}px ${family} scoped @font-face`).toContain(alias);
-          aliases[familyKey(family)] = alias;
-        }
+        expect(fontCss?.css, `${width}px no accidental web fonts`).toBe("");
       }
       expect(actual!.overflow, `${width}px ${kind} document containment`).toBeLessThanOrEqual(1);
       for (const load of actual!.backgroundLoads)
@@ -348,10 +323,8 @@ test("Raycast retains source rhythm and decorations in compiled and native email
       for (const key of ["title", "cta", "caution", "best", "company", "address"] as const) {
         expect(actual![key].text, `${width}px ${kind} ${key} text`).toBe(source[key].text);
         // Compare every declared family, including fallbacks and ordering.
-        // Only aliases backed by this canvas's CSS and FontFace set are valid.
-        const expectedStack = familyStack(source[key].fontFamily).map(
-          (family) => aliases[familyKey(family)] ?? family,
-        );
+        // No web-font substitution or per-canvas alias belongs in this system stack.
+        const expectedStack = familyStack(source[key].fontFamily);
         expect(
           familyStack(actual![key].fontFamily),
           `${width}px ${kind} ${key} fontFamily`,

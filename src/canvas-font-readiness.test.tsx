@@ -114,7 +114,8 @@ it("rejects the old ready snapshot immediately after a child-only font update an
       inputsCurrent: false,
       missingAliases: [],
     });
-    expect(snapshot[0].families.some((family) => family.startsWith("Roboto-"))).toBe(true);
+    // Before discovery the newly authored family has no imported alias yet.
+    expect(snapshot[0].families).toContain("Roboto");
     await expect(waitForImportedFontCss([], async () => snapshot, 0)).rejects.toThrow(
       "current inline font families have not been observed",
     );
@@ -123,6 +124,9 @@ it("rejects the old ready snapshot immediately after a child-only font update an
     await act(async () => {});
     expect(canvas.dataset.pmCanvasFontStatus).toBe("loading");
   });
+  expect(
+    inspectCanvasFontInputs(canvas)[0].families.some((family) => family.startsWith("Roboto-")),
+  ).toBe(true);
   await act(async () => finishRoboto());
   Object.defineProperty(document, "fonts", {
     configurable: true,

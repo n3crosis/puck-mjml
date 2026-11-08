@@ -1,5 +1,11 @@
 /** Self-contained so Playwright can execute this function in the document. */
-export async function inspectArtwork(root: HTMLElement, options: { decode?: boolean } = {}) {
+export async function inspectArtwork(
+  root: HTMLElement,
+  options: {
+    decode?: boolean;
+    recordedReferenceFontFailures?: { family: string; weight: string }[];
+  } = {},
+) {
   const document = root.ownerDocument;
   const images = Array.from(root.querySelectorAll("img"));
   const decorations = new Set(
@@ -37,7 +43,14 @@ export async function inspectArtwork(root: HTMLElement, options: { decode?: bool
               .filter((result) => result.status === "rejected")
               .map((result) => String(result.reason)),
             ...Array.from(document.fonts)
-              .filter((font) => font.status === "error")
+              .filter(
+                (font) =>
+                  font.status === "error" &&
+                  !options.recordedReferenceFontFailures?.some(
+                    ({ family, weight }) =>
+                      font.family.replace(/["']/g, "") === family && font.weight === weight,
+                  ),
+              )
               .map((font) => `Font failed to load: ${font.family} ${font.weight}`),
           ];
           if (messages.length) throw new Error(messages.join("\n"));
@@ -67,6 +80,12 @@ export async function inspectArtwork(root: HTMLElement, options: { decode?: bool
     };
   };
   return {
+    // Original references are immutable upstream output. Their unrelated failed
+    // fonts can be recorded without preventing checks of a loaded heading face.
+    // The default remains strict for compiled HTML and the editor canvas.
+    fontFailures: Array.from(document.fonts ?? [])
+      .filter((font) => font.status === "error")
+      .map(({ family, weight, style, status }) => ({ family, weight, style, status })),
     images: artwork.map(evidence),
     editorDecorations: Array.from(decorations, (image) => ({
       reason: "ProseMirror source-less cursor separator",

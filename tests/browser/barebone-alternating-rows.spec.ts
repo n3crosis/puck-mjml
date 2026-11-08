@@ -287,8 +287,30 @@ for (const width of [800, 390]) {
           }
         }
       }
+      await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();
       await page.getByRole("button", { name: /^undo$/i }).click();
       await expect(canvas.getByText(titles[0], { exact: true })).toBeVisible();
+      // Puck restores UI along with document data. The initial history entry
+      // uses Desktop, even when the edit was made at Mobile. Verify that
+      // restoration, then compare geometry at the original measurement width.
+      await expect
+        .poll(() =>
+          frame
+            .locator("html")
+            .evaluate((element) => element.ownerDocument.defaultView!.innerWidth),
+        )
+        .toBe(800);
+      await expect(page.getByRole("button", { name: "Switch to Desktop viewport" })).toBeDisabled();
+      if (width === 390) await control.click();
+      await expect
+        .poll(() =>
+          frame
+            .locator("html")
+            .evaluate((element) => element.ownerDocument.defaultView!.innerWidth),
+        )
+        .toBe(width);
+      await waitForCanvasFontCss(canvas);
+      await canvas.evaluate(inspectArtwork, { decode: true });
       expect(await geometry(canvas)).toEqual(actuals.canvas);
     } finally {
       await compiled.close();

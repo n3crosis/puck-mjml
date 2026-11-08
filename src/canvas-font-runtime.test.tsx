@@ -96,6 +96,27 @@ describe("canvas font lifecycle", () => {
     expect(fetcher).not.toHaveBeenCalled();
   });
 
+  it("preserves head-only system fallbacks without importing or aliasing default families", async () => {
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    const stack =
+      "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif";
+    await render(
+      <EmailCanvas
+        fontFamily="inherit"
+        headStyles={[{ css: `body { font-family: ${stack} !important; }`, inline: "head" }]}
+      >
+        <Copy family="inherit" />
+      </EmailCanvas>,
+    );
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(canvas().dataset.pmCanvasFontStatus).toBe("idle");
+    const css = container.querySelector("[data-pm-canvas-css]")!.textContent;
+    expect(css).toContain(stack);
+    expect(css).not.toMatch(/(?:Roboto|Ubuntu)-pm-canvas/);
+    expect(container.querySelector("[data-pm-canvas-fonts]")).toBeNull();
+  });
+
   it("isolates imported CSS for same-name faces in concurrent editors", async () => {
     vi.stubGlobal(
       "fetch",
@@ -217,6 +238,39 @@ describe("canvas font lifecycle", () => {
     expect(canvases[1].dataset.pmCanvasFontStatus).toBe("ready");
     expect(fetcher).toHaveBeenCalledExactlyOnceWith(
       "https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,700",
+    );
+  });
+
+  it("keeps a head-only OpenSans face distinct from the implicit Open Sans family", async () => {
+    const fetcher = vi.fn(async () => cssResponse(face("Open Sans", "collision-default.woff2")));
+    vi.stubGlobal("fetch", fetcher);
+    const editor = (family: string) => (
+      <EmailCanvas headStyles={[{ css: face("OpenSans", "head-custom.woff2"), inline: "head" }]}>
+        <Copy family={family} />
+      </EmailCanvas>
+    );
+    await render(editor("OpenSans, Arial"));
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(canvas().dataset.pmCanvasFontStatus).toBe("idle");
+    await render(editor("'Open Sans', OpenSans, Arial"));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+    // A prior canvas may have cached the built-in CSS; registration is still
+    // required here and must not share the custom head face's alias.
+    expect(imported().textContent).toContain(`OpenSans-${scopeOf(canvas())}`);
+    expect(canvas().dataset.pmCanvasFontStatus).toBe("ready");
+    expect(container.querySelector("p")!.style.fontFamily).toContain(
+      `OpenSans-2-${scopeOf(canvas())}`,
+    );
+    await render(editor("OpenSans, Arial"));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+    expect(canvas().dataset.pmCanvasFontStatus).toBe("idle");
+    expect(container.querySelector("[data-pm-canvas-fonts]")).toBeNull();
+    expect(container.querySelector("p")!.style.fontFamily).toContain(
+      `OpenSans-${scopeOf(canvas())}`,
     );
   });
 

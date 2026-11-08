@@ -73,7 +73,7 @@ export function inlineStyleFontFamilies(stylesheets: CanvasStyleSheet[]): string
 export function useImplicitCanvasFonts(
   canvasRef: RefObject<HTMLDivElement | null>,
   explicit: unknown,
-  aliases: FontAliasMap,
+  aliasesRef: RefObject<FontAliasMap>,
   stylesheets: CanvasStyleSheet[],
 ): { imports: FontImport[]; settled: boolean; fingerprint?: string } {
   const [observed, setObserved] = useState<{
@@ -83,16 +83,15 @@ export function useImplicitCanvasFonts(
   } | null>(null);
   let key: string;
   try {
-    key = JSON.stringify({ explicit, aliases, inline: inlineStyleFontFamilies(stylesheets) });
+    key = JSON.stringify({ explicit, inline: inlineStyleFontFamilies(stylesheets) });
   } catch {
-    key = JSON.stringify({ explicit: [], aliases, inline: [] });
+    key = JSON.stringify({ explicit: [], inline: [] });
   }
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const options = JSON.parse(key) as {
       explicit: unknown;
-      aliases: FontAliasMap;
       inline: string[];
     };
     const refresh = () => {
@@ -100,7 +99,7 @@ export function useImplicitCanvasFonts(
       const next = resolveImplicitFontImports(
         [...families, ...options.inline],
         options.explicit,
-        options.aliases,
+        aliasesRef.current,
       );
       setObserved((previous) =>
         previous?.key === key &&
@@ -121,7 +120,7 @@ export function useImplicitCanvasFonts(
       attributeFilter: ["style"],
     });
     return () => observer.disconnect();
-  }, [canvasRef, key]);
+  }, [canvasRef, aliasesRef, key]);
   // Never expose a prior document's defaults while the new canvas is inspected.
   return {
     imports: observed?.key === key ? observed.imports : [],

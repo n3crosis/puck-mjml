@@ -6,13 +6,14 @@ Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT licens
     <mj-title>Log in with this magic link.</mj-title>
     <mj-preview>Log in with this magic link.</mj-preview>
     <mj-attributes>
-      <mj-all
-        font-family="-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&#x27;Helvetica Neue&#x27;,sans-serif"
-      />
+      <mj-all font-family="inherit" />
       <mj-text padding="0px" />
     </mj-attributes>
     <mj-style>
       body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+          "Helvetica Neue", sans-serif !important;
         padding: 8px !important;
       }
       .reference-heading > div {

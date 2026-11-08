@@ -22,7 +22,7 @@ import {
   type FontAliasMap,
 } from "./canvas-css";
 import { useCanvasFonts } from "./canvas-fonts";
-import { mjmlDefaultFonts, useImplicitCanvasFonts } from "./canvas-font-resolver";
+import { useImplicitCanvasFonts } from "./canvas-font-resolver";
 import {
   resolveTailwindScript,
   mountTailwindCanvas,
@@ -120,28 +120,30 @@ export function EmailCanvas({
   };
   const importsKey = stableKey(imports);
   const stylesKey = stableKey(stylesheets);
+  // Read the effective aliases during observation without resetting discovery
+  // when a newly discovered import changes the rendered font names.
+  const aliasesRef = useRef<FontAliasMap>({});
+  const implicit = useImplicitCanvasFonts(canvasRef, imports, aliasesRef, stylesheets);
+  const implicitKey = stableKey(implicit.imports);
   const importedAliases = useMemo<FontAliasMap>(
     () =>
       createFontAliases(
-        [
-          ...imports
-            .map((entry) => (entry as { name?: unknown })?.name)
-            .filter((name): name is string => typeof name === "string"),
-          ...mjmlDefaultFonts.map(({ name }) => name),
-        ],
+        [...imports, ...implicit.imports]
+          .map((entry) => (entry as { name?: unknown })?.name)
+          .filter((name): name is string => typeof name === "string"),
         scope,
       ),
-    [importsKey, scope],
+    [importsKey, implicitKey, scope],
   );
   const scopedCss = useMemo(
     () => scopeDocumentCss(stylesheets, { scope, fontAliases: importedAliases }),
     [stylesKey, scope, importedAliases],
   );
   const aliases = scopedCss.fontAliases;
+  aliasesRef.current = aliases;
   useEffect(() => {
     if (scopedCss.notes.length) reportCanvasNotes(scopedCss.notes);
   }, [scopedCss]);
-  const implicit = useImplicitCanvasFonts(canvasRef, imports, aliases, stylesheets);
   const fonts = useCanvasFonts([...imports, ...implicit.imports], aliases);
   const importedFamilies = [...imports, ...implicit.imports]
     .map((entry) => (entry as { name?: unknown })?.name)

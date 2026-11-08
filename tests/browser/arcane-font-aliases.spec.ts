@@ -59,6 +59,18 @@ for (const width of [800, 390]) {
         name,
         width,
         heading,
+        {
+          // This immutable upstream Inter 400 URL returns 404. Record that
+          // exact failure without replacing the source or relaxing the loaded
+          // Instrument Serif heading assertions below.
+          referenceFont404s: [
+            {
+              family: "Inter",
+              weight: "400",
+              url: "https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+            },
+          ],
+        },
       );
       try {
         const original = await typography(reference.getByText(heading, { exact: true }));

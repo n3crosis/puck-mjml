@@ -26,7 +26,11 @@ function useLinkActive(editor: MenuProps["editor"]) {
   return useSyncExternalStore(subscribeToLinks, getLinkActive, getLinkActive);
 }
 
-function LinkMenuControl({ editor, readOnly }: Pick<MenuProps, "editor" | "readOnly">) {
+function LinkMenuControl({
+  editor,
+  editorState,
+  readOnly,
+}: Pick<MenuProps, "editor" | "editorState" | "readOnly">) {
   const [editingLink, setEditingLink] = useState(false);
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
@@ -61,7 +65,9 @@ function LinkMenuControl({ editor, readOnly }: Pick<MenuProps, "editor" | "readO
       <RichTextMenu.Control
         icon={<LinkIcon size={16} aria-hidden="true" />}
         title={linkActive ? "Edit link" : "Add link"}
-        disabled={!editor || readOnly}
+        // Puck renders this control before its lazy menu state is ready. That
+        // initial menu is replaced, so accepting a click there loses the form.
+        disabled={!editor || !editorState || readOnly}
         active={linkActive || editingLink}
         onClick={(event) => {
           event.stopPropagation();
@@ -136,7 +142,7 @@ function LinkMenuControl({ editor, readOnly }: Pick<MenuProps, "editor" | "readO
   );
 }
 
-function EmailRichTextMenu({ editor, readOnly }: MenuProps) {
+function EmailRichTextMenu({ editor, editorState, readOnly }: MenuProps) {
   return (
     <div className="pm-richtext-toolbar">
       <RichTextMenu>
@@ -157,7 +163,7 @@ function EmailRichTextMenu({ editor, readOnly }: MenuProps) {
           <RichTextMenu.CodeBlock />
           <RichTextMenu.HorizontalRule />
         </RichTextMenu.Group>
-        <LinkMenuControl editor={editor} readOnly={readOnly} />
+        <LinkMenuControl editor={editor} editorState={editorState} readOnly={readOnly} />
       </RichTextMenu>
     </div>
   );
@@ -168,7 +174,7 @@ function EmailRichTextMenu({ editor, readOnly }: MenuProps) {
  * it stays in the dark action bar and wraps within the selected block. The
  * full menu remains available in the sidebar.
  */
-function EmailInlineRichTextMenu({ editor, readOnly }: MenuProps) {
+function EmailInlineRichTextMenu({ editor, editorState, readOnly }: MenuProps) {
   return (
     <div className="pm-richtext-toolbar pm-richtext-toolbar--inline">
       <RichTextMenu>
@@ -178,7 +184,7 @@ function EmailInlineRichTextMenu({ editor, readOnly }: MenuProps) {
           <RichTextMenu.Underline />
           <RichTextMenu.Strikethrough />
         </RichTextMenu.Group>
-        <LinkMenuControl editor={editor} readOnly={readOnly} />
+        <LinkMenuControl editor={editor} editorState={editorState} readOnly={readOnly} />
       </RichTextMenu>
     </div>
   );

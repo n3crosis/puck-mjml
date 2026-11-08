@@ -1,5 +1,5 @@
 import { expect, test, type Locator } from "@playwright/test";
-import { intrinsicCases } from "./fixtures/native-intrinsic-layout-source";
+import { hasIntrinsicLabel, intrinsicCases } from "./fixtures/native-intrinsic-layout-source";
 
 async function waitForEditableCanvas(canvas: Locator) {
   // The fixture has a 3-by-3 table plus one text label in each group case.
@@ -52,6 +52,14 @@ for (const width of [390, 800])
       if (editing) await waitForEditableCanvas(canvas);
       const groups = [];
       for (const id of intrinsicCases) {
+        await expect(canvas.locator(`.${id}-symbol .pm-native-column-table`)).toHaveCSS(
+          "table-layout",
+          "fixed",
+        );
+        await expect(canvas.locator(`.${id}-label .pm-native-column-table`)).toHaveCSS(
+          "table-layout",
+          hasIntrinsicLabel(id) ? "auto" : "fixed",
+        );
         const actual = await groupGeometry(canvas.locator(`.${id}`), id),
           expected = await groupGeometry(compiled.locator(`.${id}`), id);
         groups.push({ id, actual, expected });
@@ -87,6 +95,7 @@ test("empty imported cells remain keyboard editable and restore geometry after u
   const table = canvas.locator(".intrinsic-table > table");
   const initial = await tableGeometry(table);
   const source = await page.getByLabel("Exported MJML").textContent();
+  await expect(page.getByLabel("Editor MJML")).toHaveText(source!);
   const first = table.locator("tr").first().getByRole("textbox");
   // Puck can briefly expose an uninitialized contenteditable fallback before
   // the real Tiptap textbox mounts. Only tab once all three editors are ready.
@@ -110,6 +119,7 @@ test("empty imported cells remain keyboard editable and restore geometry after u
   await page.getByRole("button", { name: "Undo change" }).click();
   await expect(table.locator(".pm-imported-empty-cell")).toHaveCount(1);
   await expect(page.getByLabel("Exported MJML")).toHaveText(source!);
+  await expect(page.getByLabel("Editor MJML")).toHaveText(source!);
   expect(await tableGeometry(table)).toEqual(initial);
   await page.getByRole("button", { name: "Redo change" }).click();
   await expect(table.locator(".pm-imported-empty-cell")).toHaveCount(0);

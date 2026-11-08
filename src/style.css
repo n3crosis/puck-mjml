@@ -186,9 +186,9 @@
 .pm-native-column-table,
 .pm-native-content-table {
   display: table;
-  /* Compiled column tables use automatic layout. Fixed layout makes a 100%
-     table claim all available space inside an auto-width inline column/group. */
-  table-layout: auto;
+  /* Fixed layout keeps desktop image widths from becoming responsive minimums.
+     Only an explicitly intrinsic column opts its own structural tables in. */
+  table-layout: var(--pm-native-table-layout, fixed);
   width: 100%;
   border-spacing: 0;
 }
@@ -224,61 +224,56 @@
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
-.pm-text p {
+.pm-text:not(:where(.pm-imported-text)) p {
   margin: 0;
 }
-.pm-text h1,
-.pm-text h2,
-.pm-text h3,
-.pm-text h4,
-.pm-text h5,
-.pm-text h6 {
+.pm-text:not(:where(.pm-imported-text)) h1,
+.pm-text:not(:where(.pm-imported-text)) h2,
+.pm-text:not(:where(.pm-imported-text)) h3,
+.pm-text:not(:where(.pm-imported-text)) h4,
+.pm-text:not(:where(.pm-imported-text)) h5,
+.pm-text:not(:where(.pm-imported-text)) h6 {
   margin: 0 0 0.5em;
   font-weight: bold;
 }
-.pm-text p:last-child,
-.pm-text h1:last-child,
-.pm-text h2:last-child,
-.pm-text h3:last-child,
-.pm-text h4:last-child,
-.pm-text h5:last-child,
-.pm-text h6:last-child {
+.pm-text:not(:where(.pm-imported-text)) p:last-child,
+.pm-text:not(:where(.pm-imported-text)) h1:last-child,
+.pm-text:not(:where(.pm-imported-text)) h2:last-child,
+.pm-text:not(:where(.pm-imported-text)) h3:last-child,
+.pm-text:not(:where(.pm-imported-text)) h4:last-child,
+.pm-text:not(:where(.pm-imported-text)) h5:last-child,
+.pm-text:not(:where(.pm-imported-text)) h6:last-child {
   margin-bottom: 0;
 }
-.pm-text h1 {
+.pm-text:not(:where(.pm-imported-text)) h1 {
   font-size: 1.7em;
   line-height: 1.15;
 }
-.pm-text h2 {
+.pm-text:not(:where(.pm-imported-text)) h2 {
   font-size: 1.3em;
   line-height: 1.2;
 }
-.pm-text h3,
-.pm-text h4,
-.pm-text h5,
-.pm-text h6 {
+.pm-text:not(:where(.pm-imported-text)) h3,
+.pm-text:not(:where(.pm-imported-text)) h4,
+.pm-text:not(:where(.pm-imported-text)) h5,
+.pm-text:not(:where(.pm-imported-text)) h6 {
   line-height: inherit;
 }
-.pm-text h3 {
+.pm-text:not(:where(.pm-imported-text)) h3 {
   font-size: 1.17em;
 }
-.pm-text h4 {
+.pm-text:not(:where(.pm-imported-text)) h4 {
   font-size: 1em;
 }
-.pm-text h5 {
+.pm-text:not(:where(.pm-imported-text)) h5 {
   font-size: 0.83em;
 }
-.pm-text h6 {
+.pm-text:not(:where(.pm-imported-text)) h6 {
   font-size: 0.67em;
 }
-/* Imported copy keeps native browser paragraph/heading styles until edited. */
-.pm-text.pm-imported-text p,
-.pm-text.pm-imported-text h1,
-.pm-text.pm-imported-text h2,
-.pm-text.pm-imported-text h3,
-.pm-text.pm-imported-text h4,
-.pm-text.pm-imported-text h5,
-.pm-text.pm-imported-text h6 {
+/* Keep native typography above host tag resets, but below scoped authored CSS.
+   Editor typography excludes imported copy so this fallback needs only one class. */
+.pm-imported-text :where(p, h1, h2, h3, h4, h5, h6) {
   margin: revert;
   font-size: revert;
   font-weight: revert;

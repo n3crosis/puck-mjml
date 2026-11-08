@@ -213,7 +213,10 @@ function columnStyle(a: NativeCanvasAttributes): CSSProperties {
     textAlign: "left",
     direction: (a.direction || "ltr") as CSSProperties["direction"],
     verticalAlign: (a["vertical-align"] || "top") as CSSProperties["verticalAlign"],
-  };
+    // Keep ordinary responsive columns constrained. The scoped CSS adapter can
+    // opt this column into intrinsic tables when an authored auto width wins.
+    "--pm-native-table-layout": "fixed",
+  } as CSSProperties;
 }
 function ColumnBox({
   attributes: a,

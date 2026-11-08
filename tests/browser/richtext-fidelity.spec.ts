@@ -119,8 +119,10 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     const originalSource = await exportedMjml(page);
     const block = canvas.locator(".pm-text").filter({ hasText: "Primary label" });
     await block.locator("a:not([href])").first().dblclick();
-    const editor = block.locator('[contenteditable="true"]');
+    const editor = block.getByRole("textbox");
     await expect(editor).toBeVisible();
+    await editor.click();
+    await expect(editor).toBeFocused();
     await editor.press("ControlOrMeta+End");
     await page.keyboard.insertText(" Edited.");
     await expect(block).toContainText("Edited.");
@@ -200,9 +202,10 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     const initial = await exportedMjml(page);
     const cell = canvas.locator(".details td").filter({ hasText: "DATE" });
     await cell.getByText("Sample date", { exact: true }).dblclick();
-    const editor = cell.locator('[contenteditable="true"]');
+    const editor = cell.getByRole("textbox");
     await expect(editor).toBeVisible();
     await editor.click();
+    await expect(editor).toBeFocused();
     await editor.press("ControlOrMeta+End");
     await page.keyboard.insertText(" Edited.");
     await expect(cell).toContainText("Sample date Edited.");
@@ -226,4 +229,150 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       contentType: "image/png",
     });
   });
+
+  test(`authored paragraph resets match compiled ${viewport} layout through edit and undo`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1600, height: 1000 });
+    await page.goto("/");
+    await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+      name: "paragraph-cascade.mjml",
+      mimeType: "application/xml",
+      buffer: Buffer.from(`<mjml><mj-head>
+        <mj-attributes><mj-all font-family="Arial" font-size="14px" line-height="28px" />
+          <mj-text padding="0px" /><mj-table padding="0px" cellpadding="0" cellspacing="0" />
+        </mj-attributes><mj-style>
+          p { margin:0; font-size:14px; font-weight:500; line-height:28px; }
+          h2 { margin:0; font-size:21px; font-weight:400; line-height:26px; }
+          p + p { margin-top:12px; }
+          .paragraph-details p + p { line-height:20px; }
+          .paragraph-details td { width:50%; vertical-align:top; }
+          @media (max-width:479px) {
+            .paragraph-details td { display:block; width:auto; }
+          }
+        </mj-style></mj-head><mj-body width="600px"><mj-section padding="0px"><mj-column>
+          <mj-text css-class="paragraph-copy"><h2>Authored heading</h2><p>Text label</p><p>Text value</p></mj-text>
+          <mj-table css-class="paragraph-details"><tr>
+            <td><p>First label</p><p>First value</p></td>
+            <td><p>Second label</p><p>Second value</p></td>
+          </tr></mj-table>
+          <mj-text css-class="paragraph-after">Following content</mj-text>
+        </mj-column></mj-section></mj-body></mjml>`),
+    });
+    await selectCanvasViewport(page, viewport);
+    const canvas = page.frameLocator("#preview-frame");
+    await expect(canvas.locator(".paragraph-details p")).toHaveCount(4);
+    const original = await exportedMjml(page);
+
+    const measure = (frame: FrameLocator) =>
+      frame.locator(".paragraph-copy").evaluate((copy) => {
+        const document = copy.ownerDocument;
+        const view = document.defaultView!;
+        const origin = copy.getBoundingClientRect();
+        const geometry = (element: Element) => {
+          const box = element.getBoundingClientRect();
+          return {
+            x: box.x - origin.x,
+            y: box.y - origin.y,
+            width: box.width,
+            height: box.height,
+          };
+        };
+        return {
+          blocks: [".paragraph-copy", ".paragraph-details", ".paragraph-after"].map((selector) =>
+            geometry(document.querySelector(selector)!),
+          ),
+          paragraphs: Array.from(
+            document.querySelectorAll(
+              ".paragraph-copy h2, .paragraph-copy p, .paragraph-details p",
+            ),
+            (paragraph) => {
+              const style = view.getComputedStyle(paragraph);
+              return {
+                box: geometry(paragraph),
+                marginTop: style.marginTop,
+                marginBottom: style.marginBottom,
+                fontSize: style.fontSize,
+                fontWeight: style.fontWeight,
+                lineHeight: style.lineHeight,
+              };
+            },
+          ),
+        };
+      });
+
+    await page.getByRole("button", { name: "Preview email", exact: true }).click();
+    await selectPreviewViewport(page, viewport);
+    const compiled = page.frameLocator('iframe[title="Rendered email"]');
+    await expect(compiled.locator(".paragraph-details p")).toHaveCount(4);
+    const expected = await measure(compiled);
+    expect(expected.blocks[1].height).toBe(viewport === "Mobile" ? 120 : 60);
+    await page.getByRole("button", { name: "Close preview", exact: true }).click();
+    await selectCanvasViewport(page, viewport);
+    await expect.poll(() => measure(canvas)).toEqual(expected);
+
+    const cell = canvas.locator(".paragraph-details td").filter({ hasText: "Second label" });
+    await cell.getByText("Second value", { exact: true }).dblclick();
+    const editor = cell.getByRole("textbox");
+    await expect(editor).toBeVisible();
+    await editor.click();
+    await expect(editor).toBeFocused();
+    await editor.press("ControlOrMeta+End");
+    await page.keyboard.insertText(" Edited.");
+    await expect(cell).toContainText("Second value Edited.");
+    await expect.poll(() => exportedMjml(page)).toContain("Second value Edited.");
+    await expect.poll(() => measure(canvas)).toEqual(expected);
+    await page.getByRole("button", { name: /^undo$/i }).click();
+    await expect.poll(() => exportedMjml(page)).toBe(original);
+    await expect
+      .poll(() =>
+        canvas.locator("html").evaluate((element) => element.ownerDocument.defaultView!.innerWidth),
+      )
+      .toBe(800);
+    await selectCanvasViewport(page, viewport);
+    await expect.poll(() => measure(canvas)).toEqual(expected);
+  });
 }
+
+test("imported native defaults resist host tag resets without adding synthetic paragraph margins", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
+    name: "native-typography.mjml",
+    mimeType: "application/xml",
+    buffer: Buffer.from(`<mjml><mj-head><mj-attributes>
+      <mj-text font-family="Arial" font-size="14px" line-height="28px" />
+    </mj-attributes></mj-head><mj-body><mj-section><mj-column>
+      <mj-text css-class="native-defaults"><p>First</p><h2>Heading</h2><p>Middle</p><p>Last</p></mj-text>
+      <mj-text css-class="synthetic-paragraph">Plain source</mj-text>
+    </mj-column></mj-section></mj-body></mjml>`),
+  });
+  const canvas = page.frameLocator("#preview-frame");
+  const middle = canvas.locator(".native-defaults p").filter({ hasText: "Middle" });
+  const heading = canvas.locator(".native-defaults h2");
+  await expect(middle).toBeVisible();
+  await canvas.locator("html").evaluate((element) => {
+    const style = element.ownerDocument.createElement("style");
+    style.textContent =
+      "p, h1, h2, h3, h4, h5, h6 { margin:37px; font-size:38px; font-weight:100; line-height:9px; }";
+    element.ownerDocument.head.append(style);
+  });
+  await expect(middle).toHaveCSS("margin-top", "14px");
+  await expect(middle).toHaveCSS("margin-bottom", "14px");
+  await expect(middle).toHaveCSS("font-size", "14px");
+  await expect(middle).toHaveCSS("font-weight", "400");
+  await expect(middle).toHaveCSS("line-height", "28px");
+  await expect(heading).toHaveCSS("font-size", "21px");
+  await expect(heading).toHaveCSS("font-weight", "700");
+  await expect(heading).toHaveCSS("line-height", "28px");
+  const synthetic = canvas.locator(".synthetic-paragraph");
+  await synthetic.getByText("Plain source", { exact: true }).dblclick();
+  const editor = synthetic.getByRole("textbox");
+  await expect(editor).toBeVisible();
+  await editor.click();
+  await expect(editor).toBeFocused();
+  await expect(synthetic.locator("p")).toHaveCSS("margin", "0px");
+  await expect(synthetic.locator("p")).toHaveCSS("font-size", "14px");
+  await expect(synthetic.locator("p")).toHaveCSS("line-height", "28px");
+});

@@ -264,6 +264,59 @@ interface ScopeState {
   aliases: FontAliasMap;
   keyframes: Map<string, string>;
   fontFaces: Map<AtRule, string>;
+  nativeIntrinsicWidths: boolean;
+}
+
+/** A bounded mirror, not a second CSS cascade or a computed-value resolver. */
+function canMirrorNativeWidths(roots: Root[], notes: string[]): boolean {
+  let intrinsic = false;
+  let ambiguous = false;
+  const literalWidth =
+    /^(?:auto|0|(?:\d+(?:\.\d+)?|\.\d+)(?:%|px|em|rem|ex|ch|cap|ic|lh|rlh|vw|vh|vi|vb|vmin|vmax|svw|svh|lvw|lvh|dvw|dvh|cm|mm|q|in|pt|pc))$/i;
+  for (const root of roots)
+    root.walkDecls((declaration) => {
+      const property = declaration.prop.toLowerCase();
+      if (property === "all" || property.includes("\\")) ambiguous = true;
+      if (property !== "width") return;
+      const value = declaration.value.trim();
+      if (declaration.important && value.toLowerCase() === "auto") intrinsic = true;
+      if (
+        !literalWidth.test(value) ||
+        /[\\]|\/\*/.test(declaration.raws.value?.raw ?? value) ||
+        declaration.parent?.type !== "rule" ||
+        declaration.parent.nodes.some((node) => node.type === "rule" || node.type === "atrule")
+      )
+        ambiguous = true;
+      if (declaration.parent?.type === "rule")
+        for (const selector of splitTopLevel(declaration.parent.selector, ",")) {
+          const tokens = tokenizeSelector(selector.trim());
+          if (
+            !tokens ||
+            /[>+~]\s*$/.test(selector) ||
+            tokens.compounds.some(
+              (part) => !/^(?:\*|[a-zA-Z_][\w-]*)?(?:[.#][a-zA-Z_][\w-]*)*$/.test(part),
+            ) ||
+            tokens.combinators.some((part) => ![" ", ">", "+", "~"].includes(part))
+          )
+            ambiguous = true;
+        }
+      for (
+        let parent = declaration.parent?.parent;
+        parent && parent.type !== "root";
+        parent = parent.parent
+      )
+        if (
+          parent.type === "rule" ||
+          (parent.type === "atrule" &&
+            !["media", "supports", "container", "layer"].includes(parent.name.toLowerCase()))
+        )
+          ambiguous = true;
+    });
+  if (intrinsic && ambiguous)
+    notes.push(
+      "Custom CSS uses unsupported width selectors/values, nesting, animations, or all resets; intrinsic native-column sizing stays constrained on the canvas.",
+    );
+  return intrinsic && !ambiguous;
 }
 
 function rewriteDeclaration(declaration: Declaration, state: ScopeState): void {
@@ -640,6 +693,25 @@ function scopeRule(rule: Rule, state: ScopeState, label: string): void {
   }
   if (scoped.length) rule.selector = scoped.join(", ");
   else rule.remove();
+  // Native columns have an inline definite width and a matching fixed-table
+  // default. Only a winning authored auto width should expose intrinsic sizes.
+  // Mirror width declarations at the same specificity/order/importance, scoped
+  // to columns; the browser still decides which declaration wins. Ambiguous
+  // computed values and resets disable this optimization for the document.
+  const widths = rule.nodes.filter(
+    (node): node is Declaration => node.type === "decl" && node.prop.toLowerCase() === "width",
+  );
+  if (scoped.length && state.nativeIntrinsicWidths && widths.length) {
+    rule.cloneAfter({
+      selector: scoped.map((selector) => `${selector}:where(.pm-native-inline-column)`).join(", "),
+      nodes: widths.map((node) =>
+        node.clone({
+          prop: "--pm-native-table-layout",
+          value: node.value.trim().toLowerCase() === "auto" ? "auto" : "fixed",
+        }),
+      ),
+    });
+  }
   // Nested rules and resets have ordering/box semantics this bounded adapter
   // does not model. Keep them on the existing scoped stylesheet path only.
   if (
@@ -809,6 +881,7 @@ export function scopeDocumentCss(
     aliases: { ...options.fontAliases },
     keyframes: new Map(),
     fontFaces: new Map(),
+    nativeIntrinsicWidths: false,
   };
   const roots: { root: Root; label: string }[] = [];
   stylesheets.forEach((entry, index) => {
@@ -823,6 +896,12 @@ export function scopeDocumentCss(
       );
     }
   });
+  // Normal authored widths cannot override a native column's inline width.
+  // Avoid any additional CSS for documents without an explicit intrinsic opt-in.
+  state.nativeIntrinsicWidths = canMirrorNativeWidths(
+    roots.map(({ root }) => root),
+    notes,
+  );
   // Decide retained structure first: names inside omitted ancestors must not
   // redirect unrelated retained rules to registrations that will never exist.
   for (const { root, label } of roots) scopeGroup(root, state, label);

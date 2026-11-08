@@ -35,7 +35,12 @@ test("compatibility detects current compiled CSS and exposes client-specific cav
     "href",
     "https://www.caniemail.com/features/css-border-radius/",
   );
-  await panel.getByLabel("Email client", { exact: true }).selectOption("apple-mail/macos");
+  // The label contains the select, so getByLabel includes option text. Match
+  // the exact accessible role/name, as confirmed in the CI accessibility tree.
+  const client = panel.getByRole("combobox", { name: "Email client", exact: true });
+  await expect(client).toHaveAccessibleName("Email client");
+  await client.selectOption("apple-mail/macos");
+  await expect(client).toHaveValue("apple-mail/macos");
   await expect(panel.getByText("No matching features.")).toBeVisible();
   await panel.getByLabel("Needs review only").uncheck();
   await expect(feature.locator("summary")).toContainText("Supported");
@@ -107,7 +112,9 @@ for (const width of [390, 768]) {
     await tab.click();
     const panel = page.getByRole("tabpanel", { name: "Compatibility", exact: true });
     await expect(panel.getByLabel("Analysis summary")).toBeVisible();
-    await expect(panel.getByLabel("Email client", { exact: true })).toBeVisible();
+    const client = panel.getByRole("combobox", { name: "Email client", exact: true });
+    await expect(client).toBeVisible();
+    await expect(client).toHaveAccessibleName("Email client");
     await panel.getByLabel("Find a feature").fill("not-a-feature");
     await expect(panel.getByText("No matching features.")).toBeVisible();
     expect(

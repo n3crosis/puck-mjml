@@ -25,6 +25,8 @@ async function exportedMjml(page: Page) {
   await dialog.getByRole("button", { name: "MJML", exact: true }).click();
   const source = await dialog.getByRole("textbox", { name: "MJML source" }).inputValue();
   await dialog.getByRole("button", { name: "Close export" }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "Export email", exact: true })).toBeFocused();
   return source;
 }
 
@@ -58,18 +60,38 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       ),
     ).toEqual(widths);
     await preview.getByRole("button", { name: "Close preview", exact: true }).click();
+    await expect(preview).not.toBeVisible();
+    await expect(page.getByRole("button", { name: "Preview email", exact: true })).toBeFocused();
     // Select from the component padding, not a navigating source link.
     await block.click({ position: { x: 2, y: 2 } });
-    const editor = block.locator('[contenteditable="true"]');
+    const editor = block.getByRole("textbox");
+    await expect(editor).toHaveCount(1);
     await expect(editor).toBeVisible();
+    await editor.click({ position: { x: 2, y: 2 } });
+    await expect(editor).toBeFocused();
     await editor.press("ControlOrMeta+Home");
     for (let index = 0; index < 7; index++) await editor.press("ArrowRight");
+    await expect
+      .poll(() =>
+        editor.evaluate((node) => {
+          const selection = node.ownerDocument.getSelection();
+          return selection?.isCollapsed
+            ? selection.anchorNode?.parentElement?.closest("a")?.textContent
+            : null;
+        }),
+      )
+      .toBe("Second");
     const controls = canvas.locator(".pm-richtext-toolbar--inline");
+    // Puck lazily replaces its initial menu on first focus. The standard
+    // controls become enabled only once that replacement has completed.
+    await expect(controls.getByRole("button", { name: "Bold", exact: true })).toBeEnabled();
     await controls.getByRole("button", { name: "Edit link", exact: true }).click();
-    await controls
-      .getByRole("textbox", { name: "Link URL", exact: true })
-      .fill("https://example.com/changed");
+    const linkInput = controls.getByRole("textbox", { name: "Link URL", exact: true });
+    await expect(linkInput).toBeFocused();
+    await expect(linkInput).toHaveValue("https://example.com/shared");
+    await linkInput.fill("https://example.com/changed");
     await controls.getByRole("button", { name: "Apply", exact: true }).click();
+    await expect(editor).toBeFocused();
     await expect(anchors.nth(1)).toHaveAttribute("href", "https://example.com/changed");
     for (const index of [0, 2, 3])
       await expect(anchors.nth(index)).toHaveAttribute("href", "https://example.com/shared");

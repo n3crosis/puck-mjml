@@ -1,4 +1,13 @@
-export const intrinsicCases = ["shrink-ltr", "shrink-rtl", "fixed-ltr", "fixed-rtl"] as const;
+export const intrinsicCases = [
+  "shrink-ltr",
+  "shrink-rtl",
+  "fixed-ltr",
+  "fixed-rtl",
+  "reset-ltr",
+  "reset-rtl",
+  "normal-ltr",
+] as const;
+export const hasIntrinsicLabel = (id: string) => !/^(reset|normal)-/.test(id);
 
 /** Synthetic intrinsic-width and empty-cell cases, independent of any template. */
 export function intrinsicLayoutSource() {
@@ -7,6 +16,8 @@ export function intrinsicLayoutSource() {
     <mj-style>
       p { margin:0; }
       .intrinsic-auto { width:auto!important; max-width:none; }
+      .intrinsic-reset { width:120px!important; }
+      .intrinsic-normal { width:auto; }
       .intrinsic-symbol { width:32px!important; max-width:32px; }
       .intrinsic-table td { vertical-align:middle; }
       .intrinsic-table p { margin:0; }
@@ -28,7 +39,7 @@ export function intrinsicLayoutSource() {
         <mj-column padding="0px" width="32px" vertical-align="middle" css-class="${id}-symbol intrinsic-symbol">
           <mj-spacer height="28px" padding="0px" />
         </mj-column>
-        <mj-column padding="0px" width="208px" vertical-align="middle" css-class="${id}-label intrinsic-auto">
+        <mj-column padding="0px" width="208px" vertical-align="middle" css-class="${id}-label ${id.startsWith("normal") ? "intrinsic-normal" : `intrinsic-auto${id.startsWith("reset") ? " intrinsic-reset" : ""}`}">
           <mj-text padding="0px" font-size="14px" line-height="18px">Compact label</mj-text>
         </mj-column>
       </mj-group>

@@ -61,7 +61,16 @@ afterEach(() => {
     .forEach((cleanup) => cleanup());
 });
 
-function renderMenu(menu: typeof renderEmailRichTextMenu, editor: Editor) {
+type MenuState = Parameters<typeof renderEmailRichTextMenu>[0]["editorState"];
+// Native formatting controls are stubbed above; this custom control only uses
+// the public null-versus-initialized menu state, not individual format flags.
+const readyMenuState = {} as NonNullable<MenuState>;
+
+function mountMenu(
+  menu: typeof renderEmailRichTextMenu,
+  editor: Editor,
+  editorState: MenuState = readyMenuState,
+) {
   const container = document.createElement("div");
   document.body.append(container);
   const root = createRoot(container);
@@ -69,13 +78,57 @@ function renderMenu(menu: typeof renderEmailRichTextMenu, editor: Editor) {
     act(() => root.unmount());
     container.remove();
   });
-  act(() => {
-    root.render(menu({ editor, readOnly: false, editorState: null, children: null }));
-  });
-  return container;
+  const render = (state: MenuState) =>
+    act(() => {
+      root.render(menu({ editor, readOnly: false, editorState: state, children: null }));
+    });
+  render(editorState);
+  return { container, render };
+}
+
+function renderMenu(menu: typeof renderEmailRichTextMenu, editor: Editor) {
+  return mountMenu(menu, editor).container;
 }
 
 describe("rich text link control", () => {
+  it.each([
+    ["sidebar", renderEmailRichTextMenu],
+    ["inline", renderEmailInlineMenu],
+  ] as const)("waits for the %s menu state before accepting a link action", async (_name, menu) => {
+    const editor = new Editor({
+      extensions: [Document, Paragraph, Text, Link],
+      content: '<p><a href="https://example.com/original">Selected</a> copy</p>',
+    });
+    cleanups.push(() => editor.destroy());
+    editor.commands.setTextSelection(3);
+    const { container, render } = mountMenu(menu, editor, null);
+    const action = () =>
+      container.querySelector<HTMLButtonElement>('button[aria-label="Edit link"]')!;
+    expect(action().disabled).toBe(true);
+    await act(async () => action().click());
+    expect(container.querySelector(".pm-richtext-link")).toBeNull();
+    expect(editor.getHTML()).toContain('href="https://example.com/original"');
+
+    render(readyMenuState);
+    expect(action().disabled).toBe(false);
+    await act(async () => action().click());
+    const input = container.querySelector<HTMLInputElement>(".pm-richtext-link input")!;
+    expect(document.activeElement).toBe(input);
+    expect(input.value).toBe("https://example.com/original");
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+        input,
+        "https://example.com/revised",
+      );
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await act(async () =>
+      input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })),
+    );
+    expect(editor.getHTML()).toContain('href="https://example.com/revised">Selected</a> copy');
+    expect(container.querySelector(".pm-richtext-link")).toBeNull();
+  });
+
   it.each([
     ["sidebar", renderEmailRichTextMenu],
     ["inline", renderEmailInlineMenu],

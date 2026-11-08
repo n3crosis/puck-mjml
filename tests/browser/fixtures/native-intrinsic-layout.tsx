@@ -14,6 +14,9 @@ import "@puckeditor/core/puck.css";
 import "../../../src/style.css";
 
 const config = createEmailConfig();
+// Match EmailEditor's imported-document initialization: omitted root controls
+// are inheritance, not visual defaults to insert into Puck's initial history.
+if (config.root) config.root.defaultProps = undefined;
 const initial = fromMjml(intrinsicLayoutSource()).document;
 const editing = new URLSearchParams(window.location.search).has("editing");
 const usePuck = createUsePuck();
@@ -24,6 +27,9 @@ function History() {
       <button onClick={() => api.history.back()}>Undo change</button>
       <button onClick={() => api.history.forward()}>Redo change</button>
       <output aria-label="History index">{api.history.index}</output>
+      <output aria-label="Editor MJML" hidden>
+        {toMjml(api.appState.data as EmailDocument)}
+      </output>
     </>
   );
 }

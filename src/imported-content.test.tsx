@@ -1,5 +1,8 @@
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { Render, type Data } from "@puckeditor/core";
 import { load } from "cheerio";
+import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { createEmailConfig } from "./config";
@@ -16,6 +19,149 @@ const textBlock = (document: EmailDocument) =>
   (document.root.props!.sections![0]!.props.column as EmailBlock[])[0]!;
 const canvas = (document: EmailDocument) =>
   load(renderToStaticMarkup(<Render config={createEmailConfig()} data={document as Data} />));
+
+const typographyTags = ["p", "h1", "h2", "h3", "h4", "h5", "h6"];
+const hostTypographyReset = `${typographyTags.join(",")} {
+  margin:37px; font-size:38px; font-weight:100; line-height:9px;
+}`;
+
+function styledCanvas(document: EmailDocument, appStylesLast = false, hostReset = true) {
+  const window = new Window({
+    settings: {
+      enableJavaScriptEvaluation: false,
+      disableCSSFileLoading: true,
+      disableJavaScriptFileLoading: true,
+      enableImageFileLoading: false,
+      disableIframePageLoading: true,
+    },
+  });
+  const dom = window.document;
+  dom.body.innerHTML = canvas(document).html();
+  const stylesheet = dom.createElement("style");
+  stylesheet.textContent = readFileSync(new URL("./style.css", import.meta.url), "utf8");
+  (appStylesLast ? dom.body : dom.head).append(stylesheet);
+  const host = dom.createElement("style");
+  host.textContent = hostReset ? hostTypographyReset : "";
+  dom.body.append(host);
+  return { window, dom };
+}
+
+describe("imported typography cascade", () => {
+  for (const type of ["Text", "Table"]) {
+    it.each([false, true])(
+      `lets authored tag rules override ${type} defaults before and after edits, app styles last=%s`,
+      (appStylesLast) => {
+        const html = typographyTags.map((tag) => `<${tag}>${tag}</${tag}>`).join("");
+        const content =
+          type === "Text"
+            ? `<mj-text>${html}</mj-text>`
+            : `<mj-table><tr><td>${html}</td></tr></mj-table>`;
+        const document = fromMjml(
+          `<mjml><mj-head><mj-style>${typographyTags.join(",")} {
+            margin:2px 3px 4px 5px; font-size:18px; font-weight:500; line-height:24px;
+          }</mj-style></mj-head><mj-body><mj-section><mj-column>${content}</mj-column></mj-section></mj-body></mjml>`,
+        ).document;
+        const block = textBlock(document);
+        const text =
+          type === "Text" ? block.props : (block.props.bodyRows as TableRow[])[0]!.cells[0]!;
+        for (const edited of [false, true]) {
+          if (edited) text.content = html.replace("</p>", " edited</p>");
+          const { window, dom } = styledCanvas(document, appStylesLast);
+          const paragraphs = dom.querySelectorAll(".pm-imported-text > div > *");
+          expect(paragraphs).toHaveLength(typographyTags.length);
+          for (const paragraph of paragraphs) {
+            const style = window.getComputedStyle(paragraph);
+            expect(style.margin).toBe("2px 3px 4px 5px");
+            expect(style.fontSize).toBe("18px");
+            expect(style.fontWeight).toBe("500");
+            expect(style.lineHeight).toBe("24px");
+          }
+          window.happyDOM.abort();
+        }
+      },
+    );
+  }
+
+  it("keeps native fallbacks above host tag resets and preserves synthetic wrapper margins", () => {
+    const document = fixture("<h2>Heading</h2><p>First</p><p>Last</p>");
+    const { window, dom } = styledCanvas(document);
+    for (const paragraph of dom.querySelectorAll(".pm-imported-text > div > *")) {
+      const style = window.getComputedStyle(paragraph);
+      // Happy DOM exposes revert rather than computing the UA stylesheet.
+      // Browser coverage checks the resulting native spacing and typography.
+      expect(style.margin).toBe("revert");
+      expect(style.fontSize).toBe("revert");
+      expect(style.fontWeight).toBe("revert");
+    }
+    const synthetic = dom.createElement("div");
+    synthetic.className = "pm-text pm-imported-text pm-imported-inline-text";
+    synthetic.innerHTML = "<p>Synthetic paragraph</p>";
+    dom.body.append(synthetic);
+    expect(window.getComputedStyle(synthetic.firstElementChild!).margin).toBe("0px");
+    window.happyDOM.abort();
+  });
+
+  it("retains editor-created paragraph and heading defaults", () => {
+    const { window, dom } = styledCanvas(fixture("Plain text"), false, false);
+    const legacy = dom.createElement("div");
+    legacy.className = "pm-text";
+    legacy.innerHTML = "<p>First</p><h1>Heading</h1><h2>Last</h2>";
+    dom.body.append(legacy);
+    expect(window.getComputedStyle(legacy.querySelector("p")!).margin).toBe("0px");
+    const heading = window.getComputedStyle(legacy.querySelector("h1")!);
+    expect(heading.marginTop).toBe("0px");
+    expect(heading.marginRight).toBe("0px");
+    expect(Number.parseFloat(heading.marginBottom)).toBeGreaterThan(0);
+    expect(heading.fontWeight).toBe("bold");
+    expect(heading.lineHeight).toBe("1.15");
+    expect(window.getComputedStyle(legacy.querySelector("h2")!).marginBottom).toBe("0px");
+    window.happyDOM.abort();
+  });
+
+  it.each([false, true])(
+    "preserves installed Puck boundary spacing, Puck CSS last=%s",
+    (puckLast) => {
+      const { window, dom } = styledCanvas(
+        fixture("<p>First</p><h2>Heading</h2><p>Middle</p><p>Last</p>"),
+        false,
+        false,
+      );
+      const puckCss = readFileSync(
+        createRequire(import.meta.url).resolve("@puckeditor/core/puck.css"),
+        "utf8",
+      );
+      const editorClass = /\.(_RichTextEditor_\w+)\s+\.ProseMirror\s*\{/.exec(puckCss)![1];
+      const content = dom.querySelector(".pm-imported-text > div")!;
+      content.innerHTML = `<div class="${editorClass}"><div class="rich-text"><div class="tiptap ProseMirror" role="textbox" contenteditable="true">${content.innerHTML}</div></div></div>`;
+      const style = dom.createElement("style");
+      style.textContent = puckCss;
+      if (puckLast) dom.head.append(style);
+      else dom.head.prepend(style);
+      const paragraphs = [...content.querySelectorAll("p")];
+      const margins = () =>
+        paragraphs.map((paragraph) => {
+          const computed = window.getComputedStyle(paragraph);
+          return [computed.marginTop, computed.marginBottom];
+        });
+      // Puck already trims these edges with 0,3,1 specificity, above both the
+      // former 0,2,1 imported reset and the new 0,1,0 native fallback.
+      expect(margins()).toEqual([
+        ["0px", "revert"],
+        ["revert", "revert"],
+        ["revert", "0px"],
+      ]);
+      const authored = dom.createElement("style");
+      authored.textContent = ".pm-canvas p { margin:0; }";
+      dom.body.append(authored);
+      expect(margins()).toEqual([
+        ["0px", "0px"],
+        ["0px", "0px"],
+        ["0px", "0px"],
+      ]);
+      window.happyDOM.abort();
+    },
+  );
+});
 
 describe("safe imported Text provenance", () => {
   it.each([false, true])(

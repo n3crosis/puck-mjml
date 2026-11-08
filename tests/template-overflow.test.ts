@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   canvasOverflowFailures,
   canvasScreenshotBounds,
+  isContainedImageBorderPaint,
+  type CanvasBox,
   type CanvasGeometry,
 } from "./browser/template-overflow";
 
@@ -94,5 +96,86 @@ describe("canvas overflow evidence", () => {
     const geometry = geometryFixture();
     geometry.boxes.shift();
     expect(canvasScreenshotBounds(geometry)).toEqual({ x: 76, y: 34, width: 648, height: 3071 });
+  });
+});
+
+describe("contained image border paint", () => {
+  function imageBox(): CanvasBox {
+    return {
+      label: "a.",
+      x: 100,
+      y: 100,
+      width: 64,
+      height: 66,
+      fullWidth: false,
+      scrollOverflow: 2,
+      imageBorderPaint: {
+        image: { x: 100, y: 100, width: 66, height: 66 },
+        outer: { x: 100, y: 100, width: 66, height: 66 },
+        contentWidth: 64,
+        borderLeft: 1,
+        borderRight: 1,
+        boxSizing: "content-box",
+        overflowX: "visible",
+        overflowY: "visible",
+      },
+    };
+  }
+  it("preserves raw local overflow without failing contained percentage-width image borders", () => {
+    const geometry = geometryFixture();
+    const box = imageBox();
+    geometry.boxes.push(box);
+    expect(isContainedImageBorderPaint(box, geometry.email)).toBe(true);
+    expect(canvasOverflowFailures(geometry)).toEqual([]);
+    expect(box.scrollOverflow).toBe(2);
+    expect(box.imageBorderPaint?.image.width).toBe(66);
+  });
+  it("uses measured asymmetric borders rather than a fixed border allowance", () => {
+    const box = imageBox();
+    box.imageBorderPaint!.borderRight = 3;
+    box.imageBorderPaint!.image.width = 68;
+    box.imageBorderPaint!.outer.width = 68;
+    box.scrollOverflow = 4;
+    expect(isContainedImageBorderPaint(box, geometryFixture().email)).toBe(true);
+  });
+  it.each([
+    ["missing renderer-owned structure", (box: CanvasBox) => delete box.imageBorderPaint],
+    ["clipped overflow", (box: CanvasBox) => (box.imageBorderPaint!.overflowX = "hidden")],
+    ["scrollable overflow", (box: CanvasBox) => (box.imageBorderPaint!.overflowX = "auto")],
+    ["vertical clipping", (box: CanvasBox) => (box.imageBorderPaint!.overflowY = "hidden")],
+    ["border-box image", (box: CanvasBox) => (box.imageBorderPaint!.boxSizing = "border-box")],
+    ["enlarged content", (box: CanvasBox) => (box.imageBorderPaint!.contentWidth = 65)],
+    ["extra image width", (box: CanvasBox) => (box.imageBorderPaint!.image.width = 67)],
+    ["extra scroll extent", (box: CanvasBox) => (box.scrollOverflow = 3)],
+    ["shifted image", (box: CanvasBox) => (box.imageBorderPaint!.image.x += 1)],
+    ["image outside outer block", (box: CanvasBox) => (box.imageBorderPaint!.outer.width = 65)],
+    ["vertical overflow", (box: CanvasBox) => (box.imageBorderPaint!.outer.height = 65)],
+  ] as const)("still fails %s", (_name, mutate) => {
+    const geometry = geometryFixture();
+    const box = imageBox();
+    mutate(box);
+    geometry.boxes.push(box);
+    expect(canvasOverflowFailures(geometry)).toContain("a. scroll overflow");
+  });
+  it("cannot exempt global, image or text bounds", () => {
+    const geometry = geometryFixture();
+    const box = imageBox();
+    box.x = geometry.email.x + geometry.email.width - 65;
+    box.imageBorderPaint!.image.x = box.x;
+    box.imageBorderPaint!.outer.x = box.x;
+    geometry.boxes.push(box);
+    geometry.documentOverflow = 2;
+    geometry.canvas.scrollOverflow = 2;
+    geometry.boxes[2].width = 640;
+    geometry.text[0].width = 650;
+    expect(canvasOverflowFailures(geometry)).toEqual(
+      expect.arrayContaining([
+        "a. scroll overflow",
+        "document scroll overflow",
+        "canvas scroll overflow",
+        "img outside email",
+        "text outside email: Synthetic heading",
+      ]),
+    );
   });
 });

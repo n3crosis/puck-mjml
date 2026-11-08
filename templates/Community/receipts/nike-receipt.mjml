@@ -1,7 +1,7 @@
 <!-- Port of React Email's MIT-licensed demo; copyright React Email contributors.
 Source: https://github.com/resend/react-email/blob/674d8ec2804b86be5d99156383fb1810179847bf/apps/demo/emails/Community/receipts/nike-receipt.tsx
 Public upstream PreviewProps only. See THIRD_PARTY_NOTICES.md for the MIT license.
-Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 leading for readable mobile cards; desktop retains the source line-height of 1 and source image/text insets. Equal native recommendation columns remain an approximation of the source auto-layout cell widths. The tracking row stacks before its 222px button border box (220px source content plus two 1px borders) outgrows a half-column. Footer navigation retains the source 370px auto-layout table on desktop and fills the available width with stacked links at narrow widths. Recommendation bottom spacing retains the source 20px row + 22px section, split across the 24px native card gap and 18px section gap. -->
+Responsive adaptation: the product row retains its source 260px artwork and stacks before the 518px row no longer fits. Order metadata retains the source 170px first cell and stacks at narrow widths. Recommendation pairs stack at narrow widths and use 1.4 leading for readable mobile cards; desktop retains the source line-height of 1 and source image/text insets. Equal native recommendation columns remain an approximation of the source auto-layout cell widths. The tracking row stacks before its 222px button border box (220px source content plus two 1px borders) outgrows a half-column. Footer navigation retains the source 370px auto-layout table on desktop and fills the available width with stacked links at narrow widths. Recommendation bottom spacing retains the source 20px row + 22px section, split across the 24px native card gap and 18px section gap. -->
 <mjml>
   <mj-head>
     <mj-title>Your Nike order is on its way</mj-title>
@@ -30,6 +30,15 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
       .nike-source-control p,
       .nike-source-control > span {
         line-height: normal !important;
+      }
+      .nike-order-details > table {
+        font-weight: 700;
+      }
+      .nike-order-details p + p {
+        margin-top: 12px;
+        font-weight: 500;
+        line-height: 1.4;
+        color: #6f6f6f;
       }
       .nike-store-navigation > table {
         max-width: 100%;
@@ -60,6 +69,14 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
         color: #000000;
         text-decoration: none;
       }
+      /* The source product row needs 616px: 518px + 80px section padding,
+         2px card border, and 16px body padding. */
+      @media only screen and (max-width: 615px) {
+        .nike-product-column {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+      }
       /* Two 222px columns need 542px: 444px + 80px section padding,
          2px card border, and 16px body padding. Recommendations keep 480px. */
       @media only screen and (max-width: 541px) {
@@ -69,6 +86,10 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
         }
       }
       @media only screen and (max-width: 479px) {
+        .nike-order-details > table > tbody > tr > td {
+          display: block;
+          width: auto !important;
+        }
         .nike-store-navigation > table {
           width: 100% !important;
         }
@@ -221,7 +242,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
         </mj-column>
       </mj-section>
       <mj-section padding="40px">
-        <mj-column padding="0px" width="50%">
+        <mj-column padding="0px" width="260px" css-class="nike-product-column">
           <mj-image
             src="https://demo.react.email/static/nike-product.png"
             alt="Brazil 2022/23 Stadium Away Women&#x27;s Nike Dri-FIT Soccer Jersey"
@@ -230,7 +251,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
             padding="0px"
           />
         </mj-column>
-        <mj-column padding="0px 0px 0px 12px" width="50%">
+        <mj-column padding="0px 0px 0px 12px" width="258px" css-class="nike-product-column">
           <mj-text padding="0px" font-size="14px" line-height="2" font-weight="500"
             >Brazil 2022/23 Stadium Away Women's Nike Dri-FIT Soccer Jersey</mj-text
           >
@@ -245,30 +266,23 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
         </mj-column>
       </mj-section>
       <mj-section padding="22px 40px 40px">
-        <mj-column padding="0px" width="33%">
-          <mj-text padding="0px" font-size="14px" line-height="2" font-weight="700"
-            >Order Number</mj-text
-          >
-          <mj-text
-            padding="12px 0px 0px"
+        <mj-column padding="0px">
+          <mj-table
+            padding="0px"
             font-size="14px"
-            line-height="1.4"
-            font-weight="500"
-            color="#6F6F6F"
-            >C0106373851</mj-text
-          >
-        </mj-column>
-        <mj-column padding="0px" width="67%">
-          <mj-text padding="0px" font-size="14px" line-height="2" font-weight="700"
-            >Order Date</mj-text
-          >
-          <mj-text
-            padding="12px 0px 0px"
-            font-size="14px"
-            line-height="1.4"
-            font-weight="500"
-            color="#6F6F6F"
-            >Sep 22, 2022</mj-text
+            line-height="2"
+            table-layout="auto"
+            css-class="nike-order-details"
+            ><tr>
+              <td style="width: 170px; vertical-align: top">
+                <p>Order Number</p>
+                <p>C0106373851</p>
+              </td>
+              <td style="vertical-align: top">
+                <p>Order Date</p>
+                <p>Sep 22, 2022</p>
+              </td>
+            </tr></mj-table
           >
         </mj-column>
       </mj-section>
@@ -486,7 +500,7 @@ Responsive adaptation: recommendation pairs stack at narrow widths and use 1.4 l
         </mj-column>
       </mj-section>
       <mj-section padding="32px 40px 22px" background-color="#F7F7F7">
-        <mj-column padding="0px" width="7%">
+        <mj-column padding="0px" width="7%" vertical-align="middle">
           <mj-image
             src="https://demo.react.email/static/nike-phone.png"
             alt="Nike Phone"

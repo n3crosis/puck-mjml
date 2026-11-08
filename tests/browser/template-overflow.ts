@@ -4,6 +4,17 @@ export type CanvasBox = HorizontalBox & {
   label: string;
   fullWidth: boolean;
   scrollOverflow: number;
+  /** Raw evidence for MJML's percentage-width image border paint. */
+  imageBorderPaint?: {
+    image: HorizontalBox;
+    outer: HorizontalBox;
+    contentWidth: number;
+    borderLeft: number;
+    borderRight: number;
+    boxSizing: string;
+    overflowX: string;
+    overflowY: string;
+  };
 };
 export type CanvasGeometry = {
   viewport: number;
@@ -36,6 +47,49 @@ export function measureCanvasGeometry(email: Element): CanvasGeometry {
     !!element.querySelector(":scope > .pm-native-layout-content");
   const elements = Array.from(email.querySelectorAll("*")).filter(visible);
   const fullWidthElements = elements.filter(fullWidth);
+  const imageBorderPaint = (element: Element): CanvasBox["imageBorderPaint"] => {
+    // Only the renderer's direct, otherwise empty image sizing box qualifies.
+    // Authored links, arbitrary descendants and generated content remain ordinary
+    // overflow. Keep the measurements even when their classification will fail.
+    if (
+      !element.matches("a[data-pm-mjml-image-width]") ||
+      !element.parentElement?.matches(".pm-image") ||
+      element.children.length !== 1 ||
+      !element.firstElementChild?.matches("img") ||
+      Array.from(element.childNodes).some(
+        (node) => node.nodeType === view.Node.TEXT_NODE && node.textContent?.trim(),
+      )
+    )
+      return undefined;
+    const image = element.firstElementChild;
+    const style = view.getComputedStyle(element);
+    const imageStyle = view.getComputedStyle(image);
+    const number = (value: string) => Number.parseFloat(value) || 0;
+    if (
+      ["::before", "::after"].some(
+        (pseudo) => !["none", "normal"].includes(view.getComputedStyle(element, pseudo).content),
+      ) ||
+      [style, imageStyle].some(
+        (value) =>
+          value.transform !== "none" ||
+          number(value.paddingLeft) !== 0 ||
+          number(value.paddingRight) !== 0,
+      ) ||
+      number(style.borderLeftWidth) !== 0 ||
+      number(style.borderRightWidth) !== 0
+    )
+      return undefined;
+    return {
+      image: box(image),
+      outer: box(element.parentElement),
+      contentWidth: number(imageStyle.width),
+      borderLeft: number(imageStyle.borderLeftWidth),
+      borderRight: number(imageStyle.borderRightWidth),
+      boxSizing: imageStyle.boxSizing,
+      overflowX: style.overflowX,
+      overflowY: style.overflowY,
+    };
+  };
   const boxes = elements.map((element) => ({
     ...box(element),
     label: `${element.tagName.toLowerCase()}.${Array.from(element.classList).join(".")}`,
@@ -45,6 +99,9 @@ export function measureCanvasGeometry(email: Element): CanvasGeometry {
     scrollOverflow: fullWidthElements.some((child) => element.contains(child))
       ? 0
       : element.scrollWidth - element.clientWidth,
+    ...(element.matches("a[data-pm-mjml-image-width]")
+      ? { imageBorderPaint: imageBorderPaint(element) }
+      : {}),
   }));
   const text: CanvasGeometry["text"] = [];
   const rawText: CanvasGeometry["text"] = [];
@@ -108,6 +165,35 @@ export function measureCanvasGeometry(email: Element): CanvasGeometry {
   };
 }
 
+/** MJML's image table can stay content-width while its borders paint outside it. */
+export function isContainedImageBorderPaint(item: CanvasBox, email: HorizontalBox): boolean {
+  const evidence = item.imageBorderPaint;
+  if (!evidence) return false;
+  const { image, outer, contentWidth, borderLeft, borderRight } = evidence;
+  const border = borderLeft + borderRight;
+  const close = (actual: number, expected: number) => Math.abs(actual - expected) <= 0.05;
+  const contains = (boundary: HorizontalBox) =>
+    image.x >= boundary.x - 0.05 &&
+    image.x + image.width <= boundary.x + boundary.width + 0.05 &&
+    image.y >= boundary.y - 0.05 &&
+    image.y + image.height <= boundary.y + boundary.height + 0.05;
+  return (
+    evidence.boxSizing === "content-box" &&
+    evidence.overflowX === "visible" &&
+    evidence.overflowY === "visible" &&
+    border > 0 &&
+    close(contentWidth, item.width) &&
+    close(image.width, contentWidth + border) &&
+    close(image.x, item.x) &&
+    close(image.y, item.y) &&
+    close(image.height, item.height) &&
+    item.scrollOverflow >= Math.floor(border) &&
+    item.scrollOverflow <= Math.ceil(border) &&
+    contains(outer) &&
+    contains(email)
+  );
+}
+
 export function canvasOverflowFailures(geometry: CanvasGeometry, tolerance = 1): string[] {
   const failures: string[] = [];
   const inside = (item: HorizontalBox, boundary: HorizontalBox) =>
@@ -129,7 +215,8 @@ export function canvasOverflowFailures(geometry: CanvasGeometry, tolerance = 1):
     ) {
       failures.push(`${item.label} does not match full canvas width`);
     }
-    if (item.scrollOverflow > tolerance) failures.push(`${item.label} scroll overflow`);
+    if (item.scrollOverflow > tolerance && !isContainedImageBorderPaint(item, geometry.email))
+      failures.push(`${item.label} scroll overflow`);
   }
   for (const item of geometry.text) {
     if (!inside(item, geometry.email)) failures.push(`text outside email: ${item.label}`);

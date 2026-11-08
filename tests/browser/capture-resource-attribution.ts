@@ -272,9 +272,12 @@ export async function inspectCaptureResources(
     const faces = Array.from(document.fonts ?? []);
     const faceKey = (name: string, weight: string, style: string) =>
       [family(name), weight || "normal", style || "normal"].join("|");
-    const knownFaces = new Set<string>();
+    const knownFaces = new Map<string, number>();
     const visited = new Set<CSSStyleSheet>();
-    const readSheet = (sheet: CSSStyleSheet | null, href?: string) => {
+    const hasMediaCondition = (media?: string) =>
+      Boolean(media && media.trim().toLowerCase() !== "all");
+    const readSheet = (sheet: CSSStyleSheet | null, href?: string, conditional = false) => {
+      conditional ||= Boolean(sheet?.disabled) || hasMediaCondition(sheet?.media?.mediaText);
       const url = (href || sheet?.href) && absolute(href || sheet!.href!);
       const dependency: CaptureResource | null = url
         ? { kind: "stylesheet", url, source: "current stylesheet", required: true, ready: false }
@@ -284,18 +287,28 @@ export async function inspectCaptureResources(
       if (sheet) visited.add(sheet);
       try {
         if (!sheet) throw new Error("Stylesheet has no CSSOM");
-        const readRules = (rules: CSSRuleList) => {
+        const readRules = (rules: CSSRuleList, conditional: boolean) => {
           for (const rule of Array.from(rules)) {
             if (rule.type === 3) {
               const imported = rule as CSSImportRule;
-              readSheet(imported.styleSheet, imported.href);
+              readSheet(
+                imported.styleSheet,
+                imported.href,
+                conditional ||
+                  hasMediaCondition(imported.media?.mediaText) ||
+                  ("supportsText" in imported && Boolean(imported.supportsText)),
+              );
             } else if (rule.type === 5) {
               const css = (rule as CSSFontFaceRule).style;
               const name = css.getPropertyValue("font-family");
               const weight = css.getPropertyValue("font-weight") || "normal";
               const style = css.getPropertyValue("font-style") || "normal";
               const key = faceKey(name, weight, style);
-              knownFaces.add(key);
+              knownFaces.set(key, (knownFaces.get(key) ?? 0) + 1);
+              // Do not build a cascade engine or let an inactive declaration
+              // impersonate a same-descriptor programmatic FontFace.
+              if (conditional)
+                uncertain("font", `Font source under unevaluated CSS conditions: ${key}`);
               const matching = faces.filter(
                 (face) => faceKey(face.family, face.weight, face.style) === key,
               );
@@ -313,12 +326,15 @@ export async function inspectCaptureResources(
                   required:
                     usedFamilies.has(family(name)) ||
                     matching.some(({ status }) => status !== "unloaded"),
-                  ready: matching.length > 0 && matching.every(({ status }) => status === "loaded"),
+                  ready:
+                    !conditional &&
+                    matching.length > 0 &&
+                    matching.every(({ status }) => status === "loaded"),
                 });
-            } else if ("cssRules" in rule) readRules((rule as CSSGroupingRule).cssRules);
+            } else if ("cssRules" in rule) readRules((rule as CSSGroupingRule).cssRules, true);
           }
         };
-        readRules(sheet.cssRules);
+        readRules(sheet.cssRules, conditional);
         if (dependency) dependency.ready = true;
       } catch {
         uncertain("font", `Unreadable stylesheet: ${url || "inline"}`);
@@ -332,8 +348,23 @@ export async function inspectCaptureResources(
       readSheet(sheet);
     for (const link of document.querySelectorAll<HTMLLinkElement>('link[rel~="stylesheet"]'))
       if (!link.sheet) readSheet(null, link.href);
-    if (faces.some((face) => !knownFaces.has(faceKey(face.family, face.weight, face.style))))
-      uncertain("font", "FontFaceSet contains faces without inspectable CSS sources");
+    const registeredFaces = new Map<string, number>();
+    for (const face of faces) {
+      const key = faceKey(face.family, face.weight, face.style);
+      registeredFaces.set(key, (registeredFaces.get(key) ?? 0) + 1);
+    }
+    for (const [key, count] of registeredFaces) {
+      const declarations = knownFaces.get(key) ?? 0;
+      if (!declarations)
+        uncertain("font", "FontFaceSet contains faces without inspectable CSS sources");
+      // FontFace does not expose its source URL. Descriptor membership, or even
+      // equal duplicate counts, cannot identify a colliding programmatic face.
+      else if (declarations !== 1 || count !== 1)
+        uncertain(
+          "font",
+          `Indistinguishable font sources for ${key}: ${declarations} CSS declarations, ${count} registered faces`,
+        );
+    }
     for (const font of expectedFonts) {
       const matching = faces.filter((face) => family(face.family) === family(font.alias));
       resources.push({

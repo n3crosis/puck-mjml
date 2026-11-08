@@ -186,7 +186,9 @@
 .pm-native-column-table,
 .pm-native-content-table {
   display: table;
-  table-layout: fixed;
+  /* Compiled column tables use automatic layout. Fixed layout makes a 100%
+     table claim all available space inside an auto-width inline column/group. */
+  table-layout: auto;
   width: 100%;
   border-spacing: 0;
 }
@@ -514,6 +516,17 @@
   padding: 0;
   border: 0;
   text-align: left;
+}
+/* ProseMirror needs an empty paragraph for a caret even when the imported cell
+   has no markup. Suppress only that synthetic line while it is unfocused;
+   keyboard focus restores a normal editable line without rewriting the source. */
+.pm-table .pm-imported-empty-cell {
+  line-height: inherit;
+}
+.pm-table .pm-imported-empty-cell:not(:focus-within),
+.pm-table .pm-imported-empty-cell:not(:focus-within) p {
+  margin: 0;
+  line-height: 0;
 }
 .pm-hero {
   position: relative;

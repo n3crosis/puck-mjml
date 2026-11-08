@@ -6,7 +6,7 @@ import {
   inspectCaptureResources,
   type CaptureResourceInventory,
 } from "./browser/capture-resource-attribution";
-import type { ResourceSnapshot } from "./browser/font-evidence";
+import { fontFailures, type ResourceSnapshot } from "./browser/font-evidence";
 
 const url = "https://assets.example/current.png";
 const empty = (): ResourceSnapshot => ({
@@ -436,5 +436,82 @@ describe("final resource inventory", () => {
     expect(result.uncertainty.image).toContain(
       "Embedded artwork cannot be attributed from this document",
     );
+  });
+
+  it.each(["error", "loaded", "unloaded"] as const)(
+    "keeps a same-descriptor programmatic face ambiguous when its status is %s",
+    async (status) => {
+      const face = { family: "Shared", weight: "400", style: "normal" };
+      const registered = [
+        { ...face, status: "loaded" as const },
+        { ...face, status },
+      ];
+      fonts(registered);
+      document.head.innerHTML =
+        '<style>@font-face{font-family:Shared;font-weight:400;font-style:normal;src:url("https://fonts.example/css-face.woff2")}</style>';
+      document.body.innerHTML = '<p style="font-family:Shared">Current text</p>';
+      const snapshot = empty();
+      snapshot.failedRequests.push(
+        failure("font", "https://fonts.example/programmatic-face.woff2"),
+      );
+      const before = structuredClone(snapshot);
+      const current = await inspectCaptureResources(document.body, { kinds: ["font"] });
+      expect(current.uncertainty.font).toContain(
+        "Indistinguishable font sources for shared|400|normal: 1 CSS declarations, 2 registered faces",
+      );
+      const report = attributeCaptureResources(snapshot, current, 1);
+      expect(report.unresolved[0].disposition).toBe("ambiguous");
+      expect(snapshot).toEqual(before);
+      expect(fontFailures([], registered, snapshot).failedFaces).toEqual(
+        registered.filter(({ status }) => status === "error"),
+      );
+    },
+  );
+
+  it("does not infer unique font-source ownership from equal duplicate counts", async () => {
+    fonts([
+      { family: "Shared", weight: "400", style: "normal", status: "loaded" },
+      { family: "Shared", weight: "400", style: "normal", status: "loaded" },
+    ]);
+    document.head.innerHTML = `<style>${["first", "second"].map((name) => `@font-face{font-family:Shared;font-weight:400;font-style:normal;src:url("https://fonts.example/${name}.woff2")}`).join("")}</style>`;
+    const current = await inspectCaptureResources(document.body, { kinds: ["font"] });
+    expect(current.uncertainty.font).toContain(
+      "Indistinguishable font sources for shared|400|normal: 2 CSS declarations, 2 registered faces",
+    );
+    const snapshot = empty();
+    snapshot.failedRequests.push(failure("font", "https://fonts.example/unknown.woff2"));
+    expect(attributeCaptureResources(snapshot, current, 1).unresolved[0].disposition).toBe(
+      "ambiguous",
+    );
+  });
+
+  it("does not use an inactive CSS declaration to identify a same-descriptor programmatic face", async () => {
+    const registered = [
+      { family: "Shared", weight: "400", style: "normal", status: "loaded" as const },
+    ];
+    fonts(registered);
+    document.head.innerHTML =
+      '<style>@media not all {@font-face{font-family:Shared;font-weight:400;font-style:normal;src:url("https://fonts.example/inactive.woff2")}}</style>';
+    document.body.innerHTML = '<p style="font-family:Shared">Current text</p>';
+    expect(window.matchMedia("not all").matches).toBe(false);
+    const current = await inspectCaptureResources(document.body, { kinds: ["font"] });
+    expect(current.uncertainty.font).toContain(
+      "Font source under unevaluated CSS conditions: shared|400|normal",
+    );
+    expect(current.resources).toContainEqual(
+      expect.objectContaining({
+        kind: "font",
+        url: "https://fonts.example/inactive.woff2",
+        ready: false,
+      }),
+    );
+    const snapshot = empty();
+    snapshot.failedRequests.push(failure("font", "https://fonts.example/programmatic-face.woff2"));
+    const before = structuredClone(snapshot);
+    expect(attributeCaptureResources(snapshot, current, 1).unresolved[0].disposition).toBe(
+      "ambiguous",
+    );
+    expect(snapshot).toEqual(before);
+    expect(fontFailures([], registered, snapshot).failedFaces).toEqual([]);
   });
 });

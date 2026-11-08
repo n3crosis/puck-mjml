@@ -123,7 +123,10 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       await editor.click();
       await expect(editor).toBeFocused();
       await editor.press("ControlOrMeta+End");
-      await editor.pressSequentially(" Extra.");
+      // Insert one text transaction, like paste/IME input. Individual key
+      // events can span Puck's 250ms history grouping window on a busy runner,
+      // legitimately making the final period a separate undo step.
+      await page.keyboard.insertText(" Extra.");
       await expect.poll(() => exportedMjml(page)).toContain(" Extra.");
       const changed = await exportedMjml(page);
       await page.getByRole("button", { name: /^undo$/i }).click();

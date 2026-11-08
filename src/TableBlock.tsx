@@ -122,6 +122,7 @@ export function TableBlock(
           const sourceCell = originals[rowIndex]?.cells[cellIndex] ?? cell;
           const original = importedRichText(sourceCell);
           const wrapped = original !== undefined && hasImportedRichTextWrapper(sourceCell);
+          const empty = cell.native && original !== undefined && /^[\t\n\f\r ]*$/.test(original);
           return (
             <Cell
               key={cellIndex}
@@ -134,8 +135,8 @@ export function TableBlock(
               }}
             >
               <div
-                className={`pm-text${cell.native ? " pm-imported-text" : ""}${wrapped ? " pm-imported-inline-text" : ""}`}
-                style={{ lineHeight: "inherit" }}
+                className={`pm-text${cell.native ? " pm-imported-text" : ""}${wrapped ? " pm-imported-inline-text" : ""}${empty ? " pm-imported-empty-cell" : ""}`}
+                style={empty ? undefined : { lineHeight: "inherit" }}
               >
                 {original !== undefined && !input.puck?.isEditing ? (
                   <div dangerouslySetInnerHTML={{ __html: original }} />

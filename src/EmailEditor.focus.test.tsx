@@ -7,7 +7,7 @@ import type { Editor } from "@tiptap/core";
 import { fromMjml } from "./import";
 import { compileEmail, toMjml } from "./export";
 import { EmailEditor } from "./EmailEditor";
-import type { EmailDocument } from "./types";
+import type { EmailBlock, EmailDocument } from "./types";
 import { pngImageBytes } from "../tests/fixtures/images";
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
@@ -42,10 +42,12 @@ function Host({
   initial,
   onPublish,
   onUploadImage,
+  cloneEcho = false,
 }: {
   initial?: EmailDocument;
   onPublish?: (value: EmailDocument) => void;
   onUploadImage?: (file: File) => Promise<string>;
+  cloneEcho?: boolean;
 }) {
   const [document, setDocument] = useState<EmailDocument>(
     initial ?? {
@@ -105,7 +107,7 @@ function Host({
   return (
     <EmailEditor
       value={document}
-      onChange={setDocument}
+      onChange={cloneEcho ? (next) => setDocument(structuredClone(next)) : setDocument}
       onPublish={onPublish}
       onUploadImage={onUploadImage}
       allowRawHtml
@@ -117,12 +119,20 @@ async function mount(
   initial?: EmailDocument,
   onPublish?: (value: EmailDocument) => void,
   onUploadImage?: (file: File) => Promise<string>,
+  cloneEcho = false,
 ) {
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
   await act(async () => {
-    root!.render(<Host initial={initial} onPublish={onPublish} onUploadImage={onUploadImage} />);
+    root!.render(
+      <Host
+        initial={initial}
+        onPublish={onPublish}
+        onUploadImage={onUploadImage}
+        cloneEcho={cloneEcho}
+      />,
+    );
   });
 }
 const field = (name: string) =>
@@ -294,6 +304,74 @@ describe("controlled EmailEditor typing", { timeout: 20_000 }, () => {
     }
   });
 
+  it.each([false, true])(
+    "retains image input identity through partial URLs (intrinsic=%s)",
+    async (intrinsic) => {
+      const image: EmailBlock = {
+        type: "Image",
+        props: { id: "image", src: "https://example.com/original.png", width: 64, padding: "0px" },
+      };
+      const content: EmailBlock = intrinsic
+        ? {
+            type: "IntrinsicRow",
+            props: {
+              id: "row",
+              cells: [{ type: "IntrinsicCell", props: { id: "cell", content: [image] } }],
+            },
+          }
+        : image;
+      await mount(
+        {
+          root: {
+            props: {
+              mjmlClasses: intrinsic ? [{ name: "", attributes: [] }] : [],
+              sections: [{ type: "Section1", props: { id: "section", column: [content] } }],
+            },
+          },
+          content: [],
+        },
+        undefined,
+        undefined,
+        true,
+      );
+      await act(async () =>
+        api!.dispatch({ type: "setUi", ui: { itemSelector: api!.getSelectorForId("image") } }),
+      );
+      const input = field("src");
+      if (intrinsic) {
+        // Only the resolved intrinsic field preflights native head settings.
+        // It must already be mounted before the first input/host echo.
+        expect(container!.querySelector('[role="alert"]')?.textContent).toBe(
+          "MJML class definitions need one nonempty name",
+        );
+        const root = api!.appState.data.root;
+        await act(async () =>
+          api!.dispatch({
+            type: "replaceRoot",
+            root: { ...root, props: { ...root.props, mjmlClasses: [] } } as typeof root,
+          }),
+        );
+        expect(container!.querySelector('[role="alert"]')).toBeNull();
+        expect(field("src")).toBe(input);
+      }
+      await act(async () => {
+        input.focus();
+        input.setSelectionRange(0, input.value.length);
+      });
+      const replacement = "https://example.com/replacement.png";
+      for (const character of replacement) {
+        const caret = await insert(input, character);
+        expect(input.selectionStart).toBe(caret);
+        expect(input.selectionEnd).toBe(caret);
+        expect(field("src")).toBe(input);
+        expect(input.isConnected).toBe(true);
+        expect(document.activeElement).toBe(input);
+        expect(api!.getItemById("image")!.props.src).toBe(input.value);
+      }
+      expect(input.value).toBe(replacement);
+      expect(toMjml(value!)).toContain(replacement);
+    },
+  );
   it("retains the input node, focus, and caret while the host echoes each edit", async () => {
     await mount();
     expect(api).toBeDefined();

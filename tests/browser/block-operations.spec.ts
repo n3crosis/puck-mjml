@@ -28,7 +28,7 @@ async function openPanel(page: Page) {
   const disclosure = panel.locator("summary");
   await disclosure.focus();
   await page.keyboard.press("Enter");
-  await expect(panel.locator("form")).toBeVisible();
+  await expect(panel.locator(".pm-block-operations-add")).toBeVisible();
   return panel;
 }
 async function add(page: Page, panel: Locator, zone: string, type: string, key = "Enter") {
@@ -36,6 +36,7 @@ async function add(page: Page, panel: Locator, zone: string, type: string, key =
   await keyboardChoose(page, panel.getByLabel("Block", { exact: true }), type);
   const button = panel.getByRole("button", { name: "Add block", exact: true });
   await expect(button).toHaveAttribute("aria-disabled", "false");
+  await expect(button).toHaveAttribute("type", "button");
   await button.focus();
   const before = await historyIndex(page);
   await page.keyboard.press(key);
@@ -43,7 +44,7 @@ async function add(page: Page, panel: Locator, zone: string, type: string, key =
   await expect.poll(() => historyIndex(page)).toBeGreaterThan(before);
 }
 
-test("keyboard form builds an empty email and reorders within a slot without losing edge focus or history", async ({
+test("keyboard controls build an empty email and reorders within a slot without losing edge focus or history", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1180, height: 900 });
@@ -96,7 +97,7 @@ test("keyboard form builds an empty email and reorders within a slot without los
 });
 
 for (const width of [240, 304]) {
-  test(`controls remain contained in a ${width}px sidebar and collapse without leaving a mounted form`, async ({
+  test(`controls remain contained in a ${width}px sidebar and collapse without leaving a mounted panel`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1180, height: 900 });
@@ -109,7 +110,7 @@ for (const width of [240, 304]) {
           [
             root,
             ...root.querySelectorAll(
-              "form, select, button, .pm-block-operations-panel, .pm-block-operations-move",
+              "select, button, .pm-block-operations-add, .pm-block-operations-panel, .pm-block-operations-move",
             ),
           ].every((element) => element.scrollWidth <= element.clientWidth + 1),
         ),
@@ -118,10 +119,10 @@ for (const width of [240, 304]) {
     const summary = panel.locator("summary");
     await summary.focus();
     await page.keyboard.press("Space");
-    await expect(panel.locator("form")).toHaveCount(0);
+    await expect(panel.locator(".pm-block-operations-add")).toHaveCount(0);
     await expect(summary).toBeFocused();
     await page.keyboard.press("Enter");
-    await expect(panel.locator("form")).toBeVisible();
+    await expect(panel.locator(".pm-block-operations-add")).toBeVisible();
   });
 }
 
@@ -164,7 +165,7 @@ for (const trusted of [false, true]) {
       .press("Enter");
     await expect.poll(() => sections(page)).toEqual([]);
     await expect(page.getByLabel("History index")).toHaveText("0");
-    await expect(panel.locator("form")).toHaveCount(0);
+    await expect(panel.locator(".pm-block-operations-add")).toHaveCount(0);
     await openPanel(page);
     await expect(
       panel

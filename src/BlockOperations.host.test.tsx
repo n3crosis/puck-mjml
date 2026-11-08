@@ -76,9 +76,7 @@ it.each([false, true])(
       select.value = "Section1";
       select.dispatchEvent(new Event("change", { bubbles: true }));
     });
-    const add = container.querySelector<HTMLButtonElement>(
-      '.pm-block-operations button[type="submit"]',
-    )!;
+    const add = container.querySelector<HTMLButtonElement>(".pm-block-operations-add button")!;
     add.focus();
     await act(async () => add.click());
     const id = getPuck().selectedItem!.props.id;
@@ -117,3 +115,69 @@ it.each([false, true])(
     expect(value).toEqual(replacement);
   },
 );
+
+it("does not emit submit events for block actions or intercept explicit host submissions", async () => {
+  vi.stubGlobal("localStorage", { getItem: () => null, setItem: () => undefined });
+  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(
+    new DOMRect(0, 0, 800, 600),
+  );
+  container = document.createElement("div");
+  document.body.append(container);
+  root = createRoot(container);
+  const submit = vi.fn((event: React.FormEvent) => event.preventDefault());
+  const observe = vi.fn();
+  await act(async () =>
+    root!.render(
+      <div onSubmit={observe}>
+        <form id="host-save" onSubmit={submit} />
+        <EmailEditor
+          value={createEmptyDocument()}
+          onChange={(next) => {
+            value = next;
+          }}
+          headerActions={
+            <>
+              <Capture />
+              <button type="submit" form="host-save">
+                Save email
+              </button>
+            </>
+          }
+        />
+      </div>,
+    ),
+  );
+  await act(async () => {
+    const disclosure = container.querySelector<HTMLDetailsElement>(".pm-block-operations")!;
+    disclosure.open = true;
+    disclosure.dispatchEvent(new Event("toggle"));
+  });
+  const panel = container.querySelector(".pm-block-operations")!;
+  expect(panel.querySelector("form")).toBeNull();
+  const button = (name: string) =>
+    Array.from(container.querySelectorAll("button")).find((item) => item.textContent === name)!;
+  const add = button("Add block");
+  expect(add.type).toBe("button");
+  add.focus();
+  const initial = structuredClone(getPuck().appState.data);
+  await act(async () => add.click());
+  expect(getPuck().appState.data).toEqual(initial);
+  expect(document.activeElement).toBe(add);
+  const select = panel.querySelector<HTMLSelectElement>("select:last-of-type")!;
+  await act(async () => {
+    select.value = "Section1";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  await act(async () => add.click());
+  expect(value.root.props!.sections).toHaveLength(1);
+  expect(document.activeElement).toBe(add);
+  await act(async () => button("Move earlier").click());
+  await act(async () => button("Move later").click());
+  expect(value.root.props!.sections).toHaveLength(1);
+  expect(submit).not.toHaveBeenCalled();
+  expect(observe).not.toHaveBeenCalled();
+  expect(container.querySelector("form form")).toBeNull();
+  await act(async () => button("Save email").click());
+  expect(submit).toHaveBeenCalledTimes(1);
+  expect(observe).toHaveBeenCalledTimes(1);
+});

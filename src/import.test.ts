@@ -428,3 +428,92 @@ describe("fromMjml", () => {
     );
   });
 });
+
+describe("ending-tag placeholder collisions", () => {
+  const collisionSource = () => {
+    const template = `<mjml><mj-head><mj-title>Real subject</mj-title>
+      <mj-style>.x::after { content: "__puck_mjml_LENGTH_2__"; }</mj-style></mj-head>
+      <mj-body><mj-raw><div>__puck_mjml_LENGTH_3__</div></mj-raw>
+      <mj-section><mj-column>__puck_mjml_LENGTH_0__</mj-column><mj-column>
+        <mj-text css-class="prefix__puck_mjml_LENGTH_1__suffix">before__puck_mjml_LENGTH_4__after</mj-text>
+        <mj-text>__puck_mjml_LENGTH_5__puck_mjml_LENGTH_6__</mj-text>
+        <mj-text>__puck_mjml_LENGTH_00__ __puck_mjml_LENGTH_07__ __puck_mjml_LENGTH_8___</mj-text>
+        <mj-text>last</mj-text>
+      </mj-column></mj-section></mj-body></mjml>`;
+    let source = template.replaceAll("LENGTH", "0");
+    while (true) {
+      const next = template.replaceAll("LENGTH", String(source.length));
+      if (next.length === source.length) return next;
+      source = next;
+    }
+  };
+
+  it("preserves literal collisions in text, attributes, CSS, raw HTML, and overlapping names", () => {
+    const source = collisionSource();
+    const prefix = `__puck_mjml_${source.length}_`;
+    const attempts: { token: string; collision: boolean }[] = [];
+    const original = Set.prototype.has;
+    const spy = vi.spyOn(Set.prototype, "has").mockImplementation(function (
+      this: Set<unknown>,
+      value: unknown,
+    ) {
+      const collision = original.call(this, value);
+      if (typeof value === "string" && value.startsWith(prefix))
+        attempts.push({ token: value, collision });
+      return collision;
+    });
+    let result: ReturnType<typeof fromMjml>;
+    try {
+      result = fromMjml(source);
+    } finally {
+      spy.mockRestore();
+    }
+    // 0 through 6 collide, including 6 sharing the previous token's '__'.
+    // 07 is not 7, but 8 embedded in a longer underscore suffix still collides.
+    expect(attempts.slice(0, 10)).toEqual(
+      Array.from({ length: 10 }, (_, index) => ({
+        token: `${prefix}${index}__`,
+        collision: index < 7 || index === 8,
+      })),
+    );
+    expect(result.warnings).toContain("Ignored loose text next to <mj-column>.");
+    expect(result.document.root.props!.subject).toBe("Real subject");
+    const section = result.document.root.props!.sections![1]!;
+    expect(section.type).toBe("Section");
+    const columns = section.props.columns as EmailBlock[];
+    expect(columns[0]!.props.content).toEqual([]);
+    expect(columns[1]!.props.content).toHaveLength(4);
+    const control = fromMjml(source.replaceAll("__puck_mjml_", "__safe_mjml_"));
+    const restore = (value: unknown) =>
+      JSON.stringify(value).replaceAll("__safe_mjml_", "__puck_mjml_");
+    expect(JSON.stringify(result)).toBe(restore(control));
+    expect(toMjml(result.document, { allowRawHtml: true })).toBe(
+      toMjml(control.document, { allowRawHtml: true }).replaceAll("__safe_mjml_", "__puck_mjml_"),
+    );
+    expect(() => toMjml(result.document)).toThrow();
+    expect(() => toMjml(control.document)).toThrow();
+  });
+
+  it("does not rescan the entire source for every ordinary ending tag", () => {
+    for (const count of [20, 40, 80]) {
+      const source = `<mjml><mj-head>${"<mj-style>.x{color:red}</mj-style>".repeat(count)}</mj-head><mj-body>${"<mj-section><mj-column><mj-text>Hello</mj-text></mj-column></mj-section>".repeat(count)}</mj-body></mjml>`;
+      const prefix = `__puck_mjml_${source.length}_`;
+      let fullSourceSearches = 0;
+      const original = String.prototype.includes;
+      const spy = vi.spyOn(String.prototype, "includes").mockImplementation(function (
+        this: string,
+        value: string,
+        position?: number,
+      ) {
+        if (this === source && value.startsWith(prefix)) fullSourceSearches += 1;
+        return original.call(this, value, position);
+      });
+      try {
+        expect(fromMjml(source).warnings).toEqual([]);
+      } finally {
+        spy.mockRestore();
+      }
+      expect(fullSourceSearches).toBe(0);
+    }
+  });
+});

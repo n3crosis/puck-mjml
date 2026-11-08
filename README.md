@@ -2,7 +2,7 @@
 
 A visual drag and drop editor for responsive email, built with [Puck](https://github.com/puckeditor/puck) and [MJML](https://github.com/mjmlio/mjml). Edit a host-controlled JSON document, import supported MJML, and export MJML or email HTML.
 
-- Build layouts with sections, columns, groups, wrappers, and heroes. Use the Add or move blocks form to add blocks or reorder within a slot without dragging.
+- Build layouts with sections, columns, groups, wrappers, and heroes. Use the Add or move blocks controls to add blocks or reorder within a slot without dragging.
 - Edit text, images, buttons, tables, social links, navigation, accordions, and carousels.
 - Preview desktop and mobile email, with native MJML attributes, classes, custom CSS, and web fonts.
 - Review HTML or MJML source and download either from the built-in Export dialog.
@@ -51,6 +51,8 @@ export function MyEmailEditor() {
 ```
 
 The host owns persistence. Replacing `value` with a different document resets undo history; ordinary `onChange` echoes preserve it. Layouts live in `root.props.sections`, and the top-level `content` array stays empty.
+
+Keep `EmailEditor` outside a host `<form>`: Puck renders its own property-editing form, and HTML does not allow nested forms. To submit a separate host form from `headerActions`, use a button with `type="submit"` and `form="your-form-id"`; give that host form the matching ID. Editor block actions do not submit the host form.
 
 ### Editor props
 

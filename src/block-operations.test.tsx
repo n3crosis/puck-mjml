@@ -813,9 +813,9 @@ describe("bounded block operations with actual Puck", () => {
     expect(await run(() => operations.add("one:column", "Text"))).toBe(false);
   });
 
-  it("keeps form focus, labels, status, and destination intent without changing the native canvas", async () => {
+  it("keeps panel focus, labels, status, and destination intent without changing the native canvas", async () => {
     await mount();
-    expect(container.querySelector("details form")).toBeNull();
+    expect(container.querySelector("details .pm-block-operations-panel")).toBeNull();
     await act(async () => {
       container.querySelector("details")!.open = true;
       container.querySelector("details")!.dispatchEvent(new Event("toggle"));
@@ -828,7 +828,7 @@ describe("bounded block operations with actual Puck", () => {
       selectBlock.value = "Section1";
       selectBlock.dispatchEvent(new Event("change", { bubbles: true }));
     });
-    const add = container.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const add = container.querySelector<HTMLButtonElement>(".pm-block-operations-add button")!;
     add.focus();
     await act(async () => add.click());
     expect(document.activeElement).toBe(add);

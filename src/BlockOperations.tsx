@@ -28,12 +28,7 @@ function BlockOperationsPanel({ policy }: { policy: BlockOperationsPolicy }) {
   return (
     <div className="pm-block-operations-panel">
       <p>Add to the end of a slot, or move the selected block within its current slot.</p>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          setStatus(operations.add(destination, type).message);
-        }}
-      >
+      <div className="pm-block-operations-add">
         <label htmlFor={`${id}-destination`}>Destination</label>
         <select
           id={`${id}-destination`}
@@ -64,10 +59,14 @@ function BlockOperationsPanel({ policy }: { policy: BlockOperationsPolicy }) {
             </option>
           ))}
         </select>
-        <button type="submit" aria-disabled={!available}>
+        <button
+          type="button"
+          aria-disabled={!available}
+          onClick={() => setStatus(operations.add(destination, type).message)}
+        >
           Add block
         </button>
-      </form>
+      </div>
       <p>
         {model.selected
           ? `Selected: ${model.selected.label}`

@@ -431,8 +431,22 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
   // must never consume the next MJML component. Keep their source opaque.
   const endings = new Map<string, string>();
   const tokenPrefix = `__puck_mjml_${source.length}_`;
+  // Index literal collisions once instead of searching the full source for
+  // every ending tag. Advance past the prefix, not the complete token: the
+  // trailing '__' may also begin the next overlapping placeholder.
+  const sourceTokens = new Set<string>();
+  for (let cursor = 0; cursor < source.length;) {
+    const start = source.indexOf(tokenPrefix, cursor);
+    if (start < 0) break;
+    let end = start + tokenPrefix.length;
+    const digitsStart = end;
+    while (end < source.length && source[end]! >= "0" && source[end]! <= "9") end += 1;
+    if (end > digitsStart && source.startsWith("__", end)) {
+      sourceTokens.add(source.slice(start, end + 2));
+    }
+    cursor = digitsStart;
+  }
   let index = 0;
-  while (source.includes(`${tokenPrefix}${index}__`)) index += 1;
   const endingTags = new Set([
     "mj-text",
     "mj-button",
@@ -501,7 +515,7 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
     if (active && closing && tag === active.tag) {
       let token: string;
       do token = `${tokenPrefix}${index++}__`;
-      while (source.includes(token));
+      while (sourceTokens.has(token));
       endings.set(token, source.slice(active.contentStart, start));
       protectedSource +=
         source.slice(copied, active.contentStart) + token + source.slice(start, cursor);

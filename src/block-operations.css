@@ -24,7 +24,7 @@
 .pm-block-operations-panel p {
   margin: 0 0 10px;
 }
-.pm-block-operations form {
+.pm-block-operations-add {
   display: grid;
   min-width: 0;
   gap: 6px;

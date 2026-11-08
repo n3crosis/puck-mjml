@@ -953,6 +953,9 @@ export function createEmailConfig(
               ...fields.src,
               type: "custom",
               label: "Image URL",
+              // Puck caches custom renderers by key, not render identity. Resolve
+              // this variant before typing rather than swapping on a host echo.
+              key: "intrinsic-image-source",
               render: intrinsicImageRender,
             },
           };

@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type FrameLocator, type Locator, type Page } from "@playwright/test";
 import { importedRichContentSource } from "./fixtures/imported-rich-content-source";
 async function importFixture(page: Page) {
   await page.getByLabel("Import MJML", { exact: true }).setInputFiles({
@@ -17,17 +17,39 @@ async function exportedMjml(page: Page) {
   return source;
 }
 
+async function expectFrameViewport(frame: FrameLocator, viewport: "Desktop" | "Mobile") {
+  const width = viewport === "Mobile" ? 390 : 800;
+  // The preview iframe animates its width. Selected controls and an unchanged
+  // anchor count do not prove that its responsive stylesheet has switched yet.
+  await expect
+    .poll(() =>
+      frame.locator("html").evaluate((element, expectedWidth) => {
+        const view = element.ownerDocument.defaultView!;
+        return {
+          width: view.innerWidth,
+          mediaMatches: view.matchMedia(`(width: ${expectedWidth}px)`).matches,
+        };
+      }, width),
+    )
+    .toEqual({ width, mediaMatches: true });
+}
+
 async function selectCanvasViewport(page: Page, viewport: "Desktop" | "Mobile") {
   const button = page.getByRole("button", { name: `Switch to ${viewport} viewport` });
   if (await button.isEnabled()) await button.click();
-  await expect
-    .poll(() =>
-      page
-        .frameLocator("#preview-frame")
-        .locator("html")
-        .evaluate((element) => element.ownerDocument.defaultView!.innerWidth),
-    )
-    .toBe(viewport === "Mobile" ? 390 : 800);
+  await expect(button).toBeDisabled();
+  await expectFrameViewport(page.frameLocator("#preview-frame"), viewport);
+}
+
+async function selectPreviewViewport(page: Page, viewport: "Desktop" | "Mobile") {
+  const preview = page.getByRole("dialog", { name: "Email preview" });
+  const button = preview.getByRole("button", {
+    name: viewport === "Mobile" ? "Mobile" : "Responsive",
+    exact: true,
+  });
+  if ((await button.getAttribute("aria-pressed")) !== "true") await button.click();
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+  await expectFrameViewport(page.frameLocator('iframe[title="Rendered email"]'), viewport);
 }
 
 async function labelStyles(anchors: Locator) {
@@ -59,8 +81,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       const source = await exportedMjml(page);
       await page.getByRole("button", { name: "Preview email", exact: true }).click();
       const preview = page.getByRole("dialog", { name: "Email preview" });
-      if (viewport === "Mobile")
-        await preview.getByRole("button", { name: "Mobile", exact: true }).click();
+      await selectPreviewViewport(page, viewport);
       const compiledLabels = page
         .frameLocator('iframe[title="Rendered email"]')
         .locator("a:not([href])")
@@ -68,6 +89,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       await expect(compiledLabels).toHaveCount(count);
       const expected = await labelStyles(compiledLabels);
       await preview.getByRole("button", { name: "Close preview", exact: true }).click();
+      await selectCanvasViewport(page, viewport);
       expect(await labelStyles(labels)).toEqual(expected);
       expect(
         await labels.evaluateAll((nodes) =>

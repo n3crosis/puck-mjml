@@ -52,14 +52,20 @@ function richTextOptions(): sanitizeHtml.IOptions {
     ],
     allowedAttributes: {
       ...Object.fromEntries(alignedTags.map((tag) => [tag, ["style"]])),
+      strong: ["style"],
+      b: ["style"],
       a: ["href", "target", "rel", "title"],
       ol: ["start", "type"],
       code: ["class"],
     },
     allowedClasses: { code: [/^language-[a-zA-Z0-9_-]+$/] },
-    allowedStyles: Object.fromEntries(
-      alignedTags.map((tag) => [tag, { "text-align": [/^(?:left|center|right|justify)$/] }]),
-    ),
+    allowedStyles: {
+      ...Object.fromEntries(
+        alignedTags.map((tag) => [tag, { "text-align": [/^(?:left|center|right|justify)$/] }]),
+      ),
+      strong: { "font-weight": [/^(?:bold|700)$/] },
+      b: { "font-weight": [/^(?:bold|700)$/] },
+    },
     allowedSchemes: ["http", "https", "mailto", "tel"],
     allowProtocolRelative: false,
     transformTags: {

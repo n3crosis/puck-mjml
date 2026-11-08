@@ -37,6 +37,7 @@ export default defineConfig(({ command, mode }) => ({
                 "react-dom",
                 "react/jsx-runtime",
                 "@puckeditor/core",
+                "@tiptap/extension-bold",
                 "@tiptap/extension-link",
               ],
               output: { globals: { react: "React", "react-dom": "ReactDOM" } },

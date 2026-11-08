@@ -75,6 +75,11 @@ function LinkMenuControl({ editor, readOnly }: Pick<MenuProps, "editor" | "readO
           className="pm-richtext-link"
           role="group"
           aria-label="Edit link"
+          // This is a control for the focused rich-text field, not another
+          // AutoField. Letting its input focus/blur bubble makes Puck replace
+          // that field's focus name, so it drops the subsequent link update.
+          onFocus={(event) => event.stopPropagation()}
+          onBlur={(event) => event.stopPropagation()}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => {
             event.stopPropagation();

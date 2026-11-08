@@ -7,10 +7,17 @@ async function exportedMjml(page: Page) {
   await dialog.getByRole("button", { name: "MJML", exact: true }).click();
   const source = await dialog.getByRole("textbox", { name: "MJML source" }).inputValue();
   await dialog.getByRole("button", { name: "Close export" }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "Export email", exact: true })).toBeFocused();
   return source;
 }
 
 async function selectWord(editor: Locator) {
+  // Modal dismissal restores its opener, and undo/redo replaces the editor's
+  // DOM selection. Re-enter as a user would instead of relying on programmatic
+  // focus alone to recreate the caret range.
+  await editor.click();
+  await expect(editor).toBeFocused();
   await editor.press("ControlOrMeta+Home");
   for (let offset = 0; offset < 6; offset++) await editor.press("ArrowRight");
   for (let offset = 0; offset < 9; offset++) await editor.press("Shift+ArrowRight");
@@ -38,15 +45,20 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
         surface === "canvas" ? ".formatting-target" : ".formatting-table td:first-child",
       );
       await target.dblclick();
+      // Puck also keeps an inactive Fields plugin mounted under display:none.
+      // Exercise the one visible inspector, not an arbitrary matching copy.
+      const sidebarContent = page.locator('[data-table-cell-property="content"]:visible');
+      if (surface === "sidebar") await expect(sidebarContent).toHaveCount(1);
       const editor =
         surface === "canvas"
           ? target.locator('[contenteditable="true"]')
-          : page.locator('[data-table-cell-property="content"] [contenteditable="true"]');
+          : sidebarContent.locator('[contenteditable="true"]');
+      await expect(editor).toHaveCount(1);
       await expect(editor).toBeVisible();
       const controls =
         surface === "canvas"
           ? canvas.locator(".pm-richtext-toolbar--inline")
-          : page.locator('[data-table-cell-property="content"] .pm-richtext-toolbar');
+          : sidebarContent.locator(".pm-richtext-toolbar");
       await selectWord(editor);
       for (const name of ["Bold", "Italic", "Underline", "Strikethrough"]) {
         const button = controls.getByRole("button", { name, exact: true });
@@ -104,6 +116,10 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       ).toHaveCSS("font-weight", "700");
       await preview.getByRole("button", { name: "Close preview", exact: true }).click();
 
+      await expect(preview).not.toBeVisible();
+      await expect(page.getByRole("button", { name: "Preview email", exact: true })).toBeFocused();
+      await editor.click();
+      await expect(editor).toBeFocused();
       await editor.press("ControlOrMeta+End");
       await editor.pressSequentially(" Extra.");
       await expect.poll(() => exportedMjml(page)).toContain(" Extra.");

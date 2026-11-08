@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { trustedEndingContent } from "./ending-content";
+import { encodeEndingWhitespace, trustedEndingContent } from "./ending-content";
+import { toMjml } from "./export";
+import { fromMjml } from "./import";
 import { nativeCatalog } from "./native-attributes";
 import type { ExportOptions } from "./types";
 
@@ -144,5 +146,37 @@ describe("trusted native ending content", () => {
     expect(result.errors).toEqual([]);
     expect(result.html.includes(templates)).toBe(true);
     expect(result.html.includes("<span>Trusted head content</span>")).toBe(true);
+  });
+});
+
+describe("ending-tag edge whitespace", () => {
+  it("encodes each edge once and leaves interior content unchanged", () => {
+    expect(encodeEndingWhitespace("")).toBe("");
+    expect(encodeEndingWhitespace(" \t\n")).toBe("&#32;&#9;&#10;");
+    expect(encodeEndingWhitespace(" \tleft  right\r\n")).toBe("&#32;&#9;left  right&#13;&#10;");
+    expect(encodeEndingWhitespace("left  right")).toBe("left  right");
+    expect(encodeEndingWhitespace("<b> hello </b>")).toBe("<b> hello </b>");
+  });
+
+  it("preserves ECMAScript Unicode whitespace and non-whitespace code points", () => {
+    const edge = "\u00a0\u1680\u2000\u200a\u2028\u2029\u202f\u205f\u3000\ufeff";
+    const encoded = Array.from(edge, (character) => `&#${character.codePointAt(0)};`).join("");
+    expect(encodeEndingWhitespace(`${edge}x${edge}`)).toBe(`${encoded}x${encoded}`);
+    expect(encodeEndingWhitespace("\u0085\u200b😀\u0085\u200b")).toBe("\u0085\u200b😀\u0085\u200b");
+  });
+
+  it("serializes long interior spaces without repeatedly rescanning them", () => {
+    const content = `left${" ".repeat(80_000)}right`;
+    const started = performance.now();
+    const output = toMjml({ root: { props: { subject: content, sections: [] } }, content: [] });
+    expect(output).toContain(`<mj-title>${content}</mj-title>`);
+    const imported = fromMjml(
+      `<mjml><mj-body><mj-section><mj-column><mj-text>${content}</mj-text></mj-column></mj-section></mj-body></mjml>`,
+    );
+    expect(imported.warnings).toEqual([]);
+    expect(toMjml(imported.document)).toContain(content);
+    // This is deliberately generous: the linear path takes milliseconds, while
+    // the old trailing-whitespace search takes seconds for this small input.
+    expect(performance.now() - started).toBeLessThan(2_000);
   });
 });

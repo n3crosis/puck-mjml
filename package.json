@@ -17,25 +17,35 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./style.css": "./dist/style.css",
     "./core": {
-      "types": "./dist/core.d.ts",
-      "import": "./dist/core.js",
-      "require": "./dist/core.cjs"
+      "import": {
+        "types": "./dist/core.d.ts",
+        "default": "./dist/core.js"
+      },
+      "require": {
+        "types": "./dist/core.d.cts",
+        "default": "./dist/core.cjs"
+      }
     }
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && tsc -p tsconfig.build.json",
+    "build": "tsc --noEmit && vite build && tsc -p tsconfig.build.json && node scripts/build-declarations.mjs",
     "build:demo": "vite build --mode demo --base=./",
     "catalog": "bun scripts/regenerate-native-catalog.ts",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
-    "lint": "oxlint src demo tests/browser vite.config.ts playwright.config.ts scripts/smoke-package.mjs",
+    "lint": "oxlint src demo tests/browser vite.config.ts playwright.config.ts scripts/smoke-package.mjs scripts/build-declarations.mjs",
     "check": "bun run format:check && bun run lint && bun run typecheck && bun run test",
     "typecheck": "tsc --noEmit",
     "test": "bun run references:prepare && vitest run",

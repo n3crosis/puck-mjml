@@ -3,9 +3,13 @@ import type { ExportOptions } from "./types";
 
 /** MJML trims ending-tag source before entity decoding. Preserve decoded edge spaces. */
 export function encodeEndingWhitespace(value: string): string {
-  return value.replace(/^\s+|\s+$/g, (space) =>
-    Array.from(space, (character) => `&#${character.codePointAt(0)};`).join(""),
-  );
+  // Bound each edge directly. A trailing /\s+$/ search can revisit every
+  // character in a long interior whitespace run before it reaches the edge.
+  const start = value.length - value.trimStart().length;
+  const end = Math.max(start, value.trimEnd().length);
+  const encode = (space: string) =>
+    Array.from(space, (character) => `&#${character.codePointAt(0)};`).join("");
+  return encode(value.slice(0, start)) + value.slice(start, end) + encode(value.slice(end));
 }
 
 // The native parser also implicitly closes an ending tag when it sees an

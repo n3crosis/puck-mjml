@@ -30,6 +30,8 @@ Once the package is published to your registry, install it and its peer dependen
 bun add puck-mjml @puckeditor/core react react-dom
 ```
 
+For TypeScript hosts, also install `typescript`, `@types/react`, `@types/react-dom`, and `@types/node`. Puck 0.24's editor declarations reference Node types even in browser projects; include `node` if your `tsconfig.json` restricts `compilerOptions.types` and checks dependency declarations. The conversion-only `puck-mjml/core` declarations do not require React, Puck, or browser types.
+
 For local package development and build outputs, see [Development](docs/DEVELOPMENT.md).
 
 Import the bundled CSS once and pass a document and update callback:

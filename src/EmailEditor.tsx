@@ -33,7 +33,8 @@ import { sanitizeDocumentRichText } from "./normalize";
 import { TailwindRuntimeContext } from "./canvas-tailwind";
 import { usePreviewFocus } from "./preview-focus";
 import { RawHtmlPolicy } from "./RawHtmlPolicy";
-import type { CompiledEmail, EmailDocument, EmailEditorProps } from "./types";
+import type { CompiledEmail, EmailDocument } from "./types";
+import type { EmailEditorProps } from "./editor-types";
 
 // Hosts may reorder JSON object keys while saving or echoing a draft. Only
 // document content, including array order, should reset selection and history.

@@ -1,6 +1,17 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { spawnSync } from "node:child_process";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 const require = createRequire(import.meta.url);
 
 // Run each module format in its own host process. Mixing ESM and CommonJS
@@ -187,6 +198,113 @@ for (const entry of ["../dist/index.js", "../dist/index.cjs"]) {
   );
   assert.equal(runtime.status, 0, `${entry} runtime smoke: ${runtime.stderr}\n${runtime.stdout}`);
 }
+
+function verifyPackageConsumers() {
+  const temporary = mkdtempSync(join(tmpdir(), "puck-mjml-package-"));
+  const run = (command, args, cwd = temporary) => {
+    const result = spawnSync(command, args, { cwd, encoding: "utf8" });
+    assert.equal(
+      result.status,
+      0,
+      `${command} ${args.join(" ")}: ${result.error || ""}\n${result.stderr}\n${result.stdout}`,
+    );
+  };
+  try {
+    run("bun", ["pm", "pack", "--destination", temporary], process.cwd());
+    const archive = readdirSync(temporary).find((file) => file.endsWith(".tgz"));
+    assert.ok(archive, "package tarball was created");
+    const installed = join(temporary, "node_modules/puck-mjml");
+    mkdirSync(installed, { recursive: true });
+    run("tar", ["-xzf", join(temporary, archive), "--strip-components=1", "-C", installed]);
+    // Exercise the packed public files, while reusing the locked dependencies.
+    // This is not a fresh dependency-installation or peer-version-matrix test.
+    symlinkSync(resolve("node_modules"), join(installed, "node_modules"), "junction");
+    symlinkSync(resolve("node_modules/@types"), join(temporary, "node_modules/@types"), "junction");
+    for (const file of ["LICENSE", "THIRD_PARTY_NOTICES.md", "dist/style.css"]) {
+      assert.ok(readFileSync(join(installed, file)).length, `${file} is packaged`);
+    }
+    writeFileSync(join(temporary, "package.json"), '{"type":"module"}\n');
+    for (const format of ["module", "commonjs"]) {
+      const load = format === "module" ? "await import" : "require";
+      run(process.execPath, [
+        "--input-type=" + format,
+        "-e",
+        `
+        const root = ${load}("puck-mjml");
+        const core = ${load}("puck-mjml/core");
+        if (typeof root.EmailEditor !== "function" || core.EmailEditor !== undefined ||
+            !core.toMjml(core.createEmptyDocument()).includes("<mjml")) process.exit(1);
+      `,
+      ]);
+    }
+    run(process.execPath, [
+      "--conditions=react-server",
+      "--input-type=module",
+      "-e",
+      `
+      import { compileEmail, createEmptyDocument } from "puck-mjml/core";
+      if (!(await compileEmail(createEmptyDocument())).html) process.exit(1);
+    `,
+    ]);
+    const core = `
+      import { createEmptyDocument, fromMjml, toMjml, compileEmail, type EmailDocument } from "puck-mjml/core";
+      const document: EmailDocument = createEmptyDocument();
+      const imported: EmailDocument = fromMjml(toMjml(document)).document;
+      const html: Promise<string> = compileEmail(imported).then(result => result.html);
+      // @ts-expect-error Document factories must not degrade to any.
+      const invalid: string = createEmptyDocument();
+      // @ts-expect-error Export options remain checked.
+      toMjml(document, { allowRawHtml: "yes" });
+    `;
+    const editor = `
+      import { EmailEditor, createEmailConfig, createNativeDragPreview, NativeDragPreviewProvider,
+        emailFieldTypes, emailTemplates, type EmailEditorProps, type NativeDragPreview } from "puck-mjml";
+      const props: EmailEditorProps = { value: document, onChange: value => { const next: EmailDocument = value; } };
+      EmailEditor(props);
+      const bridge: NativeDragPreview = createNativeDragPreview();
+      NativeDragPreviewProvider({ bridge, children: null });
+      createEmailConfig();
+      emailFieldTypes?.array;
+      const template: EmailDocument = emailTemplates[0].create();
+      // @ts-expect-error The editor requires onChange.
+      EmailEditor({ value: document });
+    `;
+    for (const extension of ["mts", "cts"]) {
+      writeFileSync(join(temporary, `consumer.${extension}`), core + editor);
+      writeFileSync(join(temporary, `core.${extension}`), core);
+    }
+    for (const module of ["Node16", "NodeNext", "ESNext"]) {
+      const moduleResolution = module === "ESNext" ? "Bundler" : module;
+      for (const server of [false, true]) {
+        writeFileSync(
+          join(temporary, "tsconfig.json"),
+          JSON.stringify({
+            compilerOptions: {
+              target: "ES2022",
+              module,
+              moduleResolution,
+              strict: true,
+              noEmit: true,
+              skipLibCheck: false,
+              types: server ? [] : ["node"],
+              lib: server ? ["ES2022"] : ["ES2022", "DOM"],
+              ...(server ? { customConditions: ["react-server"] } : {}),
+            },
+            files: server ? ["core.mts", "core.cts"] : ["consumer.mts", "consumer.cts"],
+          }),
+        );
+        run(process.execPath, [
+          require.resolve("typescript/bin/tsc"),
+          "-p",
+          join(temporary, "tsconfig.json"),
+        ]);
+      }
+    }
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+}
+verifyPackageConsumers();
 console.log(
-  "ESM, CommonJS, simultaneous rich-text editors, link editing/paste, 62 templates, compilation, and react-server core smoke tests passed.",
+  "ESM, CommonJS, simultaneous rich-text editors, link editing/paste, 62 templates, compilation, react-server core, packed exports, and strict consumer declarations passed.",
 );

@@ -78,13 +78,30 @@ describe("safe editable intrinsic layout", () => {
       exported = toMjml(imported);
     expect(sourceRows(exported)).toEqual(sourceRows(source));
     expect(toMjml(roundtrip(exported))).toBe(exported);
+    const legacy = source.replaceAll("padding:0;word-break:normal", "padding:0");
+    expect(sourceRows(toMjml(roundtrip(legacy)))).toEqual(sourceRows(source));
     expect(JSON.stringify(data)).toBe(before);
-    expect((await compileEmail(data)).errors).toEqual([]);
+    const compiled = await compileEmail(data);
+    expect(compiled.errors).toEqual([]);
+    const html = load(compiled.html);
+    const holders = html('[data-pm-layout="1"] > td');
+    expect(holders).toHaveLength(6);
+    holders.each((_, node) => {
+      // mj-table injects break-word on an ancestor. The intrinsic holder must
+      // reset that default before it changes automatic minimum cell widths.
+      expect(html(node).parents('[style*="word-break:break-word"]')).not.toHaveLength(0);
+      expect(html(node).attr("style")).toBe("padding:0;word-break:normal");
+    });
     const canvas = load(
       renderToStaticMarkup(<Render config={createEmailConfig()} data={data as Data} />),
     );
     expect(canvas("div.pm-intrinsic-table")).toHaveLength(9);
     expect(canvas("div.pm-intrinsic-cell")).toHaveLength(21);
+    canvas("div.pm-intrinsic-cell").each((_, node) => {
+      // The public content Slot must override Puck's editing height:100%,
+      // otherwise the filled block defeats the table cell's vertical-align.
+      expect(canvas(node).children().first().attr("style")).toBe("display:block;height:auto");
+    });
     expect(canvas(".pm-intrinsic-error")).toHaveLength(0);
     expect(canvas("table div.pm-intrinsic-cell")).toHaveLength(0);
     const ids = allBlocks(imported).map((block) => block.props.id);
@@ -244,6 +261,9 @@ describe("safe editable intrinsic layout", () => {
       source.replace("</mj-table>", '<img src="https://example.com/extra.png" /></mj-table>'),
       source.replace("padding:10px", "padding:10px;padding:20px"),
       source.replace('data-pm-layout="1"', `data-pm-layout="1" ${"a".repeat(16 * 1024)}`),
+      ...["", "break-word", "inherit", "normal!important", "normal;word-break:normal"].map(
+        (value) => source.replace("word-break:normal", `word-break:${value}`),
+      ),
     ];
     for (const mutated of mutations) {
       const result = fromMjml(mutated);

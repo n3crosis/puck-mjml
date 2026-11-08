@@ -550,9 +550,15 @@ function renderRow(block: EmailBlock, options: IntrinsicRenderOptions): string {
 export const wrapIntrinsicContent = (html: string) =>
   `<mj-table${attrs(INTRINSIC_WRAPPER_ATTRIBUTES)}>${html}</mj-table>`;
 
+// mj-table's generated outer cell injects word-break:break-word. Isolate that
+// compiler default so intrinsic min-content sizing matches ordinary tables.
+// Descendant authored styles can still override this inherited initial value.
+const intrinsicHolder = (html: string) =>
+  `<tr data-pm-layout="1"><td style="padding:0;word-break:normal">${html}</td></tr>`;
+
 export function renderIntrinsicContent(block: EmailBlock, options: IntrinsicOptions): string {
   validateIntrinsicStructure(block);
-  const html = `<tr data-pm-layout="1"><td style="padding:0">${renderRow(block, options)}</td></tr>`;
+  const html = intrinsicHolder(renderRow(block, options));
   const source = wrapIntrinsicContent(html);
   if (intrinsicByteLength(source) > INTRINSIC_LIMITS.sourceBytes)
     throw new IntrinsicLayoutLimitError("row source must not exceed 64 MiB");
@@ -565,7 +571,7 @@ export function renderIntrinsicContent(block: EmailBlock, options: IntrinsicOpti
 export function validateIntrinsicContent(block: EmailBlock, options: IntrinsicOptions): void {
   validateIntrinsicStructure(block);
   const measurement = { assetBytes: 0 };
-  const html = `<tr data-pm-layout="1"><td style="padding:0">${renderRow(block, { ...options, measurement })}</td></tr>`;
+  const html = intrinsicHolder(renderRow(block, { ...options, measurement }));
   const source = wrapIntrinsicContent(html);
   if (intrinsicByteLength(source) + measurement.assetBytes > INTRINSIC_LIMITS.sourceBytes)
     throw new IntrinsicLayoutLimitError("row source must not exceed 64 MiB");

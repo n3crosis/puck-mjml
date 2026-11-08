@@ -260,8 +260,11 @@ export function parseIntrinsicMarkup(
     exact(root.attrs, { "data-pm-layout": "1" });
     const holder = only(root, "td");
     allowed(holder, ["style"]);
-    const holderStyle = styles(holder, ["padding"]);
+    const holderStyle = styles(holder, ["padding", "word-break"]);
     requireValue(holderStyle.padding === "0" || holderStyle.padding === "0px");
+    // Older v1 sources omitted the compiler-default reset. It is structural,
+    // not an editable leaf style, and no other word-break value is supported.
+    requireValue(holderStyle["word-break"] === undefined || holderStyle["word-break"] === "normal");
     let nodes = 0;
     const allocate = () => limit(++nodes <= 256, "more than 256 layout nodes");
     const leaf = (node: Node): EmailBlock => {

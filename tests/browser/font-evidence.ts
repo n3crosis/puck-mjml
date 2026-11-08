@@ -20,11 +20,47 @@ export type CanvasFontCssEvidence = {
   missingAliases?: string[];
   inputsCurrent?: boolean;
 };
+export type ResourcePageRole = "editor" | "react-email" | "mjml" | "unspecified";
+type TimelineStamp = { timelineSequence: number; elapsedMs: number };
+export type FrameObservation = {
+  frameId: number;
+  parentFrameId: number | null;
+  name: string | null;
+  url: string | null;
+  detached: boolean | null;
+  // This counts observed navigation/harness boundaries, not verified document
+  // replacements. Same-document navigation can advance it too.
+  observedEpoch: number;
+};
+export type RequestStartEvidence = {
+  observed: boolean;
+  timelineSequence: number | null;
+  elapsedMs: number | null;
+  url: string | null;
+  frame: FrameObservation | null;
+  ownership: "frame-observed" | "frame-unavailable" | "start-unobserved";
+};
+type FrameLifecycleEvent = TimelineStamp & {
+  event: "observed" | "attached" | "navigated" | "detached" | "harness-boundary";
+  frame: FrameObservation;
+  boundary?: string;
+};
+type ResourceLifecycleSnapshot = {
+  // Optional for compatibility with older artifacts and synthetic snapshots.
+  pageRole?: ResourcePageRole;
+  lifecycleNote?: string;
+  frameLifecycle?: FrameLifecycleEvent[];
+  harnessPhases?: (TimelineStamp & { phase: string; frame: FrameObservation | null })[];
+};
 export type ResourceOwnership = {
   requestId?: number;
   frameId?: number | null;
   requestUrls?: string[];
   sequence?: number;
+  timelineSequence?: number;
+  requestStart?: RequestStartEvidence;
+  terminalFrame?: FrameObservation | null;
+  redirectedFrom?: { requestId: number | null; requestStart: RequestStartEvidence } | null;
 };
 
 /** Static head faces must not satisfy readiness for a pending imported face. */
@@ -139,35 +175,132 @@ export async function waitForFontRegistrations(
 }
 
 /** Install before navigation/setContent: canvas warnings are deduplicated globally. */
-export function observeResources(page: Page, fonts: DeclaredFont[]) {
+export function observeResources(
+  page: Page,
+  fonts: DeclaredFont[],
+  pageRole: ResourcePageRole = "unspecified",
+) {
   const started = Date.now();
-  const frames = new WeakMap<Frame, number>();
-  const requests = new WeakMap<Request, number>();
+  const frames = new WeakMap<Frame, { id: number; epoch: number; detached: boolean | null }>();
+  const requests = new WeakMap<Request, { id?: number; start?: RequestStartEvidence }>();
+  const frameLifecycle: FrameLifecycleEvent[] = [];
+  const harnessPhases: NonNullable<ResourceLifecycleSnapshot["harnessPhases"]> = [];
   let nextFrame = 0;
   let nextRequest = 0;
+  let timelineSequence = 0;
+  // Preserve the existing terminal-resource event sequence independently of
+  // the additive lifecycle timeline used by starts, frames and harness phases.
   let sequence = 0;
-  const frameId = (frame: Frame | null) => {
-    if (!frame) return null;
-    if (!frames.has(frame)) frames.set(frame, ++nextFrame);
-    return frames.get(frame)!;
+  const elapsedMs = () => Date.now() - started;
+  const stamp = (): TimelineStamp => ({
+    timelineSequence: ++timelineSequence,
+    elapsedMs: elapsedMs(),
+  });
+  const read = <T>(value: () => T): T | null => {
+    try {
+      return value();
+    } catch {
+      return null;
+    }
+  };
+  const frameObservation = (frame: Frame): FrameObservation => {
+    const state = registerFrame(frame);
+    const parent = read(() => frame.parentFrame());
+    return Object.freeze({
+      frameId: state.id,
+      parentFrameId: parent ? registerFrame(parent).id : null,
+      name: read(() => frame.name()),
+      url: read(() => frame.url()),
+      detached: state.detached ?? read(() => frame.isDetached()),
+      observedEpoch: state.epoch,
+    });
+  };
+  function registerFrame(frame: Frame, event: "observed" | "attached" = "observed") {
+    const known = frames.get(frame);
+    if (known) return known;
+    const state = {
+      id: ++nextFrame,
+      epoch: 0,
+      detached: event === "attached" ? false : (null as boolean | null),
+    };
+    frames.set(frame, state);
+    const observation = frameObservation(frame);
+    frameLifecycle.push({ ...stamp(), event, frame: observation });
+    return state;
+  }
+  const frameId = (frame: Frame | null) => (frame ? registerFrame(frame).id : null);
+  const observeBoundary = (
+    frame: Frame,
+    event: "navigated" | "harness-boundary",
+    boundary?: string,
+  ) => {
+    registerFrame(frame).epoch += 1;
+    frameLifecycle.push({
+      ...stamp(),
+      event,
+      frame: frameObservation(frame),
+      ...(boundary ? { boundary } : {}),
+    });
+  };
+  const markPhase = (phase: string, frame: Frame | null = null) => {
+    const observation = frame ? frameObservation(frame) : null;
+    harnessPhases.push({ ...stamp(), phase, frame: observation });
+  };
+  const markDocumentBoundary = (frame: Frame, boundary: string) =>
+    observeBoundary(frame, "harness-boundary", boundary);
+  const requestRecord = (request: Request) => {
+    let record = requests.get(request);
+    if (!record) {
+      record = {};
+      requests.set(request, record);
+    }
+    return record;
+  };
+  const unknownStart: RequestStartEvidence = Object.freeze({
+    observed: false,
+    timelineSequence: null,
+    elapsedMs: null,
+    url: null,
+    frame: null,
+    ownership: "start-unobserved",
+  });
+  const observeStart = (request: Request) => {
+    const record = requestRecord(request);
+    if (record.start) return;
+    const owner = read(() => request.frame());
+    const frame = owner ? frameObservation(owner) : null;
+    record.start = Object.freeze({
+      ...stamp(),
+      observed: true,
+      url: request.url(),
+      frame,
+      ownership: frame ? "frame-observed" : "frame-unavailable",
+    });
   };
   const ownership = (request: Request): ResourceOwnership => {
-    if (!requests.has(request)) requests.set(request, ++nextRequest);
+    const record = requestRecord(request);
+    // Keep legacy request IDs assigned at their first terminal observation.
+    record.id ??= ++nextRequest;
     const requestUrls: string[] = [];
     for (let current: Request | null = request; current; current = current.redirectedFrom())
       requestUrls.push(current.url());
-    let owner: Frame | null = null;
-    // Service-worker requests (and detached frames) may have no available frame.
-    try {
-      owner = request.frame();
-    } catch {
-      // Unknown ownership is evidence, not a reason to discard a failure.
-    }
+    const owner = read(() => request.frame());
+    const terminalFrame = owner ? frameObservation(owner) : null;
+    const parent = request.redirectedFrom();
+    const parentRecord = parent ? requestRecord(parent) : null;
     return {
-      requestId: requests.get(request),
-      frameId: frameId(owner),
+      requestId: record.id,
+      // Keep terminal ownership as before; never replace missing start evidence
+      // with it or with a redirect parent's possibly different frame.
+      frameId: terminalFrame?.frameId ?? null,
       requestUrls,
       sequence: ++sequence,
+      timelineSequence: stamp().timelineSequence,
+      requestStart: record.start ?? unknownStart,
+      terminalFrame,
+      redirectedFrom: parentRecord
+        ? { requestId: parentRecord.id ?? null, requestStart: parentRecord.start ?? unknownStart }
+        : null,
     };
   };
   const fontStylesheets = new Set(fonts.map(({ stylesheetUrl }) => new URL(stylesheetUrl).href));
@@ -193,13 +326,27 @@ export function observeResources(page: Page, fonts: DeclaredFont[]) {
   };
   const fontAndStylesheetResponses: ResourceResponse[] = [];
   const imageResponses: ResourceResponse[] = [];
-  const elapsedMs = () => Date.now() - started;
   const isFontStylesheet = (request: Request, urls = fontStylesheets): boolean => {
     for (let current: Request | null = request; current; current = current.redirectedFrom()) {
       if (urls.has(current.url())) return true;
     }
     return false;
   };
+  page.on("request", observeStart);
+  page.on("frameattached", (frame) => {
+    if (!frames.has(frame)) registerFrame(frame, "attached");
+    else {
+      registerFrame(frame).detached = false;
+      frameLifecycle.push({ ...stamp(), event: "attached", frame: frameObservation(frame) });
+    }
+  });
+  page.on("framenavigated", (frame) => observeBoundary(frame, "navigated"));
+  page.on("framedetached", (frame) => {
+    registerFrame(frame).detached = true;
+    frameLifecycle.push({ ...stamp(), event: "detached", frame: frameObservation(frame) });
+  });
+  // Existing frames are observations, not invented attachment/navigation events.
+  for (const frame of page.frames()) registerFrame(frame);
   page.on("console", (message) => {
     if (!["warning", "error"].includes(message.type())) return;
     warnings.push({
@@ -256,8 +403,15 @@ export function observeResources(page: Page, fonts: DeclaredFont[]) {
       failedRequests: [...failedRequests],
       fontAndStylesheetResponses: [...fontAndStylesheetResponses],
       imageResponses: [...imageResponses],
+      ...({
+        pageRole,
+        lifecycleNote:
+          "Observed frame epochs and harness phases are diagnostic events, not proof of document replacement, resource retirement or effective font usage.",
+        frameLifecycle: [...frameLifecycle],
+        harnessPhases: [...harnessPhases],
+      } satisfies ResourceLifecycleSnapshot as ResourceLifecycleSnapshot),
     }),
-    { frameId },
+    { frameId, markPhase, markDocumentBoundary },
   );
 }
 

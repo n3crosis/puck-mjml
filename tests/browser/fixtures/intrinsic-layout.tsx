@@ -26,6 +26,17 @@ function Evidence({
   completeUpload?: () => void;
 }) {
   const api = usePuck((state) => state);
+  const committed = api.history.histories[api.history.index]?.state.data;
+  const committedMjml = useMemo(() => {
+    if (!committed) return "";
+    try {
+      return toMjml(committed as EmailDocument);
+    } catch {
+      // Intermediate input can legitimately be invalid, including in history.
+      // Keep evidence mounted until a valid final document is committed.
+      return "";
+    }
+  }, [committed]);
   function updateSibling(content: string) {
     // A host/plugin update must not change the selected Image or cancel its
     // upload. Clicking a sibling's inline editor would intentionally select
@@ -61,6 +72,9 @@ function Evidence({
     <>
       <output aria-label="History index" hidden>
         {api.history.index}
+      </output>
+      <output aria-label="Current history MJML" hidden>
+        {committedMjml}
       </output>
       <output aria-label="Drag state" hidden>
         {String(api.appState.ui.isDragging)}

@@ -155,8 +155,18 @@ function assertLayoutContract(value: Geometry, width: number, label: string) {
     const icon = value.boxes[`.${mode}-icon img`];
     const iconCell = value.boxes[`.${mode}-icon-cell`];
     const labelCell = value.boxes[`.${mode}-label-cell`];
-    expect(icon.width, `${label}: requested 16px nested icon`).toBe(16);
-    expect(iconCell.width, `${label}: icon plus authored right padding`).toBe(24);
+    // The explicit width is requested, not a minimum: max-width:100% can
+    // shrink the image when a keep row allocates less than 16px plus padding.
+    // This is also checked against the independent table's exact geometry.
+    expect(icon.width, `${label}: nested icon remains visible`).toBeGreaterThan(0);
+    expect(
+      Math.abs(icon.width - Math.min(16, iconCell.width - 8)),
+      `${label}: requested icon width fits the allocated content box`,
+    ).toBeLessThanOrEqual(layoutQuantum);
+    expect(
+      Math.abs(iconCell.width - icon.width - 8),
+      `${label}: icon retains authored right padding`,
+    ).toBeLessThanOrEqual(layoutQuantum);
     expect(
       Math.abs(labelCell.x - iconCell.x - iconCell.width),
       `${label}: nested label placement`,
@@ -187,11 +197,15 @@ function assertLayoutContract(value: Geometry, width: number, label: string) {
     32,
   );
   for (const [selector, box] of Object.entries(value.boxes)) {
+    // Chromium gives replaced IMG elements overflow:clip in its user-agent
+    // stylesheet. That clips the raster to its own box, not overflowing layout
+    // children. Keep the no-clipping rule on every measured outer/text box.
+    const forbiddenOverflow = box.tagName === "IMG" ? /hidden/ : /hidden|clip/;
     expect(box.overflowX, `${label}: ${selector} does not hide overflow`).not.toMatch(
-      /hidden|clip/,
+      forbiddenOverflow,
     );
     expect(box.overflowY, `${label}: ${selector} does not hide overflow`).not.toMatch(
-      /hidden|clip/,
+      forbiddenOverflow,
     );
     // scrollWidth/clientWidth are integer CSSOM measures, unlike raw boxes.
     expect(
@@ -263,6 +277,8 @@ for (const width of [800, 520, 390])
       expect(structure.length).toBeGreaterThan(0);
       for (const node of structure) expect(node).toEqual({ tag: "DIV", parentTable: false });
       for (const root of [canvas, compiled.locator("body"), oracle.locator("body")]) {
+        for (const mode of intrinsicModes)
+          await expect(root.locator(`.${mode}-icon img`)).toHaveAttribute("width", "16");
         await expect(root.locator(".requested-image img")).toHaveAttribute("width", "64");
         await expect(root.locator(".constrained-image img")).toHaveAttribute("width", "64");
         await expect(root.locator(".omitted-image img")).not.toHaveAttribute("width");
@@ -316,10 +332,16 @@ test("intrinsic text and image use real Puck controls and preserve undo/redo", a
   await expect(page.getByLabel("Compilation status")).toHaveText("ready");
 
   const image = frame.locator(".stack-auto-image img");
-  await image.click();
+  await frame.locator('[data-puck-component="stack-auto-image"]').click();
+  await expect(page.getByLabel("Selected block ID")).toHaveText("stack-auto-image");
   await expect(page.getByLabel("Selected block type")).toHaveText("Image");
   const source = page.getByRole("textbox", { name: "Image URL", exact: true });
+  await expect(source).toBeVisible();
   await expect(source).toHaveValue(intrinsicLargeImageUrl);
+  const beforeImageMjml = (await page.getByLabel("Exported MJML").textContent())!;
+  await expect
+    .poll(() => page.getByLabel("Current history MJML").textContent())
+    .toBe(beforeImageMjml);
   const beforeImage = await historyIndex(page);
   const typingInput = await source.elementHandle();
   if (!typingInput) throw new Error("Missing visible Image URL input");
@@ -336,13 +358,31 @@ test("intrinsic text and image use real Puck controls and preserve undo/redo", a
   await source.press("Tab");
   await expect(image).toHaveAttribute("src", intrinsicImageUrl);
   await expect(image).not.toHaveAttribute("width");
-  await expect.poll(() => historyIndex(page)).toBeGreaterThan(beforeImage);
-  await page.getByRole("button", { name: /^undo$/i }).click();
+  const afterImageMjml = (await page.getByLabel("Exported MJML").textContent())!;
+  expect(afterImageMjml).not.toBe(beforeImageMjml);
+  // Puck records after idle gaps, not on blur. Slow incremental typing may
+  // produce several valid history entries. Wait for the final source itself
+  // to be committed, then traverse exactly the captured range with real UI.
+  await expect
+    .poll(() => page.getByLabel("Current history MJML").textContent())
+    .toBe(afterImageMjml);
+  const afterImage = await historyIndex(page);
+  expect(afterImage).toBeGreaterThan(beforeImage);
+  const imageHistorySteps = afterImage - beforeImage;
+  for (let step = 1; step <= imageHistorySteps; step++) {
+    await page.getByRole("button", { name: /^undo$/i }).click();
+    await expect.poll(() => historyIndex(page)).toBe(afterImage - step);
+  }
   await expect(image).toHaveAttribute("src", intrinsicLargeImageUrl);
   await expect(text).toHaveText("Edited intrinsic copy");
-  await page.getByRole("button", { name: /^redo$/i }).click();
+  await expect.poll(() => page.getByLabel("Exported MJML").textContent()).toBe(beforeImageMjml);
+  for (let step = 1; step <= imageHistorySteps; step++) {
+    await page.getByRole("button", { name: /^redo$/i }).click();
+    await expect.poll(() => historyIndex(page)).toBe(beforeImage + step);
+  }
   await expect(image).toHaveAttribute("src", intrinsicImageUrl);
   await expect(text).toHaveText("Edited intrinsic copy");
+  await expect.poll(() => page.getByLabel("Exported MJML").textContent()).toBe(afterImageMjml);
 
   // An unfinished native class name is an ordinary invalid head draft. Keep
   // the selected field mounted while reporting it, including across a public
@@ -384,7 +424,9 @@ test("intrinsic text and image use real Puck controls and preserve undo/redo", a
 
   // Exercise the native file chooser and the ordinary host-owned upload API
   // from inside a cell, rather than replacing data through a test-only action.
-  await image.click();
+  await frame.locator('[data-puck-component="stack-auto-image"]').click();
+  await expect(page.getByLabel("Selected block ID")).toHaveText("stack-auto-image");
+  await expect(page.getByLabel("Selected block type")).toHaveText("Image");
   const upload = page.locator(".pm-upload").filter({ visible: true });
   await expect(upload).toHaveCount(1);
   const pendingInput = await source.elementHandle();
@@ -426,7 +468,9 @@ test("intrinsic text and image use real Puck controls and preserve undo/redo", a
   // not its original valid snapshot, and leave the Image source untouched.
   await page.getByRole("button", { name: /^undo$/i }).click();
   await expect(image).toHaveAttribute("src", intrinsicImageUrl);
-  await image.click();
+  await frame.locator('[data-puck-component="stack-auto-image"]').click();
+  await expect(page.getByLabel("Selected block ID")).toHaveText("stack-auto-image");
+  await expect(page.getByLabel("Selected block type")).toHaveText("Image");
   const rejectedInput = await source.elementHandle();
   if (!rejectedInput) throw new Error("Missing budget-check Image URL input");
   const rejectedChooser = page.waitForEvent("filechooser");
@@ -582,7 +626,16 @@ test("visible intrinsic MJML imports, exports, compiles, and reimports as editab
   });
   await expect(text).toHaveText("Round trip editable copy");
   await expect(text).toHaveAttribute("contenteditable", "true");
-  await frame.locator(".requested-image img").click();
+  // Puck's draggable component is the image's real selection surface. Its
+  // overlay intentionally receives the pointer instead of the rendered img.
+  const imageSelection = frame.locator(
+    '[data-puck-component][role="button"]:has(> .requested-image)',
+  );
+  await imageSelection.click();
+  await expect(page.getByRole("textbox", { name: "Alternative text", exact: true })).toHaveValue(
+    "requested-image",
+  );
+  await expect(page.getByRole("textbox", { name: "Image URL", exact: true })).toBeVisible();
   await expect(page.getByRole("textbox", { name: "Image URL", exact: true })).toHaveValue(
     intrinsicImageUrl,
   );

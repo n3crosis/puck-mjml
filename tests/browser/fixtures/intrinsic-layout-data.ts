@@ -135,6 +135,11 @@ export function createIntrinsicLayoutDocument(breakpoint = 560): EmailDocument {
   return {
     root: {
       props: {
+        // Match the public editor metadata defaults before Puck initializes
+        // history, so the host export and the undo baseline are identical.
+        lang: "und",
+        dir: "auto",
+        owa: "none",
         width: 600,
         fontFamily: "Arial, sans-serif",
         backgroundColor: "#ffffff",

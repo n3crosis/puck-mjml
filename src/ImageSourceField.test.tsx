@@ -167,6 +167,7 @@ describe("image uploads", () => {
     expect(container.querySelector<HTMLInputElement>('input[type="url"]')!.value).toBe(
       "https://example.com/old.png",
     );
+    expect(container.querySelector('input[type="url"]')!.hasAttribute("aria-invalid")).toBe(false);
     expect(change).not.toHaveBeenCalled();
     await choose(file);
     expect(change).toHaveBeenCalledExactlyOnceWith("https://example.com/retry.png");
@@ -363,6 +364,77 @@ describe("upload validation races", () => {
     await act(async () => resolveNew("https://example.com/newest.png"));
     expect(change).toHaveBeenCalledExactlyOnceWith("https://example.com/newest.png");
   });
+});
+
+describe("image source validation accessibility", () => {
+  it.each([false, true])(
+    "marks only the rejected URL control invalid (upload available: %s)",
+    async (withUpload) => {
+      mount();
+      const change = vi.fn();
+      const upload = withUpload
+        ? vi.fn().mockRejectedValue(new Error("Storage is unavailable"))
+        : undefined;
+      const original = "https://example.com/original.png";
+      act(() =>
+        root.render(
+          <ImageSourceField
+            id="src"
+            value={original}
+            onChange={change}
+            upload={upload}
+            validateSource={(source) => {
+              if (source.includes("rejected"))
+                throw new Error("Image exceeds this layout's limits");
+            }}
+          />,
+        ),
+      );
+      const input = container.querySelector<HTMLInputElement>('input[type="url"]')!;
+      const type = async (value: string) =>
+        act(async () => {
+          Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+            input,
+            value,
+          );
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+      await type("https://example.com/rejected.png");
+      expect(change).not.toHaveBeenCalled();
+      expect(input.value).toBe(original);
+      expect(container.querySelector('[role="alert"]')?.textContent).toBe(
+        "Image exceeds this layout's limits",
+      );
+      expect(input.getAttribute("aria-describedby")!.split(" ")).toContain(
+        container.querySelector('[role="alert"]')!.id,
+      );
+      expect(input.getAttribute("aria-invalid")).toBe("true");
+      expect(container.querySelector('input[type="file"]')?.getAttribute("aria-invalid")).not.toBe(
+        "true",
+      );
+      if (withUpload) {
+        await choose();
+        expect(container.querySelector('[role="alert"]')?.textContent).toBe(
+          "Storage is unavailable",
+        );
+        expect(input.hasAttribute("aria-invalid")).toBe(false);
+        expect(container.querySelector('input[type="file"]')!.getAttribute("aria-invalid")).toBe(
+          "true",
+        );
+        expect(input.value).toBe(original);
+        expect(change).not.toHaveBeenCalled();
+        await type("https://example.com/rejected-again.png");
+        expect(input.getAttribute("aria-invalid")).toBe("true");
+        expect(container.querySelector('input[type="file"]')!.hasAttribute("aria-invalid")).toBe(
+          false,
+        );
+      }
+      await type("https://example.com/accepted.png");
+      expect(change).toHaveBeenCalledExactlyOnceWith("https://example.com/accepted.png");
+      expect(input.hasAttribute("aria-invalid")).toBe(false);
+      expect(container.querySelector('[role="alert"]')).toBeNull();
+    },
+  );
 });
 
 describe("duplicate Puck field instances", () => {

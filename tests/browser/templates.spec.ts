@@ -167,7 +167,9 @@ async function captureResourceEvidence(
 ) {
   const evidence = await collectResourceAttribution(observe, async (kinds) => {
     const handle = await root.elementHandle();
-    const frameId = observe.frameId((await handle?.ownerFrame()) ?? null);
+    const owner = (await handle?.ownerFrame()) ?? null;
+    const frameId = observe.frameId(owner);
+    observe.markPhase("capture-frame-observed", owner);
     await handle?.dispose();
     const inventory = await root.evaluate(inspectCaptureResources, {
       kinds,
@@ -220,18 +222,26 @@ async function captureCompleteEmail(
   testInfo: TestInfo,
 ): Promise<Capture[]> {
   const email = await page.context().newPage();
-  const resources = observeResources(email, fonts);
+  const resources = observeResources(email, fonts, representation);
   const captures: Capture[] = [];
   try {
     await email.setViewportSize({ width: 800, height: 900 });
-    if (representation === "react-email") await loadReactEmailReference(email, html);
-    else await email.setContent(html, { waitUntil: "load", timeout: 30_000 });
+    if (representation === "react-email") {
+      resources.markPhase("reference-navigation:start", email.mainFrame());
+      await loadReactEmailReference(email, html);
+      resources.markPhase("reference-navigation:complete", email.mainFrame());
+    } else {
+      resources.markDocumentBoundary(email.mainFrame(), "set-content:start");
+      await email.setContent(html, { waitUntil: "load", timeout: 30_000 });
+      resources.markPhase("set-content:complete", email.mainFrame());
+    }
     // Load each document once, then resize sequentially. MJML comes from the
     // actual demo preview; React Email is the verified, unmodified renderer output.
     for (const [mode, width] of [
       ["desktop", 800],
       ["mobile", 390],
     ] as const) {
+      resources.markPhase(`capture:${mode}:start`, email.mainFrame());
       await email.setViewportSize({ width, height: 900 });
       const resourceError = await checkArtwork(email, representation, representation === "mjml");
       const screenshot = `${representation}-${mode}-${width}px.png`;
@@ -280,6 +290,7 @@ async function captureEditorCanvas(
     ["desktop", 800],
     ["mobile", 390],
   ] as const) {
+    resources.markPhase(`canvas-capture:${mode}:start`);
     const label = mode === "desktop" ? "Desktop" : "Mobile";
     const control = page.getByRole("button", { name: `Switch to ${label} viewport` });
     if (!(await control.isDisabled())) await control.click();
@@ -429,17 +440,23 @@ for (const fixture of templateInventory) {
   }, testInfo) => {
     test.setTimeout(120_000);
     const fonts = declaredMjmlFonts(templateSource(fixture));
-    const resources = observeResources(page, fonts);
+    const resources = observeResources(page, fonts, "editor");
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.setViewportSize({ width: 1600, height: 1000 });
+    resources.markPhase("editor-navigation:start", page.mainFrame());
     await page.goto("/");
+    resources.markPhase("editor-navigation:complete", page.mainFrame());
     const picker = page.getByRole("combobox", { name: "Email template" });
+    resources.markPhase("template-selection:start");
     await picker.selectOption(fixture.id);
     await expect(picker).toHaveValue(fixture.id);
+    resources.markPhase("template-selection:complete");
+    resources.markPhase("preview-open:start");
     await page.getByRole("button", { name: "Preview email" }).click();
     const dialog = page.getByRole("dialog", { name: "Email preview" });
     await expect(dialog).toBeVisible();
+    resources.markPhase("preview-open:complete");
     const frame = page.frameLocator('iframe[title="Rendered email"]');
     const expectedContent = fixture.content.content.map(normalize).filter(Boolean);
     await expectAudit
@@ -531,8 +548,10 @@ for (const fixture of templateInventory) {
         ...(await captureCompleteEmail(page, originalHtml, "react-email", fonts, testInfo)),
       );
       captures.push(...(await captureCompleteEmail(page, html, "mjml", fonts, testInfo)));
+      resources.markPhase("preview-close:start");
       await dialog.getByRole("button", { name: "Close preview" }).click();
       await expect(dialog).toBeHidden();
+      resources.markPhase("preview-close:complete");
       captures.push(...(await captureEditorCanvas(page, fonts, resources, testInfo)));
     } finally {
       writeFileSync(

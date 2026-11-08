@@ -124,7 +124,9 @@ export function IntrinsicCellView(
       data-pm-cell="1"
       style={{ display: "table-cell", padding: cell.padding, verticalAlign: cell.verticalAlign }}
     >
-      <Content minEmptyHeight={32} style={{ display: "block" }} />
+      {/* Puck's editing Slot defaults to height:100%. A filled cell would
+          otherwise top-align its children despite the cell's verticalAlign. */}
+      <Content minEmptyHeight={32} style={{ display: "block", height: "auto" }} />
     </div>
   );
 }

@@ -33,6 +33,7 @@ export function ImageSourceField({
   const instanceId = useId();
   const inputId = `${id}-${instanceId}`;
   const [error, setError] = useState("");
+  const [errorSource, setErrorSource] = useState<"input" | "upload">("upload");
   const [busy, setBusy] = useState(false);
   const request = useRef(0);
   const latest = useRef({ onChange, readOnly, upload, allowLocalImages, validateSource });
@@ -76,12 +77,14 @@ export function ImageSourceField({
       latest.current.validateSource?.(url, "upload");
       latest.current.onChange(url);
     } catch (cause) {
-      if (token === request.current)
+      if (token === request.current) {
+        setErrorSource("upload");
         setError(
           cause instanceof Error && cause.message
             ? cause.message
             : "Image upload failed. Try again.",
         );
+      }
     } finally {
       if (token === request.current) setBusy(false);
     }
@@ -97,6 +100,7 @@ export function ImageSourceField({
         type="url"
         value={String(value ?? "")}
         readOnly={readOnly}
+        aria-invalid={validationError || (error && errorSource === "input") ? true : undefined}
         aria-describedby={
           [upload ? description : "", visibleError ? errorId : ""].filter(Boolean).join(" ") ||
           undefined
@@ -110,6 +114,7 @@ export function ImageSourceField({
             latest.current.validateSource?.(event.target.value, "input");
             latest.current.onChange(event.target.value);
           } catch (cause) {
+            setErrorSource("input");
             setError(cause instanceof Error ? cause.message : "Image exceeds this layout's limits");
           }
         }}
@@ -124,7 +129,9 @@ export function ImageSourceField({
               aria-describedby={[description, visibleError ? errorId : ""]
                 .filter(Boolean)
                 .join(" ")}
-              aria-invalid={visibleError ? true : undefined}
+              aria-invalid={
+                validationError || (error && errorSource === "upload") ? true : undefined
+              }
               type="file"
               accept={IMAGE_UPLOAD_ACCEPT}
               disabled={readOnly || busy}

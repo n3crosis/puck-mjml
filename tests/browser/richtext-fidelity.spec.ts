@@ -130,11 +130,32 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       .selectOption("community/receipts/apple-receipt");
     await selectCanvasViewport(page, viewport);
     const canvas = page.frameLocator("#preview-frame");
-    const labels = canvas.locator(".apple-invoice p:first-child");
-    const values = canvas.locator(".apple-invoice p:not(:first-child)");
-    await expect(labels).toHaveCount(5);
-    await expect(values).toHaveCount(5);
-    const checkType = async () => {
+    const cells = canvas.locator(".apple-invoice td");
+    const labels = cells.locator("p:first-child");
+    const values = cells.locator("p:not(:first-child)");
+    const checkType = async (invoiceDate = "18 Jan 2023") => {
+      const paragraphs = [
+        ["APPLE ID", "alan.turing@gmail.com"],
+        [
+          "BILLED TO",
+          "Visa .... 7461 (Apple Pay)",
+          "Alan Turing",
+          "2125 Chestnut St",
+          "San Francisco, CA 94123",
+          "USA",
+        ],
+        ["INVOICE DATE", invoiceDate],
+        ["ORDER ID", "ML4F5L8522"],
+        ["DOCUMENT NO.", "186623754793"],
+      ];
+      await expect(cells).toHaveCount(5);
+      await expect(labels).toHaveText(paragraphs.map(([label]) => label));
+      // BILLED TO preserves five separate source paragraphs, not one value
+      // paragraph containing line breaks. Check each cell, not only the total.
+      await expect(values).toHaveCount(9);
+      for (const [index, expected] of paragraphs.entries()) {
+        await expect(cells.nth(index).locator("p")).toHaveText(expected);
+      }
       for (const label of await labels.all()) {
         await expect(label).toHaveCSS("font-size", "10px");
         await expect(label).toHaveCSS("color", "rgb(102, 102, 102)");
@@ -179,7 +200,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     await expect(cell).toContainText("18 Jan 2023 Edited.");
     await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();
     await expect.poll(() => exportedMjml(page)).toContain("18 Jan 2023 Edited.");
-    await checkType();
+    await checkType("18 Jan 2023 Edited.");
     await page.getByRole("button", { name: /^undo$/i }).click();
     await expect.poll(() => exportedMjml(page)).toBe(initial);
     await expect

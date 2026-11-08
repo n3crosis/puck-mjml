@@ -94,12 +94,13 @@ export function EmailCompatibility({
 }) {
   const [result, setResult] = useState<Result>();
   const [attempt, setAttempt] = useState(0);
-  const [clientId, setClientId] = useState("outlook/windows");
+  const [clientId, setClientId] = useState("");
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"detected" | "catalog">("detected");
   const [reviewOnly, setReviewOnly] = useState(true);
   const searchId = useId();
   const clientSelectId = useId();
+  const clientCoverageId = useId();
   const current =
     result?.document === document &&
     result.attempt === attempt &&
@@ -175,10 +176,11 @@ export function EmailCompatibility({
           Email client
           <select
             id={clientSelectId}
+            aria-describedby={clientCoverageId}
             value={clientId}
             onChange={(event) => setClientId(event.target.value)}
           >
-            <option value="">All recorded clients</option>
+            <option value="">All recorded clients ({compatibilityData.clients.length})</option>
             {compatibilityData.clients.map((client) => (
               <option key={client.id} value={client.id}>
                 {client.label}
@@ -186,6 +188,11 @@ export function EmailCompatibility({
             ))}
           </select>
         </label>
+        <p id={clientCoverageId} className="compatibility-muted">
+          By default, checks cover every recorded client, including Apple Mail, Gmail, Outlook and
+          Yahoo Mail. iCloud.com webmail is not in this snapshot; Apple Mail results do not cover
+          it.
+        </p>
         <label htmlFor={searchId}>
           Find a feature
           <input
@@ -220,7 +227,7 @@ export function EmailCompatibility({
             <div>
               <strong>{reviewCount}</strong>
               <span>
-                features to review for {clientId ? "this client" : "the selected clients"}
+                features to review for {clientId ? "this client" : "all recorded clients"}
               </span>
             </div>
             <div>

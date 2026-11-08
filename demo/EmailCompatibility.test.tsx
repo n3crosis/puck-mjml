@@ -3,6 +3,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { EmailCompatibility } from "./EmailCompatibility";
+import { compatibilityData } from "./compatibility/analyze";
 import { createEmptyDocument } from "../src/document";
 import type { CompiledEmail, EmailDocument } from "../src/types";
 
@@ -29,6 +30,12 @@ const button = (text: string) =>
   [...container.querySelectorAll<HTMLButtonElement>("button")].find(
     (item) => item.textContent === text,
   )!;
+const selectClient = async (clientId: string) =>
+  act(async () => {
+    const select = container.querySelector("select")!;
+    select.value = clientId;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
 beforeEach(() => {
   compile.mockReset();
   container = document.createElement("div");
@@ -51,14 +58,32 @@ it("shows real support notes and test dates, never an inbox-rendering guarantee"
     container.querySelector('a[href="https://www.caniemail.com/features/css-border-radius/"]'),
   ).toBeTruthy();
 });
+it("defaults to every recorded client and explains the unrecorded iCloud webmail gap", async () => {
+  compile.mockResolvedValue(result('<p style="border-radius:10px">Example</p>'));
+  await render(createEmptyDocument());
+  const select = container.querySelector("select")!;
+  expect(select.value).toBe("");
+  expect(select.selectedOptions[0]?.textContent).toBe(
+    `All recorded clients (${compatibilityData.clients.length})`,
+  );
+  const feature = container.querySelector(".compatibility-feature")!;
+  expect(feature.querySelectorAll(".compatibility-client-result")).toHaveLength(
+    compatibilityData.clients.length,
+  );
+  for (const client of ["Outlook · Windows", "Gmail · Desktop Webmail", "Apple Mail · macOS"])
+    expect(feature.textContent).toContain(client);
+  expect(feature.querySelector("summary")?.textContent).toMatch(/unsupported · \d+ partial/);
+  expect(container.querySelector('[aria-label="Analysis summary"]')?.textContent).toContain(
+    "features to review for all recorded clients",
+  );
+  const coverage = document.getElementById(select.getAttribute("aria-describedby")!);
+  expect(coverage?.textContent).toContain("iCloud.com webmail is not in this snapshot");
+  expect(coverage?.textContent).toContain("Apple Mail results do not cover it");
+});
 it("filters to a client and separates detected features from the browse catalog", async () => {
   compile.mockResolvedValue(result('<p style="border-radius:10px">Example</p>'));
   await render(createEmptyDocument());
-  await act(async () => {
-    const select = container.querySelector("select")!;
-    select.value = "apple-mail/macos";
-    select.dispatchEvent(new Event("change", { bubbles: true }));
-  });
+  await selectClient("apple-mail/macos");
   expect(container.textContent).toContain("No matching features.");
   await act(async () =>
     container.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click(),
@@ -67,6 +92,34 @@ it("filters to a client and separates detected features from the browse catalog"
   await act(async () => button("Browse 56 checks").click());
   expect(container.querySelectorAll(".compatibility-feature")).toHaveLength(56);
   expect(container.textContent).toContain("Catalog entries are not necessarily present");
+});
+it("keeps the chosen filter across tab changes and supports returning to all clients", async () => {
+  compile.mockResolvedValue(result('<p style="border-radius:10px">Example</p>'));
+  const document = createEmptyDocument();
+  await render(document);
+  await selectClient("gmail/desktop-webmail");
+  expect(container.textContent).toContain("No matching features.");
+  await render(document, false);
+  await render(document, true);
+  expect(container.querySelector("select")?.value).toBe("gmail/desktop-webmail");
+  await selectClient("");
+  expect(container.querySelectorAll(".compatibility-feature")).toHaveLength(1);
+  expect(container.querySelectorAll(".compatibility-client-result")).toHaveLength(
+    compatibilityData.clients.length,
+  );
+  await act(async () => button("Browse 56 checks").click());
+  await selectClient("apple-mail/macos");
+  expect(
+    [...container.querySelectorAll(".compatibility-feature")].map(
+      (item) => item.querySelector("summary strong")?.textContent,
+    ),
+  ).not.toContain("border-radius");
+  await selectClient("");
+  expect(
+    [...container.querySelectorAll(".compatibility-feature")].map(
+      (item) => item.querySelector("summary strong")?.textContent,
+    ),
+  ).toContain("border-radius");
 });
 it("discards old compilation when document replacement wins the race", async () => {
   const old = pending(),
@@ -118,6 +171,7 @@ it("does not compile until the tab is active and cancels hidden-tab results", as
 it("renders complete client caveats as stacked records without a wide table", async () => {
   compile.mockResolvedValue(result('<p style="border-radius:10px">Example</p>'));
   await render(createEmptyDocument());
+  await selectClient("outlook/windows");
   expect(container.querySelector("table")).toBeNull();
   const record = container.querySelector(".compatibility-client-result")!;
   expect([...record.querySelectorAll("dt")].map((item) => item.textContent)).toEqual([

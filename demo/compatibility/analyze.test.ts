@@ -153,4 +153,38 @@ describe("pinned Can I email data", () => {
     expect(needsReview(feature("css-display-flex"), "yahoo/desktop-webmail")).toBe(true);
     expect(needsReview(feature("css-border-radius"), "apple-mail/macos")).toBe(false);
   });
+  it("includes every recorded client and flags any client's review needs in the all-client view", () => {
+    const radius = feature("css-border-radius");
+    const all = clientResults(radius, "");
+    expect(all.map(({ id }) => id)).toEqual(compatibilityData.clients.map(({ id }) => id));
+    expect(all).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "outlook/windows", support: "unsupported" }),
+        expect.objectContaining({ id: "gmail/desktop-webmail", support: "supported" }),
+        expect.objectContaining({ id: "apple-mail/macos", support: "supported" }),
+      ]),
+    );
+    expect(needsReview(radius, "")).toBe(true);
+    const supported = {
+      ...radius,
+      notes: "",
+      stats: Object.fromEntries(
+        compatibilityData.clients.map(({ id }) => [id, { version: "test", code: "y" }]),
+      ),
+    };
+    expect(needsReview(supported, "")).toBe(false);
+    for (const code of ["n", "a", "u", "y #1", "y x"]) {
+      const changed = {
+        ...supported,
+        stats: { ...supported.stats, "gmail/ios": { version: "test", code } },
+      };
+      expect(needsReview(changed, "apple-mail/macos")).toBe(false);
+      expect(needsReview(changed, "")).toBe(true);
+    }
+    delete supported.stats["gmail/ios"];
+    expect(clientResults(supported, "").find(({ id }) => id === "gmail/ios")?.support).toBe(
+      "unknown",
+    );
+    expect(needsReview(supported, "")).toBe(true);
+  });
 });

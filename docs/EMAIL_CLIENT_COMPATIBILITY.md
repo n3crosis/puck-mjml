@@ -5,12 +5,16 @@ The demo's **Compatibility** sidebar tab, beside **Blocks** and **Outline**, use
 ## Using the tab
 
 1. Edit or import an email, then open **Compatibility**. The demo compiles the current document with the same MJML compiler and local-image policy used for export.
-2. Choose an email client. The default is Outlook Windows, meaning the classic Windows client versions recorded upstream, not new Outlook.
+2. **All recorded clients** is selected by default. Checks include every one of the snapshot's 48 client/platform combinations: Outlook, Gmail, Apple Mail, Yahoo Mail, Samsung Email, Thunderbird, and the other recorded clients. Choose an individual client to narrow the results, or return to **All recorded clients** at any time. Outlook Windows means the classic Windows client versions recorded upstream, not new Outlook.
 3. Review **In this email**. Each entry has a sample of the detected HTML/CSS, a recorded client version/date, the support result, upstream caveats, and a link to the full support table and original tests.
 4. Turn off **Needs review only** to include supported results. Supported entries with caveats remain in the review filter. Missing results are **Unknown**, never supported.
 5. Use **Browse 56 checks** to research included features even when they were not detected. Search and client filters apply to both views.
 
 Loading, failure/retry, document replacement, and interrupted tab changes are handled without showing results from a different email. The native navigation buttons support Enter/Space, arrow keys, Home, and End. Escape closes a sidebar panel and returns focus to its navigation button. Data and analysis load on first use; compilation happens only while the compatibility panel is active, with a short debounce during live edits.
+
+The default review filter flags a feature if **any recorded client** has unsupported, partial, unknown, or caveated support. Expand a feature to see each client's result, or use the client selector for a focused review. Client selection, search, and the review filter remain adjustable in both the detected and catalog views and survive sidebar tab changes.
+
+**iCloud.com webmail has no results in this snapshot.** Apple Mail on macOS/iOS is included, but its results do not establish iCloud webmail support. Neither the all-client default nor an absence of warnings establishes compatibility with unrecorded clients or new Outlook; those still need separate testing.
 
 ## What the results mean
 

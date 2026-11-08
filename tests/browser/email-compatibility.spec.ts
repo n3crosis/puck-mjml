@@ -39,9 +39,24 @@ test("compatibility detects current compiled CSS and exposes client-specific cav
   const panel = page.getByRole("region", { name: "Compatibility panel", exact: true });
   await expect(panel.getByRole("heading", { name: "Email compatibility" })).toBeVisible();
   await expect(panel.getByLabel("Analysis summary")).toBeVisible();
+  // The default checks all recorded clients, with unrecorded webmail kept explicit.
+  const client = panel.getByRole("combobox", { name: "Email client", exact: true });
+  await expect(client).toHaveValue("");
+  await expect(client).toHaveAccessibleDescription(/iCloud.com webmail is not in this snapshot/);
+  await expect(panel.getByText(/Apple Mail results do not cover it/)).toBeVisible();
   await panel.getByLabel("Find a feature").fill("border-radius");
   const feature = panel.locator(".compatibility-feature");
   await expect(feature).toHaveCount(1);
+  await feature.locator("summary").click();
+  await expect(feature.locator(".compatibility-client-result")).toHaveCount(
+    (await client.locator("option").count()) - 1,
+  );
+  for (const label of ["Outlook · Windows", "Gmail · Desktop Webmail", "Apple Mail · macOS"])
+    await expect(feature.getByText(label, { exact: true })).toBeVisible();
+  await expect(feature.locator("summary")).toContainText(/unsupported · \d+ partial/);
+  expect(await panel.evaluate((element) => element.scrollWidth - element.clientWidth)).toBe(0);
+  // Narrow the same results to classic Outlook and inspect its recorded caveat.
+  await client.selectOption("outlook/windows");
   await feature.locator("summary").click();
   await expect(
     feature
@@ -58,13 +73,21 @@ test("compatibility detects current compiled CSS and exposes client-specific cav
   );
   // The label contains the select, so getByLabel includes option text. Match
   // the exact accessible role/name, as confirmed in the CI accessibility tree.
-  const client = panel.getByRole("combobox", { name: "Email client", exact: true });
   await expect(client).toHaveAccessibleName("Email client");
   await client.selectOption("apple-mail/macos");
   await expect(client).toHaveValue("apple-mail/macos");
   await expect(panel.getByText("No matching features.")).toBeVisible();
   await panel.getByLabel("Needs review only").uncheck();
   await expect(feature.locator("summary")).toContainText("Supported");
+  await panel.getByLabel("Needs review only").check();
+  await client.selectOption("");
+  await expect(feature).toHaveCount(1);
+  await expect(feature.locator("summary")).toContainText(/unsupported · \d+ partial/);
+  await panel.getByRole("button", { name: "Browse 56 checks", exact: true }).click();
+  await client.selectOption("gmail/desktop-webmail");
+  await expect(panel.getByText("No matching features.")).toBeVisible();
+  await client.selectOption("");
+  await expect(feature).toHaveCount(1);
   expect(remote).toEqual([]);
 });
 
@@ -138,6 +161,8 @@ for (const width of [390, 768]) {
     const client = panel.getByRole("combobox", { name: "Email client", exact: true });
     await expect(client).toBeVisible();
     await expect(client).toHaveAccessibleName("Email client");
+    await expect(client).toHaveValue("");
+    await expect(client).toHaveAccessibleDescription(/iCloud.com webmail is not in this snapshot/);
     await panel.getByLabel("Find a feature").fill("not-a-feature");
     await expect(panel.getByText("No matching features.")).toBeVisible();
     expect(

@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 import { createUsePuck, type Overrides } from "@puckeditor/core";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/csr/CaretDown";
 import { LockSimpleIcon } from "@phosphor-icons/react/dist/csr/LockSimple";
@@ -196,6 +196,7 @@ function InspectorGroups({
   isLoading: boolean;
 }) {
   const [search, setSearch] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
   const searchId = useId();
   const query = search.toLowerCase().replace(/[\s_-]+/g, "");
   const entries = new Map<GroupId, InspectorEntry[]>();
@@ -216,6 +217,7 @@ function InspectorGroups({
     <div className="pm-properties" aria-busy={isLoading}>
       <div className="pm-property-search">
         <input
+          ref={searchRef}
           id={searchId}
           type="search"
           aria-label="Search properties"
@@ -230,7 +232,15 @@ function InspectorGroups({
           }}
         />
         {search && (
-          <button type="button" aria-label="Clear property search" onClick={() => setSearch("")}>
+          <button
+            type="button"
+            aria-label="Clear property search"
+            onClick={() => {
+              setSearch("");
+              // The clear button disappears; keep the keyboard in the search.
+              searchRef.current?.focus({ preventScroll: true });
+            }}
+          >
             Clear
           </button>
         )}

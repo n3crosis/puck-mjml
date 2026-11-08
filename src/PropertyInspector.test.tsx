@@ -255,6 +255,16 @@ describe("grouped property inspector", () => {
     expect(width.closest<HTMLElement>(".pm-property-row")!.hidden).toBe(false);
     expect(group("appearance").querySelector<HTMLElement>(".pm-property-body")!.hidden).toBe(true);
     await changeInput(search, "Width");
+    const clear = container!.querySelector<HTMLButtonElement>(
+      '[aria-label="Clear property search"]',
+    )!;
+    clear.focus();
+    await act(async () => clear.click());
+    expect(document.activeElement).toBe(search);
+    expect(search.value).toBe("");
+    expect(control("width")).toBe(width);
+    expect(JSON.stringify(api!.appState.data)).toBe(before);
+    await changeInput(search, "Width");
     await select("copy");
     expect(
       container!.querySelector<HTMLInputElement>('[aria-label="Search properties"]')!.value,

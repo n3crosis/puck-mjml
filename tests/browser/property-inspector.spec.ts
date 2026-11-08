@@ -86,6 +86,18 @@ test("root, class, per-element, local and generated HTML property names all supp
   await search.fill("font-size");
   await expect(inspector.locator('[data-property-name="fontSize"]')).toBeVisible();
   await expect(inspector.locator('[data-property-name="padding"]')).toBeHidden();
+  await search.press("Tab");
+  const clear = inspector.getByRole("button", { name: "Clear property search" });
+  await expect(clear).toBeFocused();
+  const saved = await page.getByLabel("Saved document").textContent();
+  await clear.press("Enter");
+  await expect(search).toBeFocused();
+  await expect(search).toHaveValue("");
+  await expect(page.getByLabel("Saved document")).toHaveText(saved!);
+  await expect(inspector.locator('[data-property-name="padding"]')).toBeVisible();
+  await search.fill("no-such-property");
+  await expect(inspector.getByRole("status")).toHaveText("No matching properties");
   await search.press("Escape");
+  await expect(search).toBeFocused();
   await expect(inspector.locator('[data-property-name="padding"]')).toBeVisible();
 });

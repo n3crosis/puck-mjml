@@ -5,6 +5,10 @@ from a typeface. Every non-space ASCII letter is a rectangle. They intentionally
 have distinct advances so browser font selection can be measured independently
 of installed system fonts or third-party network availability.
 
+- `ligature.woff`: 500-unit advances with an original GSUB `liga` substitution
+  from `f f i` (1500 units) to `f_f_i` (1000 units). At 16px, `office` is
+  40px with ligatures and 48px without; `planet` remains 48px. Used at normal
+  and synthetic bold weights to test shaping and character navigation.
 - `static-400.woff`: 400-unit advances, declared normal weight 400.
 - `static-600.woff`: 500-unit advances, declared normal weight 600.
 - `other-400.woff`: 800-unit advances, for a second isolated editor.

@@ -13,6 +13,7 @@ describe("original typography probe assets", () => {
   it("records reproducible generated WOFF binaries and a source generator", () => {
     expect(readFileSync(manifest.generator, "utf8")).toContain("pen.lineTo((advance - 50, 700))");
     expect(Object.keys(manifest.files)).toEqual([
+      "ligature.woff",
       "other-400.woff",
       "static-400.woff",
       "static-600.woff",
@@ -41,4 +42,12 @@ describe("original typography probe assets", () => {
     expect(tags).toContain("gvar");
     expect(tags).toContain("HVAR");
   });
+});
+
+it("includes a real GSUB ligature table in the shaping probe", () => {
+  const bytes = readFileSync(new URL("ligature.woff", directory));
+  const tags = Array.from({ length: bytes.readUInt16BE(12) }, (_, index) =>
+    bytes.subarray(44 + index * 20, 48 + index * 20).toString(),
+  );
+  expect(tags).toContain("GSUB");
 });

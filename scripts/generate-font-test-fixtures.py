@@ -11,6 +11,7 @@ from tempfile import TemporaryDirectory
 
 from fontTools.designspaceLib import AxisDescriptor, DesignSpaceDocument, SourceDescriptor
 from fontTools.fontBuilder import FontBuilder
+from fontTools.feaLib.builder import addOpenTypeFeaturesFromString
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.varLib import build
 from fontTools.varLib.instancer import instantiateVariableFont
@@ -27,12 +28,13 @@ def fix_timestamp(font):
     font["head"].modified = TIMESTAMP
 
 
-def make_master(path, name, weight, advance):
+def make_master(path, name, weight, advance, ligature=False):
+    order = ORDER + (["f_f_i"] if ligature else [])
     builder = FontBuilder(1000, isTTF=True)
-    builder.setupGlyphOrder(ORDER)
+    builder.setupGlyphOrder(order)
     builder.setupCharacterMap({ord(c): "space" if c == " " else c for c in CHARACTERS})
     glyphs = {}
-    for name_in_order in ORDER:
+    for name_in_order in order:
         pen = TTGlyphPen(None)
         if name_in_order != "space":
             pen.moveTo((50, 0))
@@ -42,7 +44,7 @@ def make_master(path, name, weight, advance):
             pen.closePath()
         glyphs[name_in_order] = pen.glyph()
     builder.setupGlyf(glyphs)
-    builder.setupHorizontalMetrics({name: (advance, 0) for name in ORDER})
+    builder.setupHorizontalMetrics({name: (advance, 0) for name in order})
     builder.setupHorizontalHeader(ascent=800, descent=-200)
     builder.setupNameTable({
         "familyName": name,
@@ -57,6 +59,10 @@ def make_master(path, name, weight, advance):
     )
     builder.setupPost()
     builder.setupMaxp()
+    if ligature:
+        builder.font["hmtx"]["f_f_i"] = (1000, 0)
+        addOpenTypeFeaturesFromString(builder.font,
+            "feature liga { sub f f i by f_f_i; } liga;")
     fix_timestamp(builder.font)
     builder.save(path)
     return builder.font
@@ -74,6 +80,9 @@ def main():
             font = make_master(work / f"{name}.ttf", name, weight, width)
             font.flavor = "woff"
             font.save(OUTPUT / f"{name}.woff")
+        font = make_master(work / "ligature.ttf", "LigatureProbe", 400, 500, ligature=True)
+        font.flavor = "woff"
+        font.save(OUTPUT / "ligature.woff")
         designspace = DesignSpaceDocument()
         axis = AxisDescriptor()
         axis.name, axis.tag = "Weight", "wght"

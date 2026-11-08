@@ -145,3 +145,150 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     });
   }
 }
+
+async function shapingSnapshot(target: Locator) {
+  return target.evaluate(async (element) => {
+    const doc = element.ownerDocument;
+    await doc.fonts.ready;
+    const walker = doc.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const runs = [];
+    let node: Node | null;
+    while ((node = walker.nextNode())) {
+      const text = node.textContent!;
+      const style = doc.defaultView!.getComputedStyle(node.parentElement!);
+      for (const match of text.matchAll(/office|planet/g)) {
+        const range = doc.createRange();
+        range.setStart(node, match.index!);
+        range.setEnd(node, match.index! + match[0].length);
+        runs.push({
+          text: match[0],
+          width: range.getBoundingClientRect().width,
+          ligatures: style.fontVariantLigatures,
+          features: style.fontFeatureSettings,
+          weight: style.fontWeight,
+        });
+      }
+    }
+    return runs;
+  });
+}
+
+test("canvas ligatures retain compiled shaping, authored overrides and character editing", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await page.goto("/");
+  await chooseImportFile(page, {
+    name: "shaping.mjml",
+    mimeType: "application/xml",
+    buffer: Buffer.from(
+      await page.evaluate(async () => {
+        // Use Vite's module loader for the public exporter (including its JSON
+        // catalog), rather than Playwright's Node-side TypeScript loader.
+        const fixtureUrl = "/tests/browser/fixtures/richtext-interaction-source.ts";
+        return (await import(/* @vite-ignore */ fixtureUrl)).createShapingSource();
+      }),
+    ),
+  });
+  const canvas = page.frameLocator("#preview-frame");
+  const selectors = [
+    ".shaping-text",
+    ".shaping-disabled",
+    ".shaping-direct",
+    ".shaping-descendant",
+    ".shaping-table td",
+    ".shaping-intrinsic",
+  ];
+  for (const selector of selectors)
+    await expect(canvas.locator(selector).getByRole("textbox")).toHaveCount(1);
+  await expect(canvas.locator(".shaping-intrinsic")).toHaveClass(/pm-intrinsic-text/);
+  const original = await exportedMjml(page);
+  await page.getByRole("button", { name: "Preview email", exact: true }).click();
+  const compiled = page.frameLocator('iframe[title="Rendered email"]');
+  const expected = [];
+  for (const selector of selectors)
+    expected.push(await shapingSnapshot(compiled.locator(selector)));
+  // Fail if the fixture silently falls back or ceases exercising real substitution.
+  expect(expected[0].map((run) => run.width)).toEqual([40, 48, 40, 40]);
+  expect(expected[1].map((run) => run.width)).toEqual([48, 48, 48]);
+  expect(expected[3].map((run) => run.width)).toEqual([40, 48, 48]);
+  await page
+    .getByRole("dialog", { name: "Email preview", exact: true })
+    .getByRole("button", { name: "Close preview", exact: true })
+    .click();
+  for (const [index, selector] of selectors.entries()) {
+    const target = canvas.locator(selector);
+    await expect.poll(() => shapingSnapshot(target)).toEqual(expected[index]);
+    await target.dblclick();
+    const editor = target.getByRole("textbox");
+    await expect(editor).toBeFocused();
+    await expect(
+      canvas
+        .locator(".pm-richtext-toolbar--inline")
+        .getByRole("button", { name: "Bold", exact: true }),
+    ).toBeEnabled();
+    await expect.poll(() => shapingSnapshot(target)).toEqual(expected[index]);
+    await editor.press("Tab");
+    await expect(editor).not.toBeFocused();
+    await expect.poll(() => shapingSnapshot(target)).toEqual(expected[index]);
+  }
+  await expect(canvas.locator(".shaping-disabled .ProseMirror")).toHaveCSS(
+    "font-variant-ligatures",
+    "none",
+  );
+  await expect(canvas.locator(".shaping-direct .ProseMirror")).toHaveCSS(
+    "font-variant-ligatures",
+    "normal",
+  );
+  await expect(canvas.locator(".shaping-direct .ProseMirror")).toHaveCSS(
+    "font-feature-settings",
+    "normal",
+  );
+  expect(await exportedMjml(page)).toBe(original);
+
+  const target = canvas.locator(".shaping-text");
+  await target.dblclick();
+  const editor = target.getByRole("textbox");
+  await expect(editor).toBeVisible();
+  await expect(editor).toBeFocused();
+  const controls = canvas.locator(".pm-richtext-toolbar--inline");
+  await expect(controls.getByRole("button", { name: "Bold", exact: true })).toBeEnabled();
+  await editor.press("ControlOrMeta+Home");
+  await editor.press("ArrowRight");
+  for (let offset = 0; offset < 3; offset++) await editor.press("Shift+ArrowRight");
+  await expect
+    .poll(() => editor.evaluate((node) => node.ownerDocument.getSelection()?.toString()))
+    .toBe("ffi");
+  await controls.getByRole("button", { name: "Bold", exact: true }).click();
+  await expect(target.locator("strong").first()).toHaveText("ffi");
+  await controls.getByRole("button", { name: "Add link", exact: true }).click();
+  const url = controls.getByRole("textbox", { name: "Link URL", exact: true });
+  await url.fill("https://example.com/ligature");
+  await url.press("Enter");
+  await expect(target.locator('a[href="https://example.com/ligature"]')).toHaveText("ffi");
+  const formatted = await exportedMjml(page);
+  expect(formatted).toContain("https://example.com/ligature");
+  await editor.click();
+  await editor.press("ControlOrMeta+Home");
+  for (let offset = 0; offset < 4; offset++) await editor.press("ArrowRight");
+  await editor.press("ArrowLeft");
+  await editor.press("Shift+ArrowRight");
+  await expect
+    .poll(() => editor.evaluate((node) => node.ownerDocument.getSelection()?.toString()))
+    .toBe("i");
+  await editor.press("ArrowRight");
+  await page.keyboard.insertText("X");
+  await expect(editor).toHaveText("offiXce planet office office");
+  await editor.press("Backspace");
+  await expect(editor).toHaveText("office planet office office");
+  expect(await exportedMjml(page)).toBe(formatted);
+  await editor.click();
+  await editor.press("ControlOrMeta+End");
+  await page.keyboard.insertText(" office");
+  await expect.poll(() => exportedMjml(page)).not.toBe(formatted);
+  const changed = await exportedMjml(page);
+  await page.getByRole("button", { name: /^undo$/i }).click();
+  await expect.poll(() => exportedMjml(page)).toBe(formatted);
+  await page.getByRole("button", { name: /^redo$/i }).click();
+  await expect.poll(() => exportedMjml(page)).toBe(changed);
+});

@@ -4,6 +4,8 @@ import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createEmailConfig } from "./config";
+import { fromMjml } from "./import";
+import { createShapingSource } from "../tests/browser/fixtures/richtext-interaction-source";
 import type { EmailBlock, EmailDocument, EmailSettings, MjmlAttribute } from "./types";
 
 beforeAll(() => vi.stubGlobal("window", globalThis));
@@ -165,5 +167,63 @@ describe("selection frame containment", () => {
       /\.pm-richtext-toolbar--inline \.pm-richtext-link\s*{[^}]*flex:\s*1 1 100%[^}]*max-width:\s*100%/,
     );
     expect(stylesheet).not.toMatch(/\.pm-richtext-toolbar[^}]*overflow:\s*(hidden|clip)/);
+  });
+});
+
+describe("canvas rich-text shaping", () => {
+  it("round-trips the shaping probe through real intrinsic row and cell blocks", async () => {
+    const document = fromMjml(await createShapingSource()).document;
+    const types: string[] = [];
+    const visit = (value: unknown) => {
+      if (!value || typeof value !== "object") return;
+      if ("type" in value && typeof value.type === "string") types.push(value.type);
+      Object.values(value).forEach(visit);
+    };
+    visit(document);
+    expect(types.filter((type) => type === "IntrinsicRow")).toHaveLength(1);
+    expect(types.filter((type) => type === "IntrinsicCell")).toHaveLength(1);
+    expect(parse(render(document)).querySelector(".shaping-intrinsic")!.classList).toContain(
+      "pm-intrinsic-text",
+    );
+  });
+
+  it("inherits shaping before low-specificity authored rules and scopes only canvas editors", () => {
+    const html = render({
+      root: {
+        props: {
+          headStyles: [
+            {
+              inline: "head",
+              css: ':where(.ProseMirror) { font-variant-ligatures:none; font-feature-settings:"liga" 0; }',
+            },
+          ],
+        },
+      },
+      content: [],
+    });
+    const dom = parse(html);
+    const reset = dom.querySelector("style[data-pm-richtext-shaping]")!;
+    expect(reset).not.toBeNull();
+    const scope = reset.getAttribute("data-pm-richtext-shaping")!;
+    const selector = `.${scope} :where(.ProseMirror)`;
+    expect(reset.textContent).toBe(
+      `${selector} { font-variant-ligatures: inherit; font-feature-settings: inherit; }`,
+    );
+    expect(html.indexOf("data-pm-richtext-shaping")).toBeLessThan(
+      html.indexOf("data-pm-canvas-css"),
+    );
+    expect(dom.querySelector("style[data-pm-canvas-css]")!.textContent).toContain(
+      `${selector} { font-variant-ligatures:none; font-feature-settings:"liga" 0; }`,
+    );
+    dom.body.insertAdjacentHTML("beforeend", '<div class="ProseMirror" id="sidebar"></div>');
+    dom.querySelector(".pm-email")!.innerHTML = `
+      <div class="pm-text"><div class="ProseMirror" id="text"></div></div>
+      <div class="pm-intrinsic-text"><div class="ProseMirror" id="intrinsic"></div></div>
+      <table><tr><td><div class="ProseMirror" id="cell"></div></td></tr></table>`;
+    expect([...dom.querySelectorAll(selector)].map((node) => node.id)).toEqual([
+      "text",
+      "intrinsic",
+      "cell",
+    ]);
   });
 });

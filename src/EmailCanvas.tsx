@@ -220,6 +220,11 @@ export function EmailCanvas({
           {fonts.css}
         </style>
       ) : null}
+      {/* Tiptap's head stylesheet disables ligatures. Keep email shaping stable
+          through editing, below even low-specificity scoped authored CSS. */}
+      <style data-pm-richtext-shaping={scope}>
+        {`.${scope} :where(.ProseMirror) { font-variant-ligatures: inherit; font-feature-settings: inherit; }`}
+      </style>
       <style data-pm-native-widths={scope}>{desktopWidthStyles}</style>
       {scopedCss.css ? <style data-pm-canvas-css={scope}>{scopedCss.css}</style> : null}
       <style data-pm-responsive={scope}>

@@ -319,15 +319,25 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       name: "Resize columns 1 and 2",
       exact: true,
     });
-    // Stacked cells have no shared vertical column edge. Keep the selection
-    // through a viewport round-trip so stale handles cannot cover their text.
-    for (const mode of [
-      viewport,
-      viewport === "Mobile" ? "Desktop" : "Mobile",
-      viewport,
-    ] as const) {
-      await selectCanvasViewport(page, mode);
-      await expect(separator).toHaveCount(mode === "Mobile" ? 0 : 1);
+    const selectedTable = canvas
+      .locator(".pm-selection-actions")
+      .getByText("Table", { exact: true });
+    await expect(selectedTable).toBeVisible();
+    await expect(separator).toHaveCount(viewport === "Mobile" ? 0 : 1);
+    // Puck's viewport buttons clear component selection. Reopen the same cell
+    // normally at each width: stacked cells must not expose a column handle,
+    // while the restored horizontal grid must offer one again.
+    for (const mode of [viewport === "Mobile" ? "Desktop" : "Mobile", viewport] as const) {
+      await test.step(`Switch to ${mode} and reselect the table`, async () => {
+        await selectCanvasViewport(page, mode);
+        await expect(selectedTable).toHaveCount(0);
+        await expect(separator).toHaveCount(0);
+        await cell.getByText("Second value", { exact: true }).dblclick();
+        await expect(editor).toBeVisible();
+        await expect(editor).toBeFocused();
+        await expect(selectedTable).toBeVisible();
+        await expect(separator).toHaveCount(mode === "Mobile" ? 0 : 1);
+      });
     }
     await expect.poll(() => measure(canvas)).toEqual(expected);
     await editor.click();

@@ -2,11 +2,13 @@ import { fromMjml, toMjml } from "../src/core";
 import { createEmailConfig } from "../src/config";
 import { sanitizeDocumentRichText } from "../src/normalize";
 import type { EmailDocument } from "../src/types";
+import { assertCompleteMjml } from "./import-structure";
 
 const rootDefaults = createEmailConfig().root!.defaultProps;
 
 /** Never commit an import that the untrusted demo cannot export. */
 export function reviewImport(source: string) {
+  assertCompleteMjml(source);
   const result = fromMjml(source, { allowLocalImages: true });
   toMjml(result.document, { allowLocalImages: true });
   return result;

@@ -117,24 +117,29 @@ it("opens the dialog from Import and announces a successful paste", async () => 
   expect(document.activeElement).toBe(button("Import"));
 });
 
-it("malformed source preserves the draft and its import notes without prompting to discard", async () => {
-  await click("Import");
-  await fill("textarea", source("Original import", true));
-  await click("Import text");
-  await fill('[aria-label="Test preview"]', "Unsaved preview");
-  const before = serialized();
-  await click("Import");
-  await fill("textarea", "not MJML");
-  await click("Import text");
-  expect(serialized()).toBe(before);
-  expect(confirm).not.toHaveBeenCalled();
-  expect(container.querySelector('dialog [role="alert"]')?.textContent).toContain(
-    "previous email is unchanged",
-  );
-  expect(container.querySelector("details.demo-status")?.textContent).toContain(
-    "Ignored unsupported head element",
-  );
-});
+it.each(["not MJML", "<mjml><mj-body>", "<mjml><mj-body/>", "<mjml><mj-body></mjml>"])(
+  "malformed source preserves the draft and its import notes without prompting to discard: %s",
+  async (invalid) => {
+    await click("Import");
+    await fill("textarea", source("Original import", true));
+    await click("Import text");
+    await fill('[aria-label="Test preview"]', "Unsaved preview");
+    const before = serialized();
+    const documentBefore = current.document;
+    await click("Import");
+    await fill("textarea", invalid);
+    await click("Import text");
+    expect(serialized()).toBe(before);
+    expect(current.document).toBe(documentBefore);
+    expect(confirm).not.toHaveBeenCalled();
+    expect(container.querySelector('dialog [role="alert"]')?.textContent).toContain(
+      "previous email is unchanged",
+    );
+    expect(container.querySelector("details.demo-status")?.textContent).toContain(
+      "Ignored unsupported head element",
+    );
+  },
+);
 
 it.each([false, true])(
   "checks the latest unsaved state after a file read (confirmation %s)",

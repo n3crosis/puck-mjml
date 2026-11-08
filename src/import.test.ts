@@ -177,6 +177,68 @@ describe("fromMjml", () => {
     expect(result.errors).toEqual([]);
   });
 
+  it.each([
+    "<tag x",
+    "<tag x>",
+    "<? thing",
+    "<!thing",
+    "< b x",
+    "<mj-body x",
+    "<!-- note -->",
+    "<![CDATA[ note ]]>",
+    "&lt;tag &amp;",
+  ])("preserves compiler-accepted literal CSS text: %s", async (literal) => {
+    const css = `.literal::before{content:"${literal}"}`;
+    const { default: mjml2html } = await import("mjml-browser");
+    for (const inline of ["head", "inline"] as const) {
+      const style = `<mj-style${inline === "inline" ? ' inline="inline"' : ""}>${css}</mj-style>`;
+      const source = `<mjml><mj-head><mj-title>Subject</mj-title>${style}</mj-head><mj-body /></mjml>`;
+      const original = await mjml2html(source, { validationLevel: "strict" });
+      expect(original.errors).toEqual([]);
+      if (inline === "head") expect(original.html).toContain(css);
+      const { document, warnings } = fromMjml(source);
+      expect(warnings).toEqual([]);
+      expect(document.root.props!.headStyles).toEqual([{ css, inline }]);
+      expect(document.root.props!.subject).toBe("Subject");
+      const exported = toMjml(JSON.parse(JSON.stringify(document)));
+      expect(exported).toContain(style);
+      // Export prepends the built-in rich-text stylesheet; the original custom
+      // stylesheet must still import back byte-for-byte in its original mode.
+      expect(fromMjml(exported).document.root.props!.headStyles!.slice(-1)).toEqual(
+        document.root.props!.headStyles,
+      );
+      const roundtrip = await compileEmail(document);
+      expect(roundtrip.errors).toEqual([]);
+      if (inline === "head") expect(roundtrip.html).toContain(css);
+    }
+  });
+
+  it.each(["</mj-head>", "</mj-body>", "</style>", "</mj-style-other>"])(
+    "retains CSS closing-tag export protection after import: %s",
+    (literal) => {
+      const css = `.literal::before{content:"${literal}"}`;
+      const { document } = fromMjml(
+        `<mjml><mj-head><mj-style>${css}</mj-style></mj-head><mj-body /></mjml>`,
+      );
+      expect(document.root.props!.headStyles).toEqual([{ css, inline: "head" }]);
+      expect(() => toMjml(document)).toThrow(/closing tag/);
+      expect(() => toMjml(document, { allowRawHtml: true })).toThrow(/closing tag/);
+    },
+  );
+
+  it("scans long non-tag whitespace without repeatedly splitting its prefix", () => {
+    const subject = `Before <${" ".repeat(80_000)}! after`;
+    const started = performance.now();
+    const { document, warnings } = fromMjml(
+      `<mjml><mj-head><mj-title>${subject}</mj-title></mj-head><mj-body /></mjml>`,
+    );
+    expect(warnings).toEqual([]);
+    expect(document.root.props!.subject).toBe(subject);
+    // Generous enough for CI: a linear scan takes milliseconds, while the
+    // optional-slash prefix regex takes seconds on this ordinary text input.
+    expect(performance.now() - started).toBeLessThan(2_000);
+  });
+
   it("imports HTML attribute selectors and non-pixel breakpoints", () => {
     const { document, warnings } = fromMjml(`<mjml><mj-head>
         <mj-breakpoint width="40em" />

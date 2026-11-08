@@ -449,23 +449,40 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
   for (let cursor = 0; cursor < source.length;) {
     const start = source.indexOf("<", cursor);
     if (start < 0) break;
-    if (source.startsWith("<!--", start)) {
+    const styleContent = active?.tag === "mj-style";
+    if (!styleContent && source.startsWith("<!--", start)) {
       const end = source.indexOf("-->", start + 4);
       cursor = end < 0 ? source.length : end + 3;
       continue;
     }
-    if (source.startsWith("<![CDATA[", start)) {
+    if (!styleContent && source.startsWith("<![CDATA[", start)) {
       const end = source.indexOf("]]>", start + 9);
       cursor = end < 0 ? source.length : end + 3;
       continue;
     }
-    const match = /^<\s*(\/?)\s*([a-z][\w:-]*)(?=[\s/>])/i.exec(source.slice(start));
+    // Consume each whitespace run once. Optional slash/whitespace groups in a
+    // single regex can repeatedly split a long run before a non-tag character.
+    let nameStart = start + 1;
+    while (nameStart < source.length && /\s/.test(source[nameStart]!)) nameStart += 1;
+    const closing = source[nameStart] === "/";
+    if (closing) {
+      nameStart += 1;
+      while (nameStart < source.length && /\s/.test(source[nameStart]!)) nameStart += 1;
+    }
+    const match = /^[a-z][\w:-]*(?=[\s/>])/i.exec(source.slice(nameStart));
     if (!match) {
-      cursor = start + 1;
+      cursor = nameStart;
+      continue;
+    }
+    const tag = match[0].toLowerCase();
+    // CSS strings/comments can contain '<' without a complete HTML token.
+    // Only the style's own closing tag delimits its opaque source content.
+    if (styleContent && (!closing || tag !== "mj-style")) {
+      cursor = nameStart + match[0].length;
       continue;
     }
     let quote = "";
-    let end = start + match[0].length;
+    let end = nameStart + match[0].length;
     for (; end < source.length; end += 1) {
       const character = source[end];
       if (quote) {
@@ -475,8 +492,7 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
     }
     if (end === source.length) break;
     cursor = end + 1;
-    const tag = match[2]!.toLowerCase();
-    if (active && match[1] && tag === active.tag) {
+    if (active && closing && tag === active.tag) {
       let token: string;
       do token = `${tokenPrefix}${index++}__`;
       while (source.includes(token));
@@ -487,7 +503,7 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
       active = undefined;
     } else if (
       !active &&
-      !match[1] &&
+      !closing &&
       endingTags.has(tag) &&
       !/\/\s*>$/.test(source.slice(start, cursor))
     ) {

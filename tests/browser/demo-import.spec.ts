@@ -265,7 +265,7 @@ for (const decision of ["dismiss", "accept"] as const) {
   });
 }
 
-test("invalid dropped text preserves a dirty draft and its undo history without asking to discard", async ({
+test("invalid imports preserve a dirty draft and its undo history without asking to discard", async ({
   page,
 }) => {
   await page.getByRole("combobox", { name: "Email template" }).selectOption("blank");
@@ -288,7 +288,29 @@ test("invalid dropped text preserves a dirty draft and its undo history without 
     expect(await exportedMjml(page)).toBe(draft);
     await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();
   }
+  for (const method of ["paste", "file", "drop"] as const) {
+    const incomplete = "<mjml><mj-body>";
+    if (method === "file") await importFile(page, "incomplete.mjml", incomplete);
+    else if (method === "drop") await dropSource(page, incomplete);
+    else {
+      const dialog = await openImportDialog(page);
+      await dialog.getByRole("textbox", { name: "MJML source to import" }).fill(incomplete);
+      await dialog.getByRole("button", { name: "Import text", exact: true }).click();
+    }
+    const dialog = page.getByRole("dialog", { name: "Import MJML", exact: true });
+    await expect(dialog.getByRole("alert")).toContainText("Your previous email is unchanged.");
+    await expect(dialog.getByRole("alert")).toContainText("Missing </mj-body>");
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+    expect(await exportedMjml(page)).toBe(draft);
+    await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();
+  }
   expect(dialogs).toEqual([]);
+  const preview = page.getByRole("textbox", { name: "Preview text", exact: true });
+  await page.getByRole("button", { name: /^undo$/i }).click();
+  await expect(preview).toHaveValue("");
+  await page.getByRole("button", { name: /^redo$/i }).click();
+  await expect(preview).toHaveValue("Keep draft");
+  expect(await exportedMjml(page)).toBe(draft);
 });
 
 test("paste stays editable until explicit import, and drag leave/cancel clears highlighting", async ({

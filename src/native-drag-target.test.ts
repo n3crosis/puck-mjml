@@ -31,8 +31,5 @@ describe("native column pointer targets", () => {
     const empty = { x: 587, y: 559.5, width: 406, height: 116 };
     const point = emptyRowPoint(empty);
     expect(point).toEqual({ x: 790, y: 617.5 });
-    expect(point.y).toBeGreaterThan(569.5);
-    expect(point.y).toBeGreaterThan(empty.y + 6);
-    expect(point.y).toBeLessThan(empty.y + empty.height - 6);
   });
 });

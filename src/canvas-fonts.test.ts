@@ -70,6 +70,31 @@ describe("web font stylesheet transformation", () => {
     expect(result.css).toContain('url("https://cdn.example.com/fonts/c.woff2")');
   });
 
+  it("uses case-insensitive descriptors and the last declared family", () => {
+    const css = "@FONT-FACE { FONT-FAMILY: Other; font-family: Inter; SRC: url(inter.woff2); }";
+    const options = { alias: "CanvasFont", baseUrl: "https://cdn.example.com/fonts/x.css" };
+    expect(transformFontCss(css, { ...options, family: "Inter" }).css).toContain(
+      'SRC: url("https://cdn.example.com/fonts/inter.woff2")',
+    );
+    expect(transformFontCss(css, { ...options, family: "Other" }).css).toBe("");
+    expect(
+      transformFontCss("@font-face { FONT-FAMILY: Inter; SRC: url(inter.woff2); }", {
+        ...options,
+        family: "Inter",
+      }).notes,
+    ).toEqual([]);
+  });
+
+  it("resolves quoted URL punctuation without rewriting local font names", () => {
+    const result = transformFontCss(
+      `@font-face { font-family: Inter; src: local("url(local)"), url("inter).woff2"), url('inter".woff2'); }`,
+      { family: "Inter", alias: "CanvasFont", baseUrl: "https://cdn.example.com/fonts/x.css" },
+    );
+    expect(result.css).toContain('local("url(local)")');
+    expect(result.css).toContain('url("https://cdn.example.com/fonts/inter).woff2")');
+    expect(result.css).toContain('url("https://cdn.example.com/fonts/inter%22.woff2")');
+  });
+
   it("keeps data URLs and absolute URLs intact", () => {
     const result = transformFontCss(
       "@font-face { font-family: X; src: url(data:font/woff2;base64,AAA) format('woff2'), url(https://other.example.com/x.woff2); }",

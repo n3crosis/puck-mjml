@@ -36,21 +36,26 @@ const httpUrl = (value: unknown): string | undefined => {
 
 /** Resolve url(...) sources in a font-face src value against the stylesheet URL. */
 function resolveFontSources(value: string, baseUrl: string): string {
-  return value.replace(/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi, (original, _quote, raw) => {
-    const trimmed = raw.trim();
-    if (/^(?:data:|blob:|about:|#)/i.test(trimmed)) return original;
-    try {
-      return `url("${new URL(trimmed, baseUrl).href}")`;
-    } catch {
-      return original;
-    }
-  });
+  // Match strings separately so a literal such as local("url(font)") stays intact.
+  return value.replace(
+    /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\burl\(\s*(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|([^\s()'"\\]+))\s*\)/gi,
+    (original, doubleQuoted, singleQuoted, unquoted) => {
+      const raw = doubleQuoted ?? singleQuoted ?? unquoted;
+      if (raw === undefined || raw.includes("\\")) return original;
+      if (/^(?:data:|blob:|about:|#)/i.test(raw)) return original;
+      try {
+        return `url("${new URL(raw, baseUrl).href.replaceAll('"', "%22")}")`;
+      } catch {
+        return original;
+      }
+    },
+  );
 }
 
 function matchesFamily(rule: AtRule, family: string): boolean {
   let found = false;
-  rule.walkDecls("font-family", (declaration) => {
-    if (found) return;
+  rule.walkDecls((declaration) => {
+    if (declaration.prop.toLowerCase() !== "font-family") return;
     const quoted = declaration.value.trim().match(/^(['"])(.*)\1$/s);
     found = familyKey(quoted ? quoted[2] : declaration.value.trim()) === familyKey(family);
   });
@@ -79,8 +84,8 @@ export function transformFontCss(
   const keepFontFace = (rule: AtRule): boolean => {
     if (!matchesFamily(rule, options.family)) return false;
     let hasSource = false;
-    rule.walkDecls("src", (declaration) => {
-      if (declaration.value.trim()) hasSource = true;
+    rule.walkDecls((declaration) => {
+      if (declaration.prop.toLowerCase() === "src" && declaration.value.trim()) hasSource = true;
     });
     // The browser ignores source-less faces. A same-family static head face
     // must not hide an import that can never register.

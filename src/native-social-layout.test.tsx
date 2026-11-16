@@ -37,13 +37,14 @@ describe("native social row baseline", () => {
       expect(canvas(selector).css("padding"), name).toBe(compiled(selector).css("padding"));
       expect(canvas(selector).css("text-align"), name).toBe(compiled(selector).attr("align"));
       expect(canvas(selector).css("line-height"), name).toBeUndefined();
-      const labels = canvas(`${selector} .pm-social-label a`);
+      const labels = canvas(`${selector} .pm-social-label > :is(a, span)`);
       for (const label of labels.toArray()) {
         const link = canvas(label);
-        const reference = compiled(`${selector} a`).filter(
+        const reference = compiled(`${selector} a, ${selector} span`).filter(
           (_index, node) => compiled(node).text().trim() === link.text().trim(),
         );
         expect(reference).toHaveLength(1);
+        expect(link.prop("tagName")).toBe(reference.prop("tagName"));
         for (const key of ["font-family", "font-size", "font-weight", "line-height", "color"]) {
           expect(link.css(key), `${name} ${key}`).toBe(reference.css(key));
         }
@@ -55,6 +56,7 @@ describe("native social row baseline", () => {
         expect(reference).toHaveLength(1);
         for (const key of ["alt", "title", "src", "width"])
           expect(actual.attr(key)).toBe(reference.attr(key));
+        expect(actual.closest("a")).toHaveLength(reference.closest("a").length);
         for (const key of ["href", "target", "rel"])
           expect(actual.closest("a").attr(key)).toBe(reference.closest("a").attr(key));
       }

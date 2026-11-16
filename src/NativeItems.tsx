@@ -174,6 +174,16 @@ function Social({ props, attributes, scope }: ItemProps) {
             rel: a.rel,
             onClick: click(props),
           };
+          const wrapLink = (children: ReactNode, style?: CSSProperties) =>
+            destination ? (
+              <a {...linkProps} style={style}>
+                {children}
+              </a>
+            ) : style ? (
+              <span style={style}>{children}</span>
+            ) : (
+              children
+            );
           const label = source(item) ?? content(item.label);
           const icon = image ? (
             <span
@@ -208,7 +218,7 @@ function Social({ props, attributes, scope }: ItemProps) {
                   justifyContent: "center",
                 }}
               >
-                <a {...linkProps}>
+                {wrapLink(
                   <img
                     src={image}
                     alt={a.alt ?? ""}
@@ -221,8 +231,8 @@ function Social({ props, attributes, scope }: ItemProps) {
                       border: a.border,
                       borderRadius: a["border-radius"],
                     }}
-                  />
-                </a>
+                  />,
+                )}
               </span>
             </span>
           ) : null;
@@ -238,9 +248,7 @@ function Social({ props, attributes, scope }: ItemProps) {
                   textAlign: a.align as CSSProperties["textAlign"],
                 }}
               >
-                <a {...linkProps} style={nativeStyle(a, typographyKeys)}>
-                  {label}
-                </a>
+                {wrapLink(label, nativeStyle(a, typographyKeys))}
               </span>
             ) : null;
           return (

@@ -69,10 +69,10 @@ for (const width of [390, 800]) {
         // The observed regression made this 36px in all 40 first-party footers.
         expect(a.nextText - bottom).toBe(32);
       }
-      const labels = actual.locator(".pm-social-label a");
+      const labels = actual.locator(".pm-social-label > :is(a, span)");
       for (const label of await labels.all()) {
         const text = await label.innerText();
-        const expected = reference.getByRole("link", { name: text, exact: true });
+        const expected = reference.getByText(text, { exact: true });
         for (const property of [
           "font-family",
           "font-size",

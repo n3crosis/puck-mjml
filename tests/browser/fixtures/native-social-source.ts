@@ -1,7 +1,8 @@
-const icon = (name: string, label = "", attributes = "") =>
-  `<mj-social-element name="web" src="https://example.com/social-icon.svg" href="https://example.com/${name}" alt="${name} icon" title="${name} destination" rel="noopener" target="_blank" padding="0px 24px 0px 0px" background-color="transparent" ${attributes}>${label}</mj-social-element>`;
+const icon = (name: string, label = "", attributes = "", linked = true) =>
+  `<mj-social-element name="web" src="https://example.com/social-icon.svg" ${linked ? `href="https://example.com/${name}"` : ""} alt="${name} icon" title="${name} destination" rel="noopener" target="_blank" padding="0px 24px 0px 0px" background-color="transparent" ${attributes}>${label}</mj-social-element>`;
 
 export const socialCases = [
+  { name: "unlinked-label", attributes: "", children: icon("unlinked", "Website", "", false) },
   {
     name: "horizontal-icons",
     attributes: "",

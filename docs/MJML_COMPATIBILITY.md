@@ -85,7 +85,7 @@ These selectors isolate sibling editors and host-page targets. They do not creat
 
 Only registrations in retained canvas CSS contribute aliases. Definitions beneath an omitted wrapper or rejected selector do not redirect surviving rules to missing aliases; explicitly supplied imported-font aliases are kept. Supported conditional groups still contribute aliases without evaluating their media/support/container conditions on the server. Unsupported `@scope` remains omitted in full, including its otherwise browser-valid global definitions.
 
-Literal `font-family` declarations in direct keyframe steps use the same per-instance aliases as ordinary declarations. Step selectors, timing functions, custom properties, `var()` values/fallbacks, font shorthand, escaped/commented font values, invalid empty-item font lists, and invalid `!important` declarations are left unchanged. Keyframe steps are not treated as nested selectors, and arbitrary nested content inside keyframes is not promoted into supported CSS.
+Literal `font-family` declarations and supported literal `font` shorthand in direct keyframe steps use the same per-instance aliases as ordinary declarations. Step selectors, timing functions, custom properties, `var()` values/fallbacks, unsupported font shorthand, escaped/commented font values, invalid empty-item font lists, and invalid `!important` declarations are left unchanged. Keyframe steps are not treated as nested selectors, and arbitrary nested content inside keyframes is not promoted into supported CSS.
 
 ### Web fonts
 

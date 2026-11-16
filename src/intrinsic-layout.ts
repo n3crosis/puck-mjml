@@ -396,7 +396,7 @@ export function resolveIntrinsicLeaf(block: EmailBlock, options: IntrinsicOption
     Object.entries(attributes).filter(([, value]) => value !== null),
   ) as Values;
   if (reuseSource) safe.src = source;
-  if (tag === "mj-image" && !safe.src)
+  if (tag === "mj-image" && !safe.src && !safe.srcset)
     throw new Error("Intrinsic image source must be a valid image URL");
   if (tag === "mj-image" && safe.src)
     validatedAssets.set(key, {

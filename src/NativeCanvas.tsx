@@ -525,7 +525,7 @@ function NativeBlockView({
           )}
           style={outerStyle(a)}
         >
-          {a.src ? (
+          {a.src || a.srcset ? (
             <Tag
               data-pm-mjml-image-width=""
               href={a.href || undefined}
@@ -539,7 +539,7 @@ function NativeBlockView({
               onClick={puck?.isEditing ? (event) => event.preventDefault() : undefined}
             >
               <img
-                src={a.src}
+                src={a.src || undefined}
                 srcSet={a.srcset || undefined}
                 sizes={a.sizes || undefined}
                 alt={a.alt || ""}

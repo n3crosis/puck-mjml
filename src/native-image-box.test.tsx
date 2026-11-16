@@ -87,3 +87,16 @@ describe("native image border boxes", () => {
     }
   });
 });
+
+it("renders responsive image candidates without a fallback src", async () => {
+  const srcset = "https://example.com/one.png 1x, https://example.com/two.png 2x";
+  const { document } = fromMjml(
+    `<mjml><mj-body><mj-section><mj-column><mj-image srcset="${srcset}" /></mj-column></mj-section></mj-body></mjml>`,
+  );
+  const canvas = parse(
+    renderToStaticMarkup(<Render config={createEmailConfig()} data={document as Data} />),
+  );
+  const compiled = parse((await compileEmail(document)).html);
+  expect(compiled.querySelector("img")?.getAttribute("srcset")).toBe(srcset);
+  expect(canvas.querySelector(".pm-image img")?.getAttribute("srcset")).toBe(srcset);
+});

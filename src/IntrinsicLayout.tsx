@@ -175,7 +175,7 @@ export function IntrinsicLeafView({
       </div>
     );
   }
-  if (!a.src) return <div className="pm-image-empty">Select an image URL</div>;
+  if (!a.src && !a.srcset) return <div className="pm-image-empty">Select an image URL</div>;
   return (
     <div
       data-pm-image="1"
@@ -196,7 +196,7 @@ export function IntrinsicLeafView({
         onClick={editing ? (event) => event.preventDefault() : undefined}
       >
         <img
-          src={a.src}
+          src={a.src || undefined}
           alt={a.alt ?? ""}
           title={a.title}
           srcSet={a.srcset}

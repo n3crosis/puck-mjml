@@ -531,6 +531,7 @@ function NativeBlockView({
               href={a.href || undefined}
               target={a.href ? a.target : undefined}
               rel={a.href ? a.rel : undefined}
+              {...(a.href && a.name ? { name: a.name } : {})}
               style={{
                 display: "inline-block",
                 width: `${Math.min(layoutContentWidth(a, layout.width), a.width ? Number.parseInt(a.width, 10) : Infinity)}px`,

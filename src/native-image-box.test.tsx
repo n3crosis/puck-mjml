@@ -43,7 +43,7 @@ describe("native image border boxes", () => {
     "retains content-box dimensions with $border (linked=$linked)",
     async ({ border, sides, linked }) => {
       const { document, warnings } = fromMjml(
-        `<mjml><mj-body><mj-section padding="0px"><mj-column padding="0px"><mj-image css-class="image-probe" src="https://example.com/image.png" width="64px" height="64px" padding="0px" border="${border}" ${sides} ${linked ? 'href="https://example.com/image"' : ""} /></mj-column></mj-section></mj-body></mjml>`,
+        `<mjml><mj-body><mj-section padding="0px"><mj-column padding="0px"><mj-image css-class="image-probe" src="https://example.com/image.png" width="64px" height="64px" name="image-anchor" padding="0px" border="${border}" ${sides} ${linked ? 'href="https://example.com/image"' : ""} /></mj-column></mj-section></mj-body></mjml>`,
       );
       expect(warnings).toEqual([]);
       const before = toMjml(document);
@@ -66,6 +66,9 @@ describe("native image border boxes", () => {
       }
       expect(Boolean(image.closest("a"))).toBe(Boolean(reference.closest("a")));
       expect(reference.getAttribute("width")).toBe("64");
+      expect(canvas.querySelector('[name="image-anchor"]')?.tagName).toBe(
+        compiled.querySelector('[name="image-anchor"]')?.tagName,
+      );
       expect(image.parentElement!.getAttribute("style")).toContain("width:64px");
       expect(toMjml(document)).toBe(before);
     },

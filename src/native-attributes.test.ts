@@ -252,6 +252,7 @@ describe("native URL and CSS safety", () => {
     const value =
       "https://example.com/image,w=320.png?a=1&b=2 320w, https://example.com/image,w=640.png 640w";
     expect(read("mj-image", "srcset", value)).toBe(value);
+    expect(read("mj-image", "srcset", value.replace(", https", ",\n\thttps"))).toBe(value);
     expect(
       read(
         "mj-social-element",
@@ -262,6 +263,7 @@ describe("native URL and CSS safety", () => {
     expect(read("mj-image", "srcset", "")).toBe("");
     for (const invalid of [
       "https://example.com/a.png 1x, javascript:alert(1) 2x",
+      "https://example.com/a.png 1x, java\nscript:alert(1) 2x",
       "https://example.com/a.png 1x, //evil.example/b.png 2x",
       "https://example.com/a.png 0x",
       "https://example.com/a.png 1x 2x",

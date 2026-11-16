@@ -156,7 +156,7 @@ function backgroundUrl(value: string): string {
 
 function validateSrcset(value: string): string {
   if (value === "") return "";
-  if (/[\u0000-\u001f\u007f-\u009f]/.test(value))
+  if (/[\u0000-\u0008\u000b\u000e-\u001f\u007f-\u009f]/.test(value))
     throw new Error("Native srcset contains a control character");
   const candidates: string[] = [];
   let position = 0;

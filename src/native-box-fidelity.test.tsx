@@ -126,7 +126,7 @@ describe("native spacer editor decoration", () => {
         `<mjml><mj-body><mj-section><mj-column><mj-spacer css-class="spacer-case" height="27px" padding="${padding}" /></mj-column></mj-section></mj-body></mjml>`,
       );
       const stylesheet = canvas.createElement("style");
-      stylesheet.textContent = readFileSync(new URL("./style.css", import.meta.url), "utf8");
+      stylesheet.textContent = `${readFileSync(new URL("./style.css", import.meta.url), "utf8")}\n* { box-sizing: border-box; }`;
       canvas.head.append(stylesheet);
       const spacer = canvas.querySelector<HTMLElement>(".spacer-case")!;
       const reference = compiled.querySelector<HTMLElement>(".spacer-case > div")!;
@@ -138,6 +138,7 @@ describe("native spacer editor decoration", () => {
       );
       for (const edge of ["top", "right", "bottom", "left"])
         expect(Number.parseFloat(style.getPropertyValue(`border-${edge}-width`)) || 0).toBe(0);
+      expect(style.boxSizing).toBe("content-box");
       expect(style.outlineWidth).toBe("1px");
       expect(style.outlineOffset).toBe("-1px");
       // The legacy renderer's existing editor decoration remains unchanged.

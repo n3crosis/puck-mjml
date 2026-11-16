@@ -532,6 +532,8 @@
 }
 /* Keep native spacer guides visible without changing MJML height or baseline. */
 .pm-native-spacer {
+  /* Height describes the inner spacer; MJML places padding on its outer cell. */
+  box-sizing: content-box;
   border: 0;
   outline: 1px dashed #cbd5e1;
   outline-offset: -1px;

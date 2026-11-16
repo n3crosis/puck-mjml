@@ -567,11 +567,17 @@ function NativeBlockView({
           )}
         </div>
       );
-    case "Button":
+    case "Button": {
+      const Tag = a.href ? "a" : "p";
       return (
         <div className={classes("pm-button-block", a)} style={outerStyle(a)}>
-          <span
+          <Tag
             className="pm-button"
+            href={a.href || undefined}
+            target={a.href ? a.target : undefined}
+            rel={a.rel}
+            title={a.title}
+            onClick={puck?.isEditing ? (event) => event.preventDefault() : undefined}
             style={{
               ...nativeStyle(a, [
                 ...typographyKeys,
@@ -584,6 +590,7 @@ function NativeBlockView({
                 "border-radius",
                 "width",
               ]),
+              margin: 0,
               display: "inline-flex",
               flexDirection: "column",
               textAlign: (a["text-align"] || "center") as CSSProperties["textAlign"],
@@ -599,9 +606,10 @@ function NativeBlockView({
             }}
           >
             {props.label as ReactNode}
-          </span>
+          </Tag>
         </div>
       );
+    }
     case "Spacer":
       return (
         <div
@@ -786,6 +794,7 @@ function NativeBlock({
   );
   if (
     (name !== "Image" &&
+      name !== "Button" &&
       !hasNativeCanvasOptions(props, parent) &&
       !hasImplicitAttributes &&
       !hasNestedAttributes &&

@@ -49,6 +49,35 @@ function style(element: { getAttribute: (name: string) => string | null } | null
 }
 
 describe("native button layout", () => {
+  it.each([
+    { href: "https://example.com/action", native: true },
+    { href: "", native: true },
+    { href: "https://example.com/action", native: false },
+  ])("matches compiled button links ($href, native=$native)", async ({ href, native }) => {
+    const document = single([
+      block("Button", "button", {
+        label: "Action",
+        href,
+        cssClass: "button-case",
+        mjmlAttributes: native
+          ? attributes({
+              title: "Action details",
+              target: "_self",
+              rel: "nofollow",
+            })
+          : [],
+      }),
+    ]);
+    const canvas = render(document).querySelector(".button-case .pm-button")!;
+    const result = await compileEmail(document);
+    expect(result.errors).toEqual([]);
+    const compiled = parse(result.html).querySelector(`.button-case ${href ? "a" : "p"}`)!;
+    expect(canvas.tagName).toBe(compiled.tagName);
+    for (const name of ["href", "target", "rel", "title"])
+      expect(canvas.getAttribute(name)).toBe(compiled.getAttribute(name));
+    expect(style(canvas, "margin")).toBe(style(compiled, "margin"));
+  });
+
   it.each(["left", "center", "right"])(
     "keeps outer placement separate from %s inner text alignment",
     async (textAlign) => {

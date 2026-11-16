@@ -18,8 +18,9 @@ export interface FontCssResponse {
   status: number;
   url?: string;
   text(): Promise<string>;
+  body?: ReadableStream<Uint8Array> | null;
 }
-type FontCssFetcher = (url: string) => Promise<FontCssResponse>;
+type FontCssFetcher = (url: string, options?: RequestInit) => Promise<FontCssResponse>;
 
 const httpUrl = (value: unknown): string | undefined => {
   if (typeof value !== "string" || !value.trim()) return undefined;
@@ -141,14 +142,61 @@ export function transformFontCss(
 type FontStylesheet = { css: string; baseUrl: string };
 const fontCssCache = new Map<string, Promise<FontStylesheet>>();
 
+const MAX_FONT_CSS_BYTES = 1024 * 1024;
+const MAX_CACHED_FONT_STYLESHEETS = 16;
+const FONT_FETCH_TIMEOUT = 10_000;
+
+async function readFontCss(response: FontCssResponse): Promise<string> {
+  const tooLarge = () => new Error("Web font stylesheet exceeds 1 MiB");
+  if (!response.body) {
+    const css = await response.text();
+    if (new TextEncoder().encode(css).byteLength > MAX_FONT_CSS_BYTES) throw tooLarge();
+    return css;
+  }
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let bytes = 0;
+  let css = "";
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) return css + decoder.decode();
+      bytes += value.byteLength;
+      if (bytes > MAX_FONT_CSS_BYTES) {
+        void reader.cancel().catch(() => {});
+        throw tooLarge();
+      }
+      css += decoder.decode(value, { stream: true });
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 function fetchFontCss(href: string, fetcher: FontCssFetcher): Promise<FontStylesheet> {
   const cached = fontCssCache.get(href);
   if (cached) return cached;
-  const pending = fetcher(href).then(async (response) => {
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return { css: await response.text(), baseUrl: response.url || href };
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new Error("Web font stylesheet request timed out"));
+    }, FONT_FETCH_TIMEOUT);
   });
-  pending.catch(() => fontCssCache.delete(href));
+  const request = Promise.resolve().then(async () => {
+    const response = await fetcher(href, { signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return { css: await readFontCss(response), baseUrl: response.url || href };
+  });
+  const pending = Promise.race([request, timeout]).finally(() => clearTimeout(timer));
+  pending.catch(() => {
+    controller.abort();
+    if (fontCssCache.get(href) === pending) fontCssCache.delete(href);
+  });
+  if (fontCssCache.size >= MAX_CACHED_FONT_STYLESHEETS) {
+    fontCssCache.delete(fontCssCache.keys().next().value!);
+  }
   fontCssCache.set(href, pending);
   return pending;
 }
@@ -163,7 +211,7 @@ export async function loadFontCss(
   aliases: FontAliasMap,
   options: { fetcher?: FontCssFetcher } = {},
 ): Promise<FontCssResult> {
-  const fetcher = options.fetcher ?? ((url) => fetch(url));
+  const fetcher = options.fetcher ?? ((url, init) => fetch(url, init));
   const notes: string[] = [];
   const css: string[] = [];
   const failures: string[] = [];

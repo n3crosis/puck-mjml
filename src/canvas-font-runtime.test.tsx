@@ -164,6 +164,7 @@ describe("canvas font lifecycle", () => {
     });
     expect(fetcher).toHaveBeenCalledExactlyOnceWith(
       "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700",
+      { signal: expect.any(AbortSignal) },
     );
     expect(imported().textContent).toContain(`Roboto-${scopeOf(canvas())}`);
     expect(canvas().dataset.pmCanvasFontStatus).toBe("ready");
@@ -190,7 +191,9 @@ describe("canvas font lifecycle", () => {
         <Copy family="Ubuntu, Arial" />
       </EmailCanvas>,
     );
-    expect(fetcher).toHaveBeenCalledExactlyOnceWith("https://fonts.example/override.css");
+    expect(fetcher).toHaveBeenCalledExactlyOnceWith("https://fonts.example/override.css", {
+      signal: expect.any(AbortSignal),
+    });
     expect(container.querySelector("p")!.style.fontFamily).toContain(`ubuntu-${scopeOf(canvas())}`);
     expect(imported().textContent).toContain(`ubuntu-${scopeOf(canvas())}`);
     expect(container.querySelector("[data-pm-canvas-css]")!.textContent).toContain(
@@ -212,6 +215,7 @@ describe("canvas font lifecycle", () => {
     );
     expect(fetcher).toHaveBeenCalledExactlyOnceWith(
       "https://fonts.googleapis.com/css?family=Lato:300,400,500,700",
+      { signal: expect.any(AbortSignal) },
     );
     expect(imported().textContent).toContain(`Lato-${scopeOf(canvas())}`);
     expect(container.querySelector("[data-pm-canvas-css]")!.textContent).toContain(
@@ -238,6 +242,7 @@ describe("canvas font lifecycle", () => {
     expect(canvases[1].dataset.pmCanvasFontStatus).toBe("ready");
     expect(fetcher).toHaveBeenCalledExactlyOnceWith(
       "https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,700",
+      { signal: expect.any(AbortSignal) },
     );
   });
 
@@ -284,7 +289,10 @@ describe("canvas font lifecycle", () => {
         <Copy family="OpenSans, Arial" />
       </EmailCanvas>,
     );
-    expect(fetcher).toHaveBeenCalledExactlyOnceWith("https://fonts.example/distinct-open-sans.css");
+    expect(fetcher).toHaveBeenCalledExactlyOnceWith(
+      "https://fonts.example/distinct-open-sans.css",
+      { signal: expect.any(AbortSignal) },
+    );
     expect(imported().textContent).toContain("custom-distinct.woff2");
     expect(imported().textContent).not.toContain("nested.woff2");
     expect(imported().textContent!.match(/@font-face/g)).toHaveLength(1);

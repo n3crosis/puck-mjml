@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createFontAliases } from "./canvas-css";
 import { loadFontCss, transformFontCss, type FontCssResponse } from "./canvas-fonts";
 
@@ -255,5 +255,83 @@ describe("web font loading", () => {
     expect(fetches).toBe(1);
     expect(first.css).toContain("Inter-pm-canvas-test");
     expect(second.css).toContain("Inter-pm-canvas-test");
+  });
+});
+
+describe("web font resource bounds", () => {
+  it("bounds streamed bytes before parsing and permits retry after rejection", async () => {
+    const entry = [{ name: "X", href: "https://review.example/large.css" }];
+    const cancel = vi.fn();
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        controller.enqueue(new Uint8Array(600_000));
+      },
+      cancel,
+    });
+    const result = await loadFontCss(
+      entry,
+      {},
+      {
+        fetcher: async () => ({
+          ok: true,
+          status: 200,
+          body: stream,
+          text: async () => {
+            throw Error("must stream");
+          },
+        }),
+      },
+    );
+    expect(result.failures?.[0]).toContain("exceeds 1 MiB");
+    expect(cancel).toHaveBeenCalledOnce();
+    const retry = await loadFontCss(
+      entry,
+      {},
+      { fetcher: async () => response("@font-face {font-family:X;src:url(x.woff2)}") },
+    );
+    expect(retry.css).toContain("@font-face");
+  });
+
+  it("aborts stalled requests, then loads the remaining fonts", async () => {
+    vi.useFakeTimers();
+    try {
+      let signal: AbortSignal | null | undefined;
+      const pending = loadFontCss(
+        [
+          { name: "X", href: "https://review.example/stalled.css" },
+          { name: "Y", href: "https://review.example/ready.css" },
+        ],
+        {},
+        {
+          fetcher: async (url, options) => {
+            if (url.endsWith("stalled.css")) {
+              signal = options?.signal;
+              return new Promise(() => {});
+            }
+            return response("@font-face {font-family:Y;src:url(y.woff2)}");
+          },
+        },
+      );
+      await vi.advanceTimersByTimeAsync(10_000);
+      const result = await pending;
+      expect(signal?.aborted).toBe(true);
+      expect(result.failures?.[0]).toContain("timed out");
+      expect(result.css).toContain("@font-face");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("evicts old stylesheets rather than retaining every visited document", async () => {
+    const fetcher = vi.fn(async () => response("@font-face {font-family:X;src:url(x.woff2)}"));
+    const entries = Array.from({ length: 17 }, (_, index) => ({
+      name: "X",
+      href: `https://review.example/cache-${index}.css`,
+    }));
+    await loadFontCss(entries, {}, { fetcher });
+    await loadFontCss([entries[16]], {}, { fetcher });
+    expect(fetcher).toHaveBeenCalledTimes(17);
+    await loadFontCss([entries[0]], {}, { fetcher });
+    expect(fetcher).toHaveBeenCalledTimes(18);
   });
 });

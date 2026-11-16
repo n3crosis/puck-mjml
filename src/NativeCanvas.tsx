@@ -515,7 +515,8 @@ function NativeBlockView({
         </div>
       );
     }
-    case "Image":
+    case "Image": {
+      const Tag = a.href ? "a" : "span";
       return (
         <div
           className={classes(
@@ -525,11 +526,11 @@ function NativeBlockView({
           style={outerStyle(a)}
         >
           {a.src ? (
-            <a
+            <Tag
               data-pm-mjml-image-width=""
               href={a.href || undefined}
-              target={a.target}
-              rel={a.rel}
+              target={a.href ? a.target : undefined}
+              rel={a.href ? a.rel : undefined}
               style={{
                 display: "inline-block",
                 width: `${Math.min(layoutContentWidth(a, layout.width), a.width ? Number.parseInt(a.width, 10) : Infinity)}px`,
@@ -561,12 +562,13 @@ function NativeBlockView({
                   maxWidth: "100%",
                 }}
               />
-            </a>
+            </Tag>
           ) : (
             <div className="pm-image-empty">Select an image URL</div>
           )}
         </div>
       );
+    }
     case "Button": {
       const Tag = a.href ? "a" : "p";
       return (

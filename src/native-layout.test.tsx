@@ -212,8 +212,10 @@ describe("native responsive images", () => {
     const canvas = parse(render(document));
     for (const name of ["fluid-image", "fixed-image"]) {
       const wrapper = canvas.querySelector(`.${name}`)!;
-      expect(styles(wrapper.querySelector("a"))).toContain("width:150px");
-      expect(styles(wrapper.querySelector("a"))).toContain("max-width:100%");
+      expect(styles(wrapper.querySelector("[data-pm-mjml-image-width]"))).toContain("width:150px");
+      expect(styles(wrapper.querySelector("[data-pm-mjml-image-width]"))).toContain(
+        "max-width:100%",
+      );
       const img = wrapper.querySelector("img")!;
       expect(styles(img)).toContain("width:100%");
       expect(styles(img)).toContain("display:block");
@@ -222,10 +224,14 @@ describe("native responsive images", () => {
     }
     expect(canvas.querySelector(".fluid-image.pm-native-image-fluid")).not.toBeNull();
     expect(canvas.querySelector(".fixed-image.pm-native-image-fluid")).toBeNull();
-    expect(styles(canvas.querySelector(".fill-image > a"))).toMatch(/(?:^|;)width:680px(?:;|$)/);
+    expect(styles(canvas.querySelector(".fill-image > [data-pm-mjml-image-width]"))).toMatch(
+      /(?:^|;)width:680px(?:;|$)/,
+    );
     const responsive = canvas.querySelector("style[data-pm-responsive]")!.textContent;
     expect(responsive).toContain("@media (width < 600px)");
-    expect(responsive).toMatch(/\.pm-native-image-fluid\s*>\s*a\s*\{\s*width:\s*100%\s*!important/);
+    expect(responsive).toMatch(
+      /\.pm-native-image-fluid\s*>\s*:is\(a, span\)\s*\{\s*width:\s*100%\s*!important/,
+    );
 
     const email = await compileEmail(document);
     expect(email.errors).toEqual([]);

@@ -191,8 +191,12 @@ describe("native image content width", () => {
       }),
     ]);
     const canvas = render(document);
-    expect(style(canvas.querySelector(".image-case > a"), "width")).toBe(expected);
-    expect(style(canvas.querySelector(".image-case > a"), "max-width")).toBe("100%");
+    expect(style(canvas.querySelector(".image-case > [data-pm-mjml-image-width]"), "width")).toBe(
+      expected,
+    );
+    expect(
+      style(canvas.querySelector(".image-case > [data-pm-mjml-image-width]"), "max-width"),
+    ).toBe("100%");
     expect(canvas.querySelector(".image-case.pm-native-image-fluid")).toBeNull();
     const result = await compileEmail(document);
     expect(result.errors).toEqual([]);
@@ -230,7 +234,9 @@ describe("native image content width", () => {
     const canvas = render(document);
     // Column 300 - 24 padding - 4 outer borders - 6 inner borders = 266;
     // image 266 - 20 padding - 2 borders = 244px.
-    expect(style(canvas.querySelector(".image-case > a"), "width")).toBe("244px");
+    expect(style(canvas.querySelector(".image-case > [data-pm-mjml-image-width]"), "width")).toBe(
+      "244px",
+    );
     const result = await compileEmail(document);
     expect(result.errors).toEqual([]);
     expect(parse(result.html).querySelector(".image-case img")?.getAttribute("width")).toBe("244");

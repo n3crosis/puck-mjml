@@ -64,6 +64,7 @@ describe("native image border boxes", () => {
         expect(actual[`border${edge}Width`]).toBe(expected[`border${edge}Width`]);
         expect(actual[`border${edge}Style`]).toBe(expected[`border${edge}Style`]);
       }
+      expect(Boolean(image.closest("a"))).toBe(Boolean(reference.closest("a")));
       expect(reference.getAttribute("width")).toBe("64");
       expect(image.parentElement!.getAttribute("style")).toContain("width:64px");
       expect(toMjml(document)).toBe(before);

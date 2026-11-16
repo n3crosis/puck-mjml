@@ -217,7 +217,7 @@ describe("visual-only canvas padding targets", () => {
 });
 
 describe("native image sizing targets", () => {
-  it("marks only existing image anchors without changing desktop width or serialization", async () => {
+  it("marks image width wrappers without changing desktop width or serialization", async () => {
     const { canvas, compiled, document } =
       await render(`<mjml><mj-head><mj-style>@media(max-width:600px){.image table {width:100% !important;}}</mj-style></mj-head><mj-body width="640px"><mj-section padding="40px"><mj-column css-class="image" padding="0px">
       <mj-image css-class="direct" src="https://example.com/image.png" width="280px" padding="0px" />
@@ -225,7 +225,7 @@ describe("native image sizing targets", () => {
       <mj-table><tr><td>Authored table</td></tr></mj-table>
     </mj-column></mj-section></mj-body></mjml>`);
     expect(canvas("[data-pm-mjml-image-width]")).toHaveLength(2);
-    expect(canvas(".direct > [data-pm-mjml-image-width]").prop("tagName")).toBe("A");
+    expect(canvas(".direct > [data-pm-mjml-image-width]").prop("tagName")).toBe("SPAN");
     expect(style(canvas, ".direct > [data-pm-mjml-image-width]", "width")).toBe("280px");
     expect(style(compiled, ".direct > table > tbody > tr > td", "width")).toBe("280px");
     expect(canvas(".pm-native-table [data-pm-mjml-image-width]")).toHaveLength(0);

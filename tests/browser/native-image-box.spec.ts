@@ -94,7 +94,7 @@ for (const width of [390, 800]) {
     // Hostile modifications must not be mistaken for the renderer's border
     // paint, even when the visible image still happens to fit inside the email.
     for (const mutation of ["clip", "content", "padding", "shift", "child", "outer"] as const) {
-      const anchor = canvas.locator(".probe-bordered > a");
+      const anchor = canvas.locator(".probe-bordered > [data-pm-mjml-image-width]");
       await anchor.evaluate((element, mutation) => {
         const image = element.querySelector("img")!;
         if (mutation === "clip") (element as HTMLElement).style.overflow = "hidden";

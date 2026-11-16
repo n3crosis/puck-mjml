@@ -186,7 +186,7 @@ export function EmailCanvas({
 :where(.${scope} .pm-native-columns > .pm-native-column) { width: 100% !important; }
 :where(.${scope} .pm-native-inline-group > div > .pm-native-inline-column) { width: var(--pm-group-column-width) !important; }
 :where(.${scope} .pm-native-gutter-stacked) { padding: var(--pm-gutter-mobile-padding) !important; }
-.${scope} .pm-native-image-fluid > a { width: 100% !important; }
+.${scope} .pm-native-image-fluid > :is(a, span) { width: 100% !important; }
 .${scope} .pm-native-navbar-trigger { display: block; }
 .${scope} .pm-native-navbar[data-native-navbar-open="false"] > .pm-native-navbar-links { display: none; }
 .${scope} .pm-native-navbar[data-native-navbar-open] > .pm-native-navbar-links > a { display: block; }

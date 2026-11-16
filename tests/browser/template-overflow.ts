@@ -52,7 +52,7 @@ export function measureCanvasGeometry(email: Element): CanvasGeometry {
     // Authored links, arbitrary descendants and generated content remain ordinary
     // overflow. Keep the measurements even when their classification will fail.
     if (
-      !element.matches("a[data-pm-mjml-image-width]") ||
+      !element.matches(":is(a, span)[data-pm-mjml-image-width]") ||
       !element.parentElement?.matches(".pm-image") ||
       element.children.length !== 1 ||
       !element.firstElementChild?.matches("img") ||
@@ -99,7 +99,7 @@ export function measureCanvasGeometry(email: Element): CanvasGeometry {
     scrollOverflow: fullWidthElements.some((child) => element.contains(child))
       ? 0
       : element.scrollWidth - element.clientWidth,
-    ...(element.matches("a[data-pm-mjml-image-width]")
+    ...(element.matches(":is(a, span)[data-pm-mjml-image-width]")
       ? { imageBorderPaint: imageBorderPaint(element) }
       : {}),
   }));

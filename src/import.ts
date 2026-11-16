@@ -1493,7 +1493,10 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
     const verticalAlign = declarations.get("vertical-align") ?? wrapped.attr("valign");
     if (verticalAlign === "top" || verticalAlign === "middle" || verticalAlign === "bottom")
       tableCell.verticalAlign = verticalAlign;
-    const width = declarations.get("width");
+    const legacyWidth = wrapped.attr("width");
+    const width =
+      declarations.get("width") ??
+      (legacyWidth && /^\d+$/.test(legacyWidth) ? `${legacyWidth}px` : legacyWidth);
     if (width && /^(?:auto|\d+(?:\.\d+)?(?:px|%))$/.test(width)) tableCell.width = width;
     for (const [styleName, propName] of [
       ["padding", "padding"],
@@ -1595,7 +1598,8 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
         if (tag !== "th" && tag !== "td") return false;
         if (
           Object.keys(node.attribs).some(
-            (name) => !["style", "scope", "colspan", "rowspan", "align", "valign"].includes(name),
+            (name) =>
+              !["style", "scope", "colspan", "rowspan", "align", "valign", "width"].includes(name),
           )
         )
           return true;

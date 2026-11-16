@@ -6,25 +6,25 @@ See the [editor guide](EDITOR_GUIDE.md) for usage and the [native attribute refe
 
 ## Component coverage
 
-| MJML component                                                                    | Editor support           | Notes                                                                                                                     |
-| --------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `mjml`, `mj-head`, `mj-body`                                                      | Generated                | Root settings include language, direction, legacy Outlook web mode, title, preview, width, background, and font.          |
-| `mj-title`, `mj-preview`, `mj-attributes`, `mj-all`, `mj-class`                   | Generated                | Global/component defaults and named classes, including nested per-component class defaults.                               |
-| `mj-section`, `mj-column`                                                         | Visual blocks            | Fixed or flexible columns; borders, radii, classes, percentage widths, and vertical alignment.                            |
-| `mj-text`, `mj-image`, `mj-button`, `mj-spacer`                                   | Visual blocks            | Rich text, typography, button inner padding/radius, and linked rounded images.                                            |
-| `mj-divider`                                                                      | Visual block             | Color, width, thickness, and padding.                                                                                     |
-| `mj-social`, `mj-social-element`                                                  | Visual block             | Network presets, custom icon sources, labels/alt text, links, icon sizing/padding/radius.                                 |
-| `mj-navbar`, `mj-navbar-link`                                                     | Visual block             | Labels, native base URL, and safe absolute or relative links through native controls.                                     |
-| `mj-table`                                                                        | Visual block             | Arbitrary rich-text cells, header/body/footer rows, captions, spans, and native table styling.                            |
-| `mj-wrapper`                                                                      | Visual block             | Groups sections and heroes; background, padding, border, radius, and CSS classes.                                         |
-| `mj-hero`                                                                         | Visual block             | Fluid or fixed height, optional background image, and supported content blocks.                                           |
-| `mj-accordion`, `mj-accordion-element`, `mj-accordion-title`, `mj-accordion-text` | Visual block             | Editable titles and sanitized rich text answers.                                                                          |
-| `mj-group`                                                                        | Visual block             | Groups flexible-section columns so they stay side by side on mobile.                                                      |
-| `mj-carousel`, `mj-carousel-image`                                                | Visual block             | Editable images, links, alt text, alignment, and thumbnails.                                                              |
-| `mj-breakpoint`, `mj-font`, `mj-style`                                            | Root settings            | Native breakpoint width override, hosted CSS fonts, and head or inline custom CSS.                                        |
-| `mj-raw`                                                                          | Host opt-in              | Trusted pre-doctype, head, body, wrapper, section, group, hero, column, social-list, navigation-list, and accordion HTML. |
-| `mj-html-attributes`, `mj-selector`, `mj-html-attribute`                          | Root settings            | HTML/XML attributes and unrestricted selector length; active attributes require the trusted HTML opt-in.                  |
-| `mj-include`, custom `.mjmlconfig` components                                     | Outside browser compiler | These require host-side compilation.                                                                                      |
+| MJML component                                                                    | Editor support   | Notes                                                                                                                     |
+| --------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `mjml`, `mj-head`, `mj-body`                                                      | Generated        | Root settings include language, direction, legacy Outlook web mode, title, preview, width, background, and font.          |
+| `mj-title`, `mj-preview`, `mj-attributes`, `mj-all`, `mj-class`                   | Generated        | Global/component defaults and named classes, including nested per-component class defaults.                               |
+| `mj-section`, `mj-column`                                                         | Visual blocks    | Fixed or flexible columns; borders, radii, classes, percentage widths, and vertical alignment.                            |
+| `mj-text`, `mj-image`, `mj-button`, `mj-spacer`                                   | Visual blocks    | Rich text, typography, button inner padding/radius, and linked rounded images.                                            |
+| `mj-divider`                                                                      | Visual block     | Color, width, thickness, and padding.                                                                                     |
+| `mj-social`, `mj-social-element`                                                  | Visual block     | Network presets, custom icon sources, labels/alt text, links, icon sizing/padding/radius.                                 |
+| `mj-navbar`, `mj-navbar-link`                                                     | Visual block     | Labels, native base URL, and safe absolute or relative links through native controls.                                     |
+| `mj-table`                                                                        | Visual block     | Arbitrary rich-text cells, header/body/footer rows, captions, spans, and native table styling.                            |
+| `mj-wrapper`                                                                      | Visual block     | Groups sections and heroes; background, padding, border, radius, and CSS classes.                                         |
+| `mj-hero`                                                                         | Visual block     | Fluid or fixed height, optional background image, and supported content blocks.                                           |
+| `mj-accordion`, `mj-accordion-element`, `mj-accordion-title`, `mj-accordion-text` | Visual block     | Editable titles and sanitized rich text answers.                                                                          |
+| `mj-group`                                                                        | Visual block     | Groups flexible-section columns so they stay side by side on mobile.                                                      |
+| `mj-carousel`, `mj-carousel-image`                                                | Visual block     | Editable images, links, alt text, alignment, and thumbnails.                                                              |
+| `mj-breakpoint`, `mj-font`, `mj-style`                                            | Root settings    | Native breakpoint width override, hosted CSS fonts, and head or inline custom CSS.                                        |
+| `mj-raw`                                                                          | Host opt-in      | Trusted pre-doctype, head, body, wrapper, section, group, hero, column, social-list, navigation-list, and accordion HTML. |
+| `mj-html-attributes`, `mj-selector`, `mj-html-attribute`                          | Root settings    | HTML/XML attributes and unrestricted selector length; active attributes require the trusted HTML opt-in.                  |
+| `mj-include`, custom `.mjmlconfig` components                                     | Host integration | Includes accept an explicit virtual file map; custom components need host adapters.                                       |
 
 ## Canvas layout
 
@@ -99,7 +99,7 @@ Trusted template expressions in native attributes are preserved with `template: 
 
 ## Limitations
 
-Remaining compatibility work includes canvas fidelity for specialized native behavior (including client-specific fallbacks such as Outlook/VML output, which depends on the compiled email and real client validation) and filesystem includes/custom components through a host compiler. The presence of each standard tag does not imply full value or rendering parity: untrusted inputs are still subject to URL/CSS validation, and the HTML editor is not a general-purpose MJML source editor. Raw HTML is intentionally passed through when the host enables it.
+Remaining compatibility work includes canvas fidelity for specialized native behavior (including client-specific fallbacks such as Outlook/VML output, which depends on the compiled email and real client validation) and custom components through a host integration. Filesystem includes must first be supplied explicitly as a virtual file map (see below). The presence of each standard tag does not imply full value or rendering parity: untrusted inputs are still subject to URL/CSS validation, and the HTML editor is not a general-purpose MJML source editor. Raw HTML is intentionally passed through when the host enables it.
 
 Generated HTML selectors support child combinators and quoted attribute values. The installed MJML compiler matches selectors against HTML with entities still encoded: an exact selector for an href containing an ampersand may need `&amp;` in the selector value. Imports preserve eligible unchanged entity spellings using validated provenance, without rewriting selectors; edited or normalization-changing values fall back to ordinary escaping. Combining generated HTML attributes or inline CSS with XML-like template syntax can reparse that syntax; apply such templates after compilation when needed.
 
@@ -126,3 +126,27 @@ Ending-tag HTML is scanned with quote and comment awareness so ordinary HTML voi
 Safe imported text and accordion answers keep their original markup while unchanged, and retain native typography and paragraph/heading spacing through rich-text edits and undo. Imported tables keep sanitized source structure while unchanged; modeled cell edits preserve the absence of unwanted default alignment, borders, and scope. Structural edits rebuild the modeled table. Unsupported inline anchor or table-cell CSS still needs scoped head CSS or the host's explicit trusted-source mode. These preservation fields are always sanitized, including when supplied by a persisted or constructed document.
 
 The bundled [62-template MJML suite](../templates/README.md) is validated directly and through safe editor import/export. It is a concrete regression corpus, not evidence that arbitrary MJML or every email client behaves identically.
+
+### Includes supplied by the host
+
+`resolveMjmlIncludes(source, files, sourcePath?)` expands a virtual file map before
+`fromMjml`. For example:
+
+```ts
+const source = resolveMjmlIncludes(mjml, {
+  "partials/footer.mjml": footerSource,
+  "styles/email.css": stylesheet,
+});
+const { document, warnings } = fromMjml(source);
+```
+
+File names are relative POSIX paths; nested includes resolve relative to their
+containing file (`sourcePath` defaults to `index.mjml`). Missing files, duplicate
+normalized names, cycles, root escapes, URLs and unsupported include types throw.
+Expansion is bounded to 32 nested files, 1,000 include occurrences and 10 MiB of
+UTF-16 code units consumed or produced. No files or URLs are read automatically.
+MJML fragments are inserted in place; included document heads and CSS includes
+are added to the root head. `css-inline="inline"` is retained. HTML includes
+become `mj-raw` and still require the host's `allowRawHtml` export opt-in.
+Includes inside ending-tag content and comments are not expanded. Custom
+components are not expanded by this API.

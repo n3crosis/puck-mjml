@@ -26,3 +26,5 @@ export type {
   MjmlComponentDefaults,
   MjmlClassDefinition,
 } from "./types";
+
+export { resolveMjmlIncludes } from "./includes";

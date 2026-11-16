@@ -1637,7 +1637,8 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
 /**
  * Parse MJML source into an editable email document. Supports the standard
  * components the editor models; unsupported constructs are skipped with a
- * warning. `mj-include` and custom components are not supported.
+ * warning. Expand includes with `resolveMjmlIncludes` first. Custom components
+ * are not supported.
  */
 export function fromMjml(source: string, options: ImportOptions = {}): ImportedEmail {
   const intrinsicSource = preflightIntrinsicSource(source);

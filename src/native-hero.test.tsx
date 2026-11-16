@@ -40,6 +40,32 @@ const styles = (element: { getAttribute: (name: string) => string | null } | nul
 };
 
 describe("native hero content box", () => {
+  it.each(["333px", "315.9px"])(
+    "matches the compiler's rounded fluid ratio for %s",
+    async (height) => {
+      const document = documentWith([
+        block("Hero", "hero", {
+          mjmlAttributes: values({
+            "css-class": "fluid-hero",
+            mode: "fluid-height",
+            "background-width": "600px",
+            "background-height": height,
+          }),
+          content: [block("Text", "copy", { content: "<p>Hero copy</p>" })],
+        }),
+      ]);
+      const canvas = render(document);
+      const result = await compileEmail(document);
+      expect(result.errors).toEqual([]);
+      const compiled = parse(result.html);
+      const spacer = compiled.querySelector(".fluid-hero > table > tbody > tr > td");
+      const percent = styles(spacer).match(/padding-bottom:(\d+)%/)?.[1];
+      expect(styles(canvas.querySelector(".fluid-hero"))).toContain(
+        `aspect-ratio:100 / ${percent}`,
+      );
+    },
+  );
+
   it("resolves inner background and each padding edge independently from the outer hero", async () => {
     const document = documentWith(
       [

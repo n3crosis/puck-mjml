@@ -463,7 +463,12 @@ function NativeBlockView({
           </NativeLayoutContext.Provider>
         </div>
       );
-    case "Hero":
+    case "Hero": {
+      // MJML rounds the fluid spacer to a whole percentage of the hero width.
+      const fluidHeightPercent = Math.round(
+        (Number.parseInt(a["background-height"], 10) / Number.parseInt(a["background-width"], 10)) *
+          100,
+      );
       return (
         <div
           className={classes("pm-hero", a)}
@@ -474,9 +479,9 @@ function NativeBlockView({
             boxSizing: "border-box",
             aspectRatio:
               a.mode === "fluid-height" &&
-              Number.parseFloat(a["background-width"]) > 0 &&
-              Number.parseFloat(a["background-height"]) > 0
-                ? `${Number.parseFloat(a["background-width"])} / ${Number.parseFloat(a["background-height"])}`
+              Number.isFinite(fluidHeightPercent) &&
+              fluidHeightPercent > 0
+                ? `100 / ${fluidHeightPercent}`
                 : undefined,
             display: "flex",
             flexDirection: "column",
@@ -495,6 +500,7 @@ function NativeBlockView({
           </div>
         </div>
       );
+    }
     case "Text": {
       const original = importedRichText(source ?? props);
       const imported = original !== undefined;

@@ -46,6 +46,16 @@ describe("bounded multiword font family aliases", () => {
     expect(values).toEqual([`"${alias}"`, `"${alias}",serif`]);
   });
 
+  it("does not repair empty family entries while aliasing", () => {
+    const aliases = createFontAliases(["Inter", "Inter, Display"], scope);
+    for (const value of [", Inter", "Inter,", "Inter,, serif", "Inter,   ,serif"]) {
+      expect(aliasFontFamilyList(value, aliases)).toBe(value);
+    }
+    expect(aliasFontFamilyList('"Inter, Display", serif', aliases)).toBe(
+      `"${aliases["inter, display"]}", serif`,
+    );
+  });
+
   it("normalizes only unquoted CSS whitespace and keeps distinct names isolated", () => {
     const aliases = createFontAliases(["Instrument Serif", "InstrumentSerif"], scope);
     expect(aliasFontFamilyList("Instrument\t\r\n\f Serif, InstrumentSerif", aliases)).toBe(

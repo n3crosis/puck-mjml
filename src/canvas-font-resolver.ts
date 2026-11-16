@@ -55,8 +55,8 @@ export function inlineStyleFontFamilies(stylesheets: CanvasStyleSheet[]): string
   for (const entry of stylesheets) {
     if (entry?.inline !== "inline" || typeof entry.css !== "string") continue;
     try {
-      postcss.parse(entry.css).walkDecls("font-family", (declaration) => {
-        families.push(declaration.value);
+      postcss.parse(entry.css).walkDecls((declaration) => {
+        if (declaration.prop.toLowerCase() === "font-family") families.push(declaration.value);
       });
     } catch {
       // scopeDocumentCss reports malformed drafts. Never infer URLs from them.

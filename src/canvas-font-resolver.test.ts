@@ -95,7 +95,7 @@ describe("bounded MJML implicit font resolution", () => {
   it("matches compiler head-versus-inline CSS discovery and exact explicit overrides", async () => {
     const { default: mjml } = await import("mjml-browser");
     for (const inline of ["head", "inline"] as const) {
-      const css = ".copy { font-family: Lato; }";
+      const css = ".copy { FONT-FAMILY: Lato; }";
       const result = await mjml(
         `<mjml><mj-head><mj-style${inline === "inline" ? ' inline="inline"' : ""}>${css}</mj-style></mj-head><mj-body><mj-section><mj-column><mj-text css-class="copy" font-family="Arial">Text</mj-text></mj-column></mj-section></mj-body></mjml>`,
       );

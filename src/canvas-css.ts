@@ -217,7 +217,10 @@ function literalFontFamily(value: string): string | undefined {
 /** Rewrite font-family lists so canvas styles reference the per-instance alias. */
 export function aliasFontFamilyList(value: string, aliases: FontAliasMap): string {
   if (!value.trim() || !Object.keys(aliases).length) return value;
-  return splitTopLevel(value, ",")
+  const families = splitTopLevel(value, ",", true);
+  // Empty entries invalidate the whole list; do not repair them into active CSS.
+  if (families.some((part) => !part.trim())) return value;
+  return families
     .map((part) => {
       const family = literalFontFamily(part);
       const key = family === undefined ? undefined : familyKey(family);

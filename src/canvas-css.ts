@@ -230,6 +230,21 @@ export function aliasFontFamilyList(value: string, aliases: FontAliasMap): strin
     .join(",");
 }
 
+/** Alias literal font shorthand families without interpreting dynamic CSS values. */
+function aliasFontShorthand(value: string, aliases: FontAliasMap): string {
+  // Keep token decoding and computed values outside this bounded adapter. The
+  // unchanged prefix preserves authored style, weight, size and line height.
+  if (/[\\]|\/\*|\b(?:var|env)\(/i.test(value)) return value;
+  const length = String.raw`(?:\d*\.)?\d+(?:px|pt|pc|em|rem|ex|ch|vw|vh|vmin|vmax|%)`;
+  const size = `(?:${length}|xx-small|x-small|small|medium|large|x-large|xx-large|xxx-large|smaller|larger)`;
+  const prefix = new RegExp(
+    `^((?:(?:normal|italic|oblique|small-caps|bold|bolder|lighter|[1-9]00)\\s+)*${size}(?:\\s*/\\s*(?:normal|${length}|(?:\\d*\\.)?\\d+))?\\s+)(.+)$`,
+    "i",
+  );
+  const match = value.match(prefix);
+  return match ? match[1] + aliasFontFamilyList(match[2], aliases) : value;
+}
+
 function aliasFontFace(rule: AtRule, aliases: FontAliasMap): void {
   // Collection has already rejected unsupported faces and retained exactly
   // one family descriptor. CSS descriptor names are case-insensitive.
@@ -332,6 +347,9 @@ function rewriteDeclaration(declaration: Declaration, state: ScopeState): void {
   const property = declaration.prop.toLowerCase();
   if (property === "font-family") {
     declaration.value = aliasFontFamilyList(declaration.value, state.aliases);
+  } else if (property === "font") {
+    if (!(declaration.raws.value?.raw ?? declaration.value).includes("/*"))
+      declaration.value = aliasFontShorthand(declaration.value, state.aliases);
   } else if (property === "animation" || property === "animation-name") {
     declaration.value = rewriteKeyframeNames(
       declaration.value,

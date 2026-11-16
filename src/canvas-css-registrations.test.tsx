@@ -181,8 +181,8 @@ describe("bounded custom CSS registrations", () => {
     expect(result.notes).toHaveLength(2);
   });
 
-  it("does not rewrite variables, their fallbacks, font shorthand, or source data", () => {
-    const css = `@font-face{font-family:F;src:url(face.woff2)}@keyframes f{to{opacity:1}}.x{@layer y{--font:F;--motion:f;animation:var(--motion,f) 1s;font-family:var(--font,F);font:16px F}}`;
+  it("does not rewrite variables, their fallbacks, or source data", () => {
+    const css = `@font-face{font-family:F;src:url(face.woff2)}@keyframes f{to{opacity:1}}.x{@layer y{--font:F;--motion:f;animation:var(--motion,f) 1s;font-family:var(--font,F);font:16px var(--font,F)}}`;
     const input = [{ css }];
     const before = JSON.stringify(input);
     const result = scopeDocumentCss(input, { scope });
@@ -191,7 +191,7 @@ describe("bounded custom CSS registrations", () => {
       "--motion:f",
       "animation:var(--motion,f) 1s",
       "font-family:var(--font,F)",
-      "font:16px F",
+      "font:16px var(--font,F)",
     ])
       expect(result.css).toContain(literal);
     expect(JSON.stringify(input)).toBe(before);

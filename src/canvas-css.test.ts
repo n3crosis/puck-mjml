@@ -336,10 +336,35 @@ describe("namespaced canvas CSS globals", () => {
     expect(result.css).toContain('font-family: "Inter-pm-canvas-test", "Helvetica Neue", serif');
   });
 
-  it("does not rewrite the font shorthand", () => {
-    const aliases = createFontAliases(["Inter"], "pm-canvas-test");
-    const result = scopeCss([stylesheet(".a { font: 16px Inter, sans-serif; }")], aliases);
-    expect(result.css).toContain("font: 16px Inter, sans-serif");
+  it("aliases literal font shorthand families without changing its other tokens", () => {
+    const aliases = createFontAliases(["Inter", "Local Font"], "pm-canvas-test");
+    for (const prefix of [
+      "16px ",
+      "italic bold 16px/1.5 ",
+      "small-caps 400 1.2em / 120% ",
+      "large ",
+    ]) {
+      const result = scopeCss(
+        [stylesheet(`.a { font: ${prefix}Inter, 'Local Font', sans-serif; }`)],
+        aliases,
+      );
+      expect(result.css).toContain(
+        `font: ${prefix}"Inter-pm-canvas-test","LocalFont-pm-canvas-test", sans-serif`,
+      );
+    }
+    for (const value of [
+      "caption",
+      "var(--font)",
+      "calc(1em + 2px) Inter",
+      "16px var(--family, Inter), Inter",
+      "16px Inter,,serif",
+      "16px Inter,",
+      "16px /* family */ Inter",
+    ]) {
+      expect(scopeCss([stylesheet(`.a { font: ${value}; }`)], aliases).css).toContain(
+        `font: ${value}`,
+      );
+    }
   });
 });
 

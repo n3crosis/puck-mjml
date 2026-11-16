@@ -79,22 +79,36 @@ describe("MJML import compiler differentials", () => {
   it("keeps legacy table-cell presentation editable, with inline styles taking precedence", async () => {
     const source = wrap(
       "",
-      '<mj-column><mj-table><tr><td align="right" valign="bottom" width="120">First</td><td align="right" valign="bottom" width="80%" style="text-align:center;vertical-align:top;width:40%">Second</td></tr></mj-table></mj-column>',
+      '<mj-column><mj-table><tr><td align="RIGHT" valign="BOTTOM" width="120" bgcolor="#aabbcc">First</td><td align="right" valign="bottom" width="80%" bgcolor="#aabbcc" style="text-align:center;vertical-align:top;width:40%;background-color:#fff">Second</td></tr></mj-table></mj-column>',
     );
     const { document, warnings } = fromMjml(source);
     expect(warnings).toEqual([]);
     const table = (document.root.props!.sections![0]!.props.column as EmailBlock[])[0]!;
     const cells = (table.props.bodyRows as { cells: Record<string, unknown>[] }[])[0]!.cells;
-    expect(cells[0]).toMatchObject({ align: "right", verticalAlign: "bottom", width: "120px" });
-    expect(cells[1]).toMatchObject({ align: "center", verticalAlign: "top", width: "40%" });
-    expect((await compile(toMjml(document)))("td[align=right]")).toHaveLength(2);
+    expect(cells[0]).toMatchObject({
+      align: "right",
+      verticalAlign: "bottom",
+      width: "120px",
+      backgroundColor: "#aabbcc",
+    });
+    expect(cells[1]).toMatchObject({
+      align: "center",
+      verticalAlign: "top",
+      width: "40%",
+      backgroundColor: "#fff",
+    });
+    expect((await compile(toMjml(document)))('td[bgcolor="#aabbcc"]')).toHaveLength(2);
     cells[0]!.content = "Edited";
     const edited = await compile(toMjml(document));
     expect(
       edited("td")
         .filter((_, cell) => edited(cell).text() === "Edited")
         .attr("style"),
-    ).toContain("text-align:right;vertical-align:bottom;width:120px");
+    ).toContain("text-align:right;vertical-align:bottom;width:120px;background-color:#aabbcc");
+    // Legacy HTML #abc is not CSS shorthand #aabbcc. Keep its source-only path.
+    expect(() => toMjml(fromMjml(source.replaceAll("#aabbcc", "#abc")).document)).toThrow(
+      /allowRawHtml/,
+    );
   });
   it("preserves native pixel columns without a lossy-conversion warning", async () => {
     const source = wrap(

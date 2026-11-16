@@ -1487,13 +1487,14 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
     if (colspan && /^\d+$/.test(colspan)) tableCell.colSpan = Number.parseInt(colspan, 10);
     const rowspan = wrapped.attr("rowspan");
     if (rowspan && /^\d+$/.test(rowspan)) tableCell.rowSpan = Number.parseInt(rowspan, 10);
-    const align = declarations.get("text-align") ?? wrapped.attr("align");
+    const align = declarations.get("text-align") ?? wrapped.attr("align")?.trim().toLowerCase();
     if (align === "left" || align === "center" || align === "right" || align === "justify")
       tableCell.align = align;
-    const verticalAlign = declarations.get("vertical-align") ?? wrapped.attr("valign");
+    const verticalAlign =
+      declarations.get("vertical-align") ?? wrapped.attr("valign")?.trim().toLowerCase();
     if (verticalAlign === "top" || verticalAlign === "middle" || verticalAlign === "bottom")
       tableCell.verticalAlign = verticalAlign;
-    const legacyWidth = wrapped.attr("width");
+    const legacyWidth = wrapped.attr("width")?.trim();
     const width =
       declarations.get("width") ??
       (legacyWidth && /^\d+$/.test(legacyWidth) ? `${legacyWidth}px` : legacyWidth);
@@ -1504,7 +1505,10 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
       ["color", "color"],
       ["border", "border"],
     ] as const) {
-      const value = declarations.get(styleName);
+      const legacyColor = styleName === "background-color" ? wrapped.attr("bgcolor") : undefined;
+      // HTML legacy colors do not share CSS shorthand/name parsing.
+      if (legacyColor && !/^#[\da-f]{6}$/i.test(legacyColor)) cellLoss = true;
+      const value = declarations.get(styleName) ?? legacyColor;
       if (!value) continue;
       const valid =
         propName === "backgroundColor" || propName === "color"
@@ -1599,7 +1603,16 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
         if (
           Object.keys(node.attribs).some(
             (name) =>
-              !["style", "scope", "colspan", "rowspan", "align", "valign", "width"].includes(name),
+              ![
+                "style",
+                "scope",
+                "colspan",
+                "rowspan",
+                "align",
+                "valign",
+                "width",
+                "bgcolor",
+              ].includes(name),
           )
         )
           return true;

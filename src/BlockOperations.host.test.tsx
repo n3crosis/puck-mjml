@@ -2,7 +2,7 @@
 import { act, useEffect, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { useGetPuck, type PuckApi } from "@puckeditor/core";
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { EmailEditor } from "./EmailEditor";
 import { createEmptyDocument } from "./document";
 import { fromMjml } from "./import";
@@ -16,7 +16,7 @@ let value: EmailDocument;
 let replace: (value: EmailDocument) => void;
 const pause = () =>
   act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await vi.advanceTimersByTimeAsync(300);
   });
 function Capture() {
   const get = useGetPuck();
@@ -37,12 +37,16 @@ function Host({ initial }: { initial: EmailDocument }) {
     />
   );
 }
+beforeEach(() => vi.useFakeTimers());
 afterEach(async () => {
   await act(async () => root?.unmount());
+  // Drain Puck's deferred loader update before Happy DOM is torn down.
+  await act(async () => vi.runOnlyPendingTimersAsync());
   container?.remove();
   root = undefined;
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 it.each([false, true])(
   "preserves a real EmailEditor's clone echoes, imported omissions, history, focus and replacement (imported=%s)",

@@ -176,6 +176,9 @@ export function intrinsicLeafPresentation(tag: "mj-text" | "mj-image", attribute
       "box-sizing": "content-box",
       width: attributes.width ?? "100%",
       "max-width": "100%",
+      ...(attributes.align === "center" || attributes.align === "right"
+        ? { "margin-left": "auto", "margin-right": attributes.align === "center" ? "auto" : "0" }
+        : {}),
     });
   }
   const image = text ? {} : pick(attributes, intrinsicImageAttributes);

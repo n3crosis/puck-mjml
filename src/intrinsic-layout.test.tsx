@@ -207,6 +207,28 @@ describe("safe editable intrinsic layout", () => {
     );
     expect(sourceRows(toMjml(roundtrip(source)))).toEqual(sourceRows(source));
   });
+  it("aligns fixed-width intrinsic images and roundtrips legacy exports", () => {
+    for (const align of ["left", "center", "right"]) {
+      const document = documentWith([image({ align })]);
+      const source = toMjml(document);
+      const expected =
+        align === "left"
+          ? ""
+          : `margin-left:auto;margin-right:${align === "center" ? "auto" : "0"}`;
+      const canvas = renderToStaticMarkup(
+        <Render config={createEmailConfig()} data={document as Data} />,
+      );
+      for (const html of [source, canvas]) {
+        const $ = load(html);
+        const style = $(".pm-intrinsic-image img").attr("style")!;
+        if (expected) expect(style).toContain(expected);
+        else expect(style).not.toContain("margin-");
+      }
+      expect(sourceRows(toMjml(roundtrip(source)))).toEqual(sourceRows(source));
+      const legacy = source.replace(/;margin-left:auto;margin-right:(?:auto|0)/g, "");
+      expect(sourceRows(toMjml(roundtrip(legacy)))).toEqual(sourceRows(source));
+    }
+  });
   it("keeps omitted image width and rejects unsafe URLs or raw/template leaves", () => {
     const source = toMjml(
       documentWith([image({ mjmlAttributes: [{ name: "width", inherit: true }] })]),

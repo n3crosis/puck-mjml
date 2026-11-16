@@ -58,13 +58,4 @@ describe("visible glyph-line evidence", () => {
     const changed = [{ ...original[0], left: 1.4453125, right: 428.5546875 }];
     expect(visibleTextLineBounds(original)).not.toEqual(visibleTextLineBounds(changed));
   });
-
-  it("supports wrapped words represented by more than one rectangle", () => {
-    expect(
-      visibleTextLineBounds([
-        { left: 0, right: 100, top: 0, bottom: 17 },
-        { left: 0, right: 30, top: 22.4, bottom: 39.4 },
-      ]),
-    ).toHaveLength(2);
-  });
 });

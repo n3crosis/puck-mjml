@@ -341,7 +341,25 @@ export function parseIntrinsicMarkup(
         requireValue(children(img).length === 0 && img.attrs.src !== undefined);
         for (const name of ["src", "alt", "title", "srcset", "sizes", "usemap"])
           if (img.attrs[name] !== undefined) native[name] = img.attrs[name]!;
-        const inner = styles(img, [...imageInnerStyles, "display", "box-sizing", "max-width"]);
+        const inner = styles(img, [
+          ...imageInnerStyles,
+          "display",
+          "box-sizing",
+          "max-width",
+          "margin-left",
+          "margin-right",
+        ]);
+        // Older exports omitted alignment margins. New ones must match the
+        // native align value rather than silently dropping authored styles.
+        if (inner["margin-left"] !== undefined || inner["margin-right"] !== undefined) {
+          requireValue(
+            (native.align === "center" || native.align === "right") &&
+              inner["margin-left"] === "auto" &&
+              inner["margin-right"] === (native.align === "center" ? "auto" : "0"),
+          );
+          delete inner["margin-left"];
+          delete inner["margin-right"];
+        }
         requireValue(
           inner.display === "block" &&
             inner["box-sizing"] === "content-box" &&

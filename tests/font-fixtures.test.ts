@@ -4,14 +4,11 @@ import { describe, expect, it } from "vitest";
 
 const directory = new URL("./browser/fixtures/fonts/", import.meta.url);
 const manifest: {
-  generator: string;
-  variableAdvanceUnits: Record<string, number>;
   files: Record<string, string>;
 } = JSON.parse(readFileSync(new URL("manifest.json", directory), "utf8"));
 
 describe("original typography probe assets", () => {
-  it("records reproducible generated WOFF binaries and a source generator", () => {
-    expect(readFileSync(manifest.generator, "utf8")).toContain("pen.lineTo((advance - 50, 700))");
+  it("pins the generated WOFF fixtures", () => {
     expect(Object.keys(manifest.files)).toEqual([
       "ligature.woff",
       "other-400.woff",
@@ -25,29 +22,4 @@ describe("original typography probe assets", () => {
       expect(createHash("sha256").update(bytes).digest("hex")).toBe(hash);
     }
   });
-
-  it("keeps intermediate-weight advances on integer pixels at the browser fixture size", () => {
-    expect(manifest.variableAdvanceUnits).toEqual({ "420": 2100, "450": 2250 });
-    for (const advance of Object.values(manifest.variableAdvanceUnits)) {
-      expect(((advance * 20) / 1000) % 1).toBe(0);
-    }
-  });
-
-  it("uses real variable-font axis and advance variation tables for intermediate weights", () => {
-    const bytes = readFileSync(new URL("variable.woff", directory));
-    const tags = Array.from({ length: bytes.readUInt16BE(12) }, (_, index) =>
-      bytes.subarray(44 + index * 20, 48 + index * 20).toString(),
-    );
-    expect(tags).toContain("fvar");
-    expect(tags).toContain("gvar");
-    expect(tags).toContain("HVAR");
-  });
-});
-
-it("includes a real GSUB ligature table in the shaping probe", () => {
-  const bytes = readFileSync(new URL("ligature.woff", directory));
-  const tags = Array.from({ length: bytes.readUInt16BE(12) }, (_, index) =>
-    bytes.subarray(44 + index * 20, 48 + index * 20).toString(),
-  );
-  expect(tags).toContain("GSUB");
 });

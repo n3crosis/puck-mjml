@@ -16,6 +16,7 @@ const omittedAncestors = [
   `@scope (.inside){${globals}}`,
   `@starting-style{${globals}}`,
   `@unsupported{${globals}}`,
+  `@layer first,,second{${globals}}`,
   `@media all{@supports(display:block){@scope (.inside){${globals}}}}`,
   `body + .host{${globals}}`,
   `:root{& + .host{${globals}}}`,

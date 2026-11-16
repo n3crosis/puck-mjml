@@ -22,6 +22,10 @@ const source = `<mjml><mj-head>
       .cart-image :where(a), .feature-image :where(a) { width:50% !important; }
     }
     .authored td { padding-right: 9px !important; }
+    .authored { outline-color: green; outline-style: dotted !important; }
+    @layer first, second;
+    @layer first { .authored { outline-color: red; outline-style: dashed !important; } }
+    @layer second { .authored { outline-color: blue; outline-style: solid !important; } }
     body + .host-target, body ~ .host-target { padding: 99px !important; }
   </mj-style>
 </mj-head><mj-body width="640px">

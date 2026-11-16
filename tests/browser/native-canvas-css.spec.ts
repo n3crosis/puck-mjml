@@ -210,3 +210,14 @@ for (const width of [390, 600, 601, 800]) {
       .toBeCloseTo(authoredWidth, 1);
   });
 }
+
+test("canvas keeps normal and important layer precedence from compiled MJML", async ({ page }) => {
+  await page.goto("/tests/browser/fixtures/native-canvas-css.html");
+  await expect(page.getByLabel("Compilation status")).toHaveText("ready");
+  const canvas = page.getByRole("region", { name: "Styled canvas" }).locator(".authored");
+  const compiled = page.frameLocator("#compiled").locator(".authored");
+  for (const target of [canvas, compiled]) {
+    await expect(target).toHaveCSS("outline-color", "rgb(0, 128, 0)");
+    await expect(target).toHaveCSS("outline-style", "dashed");
+  }
+});

@@ -374,6 +374,28 @@ function prepareRule(rule: Rule | AtRule, state: ScopeState, label: string): voi
   }
 }
 
+/** Keep layer ordering without registering names shared with the host page. */
+function namespaceLayer(rule: AtRule, state: ScopeState, label: string): boolean {
+  if (!rule.params.trim() && rule.nodes) return true; // Anonymous layer.
+  const names = rule.params.split(",").map((name) => name.trim().split("."));
+  if (
+    (rule.nodes && names.length !== 1) ||
+    names.some((parts) =>
+      parts.some((part) => !customIdent.test(part) || cssWideKeywords.includes(part.toLowerCase())),
+    )
+  ) {
+    state.notes.push(
+      `${label} contains an unsupported @layer name; the rule is not applied on the canvas.`,
+    );
+    rule.remove();
+    return false;
+  }
+  rule.params = names
+    .map((parts) => parts.map((part) => `${state.scope}-${part}`).join("."))
+    .join(", ");
+  return true;
+}
+
 function prepareNestedAtRule(atRule: AtRule, state: ScopeState, label: string): void {
   switch (atRuleKind(atRule.name)) {
     case "group":
@@ -385,18 +407,9 @@ function prepareNestedAtRule(atRule: AtRule, state: ScopeState, label: string): 
     case "font-face":
       prepareFontFace(atRule, state, label);
       break;
-    case "layer": {
-      const children = atRule.nodes?.slice() ?? [];
-      atRule.replaceWith(...children);
-      for (const child of children) {
-        if (child.type === "rule") prepareNestedRule(child, state, label);
-        else if (child.type === "atrule") prepareNestedAtRule(child, state, label);
-      }
-      state.notes.push(
-        `${label} uses @layer; layer semantics are not preserved on the canvas, but its rules are applied.`,
-      );
+    case "layer":
+      if (namespaceLayer(atRule, state, label)) prepareRule(atRule, state, label);
       break;
-    }
     default:
       state.notes.push(
         `${label} contains an unsupported @${atRule.name} rule, which is not applied on the canvas.`,
@@ -456,6 +469,7 @@ function rewritePreparedCss(
           aliasFontFace(node, state.aliases);
           break;
         case "group":
+        case "layer":
           rewritePreparedCss(node, state, declarations);
           break;
       }
@@ -798,17 +812,9 @@ function processNode(node: Rule | AtRule, state: ScopeState, label: string): voi
     case "font-face":
       prepareFontFace(node, state, label);
       break;
-    case "layer": {
-      const children = node.nodes?.slice() ?? [];
-      node.replaceWith(...children);
-      for (const child of children) {
-        if (child.type === "rule" || child.type === "atrule") processNode(child, state, label);
-      }
-      state.notes.push(
-        `${label} uses @layer; layer semantics are not preserved on the canvas, but its rules are applied.`,
-      );
+    case "layer":
+      if (namespaceLayer(node, state, label)) scopeGroup(node, state, label);
       break;
-    }
     default:
       state.notes.push(
         `${label} contains an unsupported @${node.name} rule, which is not applied on the canvas.`,
@@ -877,6 +883,7 @@ function collectGlobalRegistrations(container: Root | AtRule | Rule, state: Scop
           break;
         }
         case "group":
+        case "layer":
           collectGlobalRegistrations(node, state);
           break;
       }

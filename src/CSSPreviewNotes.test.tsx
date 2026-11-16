@@ -33,7 +33,7 @@ describe("Custom CSS native preview notes", () => {
     ['@keyframes "pulse"{to{opacity:1}}', "keyframes"],
     [String.raw`@font-face{font-family:S\65 cond;src:url(face.woff2)}`, "@font-face"],
     [".card{& + .outside{color:red}}", "nesting subset"],
-    ["@layer theme{.card{color:red}}", "layer semantics"],
+    [String.raw`@layer th\65me{.card{color:red}}`, "unsupported @layer name"],
   ])("describes native preview limits without declaring browser CSS invalid: %s", (css, text) => {
     const warn = vi.spyOn(console, "warn");
     const fetch = vi.spyOn(globalThis, "fetch");
@@ -58,7 +58,7 @@ describe("Custom CSS native preview notes", () => {
     expect(container.querySelector("summary")!.textContent).toBe("2 preview notes");
     expect(container.querySelectorAll("li")).toHaveLength(2);
     render(
-      '@media all{@supports(display:block){.card{color:red;&:hover{color:blue}}}} @keyframes pulse{to{opacity:1}} @font-face{font-family:"Example";src:url(face.woff2)}',
+      '@layer theme{.card{color:red}} @media all{@supports(display:block){.card{color:red;&:hover{color:blue}}}} @keyframes pulse{to{opacity:1}} @font-face{font-family:"Example";src:url(face.woff2)}',
     );
     expect(container.querySelector(".pm-css-preview-notes")).toBeNull();
     expect(container.querySelector("details")).toBeNull();

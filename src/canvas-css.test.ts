@@ -240,14 +240,19 @@ describe("scoped canvas CSS selectors", () => {
     expect(result.notes).toHaveLength(3);
   });
 
-  it("unwraps layer rules while reporting lost layer semantics", () => {
+  it("preserves layer rules with isolated names", () => {
     const result = scopeCss([
-      stylesheet("@layer base { .card { color: red; } .title { color: blue; } }"),
+      stylesheet(
+        "@layer base, theme; @layer theme.buttons { .card { color: red; } } @layer theme { @layer buttons { .title { color: blue; } } } @layer { .anonymous { color: green; } }",
+      ),
     ]);
     expect(result.css).toContain(".pm-canvas-test .card { color: red; }");
     expect(result.css).toContain(".pm-canvas-test .title { color: blue; }");
-    expect(result.css).not.toContain("@layer");
-    expect(result.notes[0]).toContain("@layer");
+    expect(result.css).toContain("@layer pm-canvas-test-base, pm-canvas-test-theme;");
+    expect(result.css).toContain("@layer pm-canvas-test-theme.pm-canvas-test-buttons");
+    expect(result.css).toContain("@layer pm-canvas-test-theme { @layer pm-canvas-test-buttons");
+    expect(result.css).toContain("@layer { .pm-canvas-test .anonymous");
+    expect(result.notes).toEqual([]);
   });
 
   it("reports stylesheets that cannot be parsed", () => {

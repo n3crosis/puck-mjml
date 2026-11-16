@@ -174,11 +174,11 @@ describe("bounded custom CSS registrations", () => {
     const result = apply(
       `.x{@layer first{animation:f 1s;font-family:F;@supports(display:block){@layer second{animation-name:f;font-family:F}}}}@keyframes f{to{opacity:1}}@font-face{font-family:F;src:url(face.woff2)}`,
     );
-    expect(result.css).not.toContain("@layer");
+    expect(result.css).toContain(`@layer ${scope}-first`);
     expect(result.css).toContain(`animation:${scope}-f 1s`);
     expect(result.css).toContain(`animation-name:${scope}-f`);
     expect(result.css.match(new RegExp(`font-family:"F-${scope}"`, "g"))).toHaveLength(3);
-    expect(result.notes).toHaveLength(2);
+    expect(result.notes).toEqual([]);
   });
 
   it("does not rewrite variables, their fallbacks, or source data", () => {

@@ -126,8 +126,8 @@ export function sanitizeEmailTableContent(value: unknown): string {
     ],
     allowedAttributes: {
       ...options.allowedAttributes,
-      th: ["scope", "colspan", "rowspan", "style"],
-      td: ["scope", "colspan", "rowspan", "style"],
+      th: ["scope", "colspan", "rowspan", "style", "align", "valign"],
+      td: ["scope", "colspan", "rowspan", "style", "align", "valign"],
     },
     allowedStyles: { ...options.allowedStyles, th: cellStyles, td: cellStyles },
   });

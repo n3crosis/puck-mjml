@@ -1487,10 +1487,10 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
     if (colspan && /^\d+$/.test(colspan)) tableCell.colSpan = Number.parseInt(colspan, 10);
     const rowspan = wrapped.attr("rowspan");
     if (rowspan && /^\d+$/.test(rowspan)) tableCell.rowSpan = Number.parseInt(rowspan, 10);
-    const align = declarations.get("text-align");
+    const align = declarations.get("text-align") ?? wrapped.attr("align");
     if (align === "left" || align === "center" || align === "right" || align === "justify")
       tableCell.align = align;
-    const verticalAlign = declarations.get("vertical-align");
+    const verticalAlign = declarations.get("vertical-align") ?? wrapped.attr("valign");
     if (verticalAlign === "top" || verticalAlign === "middle" || verticalAlign === "bottom")
       tableCell.verticalAlign = verticalAlign;
     const width = declarations.get("width");
@@ -1595,7 +1595,7 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
         if (tag !== "th" && tag !== "td") return false;
         if (
           Object.keys(node.attribs).some(
-            (name) => !["style", "scope", "colspan", "rowspan"].includes(name),
+            (name) => !["style", "scope", "colspan", "rowspan", "align", "valign"].includes(name),
           )
         )
           return true;

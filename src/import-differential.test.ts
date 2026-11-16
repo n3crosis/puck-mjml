@@ -76,6 +76,26 @@ describe("MJML import compiler differentials", () => {
       ).toBe("Plain answer");
     },
   );
+  it("keeps legacy table-cell alignment editable, with inline styles taking precedence", async () => {
+    const source = wrap(
+      "",
+      '<mj-column><mj-table><tr><td align="right" valign="bottom">First</td><td align="right" valign="bottom" style="text-align:center;vertical-align:top">Second</td></tr></mj-table></mj-column>',
+    );
+    const { document, warnings } = fromMjml(source);
+    expect(warnings).toEqual([]);
+    const table = (document.root.props!.sections![0]!.props.column as EmailBlock[])[0]!;
+    const cells = (table.props.bodyRows as { cells: Record<string, unknown>[] }[])[0]!.cells;
+    expect(cells[0]).toMatchObject({ align: "right", verticalAlign: "bottom" });
+    expect(cells[1]).toMatchObject({ align: "center", verticalAlign: "top" });
+    expect((await compile(toMjml(document)))("td[align=right]")).toHaveLength(2);
+    cells[0]!.content = "Edited";
+    const edited = await compile(toMjml(document));
+    expect(
+      edited("td")
+        .filter((_, cell) => edited(cell).text() === "Edited")
+        .attr("style"),
+    ).toContain("text-align:right;vertical-align:bottom");
+  });
   it("preserves native pixel columns without a lossy-conversion warning", async () => {
     const source = wrap(
       "",

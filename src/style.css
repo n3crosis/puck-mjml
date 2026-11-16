@@ -466,6 +466,27 @@
 .pm-intrinsic-table > .pm-intrinsic-cell {
   display: table-cell;
 }
+/* Preserve measured desktop/two-column/stacked tracks only while dragging.
+   The normal canvas and exported email retain their intrinsic table layout. */
+.pm-intrinsic-row > .pm-intrinsic-table[data-pm-native-dragging="true"][data-pm-native-drag-axis] {
+  display: grid !important;
+  grid-template-columns: var(--pm-intrinsic-drag-columns);
+  grid-template-rows: var(--pm-intrinsic-drag-rows);
+}
+.pm-intrinsic-row
+  > .pm-intrinsic-table[data-pm-native-dragging="true"][data-pm-native-drag-axis]
+  > .pm-intrinsic-cell {
+  display: flex !important;
+  flex-direction: column;
+  width: auto !important;
+  box-sizing: border-box;
+}
+.pm-intrinsic-table[data-pm-native-dragging="true"] > [data-pm-cell-align="middle"] {
+  justify-content: center;
+}
+.pm-intrinsic-table[data-pm-native-dragging="true"] > [data-pm-cell-align="bottom"] {
+  justify-content: flex-end;
+}
 .pm-intrinsic-text {
   /* Anywhere changes min-content contributions and therefore sibling widths. */
   overflow-wrap: normal;

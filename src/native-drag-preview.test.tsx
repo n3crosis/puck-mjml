@@ -50,6 +50,86 @@ describe("native drag preview instance bridge", () => {
     expect(source.hasAttribute("data-pm-native-dragging")).toBe(false);
     expect(destination.hasAttribute("data-pm-native-drag-axis")).toBe(false);
   });
+  it.each([
+    {
+      widths: [200, 400],
+      lefts: [0, 200],
+      tops: [0, 0],
+      columns: "200px 400px",
+      heights: "80px",
+      axis: "x",
+    },
+    {
+      widths: [300, 300, 300, 300],
+      lefts: [0, 300, 0, 300],
+      tops: [0, 0, 80, 80],
+      columns: "300px 300px",
+      heights: "80px 80px",
+      axis: "x",
+    },
+    {
+      widths: [600, 600],
+      lefts: [0, 0],
+      tops: [0, 80],
+      columns: "600px",
+      heights: "80px 80px",
+      axis: "y",
+    },
+    {
+      widths: [300, 300, 300, 300],
+      lefts: [0, 300, 0, 300],
+      tops: [20, 0, 120, 80],
+      cellHeights: [40, 80, 40, 80],
+      columns: "300px 300px",
+      heights: "80px 80px",
+      axis: "x",
+    },
+    {
+      widths: [300, 300],
+      lefts: [300, 0],
+      tops: [40, 0],
+      cellHeights: [40, 80],
+      columns: "300px 300px",
+      heights: "80px",
+      axis: "x",
+    },
+  ])(
+    "preserves intrinsic tracks during drag ($columns)",
+    ({ widths, lefts, tops, cellHeights, columns, heights, axis }) => {
+      const bridge = createNativeDragPreview();
+      const element = row(450.375, widths);
+      element.style.display = "table";
+      element.style.width = "600.5px";
+      document.body.append(element);
+      [...element.children].forEach((child, index) => {
+        child.className = "pm-intrinsic-cell";
+        child.getBoundingClientRect = () =>
+          ({
+            width: widths[index] * 0.75,
+            left: lefts[index] * 0.75,
+            right: (lefts[index] + widths[index]) * 0.75,
+            top: tops[index] * 0.75,
+            height: (cellHeights?.[index] ?? 80) * 0.75,
+          }) as DOMRect;
+      });
+      const clone = element.firstElementChild!.cloneNode() as HTMLElement;
+      clone.setAttribute("data-dnd-placeholder", "clone");
+      clone.getBoundingClientRect = () => ({ width: 999, top: 0, height: 999 }) as DOMRect;
+      element.append(clone);
+      const remove = bridge.register(element, "intrinsic");
+      bridge.onAction({}, state(true));
+      expect(element.getAttribute("data-pm-native-drag-axis")).toBe(axis);
+      expect(element.style.getPropertyValue("--pm-intrinsic-drag-columns")).toBe(columns);
+      expect(element.style.getPropertyValue("--pm-intrinsic-drag-rows")).toBe(heights);
+      bridge.reset();
+      expect(element.style.cssText).toBe("display: table; width: 600.5px;");
+      bridge.onAction({}, state(true));
+      remove();
+      expect(element.style.cssText).toBe("display: table; width: 600.5px;");
+      expect(element.hasAttribute("data-pm-native-dragging")).toBe(false);
+      element.remove();
+    },
+  );
   it("classifies newly registered rows by content width, excluding the active hit area", () => {
     const bridge = createNativeDragPreview();
     bridge.onAction({}, state(true));

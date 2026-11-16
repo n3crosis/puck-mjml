@@ -8,7 +8,47 @@ import {
 } from "react";
 
 export type NativeDragPreview = ReturnType<typeof createNativeDragPreview>;
-type RowKind = "section" | "group";
+type RowKind = "section" | "group" | "intrinsic";
+type RowLayout = { axis: "x" | "y"; columns?: string; heights?: string };
+
+// Puck's static gap detector recognizes flex/grid, not table flow. Snapshot the
+// rendered tracks before switching intrinsic tables to grid for a drag only.
+function intrinsicTracks(row: HTMLElement): RowLayout {
+  const bounds = row.getBoundingClientRect();
+  const style = row.ownerDocument.defaultView?.getComputedStyle(row);
+  const px = (value: string | undefined) => Number.parseFloat(value || "") || 0;
+  const width =
+    px(style?.width) +
+    (style?.boxSizing === "border-box"
+      ? 0
+      : px(style?.paddingLeft) +
+        px(style?.paddingRight) +
+        px(style?.borderLeftWidth) +
+        px(style?.borderRightWidth));
+  const scale = width > 0 && bounds.width > 0 ? bounds.width / width : 1;
+  const boxes = [...row.children]
+    .filter((child) => child.matches(".pm-intrinsic-cell:not([data-dnd-placeholder])"))
+    .map((child) => child.getBoundingClientRect());
+  // Inline-block cells can have different tops with middle/bottom alignment.
+  // A repeated horizontal interval, not their top edge, marks a wrapped row.
+  const rows: DOMRect[][] = [];
+  for (const box of boxes) {
+    const last = rows.at(-1);
+    if (
+      !last ||
+      last.some((cell) => Math.min(cell.right, box.right) - Math.max(cell.left, box.left) > 1 / 64)
+    ) {
+      rows.push([box]);
+    } else last.push(box);
+  }
+  const columns = rows[0] || [];
+  const heights = rows.map((cells) => Math.max(...cells.map((box) => box.height)));
+  return {
+    axis: columns.length > 1 ? "x" : "y",
+    columns: columns.map((box) => `${box.width / scale}px`).join(" ") || "1fr",
+    heights: heights.map((height) => `${height / scale}px`).join(" ") || "auto",
+  };
+}
 
 /** Puck's public onAction runs synchronously before its drag-start callback
  * returns. Keep supported drag-preview geometry local to the owning editor. */
@@ -46,21 +86,27 @@ export function createNativeDragPreview() {
       ? "y"
       : "x";
   }
-  function updateRow(row: HTMLElement, axis?: "x" | "y") {
-    if (!axis) {
+  function updateRow(row: HTMLElement, layout?: RowLayout) {
+    if (!layout) {
       row.removeAttribute("data-pm-native-dragging");
       row.removeAttribute("data-pm-native-drag-axis");
+      row.style.removeProperty("--pm-intrinsic-drag-columns");
+      row.style.removeProperty("--pm-intrinsic-drag-rows");
       return;
     }
-    row.setAttribute("data-pm-native-drag-axis", axis);
+    if (layout.columns) row.style.setProperty("--pm-intrinsic-drag-columns", layout.columns);
+    if (layout.heights) row.style.setProperty("--pm-intrinsic-drag-rows", layout.heights);
+    row.setAttribute("data-pm-native-drag-axis", layout.axis);
     row.setAttribute("data-pm-native-dragging", "true");
   }
+  const measure = (row: HTMLElement, kind: RowKind): RowLayout =>
+    kind === "intrinsic" ? intrinsicTracks(row) : { axis: classifyRow(row, kind) };
   function setDragging(value: boolean) {
     if (dragging === value) return;
     dragging = value;
-    // Snapshot all native inline geometry before any row switches to flex.
+    // Snapshot all row geometry before any row changes its layout.
     const axes = [...rows].map(
-      ([row, kind]) => [row, dragging ? classifyRow(row, kind) : undefined] as const,
+      ([row, kind]) => [row, dragging ? measure(row, kind) : undefined] as const,
     );
     for (const [row, axis] of axes) updateRow(row, axis);
   }
@@ -70,11 +116,10 @@ export function createNativeDragPreview() {
     },
     register(row: HTMLElement, kind: RowKind) {
       rows.set(row, kind);
-      updateRow(row, dragging ? classifyRow(row, kind) : undefined);
+      updateRow(row, dragging ? measure(row, kind) : undefined);
       return () => {
         rows.delete(row);
-        row.removeAttribute("data-pm-native-dragging");
-        row.removeAttribute("data-pm-native-drag-axis");
+        updateRow(row);
       };
     },
     reset() {

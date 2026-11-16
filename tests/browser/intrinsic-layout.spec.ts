@@ -551,9 +551,8 @@ test("intrinsic cell selection and pointer reorder retain identity and undo/redo
   await expect(page.getByLabel("Selected block type")).toHaveText("IntrinsicCell");
   const handle = frame.getByRole("button", { name: "Drag to reorder", exact: true });
   await expect(handle).toBeVisible();
-  const start = await handle.boundingBox(),
-    end = await frame.locator(".stack-b").boundingBox();
-  if (!start || !end) throw new Error("Missing intrinsic cell drag bounds");
+  const start = await handle.boundingBox();
+  if (!start) throw new Error("Missing intrinsic cell drag bounds");
   const before = await historyIndex(page);
   await page.mouse.move(start.x + start.width / 2, start.y + start.height / 2);
   await page.mouse.down();
@@ -561,12 +560,30 @@ test("intrinsic cell selection and pointer reorder retain identity and undo/redo
     steps: 5,
   });
   await expect(page.getByLabel("Drag state")).toHaveText("true");
-  await page.mouse.move(end.x + end.width - 2, end.y + end.height / 2, { steps: 30 });
-  // Wait for the cells slot itself, not a nested content slot, to accept the
-  // insertion. No dispatch/reorder shortcut substitutes for the pointer path.
-  await expect(
-    frame.locator('[data-puck-dropzone="mode-stack:cells"] > [data-puck-line-placeholder]'),
-  ).toBeVisible();
+  const destination = frame.locator(".stack-b");
+  const currentEnd = await destination.boundingBox();
+  if (!currentEnd) throw new Error("Missing intrinsic cell drop bounds");
+  await page.mouse.move(currentEnd.x + currentEnd.width - 2, currentEnd.y + currentEnd.height / 2, {
+    steps: 30,
+  });
+  // A visible line alone can mean the no-op gap before B. Verify the vertical
+  // gap after B: Puck must recognize the horizontal intrinsic row while dragging.
+  const placeholder = frame.locator(
+    '[data-puck-dropzone="mode-stack:cells"] > [data-puck-line-placeholder]',
+  );
+  await expect(placeholder).toBeVisible();
+  await expect
+    .poll(async () => {
+      const line = await placeholder.boundingBox(),
+        target = await destination.boundingBox();
+      return Boolean(
+        line &&
+        target &&
+        line.width < line.height &&
+        Math.abs(line.x + line.width / 2 - (target.x + target.width)) < 3,
+      );
+    })
+    .toBe(true);
   await page.mouse.up();
   const reordered = ["stack-b", "stack-a", "stack-c", "stack-d"];
   await expect.poll(order).toEqual(reordered);

@@ -11,6 +11,7 @@ import {
 } from "./intrinsic-layout";
 import { IntrinsicResourceError } from "./intrinsic-source";
 import { useNativeCanvasScope, type NativeCanvasAttributes } from "./native-canvas-context";
+import { useNativeDragRowRef } from "./native-drag-preview";
 
 export const IntrinsicLayoutContext = createContext(false);
 const css = (values: Record<string, string | undefined>) =>
@@ -25,6 +26,7 @@ const classes = (...values: (string | undefined)[]) => values.filter(Boolean).jo
 export function IntrinsicRowView(
   props: Record<string, unknown> & { cells: SlotComponent; puck: PuckContext },
 ) {
+  const rowRef = useNativeDragRowRef("intrinsic", Boolean(props.puck?.isEditing));
   const source = useLayoutBlockProps(props.id);
   const nested = useContext(IntrinsicLayoutContext);
   const native = useNativeCanvasScope();
@@ -86,6 +88,7 @@ export function IntrinsicRowView(
       ) : null}
       <IntrinsicLayoutContext.Provider value={true}>
         <Cells
+          ref={rowRef}
           className="pm-intrinsic-table"
           collisionAxis="dynamic"
           minEmptyHeight={48}
@@ -122,6 +125,7 @@ export function IntrinsicCellView(
       ref={props.puck.dragRef}
       className={classes("pm-intrinsic-cell", cell.cssClass)}
       data-pm-cell="1"
+      data-pm-cell-align={cell.verticalAlign}
       style={{ display: "table-cell", padding: cell.padding, verticalAlign: cell.verticalAlign }}
     >
       {/* Puck's editing Slot defaults to height:100%. A filled cell would

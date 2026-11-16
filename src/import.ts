@@ -1134,8 +1134,19 @@ function preserveLabelHtml(
   return { [property]: element.innerHtml };
 }
 
+/** Attribute order does not change HTML meaning or require trusted source. */
+function comparableHtml($: cheerio.CheerioAPI): string {
+  $("*").each((_, node) => {
+    if (!("attribs" in node)) return;
+    node.attribs = Object.fromEntries(
+      Object.entries(node.attribs).sort(([a], [b]) => a.localeCompare(b)),
+    );
+  });
+  return $.html().trim();
+}
+
 function preserveRichHtml(element: SourceElement, importer: Importer): Record<string, unknown> {
-  const normalize = (html: string) => cheerio.load(html, {}, false).html()?.trim();
+  const normalize = (html: string) => comparableHtml(cheerio.load(html, {}, false));
   if (normalize(element.innerHtml) === normalize(sanitizeEmailRichText(element.innerHtml)))
     return {};
   importer.warn(
@@ -1580,7 +1591,7 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
           .replace(/;$/, ""),
       );
     });
-    return parsed.html();
+    return comparableHtml(parsed);
   };
   const trusted =
     element.innerHtml.includes("data-pm-layout") ||
@@ -1621,8 +1632,8 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
           return true;
         const content = $(node).html() ?? "";
         return (
-          cheerio.load(content, {}, false).html() !==
-          cheerio.load(sanitizeEmailRichText(content), {}, false).html()
+          comparableHtml(cheerio.load(content, {}, false)) !==
+          comparableHtml(cheerio.load(sanitizeEmailRichText(content), {}, false))
         );
       });
   if (trusted)

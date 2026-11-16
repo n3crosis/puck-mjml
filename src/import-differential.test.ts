@@ -76,6 +76,25 @@ describe("MJML import compiler differentials", () => {
       ).toBe("Plain answer");
     },
   );
+  it("ignores attribute order when checking safe imported links", async () => {
+    const link =
+      '<a title="Read more" rel="noopener noreferrer" target="_blank" href="https://example.com/">Read</a>';
+    const source = wrap(
+      "",
+      `<mj-column><mj-text>${link}</mj-text><mj-table><tr><td>${link}</td></tr></mj-table></mj-column>`,
+    );
+    const { document, warnings } = fromMjml(source);
+    expect(warnings).toEqual([]);
+    const output = await compile(toMjml(document));
+    expect(output('a[href="https://example.com/"][rel="noopener noreferrer"]')).toHaveLength(2);
+    for (const unsafe of [
+      link.replace("https://example.com/", "javascript:alert(1)"),
+      link.replace("title=", 'onclick="alert(1)" title='),
+    ])
+      expect(() => toMjml(fromMjml(source.replaceAll(link, unsafe)).document)).toThrow(
+        /allowRawHtml/,
+      );
+  });
   it("keeps legacy table-cell presentation editable, with inline styles taking precedence", async () => {
     const source = wrap(
       "",

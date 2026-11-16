@@ -27,6 +27,7 @@ function mountCarousel() {
         src: `https://example.com/image-${index + 1 + offset}.png`,
         href: `https://example.com/page-${index + 1 + offset}`,
         alt: `Image ${index + 1 + offset}`,
+        mjmlAttributes: index === 2 ? [{ name: "target", value: "_self" }] : [],
       })),
     };
     const resolved = getCanvasElement("mj-carousel", props, createCanvasScope());
@@ -48,11 +49,13 @@ describe("native Carousel interactions", () => {
     act(() => thumbnail(3).dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
     expect(currentImage().alt).toBe("Image 3");
     expect(currentImage().closest("a")!.href).toBe("https://example.com/page-3");
+    expect(currentImage().closest("a")!.target).toBe("_self");
     expect(thumbnail(2).getAttribute("aria-pressed")).toBe("true");
     expect(thumbnail(3).getAttribute("aria-pressed")).toBe("false");
     act(() => thumbnail(3).dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
     expect(currentImage().alt).toBe("Image 2");
     expect(currentImage().closest("a")!.href).toBe("https://example.com/page-2");
+    expect(currentImage().closest("a")!.target).toBe("_blank");
   });
 
   it("keeps a clicked thumbnail selected after its hover preview ends", () => {

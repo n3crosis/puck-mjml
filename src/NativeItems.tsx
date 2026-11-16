@@ -704,7 +704,7 @@ function Carousel({ props, attributes, scope }: ItemProps) {
         {images.length > 1 ? control(-1) : null}
         <div className={a?.["css-class"]} style={{ flex: 1, minWidth: 0 }}>
           {a?.href ? (
-            <a href={href(a.href)} target="_blank" rel={a.rel} onClick={click(props)}>
+            <a href={href(a.href)} target={a.target} rel={a.rel} onClick={click(props)}>
               {image}
             </a>
           ) : (

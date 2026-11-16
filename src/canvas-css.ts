@@ -14,7 +14,10 @@ export interface ScopedCss {
 }
 
 const scopeIdent = /^(?:pm-canvas-)?[a-z0-9-]+$/i;
-const rootCompound = /^(html|body|:root)(.*)$/i;
+// Only pure-root functional lists can map to the canvas without changing which
+// descendants match. Mixed lists and functional selectors with combinators stay untouched.
+const rootCompound =
+  /^(html|body|:root|:(?:is|where)\(\s*(?:html|body|:root)(?:\s*,\s*(?:html|body|:root))*\s*\))(.*)$/i;
 const customIdent = /^-?[a-zA-Z_\u0080-\uFFFF][\w\u0080-\uFFFF-]*$/;
 const cssWideKeywords = ["initial", "inherit", "unset", "revert", "revert-layer", "default"];
 const reservedKeyframesNames = new Set(["none", ...cssWideKeywords]);

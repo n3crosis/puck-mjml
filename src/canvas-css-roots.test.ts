@@ -11,6 +11,10 @@ const scopedSelector = (selector: string) =>
 // Each shim's universal arm matches every element. Its other, fixed arm
 // contributes exactly the removed root token's CSS specificity.
 const mappings = [
+  [":where(:root) div", `.${scope}:is(:where(:root), *) div`],
+  [":is(html, body) .wide", `.${scope}:is(:is(html, body), *) .wide`],
+  [":is(:root, body)[dir=rtl] > .wide", `.${scope}:is(:is(:root, body), *)[dir=rtl] > .wide`],
+  [":where(body)::before", `.${scope}:is(:where(body), *)::before`],
   [":root div", `.${scope}:is(:root, *) div`],
   ["html div", `.${scope}:is(html, *) div`],
   ["body .wide", `.${scope}:is(body, *) .wide`],
@@ -44,6 +48,8 @@ describe("root selector specificity", () => {
   });
 
   it.each([
+    [":where(:root) div", `.${scope} div`],
+    [":is(html, body) .wide", `.${scope} .wide`],
     [":root div", `.${scope} div`],
     ["body .wide", `.${scope} .wide`],
     ["html body .wide", `.${scope} .wide`],
@@ -83,19 +89,22 @@ describe("root selector specificity", () => {
     expect(result.notes[0]).toContain("does not preserve specificity");
   });
 
-  it.each([":where(:root) div", ":is(:root, body) div", "body#id .wide"])(
+  it.each([":where(:root, .wide) div", ":is(:root > body) div", "body#id .wide"])(
     "does not broaden existing root recognition for %s",
     (selector) => expect(scopedSelector(selector)).toBe(`.${scope} ${selector}`),
   );
 
-  it.each(["body + .host", ":root[dir=rtl] ~ .host", "html > body + .host"])(
-    "still drops a root sibling selector: %s",
-    (selector) => {
-      const result = apply(`${selector} { color:red; }`);
-      expect(result.css).toBe("");
-      expect(result.notes[0]).toContain("outside the canvas");
-    },
-  );
+  it.each([
+    "body + .host",
+    ":root[dir=rtl] ~ .host",
+    "html > body + .host",
+    ":where(:root) + .host",
+    ":is(html, body)[dir=rtl] ~ .host",
+  ])("still drops a root sibling selector: %s", (selector) => {
+    const result = apply(`${selector} { color:red; }`);
+    expect(result.css).toBe("");
+    expect(result.notes[0]).toContain("outside the canvas");
+  });
 
   it("keeps namespaces, conditional groups, bridges, and source data independent", () => {
     const sheets = [

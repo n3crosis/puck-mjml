@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { list } from "postcss";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Render, type Data } from "@puckeditor/core";
 import { createEmailConfig } from "./config";
@@ -52,7 +53,7 @@ describe("document responsive layout", () => {
       expect(css).not.toContain(`.${styles[1 - index][1]}`);
       const selectors = css.match(/(?:\.[^{}]+|:where\([^{}]+)(?=\s*\{)/g) ?? [];
       for (const selectorList of selectors) {
-        for (const selector of selectorList.split(",")) {
+        for (const selector of list.comma(selectorList)) {
           expect(
             selector.trim().startsWith(`.${scope} `) ||
               selector.trim().startsWith(`:where(.${scope} `),

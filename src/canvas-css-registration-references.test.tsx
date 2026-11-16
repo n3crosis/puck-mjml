@@ -138,9 +138,9 @@ describe("literal font references in keyframe steps", () => {
     expect(result.notes).toEqual([]);
   });
 
-  it("preserves step selectors, invalid important declarations, variables, shorthand, and animation properties", () => {
+  it("preserves step selectors, invalid important declarations, variables, and animation properties", () => {
     const result = apply(
-      "@font-face{font-family:Local;src:url(local.woff2)}@keyframes linear{from,to{font-family:Local;--family:Local;font-family:var(--family,Local);font:20px Local;animation-name:linear;animation-timing-function:linear}30%,60%{font-family:Local!important}}.copy{animation-name:linear}",
+      "@font-face{font-family:Local;src:url(local.woff2)}@keyframes linear{from,to{font-family:Local;--family:Local;font-family:var(--family,Local);font:italic 20px/1.5 Local,serif;font:var(--font);animation-name:linear;animation-timing-function:linear}30%,60%{font-family:Local!important}}.copy{animation-name:linear}",
     );
     const rules: postcss.Rule[] = [];
     postcss.parse(result.css).walkAtRules("keyframes", (atRule) => {
@@ -151,11 +151,12 @@ describe("literal font references in keyframe steps", () => {
     for (const unchanged of [
       "--family:Local",
       "font-family:var(--family,Local)",
-      "font:20px Local",
+      "font:var(--font)",
       "animation-name:linear",
       "animation-timing-function:linear",
     ])
       expect(rules[0].toString()).toContain(unchanged);
+    expect(rules[0].toString()).toContain(`font:italic 20px/1.5 "Local-${scope}",serif`);
     expect(rules[1].toString()).toContain("font-family:Local!important");
     expect(result.css).toContain(`.copy{animation-name:${scope}-linear}`);
   });
@@ -179,7 +180,7 @@ describe("literal font references in keyframe steps", () => {
 
 describe("registration reference SSR/export boundary", () => {
   it("keeps sibling animations independent and leaves omitted host references unchanged without mutating source", () => {
-    const css = `@scope (.inside){${globals}}@font-face{font-family:Local;src:url(local.woff2)}@keyframes swap{from,to{font-family:Local}}${reference}.animated{animation:swap 1s paused}`;
+    const css = `@scope (.inside){${globals}}@font-face{font-family:Local;src:url(local.woff2)}@keyframes swap{from,to{font-family:Local;font:italic 20px Local}}${reference}.animated{animation:swap 1s paused}`;
     const { document } = fromMjml(
       `<mjml><mj-head><mj-style>${css}</mj-style></mj-head><mj-body><mj-section><mj-column><mj-text>References</mj-text></mj-column></mj-section></mj-body></mjml>`,
     );
@@ -209,7 +210,7 @@ describe("registration reference SSR/export boundary", () => {
       expect(styles[0].scope).not.toBe(styles[1].scope);
       for (const entry of styles) {
         expect(entry.css).toContain(
-          `@keyframes ${entry.scope}-swap{from,to{font-family:"Local-${entry.scope}"}}`,
+          `@keyframes ${entry.scope}-swap{from,to{font-family:"Local-${entry.scope}";font:italic 20px "Local-${entry.scope}"}}`,
         );
         expect(entry.css).toContain("font-family:Ghost,serif;animation:ghost 1s linear");
         expect(entry.css).not.toContain("Ghost-pm-canvas");

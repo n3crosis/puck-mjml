@@ -435,13 +435,16 @@ function namespaceKeyframes(atRule: AtRule, state: ScopeState): void {
   for (const step of atRule.nodes ?? []) {
     if (step.type !== "rule") continue;
     for (const node of step.nodes ?? []) {
-      if (
-        node.type === "decl" &&
-        node.prop.toLowerCase() === "font-family" &&
-        !node.important &&
-        // This bounded path does not decode escapes or raw token comments.
-        !/[\\]|\/\*/.test(node.raws.value?.raw ?? node.value) &&
-        // Do not turn an invalid empty-item list into an active keyframe value.
+      if (node.type !== "decl" || node.important) continue;
+      const property = node.prop.toLowerCase();
+      const raw = node.raws.value?.raw ?? node.value;
+      // Use the same bounded literal grammar as ordinary rules; do not
+      // rewrite animation properties, which have different keyframe semantics.
+      if (property === "font" && !raw.includes("/*"))
+        node.value = aliasFontShorthand(node.value, state.aliases);
+      else if (
+        property === "font-family" &&
+        !/[\\]|\/\*/.test(raw) &&
         splitTopLevel(node.value, ",", true).every((family) => family.trim())
       )
         node.value = aliasFontFamilyList(node.value, state.aliases);

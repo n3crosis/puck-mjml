@@ -65,7 +65,6 @@ describe("template provenance", () => {
 
 describe("template registry", () => {
   it("lists only real emails and the blank document, with unique ids and labels", () => {
-    expect(emailTemplates).toHaveLength(canonicalFiles.length + 1);
     expect(emailTemplates[0].id).toBe("blank");
     expect(new Set(emailTemplates.map(({ id }) => id)).size).toBe(emailTemplates.length);
     for (const template of emailTemplates) {

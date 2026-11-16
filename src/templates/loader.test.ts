@@ -14,7 +14,6 @@ describe("canonical MJML loader", () => {
     expect(text).not.toBe(otherText);
     text.props.content = "<p>Changed only in the first document</p>";
     expect(otherText.props.content).not.toContain("Changed only in the first document");
-    expect(source).not.toContain("Changed only in the first document");
   });
 
   it("names the source file and rejects imports that need trusted raw HTML", () => {

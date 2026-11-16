@@ -147,6 +147,20 @@ describe("web font loading", () => {
     expect(result.notes).toEqual([]);
   });
 
+  it("resolves font sources against the final stylesheet URL after redirects", async () => {
+    const result = await loadFontCss(
+      [{ name: "Inter", href: "https://fonts.example.com/latest.css" }],
+      aliases,
+      {
+        fetcher: async () => ({
+          ...response("@font-face { font-family: Inter; src: url(../inter.woff2); }"),
+          url: "https://cdn.example.com/v2/css/inter.css",
+        }),
+      },
+    );
+    expect(result.css).toContain('url("https://cdn.example.com/v2/inter.woff2")');
+  });
+
   it("skips incomplete or unsafe entries with a note", async () => {
     const result = await loadFontCss(
       [

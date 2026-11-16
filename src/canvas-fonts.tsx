@@ -16,6 +16,7 @@ export interface FontCssResult {
 export interface FontCssResponse {
   ok: boolean;
   status: number;
+  url?: string;
   text(): Promise<string>;
 }
 type FontCssFetcher = (url: string) => Promise<FontCssResponse>;
@@ -131,15 +132,16 @@ export function transformFontCss(
   return { css: root.toString(), notes };
 }
 
-/** Raw stylesheet text per URL, shared across canvas instances. */
-const fontCssCache = new Map<string, Promise<string>>();
+/** Stylesheet text and final URL, shared across canvas instances. */
+type FontStylesheet = { css: string; baseUrl: string };
+const fontCssCache = new Map<string, Promise<FontStylesheet>>();
 
-function fetchFontCss(href: string, fetcher: FontCssFetcher): Promise<string> {
+function fetchFontCss(href: string, fetcher: FontCssFetcher): Promise<FontStylesheet> {
   const cached = fontCssCache.get(href);
   if (cached) return cached;
-  const pending = fetcher(href).then((response) => {
+  const pending = fetcher(href).then(async (response) => {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.text();
+    return { css: await response.text(), baseUrl: response.url || href };
   });
   pending.catch(() => fontCssCache.delete(href));
   fontCssCache.set(href, pending);
@@ -174,7 +176,11 @@ export async function loadFontCss(
     const alias = Object.hasOwn(aliases, key) ? aliases[key] : family;
     try {
       const stylesheet = await fetchFontCss(href, fetcher);
-      const transformed = transformFontCss(stylesheet, { family, alias, baseUrl: href });
+      const transformed = transformFontCss(stylesheet.css, {
+        family,
+        alias,
+        baseUrl: stylesheet.baseUrl,
+      });
       css.push(transformed.css);
       notes.push(...transformed.notes);
       if (!transformed.css) failures.push(...transformed.notes);

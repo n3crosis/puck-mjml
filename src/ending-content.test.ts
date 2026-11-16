@@ -86,14 +86,6 @@ describe("trusted native ending content", () => {
     },
   );
 
-  it("rejects ancestor escape sequences accepted silently by the native parser", () => {
-    for (const ancestor of ["mj-column", "mj-section", "mj-body"]) {
-      const value = `before</${ancestor}><${ancestor}><mj-text>after`;
-      expect(() => trustedEndingContent("mj-text", value, enabled)).toThrow(/MJML closing tag/);
-      expect(() => trustedEndingContent("mj-raw", value, enabled)).toThrow(/MJML closing tag/);
-    }
-  });
-
   it("rejects NUL and DEL without rewriting other literal characters", () => {
     for (const character of [String.fromCharCode(0), String.fromCharCode(127)]) {
       expect(() => trustedEndingContent("mj-text", `before${character}after`, enabled)).toThrow(

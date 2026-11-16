@@ -307,10 +307,13 @@ describe("native nested-component canvas", () => {
     expect(canvas).toContain("padding:4px 8px");
     expect(canvas).toContain("text-align:right");
     const native = await compile(
-      '<mj-navbar base-url="https://example.com/shop/"><mj-navbar-link href="products" font-size="21px" padding="4px 8px">Products</mj-navbar-link></mj-navbar>',
+      '<mj-navbar css-class="nav-case" base-url="https://example.com/shop/"><mj-navbar-link href="products" font-size="21px" padding="4px 8px">Products</mj-navbar-link></mj-navbar>',
     );
     expect(native).toContain('href="https://example.com/shop/products"');
     expect(native).toContain("font-size:21px");
+    expect(Number.parseFloat(load(canvas)(".pm-native-navbar").css("font-size")!)).toBe(
+      Number.parseFloat(load(native)(".nav-case").css("font-size")!),
+    );
   });
 
   it("applies Accordion element, title and text attributes while retaining React content", async () => {
@@ -526,6 +529,7 @@ describe("native nested-component canvas", () => {
       expect(canvas).toContain("&lt;script&gt;");
       expect(canvas).toContain("Trusted HTML source");
     }
+    expect(load(sources[1])(".pm-native-navbar").css("font-size")).toBeUndefined();
   });
 
   it("never applies trusted template attributes and keeps concrete visual fallbacks", () => {

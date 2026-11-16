@@ -273,6 +273,10 @@ function Social({ props, attributes, scope }: ItemProps) {
 function Navbar({ props, attributes, scope }: ItemProps) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
+  const links = items(props.links);
+  const hasSourcePreview = links.some(
+    (item) => item.kind === "raw" || typeof item.htmlContent === "string",
+  );
   const hamburger = attributes.hamburger === "hamburger";
   useEffect(() => {
     // Disabling the native hamburger removes its checkbox. Re-enabling it
@@ -298,7 +302,13 @@ function Navbar({ props, attributes, scope }: ItemProps) {
     <nav
       className={classes("pm-link-list", "pm-native-navbar", attributes["css-class"])}
       data-native-navbar-open={hamburger ? String(open) : undefined}
-      style={{ padding: "0", ...outerStyle(attributes), color: "inherit" }}
+      style={{
+        padding: "0",
+        ...outerStyle(attributes),
+        color: "inherit",
+        // Match MJML's containing cell without hiding editor-only source labels.
+        fontSize: hasSourcePreview ? undefined : 0,
+      }}
     >
       {hamburger ? (
         <button
@@ -322,7 +332,7 @@ function Navbar({ props, attributes, scope }: ItemProps) {
         </button>
       ) : null}
       <div id={menuId} className="pm-native-navbar-links">
-        {items(props.links).map((item, index) => {
+        {links.map((item, index) => {
           if (item.kind === "raw")
             return (
               <TrustedHtmlPreview

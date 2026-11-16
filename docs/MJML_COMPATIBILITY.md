@@ -24,7 +24,7 @@ See the [editor guide](EDITOR_GUIDE.md) for usage and the [native attribute refe
 | `mj-breakpoint`, `mj-font`, `mj-style`                                            | Root settings    | Native breakpoint width override, hosted CSS fonts, and head or inline custom CSS.                                        |
 | `mj-raw`                                                                          | Host opt-in      | Trusted pre-doctype, head, body, wrapper, section, group, hero, column, social-list, navigation-list, and accordion HTML. |
 | `mj-html-attributes`, `mj-selector`, `mj-html-attribute`                          | Root settings    | HTML/XML attributes and unrestricted selector length; active attributes require the trusted HTML opt-in.                  |
-| `mj-include`, custom `.mjmlconfig` components                                     | Host integration | Includes accept an explicit virtual file map; custom components need host adapters.                                       |
+| `mj-include`, custom `.mjmlconfig` components                                     | Host integration | Includes accept an explicit virtual file map; custom components accept explicit host adapters.                                       |
 
 ## Canvas layout
 
@@ -150,3 +150,31 @@ are added to the root head. `css-inline="inline"` is retained. HTML includes
 become `mj-raw` and still require the host's `allowRawHtml` export opt-in.
 Includes inside ending-tag content and comments are not expanded. Custom
 components are not expanded by this API.
+
+### Host-defined component conversion
+
+`expandMjmlComponents(source, adapters)` converts explicitly registered custom
+tags to standard MJML before import. For example, a host can map its branded
+spacer to the standard editable spacer:
+
+```ts
+const expanded = expandMjmlComponents(source, {
+  "brand-spacer": () => '<mj-spacer height="24px" />',
+});
+const { document, warnings } = fromMjml(expanded);
+```
+
+Adapters receive decoded, explicitly authored `attributes` and child `content` with registered nested
+components expanded. Escape attribute/text values when interpolating them into
+returned MJML. Returned custom tags can use other registered adapters; recursive
+output is rejected. Standard tags cannot be overridden, and ending-tag HTML and
+comments are opaque. Unknown tags remain unchanged for normal import diagnostics.
+Custom declarations inside `mj-attributes` (including nested classes) are rejected
+before adapters run. This API does not compute MJML inheritance: hosts must resolve
+defaults/classes before conversion, or deliberately preserve their semantics in
+the returned markup.
+Only host code supplies adapters: `.mjmlconfig` files and plugins are not loaded.
+The result becomes ordinary editable blocks; custom component identity and logic
+are not retained on export. Import sanitization and trusted HTML opt-ins still
+apply. Expansion is limited to 1,000 adapter calls, 32 generated component levels,
+128 markup levels and 10 MiB of UTF-16 code units consumed or produced.

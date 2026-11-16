@@ -18,3 +18,5 @@ export type {
 } from "./types";
 
 export { resolveMjmlIncludes } from "./includes";
+
+export { expandMjmlComponents, type MjmlComponentAdapter } from "./custom-components";

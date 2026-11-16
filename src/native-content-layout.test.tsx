@@ -62,6 +62,7 @@ describe("native button layout", () => {
         mjmlAttributes: native
           ? attributes({
               title: "Action details",
+              name: "campaign-action",
               target: "_self",
               rel: "nofollow",
             })
@@ -73,7 +74,7 @@ describe("native button layout", () => {
     expect(result.errors).toEqual([]);
     const compiled = parse(result.html).querySelector(`.button-case ${href ? "a" : "p"}`)!;
     expect(canvas.tagName).toBe(compiled.tagName);
-    for (const name of ["href", "target", "rel", "title"])
+    for (const name of ["href", "target", "rel", "title", "name"])
       expect(canvas.getAttribute(name)).toBe(compiled.getAttribute(name));
     expect(style(canvas, "margin")).toBe(style(compiled, "margin"));
   });

@@ -585,6 +585,7 @@ function NativeBlockView({
             href={a.href || undefined}
             target={a.href ? a.target : undefined}
             rel={a.rel}
+            {...{ name: a.name }}
             title={a.title}
             onClick={puck?.isEditing ? (event) => event.preventDefault() : undefined}
             style={{

@@ -619,8 +619,9 @@ function sanitizedRichText(innerHtml: string, importer: Importer): string {
     ? sanitized
     : normalizeImportedWhitespace(sanitized);
   // Puck escapes tag-free rich text as plain text; wrap loose sentences once.
-  // Content that already starts with a block element is left untouched.
-  return html && !/^\s*<(?:p|h[1-6]|ul|ol|li|blockquote|code|pre|hr)\b/i.test(html)
+  // Leave mixed inline/block content untouched too: wrapping it would create
+  // invalid nested paragraphs and an extra empty paragraph when parsed.
+  return html && !/<(?:p|h[1-6]|ul|ol|li|blockquote|code|pre|hr)\b/i.test(html)
     ? `<p>${html}</p>`
     : html;
 }

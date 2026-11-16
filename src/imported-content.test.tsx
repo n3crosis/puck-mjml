@@ -193,6 +193,14 @@ describe("safe imported Text provenance", () => {
     expect($(".pm-imported-inline-text")).toHaveLength(0);
   });
 
+  it("does not wrap mixed inline and block source in an invalid paragraph", () => {
+    const source = "Intro <strong>copy</strong><p>Details</p><ul><li>Item</li></ul>";
+    const document = fixture(source);
+    const props = textBlock(document).props;
+    expect(props.content).toBe(source);
+    expect(importedRichText(props)).toBe(source);
+  });
+
   it("does not insert a paragraph into untouched plain text in the read-only canvas", () => {
     const $ = canvas(fixture("Plain text"));
     expect($(".pm-imported-text").text()).toBe("Plain text");

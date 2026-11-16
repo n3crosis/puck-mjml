@@ -245,7 +245,10 @@ function rewriteKeyframeNames(
   shorthand: boolean,
 ): string {
   if (!names.size) return value;
-  return splitTopLevel(value, ",")
+  const groups = splitTopLevel(value, ",", true);
+  // Do not turn invalid authored lists into running canvas animations.
+  if (groups.some((group) => !group.trim())) return value;
+  return groups
     .map((group) =>
       splitTopLevel(group, " ")
         .map((token) => {

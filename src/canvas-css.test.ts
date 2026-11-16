@@ -290,6 +290,16 @@ describe("namespaced canvas CSS globals", () => {
     expect(result.css).toContain("@keyframes pm-canvas-test-pulse");
   });
 
+  it("preserves invalid empty animation-list entries", () => {
+    const result = scopeCss([
+      stylesheet(
+        "@keyframes spin { to { opacity: 0; } } .x { animation: spin 1s,; animation-name: ,spin; }",
+      ),
+    ]);
+    expect(result.css).toContain("animation: spin 1s,");
+    expect(result.css).toContain("animation-name: ,spin");
+  });
+
   it("leaves animation keywords and unknown names untouched", () => {
     const result = scopeCss([
       stylesheet(

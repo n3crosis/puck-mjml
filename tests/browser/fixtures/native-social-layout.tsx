@@ -23,6 +23,8 @@ function Fixture() {
   }, []);
   return (
     <>
+      {/* Host resets affect the canvas, not the compiled email's iframe. */}
+      <style>{"* { box-sizing: border-box; }"}</style>
       <output aria-label="Compilation status">{status}</output>
       <section aria-label="Canvas">
         <Render config={createEmailConfig()} data={document as Data} />

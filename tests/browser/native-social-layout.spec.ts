@@ -47,11 +47,16 @@ for (const width of [390, 800]) {
           nextText: next.top - bounds.top,
           images: Array.from(element.querySelectorAll("img"), (image) => {
             const box = image.getBoundingClientRect();
+            const icon = (
+              image.closest(".pm-social-icon") ?? image.closest("table")!
+            ).getBoundingClientRect();
             return {
               x: box.left - bounds.left,
               y: box.top - bounds.top,
               width: box.width,
               height: box.height,
+              iconWidth: icon.width,
+              iconHeight: icon.height,
             };
           }),
         };
@@ -62,7 +67,7 @@ for (const width of [390, 800]) {
         expect(a[key], `${name} ${key}`).toBeCloseTo(b[key], 1);
       expect(a.images).toHaveLength(b.images.length);
       for (const [index, image] of a.images.entries())
-        for (const key of ["x", "y", "width", "height"] as const)
+        for (const key of ["x", "y", "width", "height", "iconWidth", "iconHeight"] as const)
           expect(image[key], `${name} image ${index} ${key}`).toBeCloseTo(b.images[index][key], 1);
       if (name.endsWith("-icons")) {
         const bottom = Math.max(...a.images.map((image) => image.y + image.height));

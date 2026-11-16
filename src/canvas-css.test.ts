@@ -180,14 +180,28 @@ describe("scoped canvas CSS selectors", () => {
     expect(result.notes).toHaveLength(2);
   });
 
+  it.each([", .card", ".card,", ".card,,.other", ".card, /**/ , .other"])(
+    "does not repair an invalid selector list: %s",
+    (selector) => {
+      const result = scopeCss([stylesheet(`${selector} { color: red; }`)]);
+      expect(result.css).toBe("");
+      expect(result.notes).toEqual([
+        "Custom CSS 1 contains an empty selector-list entry; the rule was not applied.",
+      ]);
+    },
+  );
+
   it("preserves pseudo classes, functions with commas, and quoted attribute values", () => {
     const result = scopeCss([
-      stylesheet('.promo:is(.a, .b) input[title="a, b"] { border: 0; } .x:not(.y) { color: red; }'),
+      stylesheet(
+        '.promo:is(.a, .b) input[title="a, b"] { border: 0; } .x:not(.y) { color: red; } .z:is(, .y) { color: blue; }',
+      ),
     ]);
     expect(result.css).toContain(
       '.pm-canvas-test .promo:is(.a, .b) input[title="a, b"] { border: 0; }',
     );
     expect(result.css).toContain(".pm-canvas-test .x:not(.y) { color: red; }");
+    expect(result.css).toContain(".pm-canvas-test .z:is(, .y) { color: blue; }");
   });
 
   it("scopes rules inside media, supports, and container queries", () => {

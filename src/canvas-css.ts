@@ -677,10 +677,16 @@ function nativeImageWidthAlias(
 }
 
 function scopeRule(rule: Rule, state: ScopeState, label: string): void {
+  const selectors = splitTopLevel(rule.selector, ",", true);
+  if (selectors.some((selector) => !selector.trim())) {
+    state.notes.push(`${label} contains an empty selector-list entry; the rule was not applied.`);
+    rule.remove();
+    return;
+  }
   const scoped: string[] = [];
   const aliases: string[] = [];
   const imageAliases: string[] = [];
-  for (const part of splitTopLevel(rule.selector, ",")) {
+  for (const part of selectors) {
     const selector = scopeSelector(part.trim(), state, label);
     if (selector === undefined) {
       state.notes.push(

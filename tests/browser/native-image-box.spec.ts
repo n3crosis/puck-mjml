@@ -94,8 +94,8 @@ for (const width of [390, 800]) {
     // Hostile modifications must not be mistaken for the renderer's border
     // paint, even when the visible image still happens to fit inside the email.
     for (const mutation of ["clip", "content", "padding", "shift", "child", "outer"] as const) {
-      const anchor = canvas.locator(".probe-bordered > [data-pm-mjml-image-width]");
-      await anchor.evaluate((element, mutation) => {
+      const wrapper = canvas.locator(".probe-bordered > span[data-pm-mjml-image-width]");
+      await wrapper.evaluate((element, mutation) => {
         const image = element.querySelector("img")!;
         if (mutation === "clip") (element as HTMLElement).style.overflow = "hidden";
         if (mutation === "content") {
@@ -108,13 +108,14 @@ for (const width of [390, 800]) {
         if (mutation === "outer") element.parentElement!.style.width = "65px";
       }, mutation);
       const geometry = await canvas.locator(".pm-email").evaluate(measureCanvasGeometry);
-      const y = await anchor.evaluate((element) => element.getBoundingClientRect().y);
-      const box = geometry.boxes.find((box) => box.label === "a." && box.y === y)!;
+      const y = await wrapper.evaluate((element) => element.getBoundingClientRect().y);
+      const box = geometry.boxes.find((box) => box.label === "span." && box.y === y)!;
+      expect(box, `${mutation} raw image wrapper evidence`).toBeTruthy();
       expect(isContainedImageBorderPaint(box, geometry.email), mutation).toBe(false);
       expect(box.scrollOverflow, mutation).toBeGreaterThan(1);
-      expect(canvasOverflowFailures(geometry)).toContain("a. scroll overflow");
+      expect(canvasOverflowFailures(geometry)).toContain("span. scroll overflow");
       // Reset only the deliberate mutation before testing the next failure.
-      await anchor.evaluate((element) => {
+      await wrapper.evaluate((element) => {
         (element as HTMLElement).style.removeProperty("overflow");
         const image = element.querySelector("img")!;
         image.style.width = "100%";

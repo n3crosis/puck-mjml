@@ -517,3 +517,10 @@ describe("ending-tag placeholder collisions", () => {
     }
   });
 });
+
+it("does not accumulate default rich-text CSS through repeated export/import", () => {
+  const first = toMjml(fromMjml(MINIMAL).document);
+  const second = toMjml(fromMjml(first).document);
+  expect(second).toBe(first);
+  expect(toMjml(fromMjml(second).document)).toBe(first);
+});

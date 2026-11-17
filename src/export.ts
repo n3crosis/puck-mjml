@@ -435,11 +435,16 @@ function renderHead(
     headSettings,
     options,
   );
+  const defaultTextStyles = headSettings.headStyles?.some(
+    (entry) => entry.inline === "inline" && entry.css.trim() === richTextStyles.trim(),
+  )
+    ? ""
+    : `<mj-style inline="inline">${richTextStyles}</mj-style>`;
   const rawHead = settings.rawHead ? renderRaw(settings.rawHead, options) : "";
   const intrinsicStyles = intrinsic
     ? `<mj-style>${intrinsicResponsiveCss(resolveBreakpointWidth(settings) || "480px")}</mj-style>`
     : "";
-  return `<mj-head><mj-title>${endingContent("mj-title", { htmlContent: settings.subjectHtmlContent }, () => endingText(settings.subject), options)}</mj-title><mj-preview>${endingContent("mj-preview", { htmlContent: settings.previewHtmlContent }, () => endingText(settings.previewText), options)}</mj-preview>${breakpoint}${fontImports}${renderNativeDefaults(options.nativeContext)}<mj-style inline="inline">${richTextStyles}</mj-style>${intrinsicStyles}${styles}${htmlAttributes}${rawHead}</mj-head>`;
+  return `<mj-head><mj-title>${endingContent("mj-title", { htmlContent: settings.subjectHtmlContent }, () => endingText(settings.subject), options)}</mj-title><mj-preview>${endingContent("mj-preview", { htmlContent: settings.previewHtmlContent }, () => endingText(settings.previewText), options)}</mj-preview>${breakpoint}${fontImports}${renderNativeDefaults(options.nativeContext)}${defaultTextStyles}${intrinsicStyles}${styles}${htmlAttributes}${rawHead}</mj-head>`;
 }
 
 export function toMjml(document: EmailDocument, options: ExportOptions = {}): string {

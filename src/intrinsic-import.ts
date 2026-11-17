@@ -338,7 +338,10 @@ export function parseIntrinsicMarkup(
           if (link.attrs[name] !== undefined) native[name] = link.attrs[name]!;
         const img = only(link, "img");
         allowed(img, ["src", "alt", "title", "srcset", "sizes", "usemap", "width", "style"]);
-        requireValue(children(img).length === 0 && img.attrs.src !== undefined);
+        requireValue(
+          children(img).length === 0 &&
+            (img.attrs.src !== undefined || img.attrs.srcset !== undefined),
+        );
         for (const name of ["src", "alt", "title", "srcset", "sizes", "usemap"])
           if (img.attrs[name] !== undefined) native[name] = img.attrs[name]!;
         const inner = styles(img, [

@@ -492,15 +492,28 @@ describe("safe editable intrinsic layout", () => {
   });
 });
 
-it("renders intrinsic images supplied through responsive candidates alone", async () => {
+it("renders and reimports intrinsic images supplied through responsive candidates alone", async () => {
   const srcset = "https://example.com/image.png 1x, https://example.com/image@2x.png 2x";
   const data = documentWith([
-    image({ src: "", mjmlAttributes: [{ name: "srcset", value: srcset }] }),
+    image({
+      src: "",
+      mjmlAttributes: [
+        { name: "src", inherit: true },
+        { name: "srcset", value: srcset },
+      ],
+    }),
   ]);
   const canvas = load(
     renderToStaticMarkup(<Render config={createEmailConfig()} data={data as Data} />),
   );
   const compiled = load((await compileEmail(data)).html);
+  const imported = roundtrip(toMjml(data));
+  const importedImage = allBlocks(imported).find((block) => block.type === "Image")!;
+  expect(
+    resolveIntrinsicLeaf(importedImage, {
+      nativeContext: createNativeContext(imported.root.props!),
+    }).attributes.srcset,
+  ).toBe(srcset);
   expect(compiled("img").attr("srcset")).toBe(srcset);
   expect(canvas(".pm-intrinsic-image img").attr("srcset")).toBe(srcset);
 });

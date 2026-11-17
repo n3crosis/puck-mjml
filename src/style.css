@@ -518,8 +518,12 @@
   display: inline-flex;
   flex: none;
   line-height: 0;
+  /* Match the icon table: padding is outside content, borders can expand it. */
+  box-sizing: content-box;
+  min-width: min-content;
 }
 .pm-social-icon img {
+  box-sizing: content-box;
   display: block;
   object-fit: contain;
 }

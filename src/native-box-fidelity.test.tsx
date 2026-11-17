@@ -149,3 +149,18 @@ describe("native spacer editor decoration", () => {
     },
   );
 });
+
+it("keeps native text height independent of outer padding under host resets", async () => {
+  const { canvas, compiled } = await render(
+    '<mjml><mj-body><mj-section><mj-column><mj-text css-class="text-case" height="60px" padding="10px 20px">Text</mj-text></mj-column></mj-section></mj-body></mjml>',
+  );
+  const stylesheet = canvas.createElement("style");
+  stylesheet.textContent = `${readFileSync(new URL("./style.css", import.meta.url), "utf8")}\n* { box-sizing: border-box; }`;
+  canvas.head.append(stylesheet);
+  const text = canvas.querySelector<HTMLElement>(".text-case")!;
+  expect(text.style.height).toBe(
+    compiled.querySelector<HTMLElement>(".text-case > div")!.style.height,
+  );
+  expect(text.style.padding).toBe(compiled.querySelector<HTMLElement>(".text-case")!.style.padding);
+  expect(canvas.defaultView!.getComputedStyle(text).boxSizing).toBe("content-box");
+});

@@ -225,6 +225,9 @@
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
+.pm-native-text {
+  box-sizing: content-box;
+}
 .pm-text:not(:where(.pm-imported-text)) p {
   margin: 0;
 }

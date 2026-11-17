@@ -508,7 +508,7 @@ function NativeBlockView({
       return (
         <div
           className={classes(
-            `pm-text${imported ? " pm-imported-text" : ""}${wrapped ? " pm-imported-inline-text" : ""}`,
+            `pm-text pm-native-text${imported ? " pm-imported-text" : ""}${wrapped ? " pm-imported-inline-text" : ""}`,
             a,
           )}
           style={{ ...outerStyle(a), ...nativeStyle(a, [...typographyKeys, "height"]) }}

@@ -185,7 +185,8 @@ function Social({ props, attributes, scope }: ItemProps) {
               children
             );
           const label = source(item) ?? content(item.label);
-          const icon = image ? (
+          const hasImage = Boolean(image || a.srcset);
+          const icon = hasImage ? (
             <span
               key="icon"
               style={{

@@ -77,3 +77,16 @@ describe("native social row baseline", () => {
     expect(exported).toContain("<strong>Stored label</strong>");
   });
 });
+
+it("renders custom social icons supplied only through srcset", async () => {
+  const srcset = "https://example.com/icon.png 1x, https://example.com/icon@2x.png 2x";
+  const { document } = fromMjml(`<mjml><mj-body><mj-section><mj-column><mj-social>
+    <mj-social-element srcset="${srcset}">Website</mj-social-element>
+    </mj-social></mj-column></mj-section></mj-body></mjml>`);
+  const canvas = load(
+    renderToStaticMarkup(<Render config={createEmailConfig()} data={document as Data} />),
+  );
+  const compiled = load((await compileEmail(document)).html);
+  expect(compiled("img[srcset]").attr("srcset")).toBe(srcset);
+  expect(canvas(".pm-social-icon img").attr("srcset")).toBe(srcset);
+});

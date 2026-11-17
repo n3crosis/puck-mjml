@@ -25,6 +25,7 @@ const document = fromMjml(`<mjml><mj-head>
   ${image("css-border", 'border="none"')}
   <mj-image css-class="probe-auto" alt="auto" src="https://example.com/image-box.png" width="64px" padding="0px" border="1px solid #123456" />
   <mj-image css-class="probe-constrained" alt="constrained" src="https://example.com/image-box.png" width="900px" padding="0px" border="2px solid #123456" align="left" />
+  <mj-text css-class="probe-text" height="60px" padding="10px 20px">Text</mj-text>
 </mj-column></mj-section></mj-body></mjml>`).document;
 const config = createEmailConfig();
 

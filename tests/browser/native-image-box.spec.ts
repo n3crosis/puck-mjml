@@ -13,7 +13,7 @@ const dimensions = (image: Locator) =>
   });
 
 for (const width of [390, 800]) {
-  test(`image borders match compiled content dimensions under a host reset at ${width}px`, async ({
+  test(`image borders and text height match compiled dimensions under a host reset at ${width}px`, async ({
     page,
   }) => {
     await page.route("https://example.com/image-box.png", (route) =>
@@ -87,6 +87,12 @@ for (const width of [390, 800]) {
       // Preserve, rather than zero, the raw compiler-equivalent border extent.
       expect(box.scrollOverflow).toBe(actualPlacement.wrapperOverflow);
     }
+    const textHeight = (text: Locator) =>
+      text.evaluate((node) => node.getBoundingClientRect().height);
+    const expectedTextHeight = await textHeight(compiled.locator(".probe-text"));
+    expect(expectedTextHeight).toBe(80);
+    await expect.poll(() => textHeight(canvas.locator(".probe-text"))).toBe(expectedTextHeight);
+
     // The email correction must not disable the surrounding application's reset.
     await expect(page.locator("[data-host-reset]")).toHaveCSS("box-sizing", "border-box");
     expect(await dimensions(page.locator("[data-host-reset]"))).toEqual({ width: 64, height: 64 });

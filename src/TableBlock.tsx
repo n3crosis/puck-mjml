@@ -169,6 +169,7 @@ export function TableBlock(
       }}
     >
       <table
+        role={input.nativeAttributes?.role}
         className={`pm-table${native ? " pm-native-table" : ""}`}
         style={
           input.nativeAttributes

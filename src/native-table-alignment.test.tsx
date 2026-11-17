@@ -12,11 +12,15 @@ beforeAll(() => vi.stubGlobal("window", globalThis));
 afterAll(() => vi.unstubAllGlobals());
 
 describe("native table wrapper alignment", () => {
-  it.each(["left", "center", "right"])(
-    "mirrors compiled outer-cell %s without overriding authored cells",
-    async (align) => {
+  it.each([
+    ["left", undefined],
+    ["center", "none"],
+    ["right", "presentation"],
+  ])(
+    "mirrors compiled outer-cell %s and table role %s without overriding authored cells",
+    async (align, role) => {
       const { document, warnings } = fromMjml(
-        `<mjml><mj-body><mj-section text-align="center"><mj-column padding="0px"><mj-table css-class="summary" align="${align}"><tr><th>Heading</th><td>Inherited</td><td style="text-align:right">Right</td><td style="text-align:center"><strong>Centered cell</strong></td></tr></mj-table></mj-column></mj-section></mj-body></mjml>`,
+        `<mjml><mj-body><mj-section text-align="center"><mj-column padding="0px"><mj-table css-class="summary" align="${align}" ${role ? `role="${role}"` : ""}><tr><th>Heading</th><td>Inherited</td><td style="text-align:right">Right</td><td style="text-align:center"><strong>Centered cell</strong></td></tr></mj-table></mj-column></mj-section></mj-body></mjml>`,
       );
       expect(warnings).toEqual([]);
       const original = toMjml(document);
@@ -27,6 +31,9 @@ describe("native table wrapper alignment", () => {
       expect(result.errors).toEqual([]);
       const compiled = load(result.html);
       expect(compiled("td.summary").attr("align")).toBe(align);
+      expect(canvas(".summary > table").attr("role")).toBe(
+        compiled(".summary > table").attr("role"),
+      );
       // A CSS text-align value does not have the same TH inheritance semantics
       // as the compiler's HTML align presentation hint.
       expect(canvas("div.summary").attr("align")).toBe(compiled("td.summary").attr("align"));

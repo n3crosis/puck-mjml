@@ -144,25 +144,29 @@ const response = (css: string, ok = true, status = 200): FontCssResponse => ({
 describe("web font loading", () => {
   const aliases = createFontAliases(["Inter", "Corp Sans"], "pm-canvas-test");
 
-  it("loads and transforms each declared font in order", async () => {
+  it("loads the last declaration of each font without retaining superseded faces", async () => {
     const fetches: string[] = [];
     const result = await loadFontCss(
       [
-        { name: "Inter", href: "https://fonts.example.com/inter.css" },
+        { name: "Inter", href: "https://fonts.example.com/old-inter.css" },
         { name: "Corp Sans", href: "https://cdn.example.org/corp.css" },
+        { name: "Inter", href: "https://fonts.example.com/inter.css" },
       ],
       aliases,
       {
         fetcher: async (url) => {
           fetches.push(url);
           return response(
-            url.endsWith("inter.css")
-              ? "@font-face { font-family: Inter; src: url(i.woff2); }"
-              : "@font-face { font-family: 'Corp Sans'; src: url(c.woff2); }",
+            url.endsWith("old-inter.css")
+              ? "@font-face { font-family: Inter; font-weight:700; src:url(old.woff2); }"
+              : url.endsWith("inter.css")
+                ? "@font-face { font-family: Inter; src: url(i.woff2); }"
+                : "@font-face { font-family: 'Corp Sans'; src: url(c.woff2); }",
           );
         },
       },
     );
+    expect(result.css).not.toContain("old.woff2");
     expect(fetches).toEqual([
       "https://fonts.example.com/inter.css",
       "https://cdn.example.org/corp.css",
@@ -328,7 +332,7 @@ describe("web font resource bounds", () => {
       name: "X",
       href: `https://review.example/cache-${index}.css`,
     }));
-    await loadFontCss(entries, {}, { fetcher });
+    for (const entry of entries) await loadFontCss([entry], {}, { fetcher });
     await loadFontCss([entries[16]], {}, { fetcher });
     expect(fetcher).toHaveBeenCalledTimes(17);
     await loadFontCss([entries[0]], {}, { fetcher });

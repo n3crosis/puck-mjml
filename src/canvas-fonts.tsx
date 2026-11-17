@@ -216,7 +216,12 @@ export async function loadFontCss(
   const css: string[] = [];
   const failures: string[] = [];
   const entries = Array.isArray(imports) ? imports : [];
-  for (const entry of entries) {
+  // MJML's font registry replaces earlier URLs for the same declared name.
+  const declarations = new Map<string | number, unknown>();
+  entries.forEach((entry, index) => {
+    declarations.set(typeof entry?.name === "string" ? entry.name.trim() : index, entry);
+  });
+  for (const entry of declarations.values()) {
     const name = (entry as FontImport)?.name;
     const href = httpUrl((entry as FontImport)?.href);
     if (typeof name !== "string" || !name.trim() || !href) {

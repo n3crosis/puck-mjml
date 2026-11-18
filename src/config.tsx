@@ -1026,7 +1026,7 @@ export function createEmailConfig(
       Button: {
         fields: {
           label: { type: "text", label: "Button text", contentEditable: true, visible: false },
-          href: { type: "text", label: "Link URL" },
+          href: { type: "text", label: "Link URL (optional)" },
           align: alignment,
           padding: paddingField,
           innerPadding: { ...paddingField, label: "Inner padding (px or %)" },

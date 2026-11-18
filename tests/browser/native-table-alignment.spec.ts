@@ -1,3 +1,4 @@
+import { documentEnd } from "./document-navigation";
 import { chooseImportFile } from "./import-email";
 import { expect, test, type Page } from "@playwright/test";
 
@@ -109,7 +110,7 @@ for (const align of ["left", "center"]) {
     await label.getByText("Subtotal", { exact: true }).dblclick();
     const editor = label.locator('[contenteditable="true"]');
     await expect(editor).toBeVisible();
-    await editor.press("ControlOrMeta+End");
+    await editor.press(documentEnd);
     await page.keyboard.insertText(" edited");
     await expect(label).toContainText("Subtotal edited");
     await expect.poll(() => label.evaluate(physicalTextAlign)).toBe("left");

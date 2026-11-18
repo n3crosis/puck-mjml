@@ -1,3 +1,4 @@
+import { documentStart } from "./document-navigation";
 import { chooseImportFile } from "./import-email";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { adjacentLinkSource } from "./fixtures/richtext-interaction-source";
@@ -70,7 +71,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     await expect(editor).toBeVisible();
     await editor.click({ position: { x: 2, y: 2 } });
     await expect(editor).toBeFocused();
-    await editor.press("ControlOrMeta+Home");
+    await editor.press(documentStart);
     for (let index = 0; index < 7; index++) await editor.press("ArrowRight");
     await expect
       .poll(() =>

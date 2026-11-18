@@ -1,3 +1,4 @@
+import { documentEnd } from "./document-navigation";
 import { chooseImportFile } from "./import-email";
 import { expect, test, type FrameLocator, type Locator, type Page } from "@playwright/test";
 import { importedRichContentSource } from "./fixtures/imported-rich-content-source";
@@ -124,7 +125,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     await expect(editor).toBeVisible();
     await editor.click();
     await expect(editor).toBeFocused();
-    await editor.press("ControlOrMeta+End");
+    await editor.press(documentEnd);
     await page.keyboard.insertText(" Edited.");
     await expect(block).toContainText("Edited.");
     await expect(labels).toHaveCount(2);
@@ -207,7 +208,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     await expect(editor).toBeVisible();
     await editor.click();
     await expect(editor).toBeFocused();
-    await editor.press("ControlOrMeta+End");
+    await editor.press(documentEnd);
     await page.keyboard.insertText(" Edited.");
     await expect(cell).toContainText("Sample date Edited.");
     await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();
@@ -343,7 +344,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     await expect.poll(() => measure(canvas)).toEqual(expected);
     await editor.click();
     await expect(editor).toBeFocused();
-    await editor.press("ControlOrMeta+End");
+    await editor.press(documentEnd);
     await page.keyboard.insertText(" Edited.");
     await expect(cell).toContainText("Second value Edited.");
     await expect.poll(() => exportedMjml(page)).toContain("Second value Edited.");

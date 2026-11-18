@@ -193,7 +193,10 @@ export function getNativeBaseAttributes(
       };
     case "mj-button":
       return {
-        href: blockUrl(props.href, "Button link", linkProtocols, props, options),
+        href:
+          props.href === undefined || props.href === ""
+            ? undefined
+            : blockUrl(props.href, "Button link", linkProtocols, props, options),
         "background-color": color(props.backgroundColor, "#2563eb"),
         color: color(props.color, "#ffffff"),
         "font-size": `${boundedNumber(props, "fontSize", 13, 8, 72)}px`,

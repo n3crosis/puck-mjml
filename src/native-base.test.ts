@@ -264,8 +264,6 @@ describe("native base attributes", () => {
     );
     expect(base("mj-navbar-link", { href: "tel:+12025550123" }).href).toBe("tel:+12025550123");
     for (const value of [
-      undefined,
-      "",
       "relative",
       "javascript:alert(1)",
       "https://user:secret@example.com",
@@ -273,6 +271,10 @@ describe("native base attributes", () => {
     ]) {
       expect(() => base("mj-image", { src: value })).toThrow(/Image source/);
       expect(() => base("mj-button", { href: value })).toThrow(/Button link/);
+    }
+    for (const value of [undefined, ""]) {
+      expect(() => base("mj-image", { src: value })).toThrow(/Image source/);
+      expect(base("mj-button", { href: value }).href).toBeUndefined();
     }
     expect(() => base("mj-image", { src, href: "invalid" })).toThrow(/Image link/);
     expect(() => base("mj-hero", { backgroundUrl: "invalid" })).toThrow(/Hero background/);

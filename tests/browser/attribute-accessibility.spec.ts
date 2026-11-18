@@ -66,7 +66,7 @@ test("HTML source supports keyboard exit and selection while locked without docu
   const count = page.getByLabel("Source change count", { exact: true });
   const lock = page.getByRole("button", { name: "Toggle source lock" });
   await source.focus();
-  await source.press("Control+Home");
+  await source.press("Home");
   await source.press("Tab");
   const indented = "  <p>Keyboard-editable HTML</p>";
   await expect(source).toHaveValue(indented);
@@ -87,7 +87,7 @@ test("HTML source supports keyboard exit and selection while locked without docu
   await expect(source).toHaveJSProperty("readOnly", true);
   await expect(source).toBeEnabled();
   await source.focus();
-  await source.press("Control+a");
+  await source.press("ControlOrMeta+a");
   await expect(source).toBeFocused();
   expect(
     await source.evaluate((element: HTMLTextAreaElement) => ({

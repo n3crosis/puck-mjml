@@ -25,7 +25,7 @@ describe("host-approved Tailwind runtime", () => {
       `
       @property --tw-rotate { syntax: "*"; inherits: false; initial-value: 0deg; }
       @property --host { syntax: "*"; inherits: false; }
-      @layer utilities { .rotate-45 { --tw-rotate: 45deg; rotate: var(--tw-rotate); content: "--tw-literal"; background: url(https://example.com/--tw-logo.png); } }
+      @layer utilities { .rotate-45 { --tw-rotate: 45deg; rotate: var(--tw-rotate); content: "--tw-literal"; color: var(--tw-host-color); background: url(https://example.com/--tw-logo.png); } }
       @keyframes spin { to { transform: rotate(360deg); } }
       .animate-spin { animation: spin 1s linear infinite; }
       :root { --color-red: red; --animate-spin: spin 1s linear infinite; }
@@ -36,6 +36,7 @@ describe("host-approved Tailwind runtime", () => {
     expect(css).not.toContain("@property --host");
     expect(css).not.toContain("--tw-rotate");
     expect(css).toContain('content: "--tw-literal"');
+    expect(css).toContain("color: var(--tw-host-color)");
     expect(css).toContain("url(https://example.com/--tw-logo.png)");
     expect(css).toContain(".pm-canvas-one .rotate-45");
     expect(css).toContain("@keyframes pm-canvas-one-spin");

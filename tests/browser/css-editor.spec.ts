@@ -1,3 +1,4 @@
+import { documentStart, documentEnd } from "./document-navigation";
 import { chooseImportFile } from "./import-email";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
@@ -17,7 +18,7 @@ test("CSS editor has stable controlled typing, indentation, completion, history,
   await editor.fill(".card {\n  color: blue;\n}");
   await expect(source).toHaveJSProperty("textContent", ".card {\n  color: blue;\n}");
   await expect(editor).toBeFocused();
-  await editor.press("Control+Home");
+  await editor.press(documentStart);
   await editor.press("ArrowDown");
   await editor.press("Home");
   await editor.press("Tab");
@@ -25,12 +26,12 @@ test("CSS editor has stable controlled typing, indentation, completion, history,
   await editor.press("Shift+Tab");
   await expect(source).toHaveJSProperty("textContent", ".card {\n  color: blue;\n}");
   await expect(editor).toBeFocused();
-  await editor.press("Control+z");
+  await editor.press("ControlOrMeta+z");
   await expect(source).toHaveJSProperty("textContent", ".card {\n    color: blue;\n}");
-  await editor.press("Control+Shift+z");
+  await editor.press("ControlOrMeta+Shift+z");
   await expect(source).toHaveJSProperty("textContent", ".card {\n  color: blue;\n}");
   await editor.fill(".card {\n  col\n}");
-  await editor.press("Control+Home");
+  await editor.press(documentStart);
   await editor.press("ArrowDown");
   await editor.press("End");
   await editor.press("Control+Space");
@@ -66,7 +67,7 @@ test("CSS editor blocks locked edits, accepts replacement, and bounds large sour
   await expect(editor).toHaveAttribute("aria-readonly", "true");
   await expect(page.getByRole("button", { name: "Format Custom CSS" })).toBeDisabled();
   await editor.focus();
-  await editor.press("Control+End");
+  await editor.press(documentEnd);
   await editor.press("x");
   await editor.press("Tab");
   await expect(source).toHaveJSProperty("textContent", ".card{color:red}");

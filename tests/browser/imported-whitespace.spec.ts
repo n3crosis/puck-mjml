@@ -1,3 +1,4 @@
+import { documentEnd } from "./document-navigation";
 import { chooseImportFile } from "./import-email";
 import { expect, test, type Page } from "@playwright/test";
 
@@ -56,7 +57,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
     const editor = paragraph.locator('[contenteditable="true"]');
     await expect(editor).toBeVisible();
     await editor.click();
-    await editor.press("ControlOrMeta+End");
+    await editor.press(documentEnd);
     await page.keyboard.insertText(" Edited.");
     await expect(paragraph).toContainText("here: Edited.");
     await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();

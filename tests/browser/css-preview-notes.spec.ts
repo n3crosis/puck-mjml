@@ -59,7 +59,7 @@ for (const width of [390, 768]) {
     await expect(page.getByLabel("Change count")).toHaveText("2");
     await expect(summary).toHaveText("1 preview note");
     await editor.focus();
-    await editor.press("Control+z");
+    await editor.press("ControlOrMeta+z");
     await expect(hostSource).toHaveJSProperty("textContent", source);
     await expect(editor).toBeFocused();
     await page.screenshot({ path: `test-results/css-preview-notes-${width}.png`, fullPage: false });

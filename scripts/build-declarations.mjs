@@ -8,7 +8,9 @@ const dist = resolve("dist");
 for (const relative of readdirSync(dist, { recursive: true })) {
   if (!relative.endsWith(".d.ts")) continue;
   const file = join(dist, relative);
-  const source = readFileSync(file, "utf8");
+  // Vite extracts side-effect CSS imports. The JS entry and its declarations
+  // do not import those source stylesheets at runtime.
+  const source = readFileSync(file, "utf8").replace(/^import ["'][^"'\n]+\.css["'];\r?\n/gm, "");
   const parsed = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true);
   const specifiers = [];
   function visit(node) {
@@ -39,3 +41,5 @@ for (const relative of readdirSync(dist, { recursive: true })) {
   writeFileSync(file, declarations(".js"));
   writeFileSync(file.replace(/\.d\.ts$/, ".d.cts"), declarations(".cjs"));
 }
+// Consumers can import the exported stylesheet with noUncheckedSideEffectImports.
+writeFileSync(join(dist, "style.d.cts"), "export {};\n");

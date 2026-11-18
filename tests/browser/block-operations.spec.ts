@@ -9,16 +9,15 @@ const historyIndex = async (page: Page) =>
   Number(await page.getByLabel("History index").textContent());
 async function keyboardChoose(page: Page, select: Locator, value: string) {
   await select.focus();
-  await page.keyboard.press("Home");
-  await expect(select).toHaveValue("");
-  // Reset before inspecting options: a stale prior selection is deliberately
-  // represented until the user chooses again, never silently retargeted.
-  const values = await select
-    .locator("option")
-    .evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value));
-  const index = values.indexOf(value);
-  expect(index).toBeGreaterThanOrEqual(0);
-  for (let step = 0; step < index; step++) await page.keyboard.press("ArrowDown");
+  const options = await select.evaluate((element: HTMLSelectElement) =>
+    Array.from(element.options, (option) => ({ value: option.value, label: option.label })),
+  );
+  const target = options.find((option) => option.value === value);
+  if (!target) throw new Error(`Missing option ${value}`);
+  // Native selects cycle through options sharing an initial on macOS and Linux.
+  for (let step = 0; step < options.length && (await select.inputValue()) !== value; step++) {
+    await page.keyboard.press(target.label[0].toLowerCase());
+  }
   await page.keyboard.press("Tab");
   await expect(select).toHaveValue(value);
 }

@@ -51,7 +51,8 @@ test("Tailwind requires host permission and owns each compiler's runtime, CSS an
   expect(documentLoads).toBe(0);
   await expect(page.locator("body")).not.toHaveAttribute("data-untrusted");
 
-  await update({ className: "font-normal p-2 rotate-12" });
+  await update({ className: "font-normal p-2 rotate-12 bg-(--tw-host-color)" });
+  await expect(page.locator("#first")).toHaveCSS("background-color", "rgb(18, 52, 86)");
   await expect(page.locator("#first")).toHaveCSS("font-weight", "400");
   await expect(page.locator("#first")).toHaveCSS("padding", "8px");
   await expect(page.locator("#first")).toHaveCSS("rotate", "12deg");

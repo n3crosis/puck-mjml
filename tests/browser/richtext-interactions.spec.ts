@@ -1,3 +1,4 @@
+import { documentStart, documentEnd } from "./document-navigation";
 import { readFileSync } from "node:fs";
 import { chooseImportFile } from "./import-email";
 import { expect, test, type Locator, type Page } from "@playwright/test";
@@ -20,7 +21,7 @@ async function selectWord(editor: Locator) {
   // focus alone to recreate the caret range.
   await editor.click();
   await expect(editor).toBeFocused();
-  await editor.press("ControlOrMeta+Home");
+  await editor.press(documentStart);
   for (let offset = 0; offset < 6; offset++) await editor.press("ArrowRight");
   for (let offset = 0; offset < 9; offset++) await editor.press("Shift+ArrowRight");
   await expect
@@ -124,7 +125,7 @@ for (const viewport of ["Desktop", "Mobile"] as const) {
       await expect(page.getByRole("button", { name: "Preview email", exact: true })).toBeFocused();
       await editor.click();
       await expect(editor).toBeFocused();
-      await editor.press("ControlOrMeta+End");
+      await editor.press(documentEnd);
       // Insert one text transaction, like paste/IME input. Individual key
       // events can span Puck's 250ms history grouping window on a busy runner,
       // legitimately making the final period a separate undo step.
@@ -282,7 +283,7 @@ test("canvas ligatures retain compiled shaping, authored overrides and character
   await expect(editor).toBeFocused();
   const controls = canvas.locator(".pm-richtext-toolbar--inline");
   await expect(controls.getByRole("button", { name: "Bold", exact: true })).toBeEnabled();
-  await editor.press("ControlOrMeta+Home");
+  await editor.press(documentStart);
   await editor.press("ArrowRight");
   for (let offset = 0; offset < 3; offset++) await editor.press("Shift+ArrowRight");
   await expect
@@ -298,7 +299,7 @@ test("canvas ligatures retain compiled shaping, authored overrides and character
   const formatted = await exportedMjml(page);
   expect(formatted).toContain("https://example.com/ligature");
   await editor.click();
-  await editor.press("ControlOrMeta+Home");
+  await editor.press(documentStart);
   for (let offset = 0; offset < 4; offset++) await editor.press("ArrowRight");
   await editor.press("ArrowLeft");
   await editor.press("Shift+ArrowRight");
@@ -312,7 +313,7 @@ test("canvas ligatures retain compiled shaping, authored overrides and character
   await expect(editor).toHaveText("office planet office office");
   expect(await exportedMjml(page)).toBe(formatted);
   await editor.click();
-  await editor.press("ControlOrMeta+End");
+  await editor.press(documentEnd);
   await page.keyboard.insertText(" office");
   await expect.poll(() => exportedMjml(page)).not.toBe(formatted);
   const changed = await exportedMjml(page);

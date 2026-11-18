@@ -19,6 +19,7 @@ let root: Root | undefined;
 let container: HTMLDivElement | undefined;
 let api: PuckApi | undefined;
 let value: EmailDocument | undefined;
+let replaceHost: (document: EmailDocument) => void;
 function CaptureApi() {
   const current = usePuck((state) => state);
   useEffect(() => {
@@ -104,6 +105,7 @@ function Host({
     },
   );
   value = document;
+  replaceHost = setDocument;
   return (
     <EmailEditor
       value={document}
@@ -516,6 +518,66 @@ describe("controlled EmailEditor typing", { timeout: 20_000 }, () => {
     await act(async () => publishButton.click());
     expect(publish).toHaveBeenCalledExactlyOnceWith(beforeDocument);
   });
+  it.each(["switch selection", "replace document"])(
+    "discards a pending image upload after %s",
+    async (reason) => {
+      const source = "https://example.com/original.png";
+      let finish!: (source: string) => void;
+      const uploadImage = vi.fn(
+        () =>
+          new Promise<string>((resolve) => {
+            finish = resolve;
+          }),
+      );
+      const images: EmailBlock[] = [
+        { type: "Image", props: { id: "first", src: source } },
+        { type: "Image", props: { id: "second", src: source }, readOnly: { src: true } },
+      ];
+      await mount(
+        {
+          root: {
+            props: { sections: [{ type: "Section1", props: { id: "section", column: images } }] },
+          },
+          content: [],
+        },
+        undefined,
+        uploadImage,
+      );
+      const select = (id: string) =>
+        api!.dispatch({
+          type: "setUi",
+          ui: { itemSelector: api!.getSelectorForId(id) },
+        });
+      await act(async () => select("first"));
+      const file = container!.querySelector<HTMLInputElement>('input[aria-label="Upload image"]')!;
+      Object.defineProperty(file, "files", {
+        value: [new File([pngImageBytes()], "image.png", { type: "image/png" })],
+      });
+      await act(async () => file.dispatchEvent(new Event("change", { bubbles: true })));
+      expect(uploadImage).toHaveBeenCalledOnce();
+      if (reason === "replace document") {
+        const replacement = structuredClone(value!);
+        replacement.root.props!.previewText = "Replacement document";
+        await act(async () => replaceHost(replacement));
+        await act(async () => select("first"));
+      }
+      await act(async () => {
+        if (reason === "switch selection") select("second");
+        finish("https://example.com/finished.png");
+      });
+      expect(api!.getItemById("first")!.props.src).toBe(source);
+      expect(api!.getItemById("second")!.props.src).toBe(source);
+      if (reason === "switch selection") {
+        expect(container!.querySelector<HTMLInputElement>('input[type="url"]')!.readOnly).toBe(
+          true,
+        );
+        expect(container!.querySelector<HTMLInputElement>('input[type="file"]')!.disabled).toBe(
+          true,
+        );
+      }
+    },
+  );
+
   it.each(["Export", "Preview"] as const)(
     "refreshes an open %s when a pending image upload completes",
     async (mode) => {

@@ -1,3 +1,4 @@
+import { documentEnd } from "./document-navigation";
 import { moveToGap } from "./native-column-drag-target";
 import { expect, test, type Locator } from "@playwright/test";
 import { alignmentCases, type AlignmentCase } from "./fixtures/native-column-alignment-source";
@@ -321,7 +322,7 @@ test("inline layout retains mounted refs, alignment edits, text editing, history
   const editor = copy.locator('[contenteditable="true"]');
   await expect(editor).toBeVisible();
   const beforeText = Number(await page.getByLabel("History index").textContent());
-  await editor.press("ControlOrMeta+End");
+  await editor.press(documentEnd);
   await editor.press("Shift+Enter");
   await page.keyboard.insertText("Another editable line");
   await expect(copy).toContainText("Another editable line");

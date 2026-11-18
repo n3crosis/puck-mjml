@@ -2,7 +2,15 @@
   "name": "puck-mjml",
   "version": "0.1.0",
   "description": "A Puck powered visual editor for MJML email",
+  "homepage": "https://github.com/n3crosis/puck-mjml#readme",
+  "bugs": {
+    "url": "https://github.com/n3crosis/puck-mjml/issues"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/n3crosis/puck-mjml.git"
+  },
   "files": [
     "dist",
     "docs",
@@ -26,7 +34,10 @@
         "default": "./dist/index.cjs"
       }
     },
-    "./style.css": "./dist/style.css",
+    "./style.css": {
+      "types": "./dist/style.d.cts",
+      "default": "./dist/style.css"
+    },
     "./core": {
       "import": {
         "types": "./dist/core.d.ts",
@@ -41,6 +52,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build && tsc -p tsconfig.build.json && node scripts/build-declarations.mjs",
+    "prepack": "npm run build",
     "build:demo": "vite build --mode demo --base=./",
     "catalog": "bun scripts/regenerate-native-catalog.ts",
     "format": "oxfmt .",

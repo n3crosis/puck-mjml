@@ -41,6 +41,7 @@ export interface MjmlClassDefinition {
 export interface EmailBlock {
   type: string;
   props: Record<string, unknown> & MjmlElementOptions & MjmlEndingContent & { id?: string };
+  readOnly?: Partial<Record<string, boolean>>;
 }
 
 export interface EmailSettings {
@@ -75,7 +76,7 @@ export interface EmailSettings {
 }
 
 export interface EmailDocument {
-  root: { props?: EmailSettings };
+  root: { props?: EmailSettings; readOnly?: Partial<Record<keyof EmailSettings, boolean>> };
   content: EmailBlock[];
 }
 

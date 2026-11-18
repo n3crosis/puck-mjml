@@ -1,3 +1,4 @@
+import { documentEnd } from "./document-navigation";
 import { chooseImportFile } from "./import-email";
 import { expect, test } from "@playwright/test";
 
@@ -83,7 +84,7 @@ test("edge-to-edge mobile email retains selection, editing, drag handle, and und
   const toolbar = frame.locator(".pm-richtext-toolbar--inline");
   await expect(toolbar).toBeVisible();
   expect(await toolbar.evaluate(inViewport)).toBe(true);
-  await editor.press("ControlOrMeta+End");
+  await editor.press(documentEnd);
   await page.keyboard.insertText(" edited");
   await expect(blocks.first()).toContainText("First edge block edited");
   await page.getByRole("button", { name: /^undo$/i }).click();

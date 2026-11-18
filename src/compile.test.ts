@@ -72,6 +72,26 @@ const rawDocument: EmailDocument = {
 };
 
 describe("MJML compilation", () => {
+  it("compiles a visual button with a cleared link as an unlinked label", async () => {
+    const document: EmailDocument = {
+      root: {
+        props: {
+          sections: [
+            {
+              type: "Section1",
+              props: { column: [{ type: "Button", props: { label: "Unlinked label", href: "" } }] },
+            },
+          ],
+        },
+      },
+      content: [],
+    };
+    const result = await compileEmail(document);
+    expect(result.errors).toEqual([]);
+    expect(result.mjml.match(/<mj-button[^>]*>/)?.[0]).not.toContain("href");
+    expect(result.html).toMatch(/<p\b[^>]*>\s*Unlinked label\s*<\/p>/);
+  });
+
   it.each(["Text", "Image", "Button"])("bounds %s alignment to supported values", async (type) => {
     const document: EmailDocument = {
       root: {

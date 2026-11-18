@@ -1,3 +1,4 @@
+import { documentEnd } from "./document-navigation";
 import { expect, test, type Page } from "@playwright/test";
 import { chooseImportFile } from "./import-email";
 
@@ -115,7 +116,7 @@ test("tab round trips preserve authored text, canvas geometry, undo/redo and the
   await expect(editable).toBeVisible();
   await editable.click();
   await expect(editable).toBeFocused();
-  await editable.press("ControlOrMeta+End");
+  await editable.press(documentEnd);
   await page.keyboard.insertText(" edited");
   await expect(text).toContainText("Compatibility draft edited");
   await expect(page.getByRole("button", { name: /^undo$/i })).toBeEnabled();

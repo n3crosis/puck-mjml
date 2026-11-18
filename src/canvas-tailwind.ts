@@ -54,8 +54,17 @@ export function scopeTailwindCss(css: string, scope: string): string {
   root.walkAtRules("keyframes", (rule) => {
     if (/^[a-zA-Z_][\w-]*$/.test(rule.params)) animations.add(rule.params);
   });
+  const ownedProperties = new Set<string>();
+  root.walkAtRules("property", (rule) => {
+    ownedProperties.add(rule.params);
+  });
+  root.walkDecls(/^--tw-/, (declaration) => {
+    ownedProperties.add(declaration.prop);
+  });
   const namespace = (value: string) =>
-    value.replace(/--tw-[\w-]+/g, (name) => `--${scope}-${name.slice(2)}`);
+    value.replace(/--tw-[\w-]+/g, (name) =>
+      ownedProperties.has(name) ? `--${scope}-${name.slice(2)}` : name,
+    );
   root.walkDecls((declaration) => {
     declaration.prop = namespace(declaration.prop);
     // Rewrite variable references, not literal content strings or asset URLs.

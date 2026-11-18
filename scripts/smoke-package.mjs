@@ -159,6 +159,8 @@ function verifyEditorExports(api, entry) {
     assert.match(api.toMjml(first), /<mjml/);
   }
 }
+// npm pack runs prepack and generates the exact build used by the runtime checks below.
+verifyPackageConsumers();
 for (const entry of ["../dist/index.js", "../dist/core.js"]) {
   const api = await import(entry);
   assert.match(api.toMjml(api.createEmptyDocument()), /<mjml/);
@@ -210,7 +212,7 @@ function verifyPackageConsumers() {
     );
   };
   try {
-    run("bun", ["pm", "pack", "--destination", temporary], process.cwd());
+    run("npm", ["pack", "--pack-destination", temporary], process.cwd());
     const archive = readdirSync(temporary).find((file) => file.endsWith(".tgz"));
     assert.ok(archive, "package tarball was created");
     const installed = join(temporary, "node_modules/puck-mjml");
@@ -249,6 +251,9 @@ function verifyPackageConsumers() {
     const core = `
       import { createEmptyDocument, fromMjml, toMjml, compileEmail, type EmailDocument } from "puck-mjml/core";
       const document: EmailDocument = createEmptyDocument();
+      const locks: Partial<Record<string, boolean>> = { src: true };
+      document.root.readOnly = locks;
+      document.content.push({ type: "Image", props: {}, readOnly: locks });
       const imported: EmailDocument = fromMjml(toMjml(document)).document;
       const html: Promise<string> = compileEmail(imported).then(result => result.html);
       // @ts-expect-error Document factories must not degrade to any.
@@ -257,6 +262,7 @@ function verifyPackageConsumers() {
       toMjml(document, { allowRawHtml: "yes" });
     `;
     const editor = `
+      import "puck-mjml/style.css";
       import { EmailEditor, createEmailConfig, createNativeDragPreview, NativeDragPreviewProvider,
         emailFieldTypes, emailTemplates, type EmailEditorProps, type NativeDragPreview } from "puck-mjml";
       const props: EmailEditorProps = { value: document, onChange: value => { const next: EmailDocument = value; } };
@@ -284,6 +290,7 @@ function verifyPackageConsumers() {
               module,
               moduleResolution,
               strict: true,
+              noUncheckedSideEffectImports: true,
               noEmit: true,
               skipLibCheck: false,
               types: server ? [] : ["node"],
@@ -304,7 +311,6 @@ function verifyPackageConsumers() {
     rmSync(temporary, { recursive: true, force: true });
   }
 }
-verifyPackageConsumers();
 console.log(
   "ESM, CommonJS, simultaneous rich-text editors, link editing/paste, 62 templates, compilation, react-server core, packed exports, and strict consumer declarations passed.",
 );

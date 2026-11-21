@@ -104,6 +104,12 @@ describe("toMjml", () => {
         content: [{ type: "Text", props: { id: "bad", content: "oops" } }],
       }),
     ).toThrow(/sections slot/);
+    expect(toMjml({ root: { props: { sections: [] } } } as unknown as EmailDocument)).toContain(
+      "<mj-body",
+    );
+    expect(() =>
+      toMjml({ root: { props: { sections: [] } }, content: {} } as unknown as EmailDocument),
+    ).toThrow("Email document content must be an array");
   });
 
   it("exports images and spacers inside three columns", () => {

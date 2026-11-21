@@ -449,7 +449,9 @@ function renderHead(
 
 export function toMjml(document: EmailDocument, options: ExportOptions = {}): string {
   const settings = document.root?.props ?? {};
-  if (document.content.length) throw new Error("Email blocks must be placed in the sections slot");
+  const content: unknown = document.content ?? [];
+  if (!Array.isArray(content)) throw new Error("Email document content must be an array");
+  if (content.length) throw new Error("Email blocks must be placed in the sections slot");
   const sections = settings.sections ?? [];
   if (!Array.isArray(sections)) throw new Error("Email sections must be an array");
   const nativeContext = createNativeContext(settings, options);

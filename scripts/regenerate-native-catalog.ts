@@ -163,7 +163,7 @@ for (const entry of extracted) {
       notes.push(`${entry.tag} default ${name} is not serializable and was dropped.`);
     }
   }
-  for (const [name, value] of Object.entries(old.defaultAttributes ?? {})) {
+  for (const name of Object.keys(old.defaultAttributes ?? {})) {
     if (!(name in defaults) && !(name in (entry.defaultAttributes ?? {}))) {
       notes.push(`${entry.tag} default ${name} is no longer declared and was removed.`);
     }

@@ -9,14 +9,18 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-| Command              | Purpose                                                                   |
-| -------------------- | ------------------------------------------------------------------------- |
-| `bun run dev`        | Start the Vite demo.                                                      |
-| `bun run check`      | Check formatting, lint, types, and run the test suite.                    |
-| `bun run format`     | Format the project with oxfmt.                                            |
-| `bun run build`      | Build library JavaScript, CSS, and TypeScript declarations into `dist/`.  |
-| `bun run build:demo` | Build the standalone demo into `demo-dist/`.                              |
-| `bun run catalog`    | Regenerate the native attribute catalog from the installed MJML compiler. |
+| Command                | Purpose                                                                    |
+| ---------------------- | -------------------------------------------------------------------------- |
+| `bun run dev`          | Start the Vite demo.                                                       |
+| `bun run check`        | Check formatting, lint, types, and run the test suite.                     |
+| `bun run format`       | Format the project with oxfmt.                                             |
+| `bun run build`        | Build library JavaScript, CSS, and TypeScript declarations into `dist/`.   |
+| `bun run build:demo`   | Build the standalone demo into `demo-dist/`.                               |
+| `bun run catalog`      | Regenerate the native attribute catalog from the installed MJML compiler.  |
+| `bun run lint`         | Lint `src`, `demo`, `tests`, configs, and the package scripts with oxlint. |
+| `bun run typecheck`    | Type-check `src`, `demo`, and all of `tests` with `tsc --noEmit`.          |
+| `bun run test:package` | Build, pack, and smoke-test the published package entries.                 |
+| `bun run test:browser` | Run the Playwright browser suite.                                          |
 
 `node_modules/`, `dist/`, and `demo-dist/` are ignored by Git. Library output includes ESM (`dist/index.js`), CommonJS (`dist/index.cjs`), ESM/CommonJS declarations (`dist/index.d.ts` / `dist/index.d.cts`), conversion-only `dist/core.js` / `dist/core.cjs` / `dist/core.d.ts` / `dist/core.d.cts`, and `dist/style.css`. The package includes the built library, all canonical MJML templates and their provenance, documentation, license, and third-party notices.
 
@@ -27,8 +31,12 @@ To try the package in another local project, run `npm pack` here. Its `prepack` 
 | Path                                                                                                                                                                                 | Responsibility                                                  |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
 | [src/index.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/index.ts)                                                                                                         | Public exports.                                                 |
-| [src/types.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/types.ts)                                                                                                         | Document model, editor props, and API types.                    |
+| [src/core.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/core.ts)                                                                                                           | Conversion-only `puck-mjml/core` exports.                       |
+| [src/includes.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/includes.ts)                                                                                                   | `resolveMjmlIncludes` virtual include expansion.                |
+| [src/custom-components.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/custom-components.ts)                                                                                 | `expandMjmlComponents` host adapter expansion.                  |
+| [src/types.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/types.ts)                                                                                                         | Document model and API types.                                   |
 | [src/EmailEditor.tsx](https://github.com/n3crosis/puck-mjml/blob/main/src/EmailEditor.tsx)                                                                                           | Controlled Puck editor and host callbacks.                      |
+| [src/editor-types.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/editor-types.ts)                                                                                           | `EmailEditorProps`.                                             |
 | [src/EmailCanvas.tsx](https://github.com/n3crosis/puck-mjml/blob/main/src/EmailCanvas.tsx)                                                                                           | Editing canvas, scoped styles, fonts, and Tailwind integration. |
 | [src/config.tsx](https://github.com/n3crosis/puck-mjml/blob/main/src/config.tsx)                                                                                                     | Visual blocks and field definitions.                            |
 | [src/export.ts](https://github.com/n3crosis/puck-mjml/blob/main/src/export.ts)                                                                                                       | MJML serialization and browser compilation.                     |
@@ -122,7 +130,7 @@ Attribute acceptance establishes compiler coverage, not complete canvas or email
 
 Keep the editor host-controlled, with no internal draft persistence. Preserve inline editing, undo/redo, the single Puck header, and host-owned actions. Subject metadata remains supported in export without a dedicated subject control in the editor header.
 
-The [compatibility matrix](MJML_COMPATIBILITY.md) tracks rendering limitations. Further work includes specialized native canvas behavior and a host compilation path for filesystem includes or custom MJML components. All 62 emails in the pinned React Email demo inventory are ported as standalone MJML; see [the template guide](../templates/README.md) for inventory and source conventions. Update the relevant reference when adding capabilities; do not infer full compatibility from catalog counts.
+The [compatibility matrix](MJML_COMPATIBILITY.md) tracks rendering limitations. Further work includes specialized native canvas behavior and a host compilation path for filesystem includes or custom MJML components. All 62 emails in the pinned React Email demo inventory are ported as standalone MJML; see [the template guide](../templates/README.md) for inventory and source conventions. Update the relevant reference when adding capabilities; do not infer full compatibility from catalog counts. Smaller maintenance follow-ups that are not yet implemented are listed in the [changelog](../CHANGELOG.md#known-follow-ups-not-yet-implemented).
 
 ## GitHub Actions and Pages
 

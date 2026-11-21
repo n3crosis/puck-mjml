@@ -115,16 +115,21 @@ const { html, errors } = await compileEmail(document);
 
 `createEmptyDocument()` and `createExampleDocument()` return fresh documents. `emailTemplates` exposes the demo registry; each entry has `id`, `group`, `label`, and a `create()` factory. Migrated examples also expose their canonical `source`, `sourcePath`, and pinned `upstreamUrl`. Public TypeScript types are exported from the package root.
 
+To import MJML that uses `<mj-include>` or host-defined custom tags, preprocess it with `resolveMjmlIncludes(source, files)` or `expandMjmlComponents(source, adapters)` before `fromMjml`. Both work on strings the host supplies and never read files or URLs. See the [API reference](docs/API.md#preprocessing).
+
 Trusted raw HTML and template attributes require `allowRawHtml` on the editor and `{ allowRawHtml: true }` on each export call. See the [trusted HTML guide](docs/EDITOR_GUIDE.md#trusted-raw-html) before using this mode.
 
 ## Documentation
 
+- [API reference](docs/API.md): every public export, signatures, errors, and the block-to-MJML mapping.
 - [Editor guide](docs/EDITOR_GUIDE.md): documents, controls, import, tables, CSS, fonts, Tailwind, and trusted HTML.
 - [Native attribute reference](docs/NATIVE_ATTRIBUTES.md): schemas, inheritance, precedence, templates, and examples.
 - [MJML compatibility](docs/MJML_COMPATIBILITY.md): supported components, canvas behavior, and limitations.
 - [Email client compatibility](docs/EMAIL_CLIENT_COMPATIBILITY.md): Can I email checks, support data, and limits of static analysis.
 - [Development](docs/DEVELOPMENT.md): checks, builds, source map, and compiler maintenance.
 - [MJML example suite](templates/README.md): all 62 canonical sources, upstream provenance, and validation.
+
+- [Changelog](CHANGELOG.md): recent fixes and known follow-ups that are not yet implemented.
 
 See [the project review](docs/PROJECT_REVIEW.md) for findings, verification scope, and remaining limitations. See [deployment](docs/DEVELOPMENT.md#github-actions-and-pages) for the demo publishing workflow.
 

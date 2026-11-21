@@ -170,7 +170,9 @@ UTF-16 code units consumed or produced. No files or URLs are read automatically.
 MJML fragments are inserted in place; included document heads and CSS includes
 are added to the root head. `css-inline="inline"` is retained. HTML includes
 become `mj-raw` and still require the host's `allowRawHtml` export opt-in.
-Includes inside ending-tag content and comments are not expanded. Custom
+Includes inside comments and inside the content of any compiler ending tag (every
+component marked `endingTag` in the native catalog, such as `mj-text` or
+`mj-carousel-image`) are not expanded, matching MJML's parser. Custom
 components are not expanded by this API.
 
 ### Host-defined component conversion

@@ -57,7 +57,7 @@
     "catalog": "bun scripts/regenerate-native-catalog.ts",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
-    "lint": "oxlint src demo tests/browser vite.config.ts playwright.config.ts scripts/smoke-package.mjs scripts/build-declarations.mjs",
+    "lint": "oxlint src demo tests vite.config.ts playwright.config.ts scripts/smoke-package.mjs scripts/build-declarations.mjs",
     "check": "bun run format:check && bun run lint && bun run typecheck && bun run test",
     "typecheck": "tsc --noEmit",
     "test": "bun run references:prepare && vitest run",

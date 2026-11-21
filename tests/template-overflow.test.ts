@@ -138,7 +138,7 @@ describe("contained image border paint", () => {
     box.scrollOverflow = 4;
     expect(isContainedImageBorderPaint(box, geometryFixture().email)).toBe(true);
   });
-  it.each([
+  it.each<[string, (box: CanvasBox) => unknown]>([
     ["missing renderer-owned structure", (box: CanvasBox) => delete box.imageBorderPaint],
     ["clipped overflow", (box: CanvasBox) => (box.imageBorderPaint!.overflowX = "hidden")],
     ["scrollable overflow", (box: CanvasBox) => (box.imageBorderPaint!.overflowX = "auto")],
@@ -150,7 +150,7 @@ describe("contained image border paint", () => {
     ["shifted image", (box: CanvasBox) => (box.imageBorderPaint!.image.x += 1)],
     ["image outside outer block", (box: CanvasBox) => (box.imageBorderPaint!.outer.width = 65)],
     ["vertical overflow", (box: CanvasBox) => (box.imageBorderPaint!.outer.height = 65)],
-  ] as const)("still fails %s", (_name, mutate) => {
+  ])("still fails %s", (_name, mutate) => {
     const geometry = geometryFixture();
     const box = imageBox();
     mutate(box);

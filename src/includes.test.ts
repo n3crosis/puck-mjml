@@ -30,6 +30,12 @@ it("leaves ending-tag content and comments opaque and permits repeated includes"
   );
 });
 
+it("treats every compiler ending tag as opaque", () => {
+  const source =
+    '<mjml><mj-body><mj-hero><mj-carousel><mj-carousel-image src="https://example.com/a.png"><mj-include path="missing"/></mj-carousel-image></mj-carousel></mj-hero></mj-body></mjml>';
+  expect(resolveMjmlIncludes(source, {})).toBe(source);
+});
+
 it("rejects missing files, cycles, escapes, unsupported types and oversized expansion", () => {
   const include = (path: string, type = "") =>
     `<mjml><mj-body><mj-include path="${path}" ${type}/></mj-body></mjml>`;

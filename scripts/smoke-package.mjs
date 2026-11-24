@@ -189,7 +189,7 @@ function verifyPackageConsumers() {
           }),
         );
         run(process.execPath, [
-          require.resolve("typescript/bin/tsc"),
+          join(require.resolve("typescript/package.json"), "..", "bin", "tsc"),
           "-p",
           join(temporary, "tsconfig.json"),
         ]);

@@ -2,7 +2,7 @@
 
 ## Setup and commands
 
-Use Bun, with the version specified by `packageManager` in [package.json](https://github.com/n3crosis/puck-mjml/blob/main/package.json). Install from the checked-in lockfile:
+Use Node.js 22.12 or newer for the development tools and Bun, with the version specified by `packageManager` in [package.json](https://github.com/n3crosis/puck-mjml/blob/main/package.json). Install from the checked-in lockfile:
 
 ```sh
 bun install --frozen-lockfile

@@ -1409,8 +1409,9 @@ export function createEmailEditorConfig(...args: Parameters<typeof createEmailCo
       resolveData: component?.resolveData,
       resolvePermissions: component?.resolvePermissions,
       fields: component?.fields,
-      slots: Object.entries(component?.fields ?? {}).flatMap(([key, field]) =>
-        field.type === "slot"
+      slots: Object.entries(component?.fields ?? {}).flatMap(([key, candidate]) => {
+        const field = candidate as Extract<Field, { type: "slot" }>;
+        return candidate.type === "slot"
           ? [
               {
                 name: key,
@@ -1420,8 +1421,8 @@ export function createEmailEditorConfig(...args: Parameters<typeof createEmailCo
                   field.disallow === undefined ? undefined : Object.freeze([...field.disallow]),
               },
             ]
-          : [],
-      ),
+          : [];
+      }),
     });
   }
   const blockOperationsPolicy = Object.freeze({ [blockOperationsPolicyBrand]: true as const });

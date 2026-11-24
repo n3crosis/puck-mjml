@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import ts from "typescript";
+import { parseSync } from "oxc-parser";
 
 // TypeScript's bundler resolver emits extensionless declarations. Node's ESM
 // resolver needs extensions, and a CommonJS entry needs its own declaration graph.
@@ -11,26 +11,34 @@ for (const relative of readdirSync(dist, { recursive: true })) {
   // Vite extracts side-effect CSS imports. The JS entry and its declarations
   // do not import those source stylesheets at runtime.
   const source = readFileSync(file, "utf8").replace(/^import ["'][^"'\n]+\.css["'];\r?\n/gm, "");
-  const parsed = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true);
+  const parsed = parseSync(file, source);
+  if (parsed.errors.length) throw new Error(`Cannot parse declarations in ${file}`);
   const specifiers = [];
   function visit(node) {
-    const parent = node.parent;
-    if (
-      ts.isStringLiteral(node) &&
-      (ts.isImportDeclaration(parent) || ts.isExportDeclaration(parent)
-        ? parent.moduleSpecifier === node
-        : ts.isExternalModuleReference(parent) ||
-          (ts.isLiteralTypeNode(parent) && ts.isImportTypeNode(parent.parent))) &&
-      /^\.{1,2}\//.test(node.text)
-    ) {
-      const base = node.text.replace(/\.js$/, "");
+    if (!node || typeof node !== "object") return;
+    const literal = [
+      "ImportDeclaration",
+      "ExportNamedDeclaration",
+      "ExportAllDeclaration",
+      "TSImportType",
+    ].includes(node.type)
+      ? node.source
+      : node.type === "TSExternalModuleReference"
+        ? node.expression
+        : undefined;
+    if (literal && typeof literal.value === "string" && /^\.{1,2}\//.test(literal.value)) {
+      const base = literal.value.replace(/\.js$/, "");
       if (existsSync(resolve(dirname(file), `${base}.d.ts`))) {
-        specifiers.push({ start: node.getStart(parsed) + 1, end: node.end - 1, base });
+        specifiers.push({ start: literal.start + 1, end: literal.end - 1, base });
       }
     }
-    ts.forEachChild(node, visit);
+    for (const value of Object.values(node)) {
+      if (Array.isArray(value)) value.forEach(visit);
+      else if (value && typeof value === "object") visit(value);
+    }
   }
-  visit(parsed);
+  visit(parsed.program);
+  specifiers.sort((a, b) => a.start - b.start);
   function declarations(extension) {
     let output = source;
     for (const { start, end, base } of specifiers.toReversed()) {

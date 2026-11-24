@@ -10,7 +10,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import ts from "typescript";
+import { transformSync } from "esbuild";
 
 const upstreamRoot = process.argv[2];
 if (!upstreamRoot) throw new Error("Pass a checkout of the pinned React Email repository");
@@ -42,18 +42,23 @@ const templates = manifest.templates.map(({ file, upstreamPath, upstreamBlob }) 
   const buffer = readFileSync(resolve(upstreamRoot, upstreamPath));
   const hash = createHash("sha1").update(`blob ${buffer.length}\0`).update(buffer).digest("hex");
   if (hash !== upstreamBlob) throw new Error(`${upstreamPath} does not match the pinned Git blob`);
-  const { outputText } = ts.transpileModule(buffer.toString("utf8"), {
-    compilerOptions: {
-      module: ts.ModuleKind.CommonJS,
-      jsx: ts.JsxEmit.ReactJSX,
-      target: ts.ScriptTarget.ES2022,
-    },
+  const { code: outputText } = transformSync(buffer.toString("utf8"), {
+    loader: "tsx",
+    format: "cjs",
+    jsx: "automatic",
+    target: "es2022",
   });
   const exports = {};
-  new Function("require", "exports", "process", outputText)(requireReference, exports, {
-    env: { VERCEL_URL: "demo.react.email" },
-  });
-  const component = exports.default;
+  const module = { exports };
+  new Function("require", "exports", "module", "process", outputText)(
+    requireReference,
+    exports,
+    module,
+    {
+      env: { VERCEL_URL: "demo.react.email" },
+    },
+  );
+  const component = module.exports.default;
   const tree = component(component.PreviewProps ?? {});
   const content = [];
   const images = [];

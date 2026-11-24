@@ -1,6 +1,6 @@
 import { configDefaults, defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
-import { thirdPartyNotices } from "./scripts/third-party-notices";
+import { thirdPartyNotices } from "./scripts/third-party-notices.ts";
 
 export default defineConfig(({ command, mode }) => ({
   plugins: [react(), thirdPartyNotices()],
@@ -36,7 +36,7 @@ export default defineConfig(({ command, mode }) => ({
               cssFileName: "style",
               fileName: (format, entryName) => `${entryName}.${format === "es" ? "js" : "cjs"}`,
             },
-            rollupOptions: {
+            rolldownOptions: {
               external: [
                 "react",
                 "react-dom",

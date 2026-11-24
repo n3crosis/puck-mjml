@@ -48,10 +48,14 @@ export type BlockOperationsModel = {
 const refused = (message: string): BlockOperationResult => ({ ok: false, message });
 const unavailable = "Block operations are unavailable for this document or configuration.";
 
-function hasNestedSlot(field: Field): boolean {
+function hasNestedSlot(field: Field | { type: string }): boolean {
   if (field.type === "slot") return true;
   const fields =
-    field.type === "object" ? field.objectFields : field.type === "array" ? field.arrayFields : {};
+    field.type === "object" && "objectFields" in field
+      ? field.objectFields
+      : field.type === "array" && "arrayFields" in field
+        ? field.arrayFields
+        : {};
   return Object.values(fields).some(hasNestedSlot);
 }
 function knownComponent(config: Config, type: string) {

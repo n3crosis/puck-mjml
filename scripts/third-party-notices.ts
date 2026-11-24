@@ -186,8 +186,14 @@ export function thirdPartyNotices(): Plugin {
             `Documented upstream license audit gap (${supplement.file}): ${gap.name}: ${gap.reason}`,
           );
       }
-      const externalModules = [...this.getModuleIds()]
-        .filter((id) => this.getModuleInfo(id)?.isExternal)
+      const externalModules = [
+        ...new Set(
+          Object.values(bundle).flatMap((entry) =>
+            entry.type === "chunk" ? [...entry.imports, ...entry.dynamicImports] : [],
+          ),
+        ),
+      ]
+        .filter((id) => !Object.hasOwn(bundle, id))
         .sort();
       const manifest = {
         schemaVersion: 1,

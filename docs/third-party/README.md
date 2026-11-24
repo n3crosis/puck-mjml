@@ -18,7 +18,7 @@ The inventory is based on rendered module paths, including CSS. It deliberately 
 ## Verified supplements
 
 - [`license-overrides.json`](license-overrides.json): boolbase 1.0.0 and react-remove-scroll-bar 2.3.8 declare licenses in their npm metadata but omit the full text. The exact texts are copied from immutable upstream repository commits. Those license files were added after the package releases; this fact is recorded rather than obscured.
-- [`puck-core.json`](puck-core.json): exact package versions found in the source-path comments of Puck 0.24.0's prebundled ESM, with full license files from integrity-verified npm archives. Lucide's license file also preserves the Feather notice. Bundle hashes make a changed upstream artifact require review.
+- [`puck-core.json`](puck-core.json): exact package versions found in the source-path comments of Puck 0.24.2's prebundled ESM, with full license files from integrity-verified npm archives. Lucide's license file also preserves the Feather notice. Bundle hashes make a changed upstream artifact require review.
 - [`mjml-browser.json`](mjml-browser.json): verified license texts from the pinned MJML source lockfile's conservative runtime and browser-polyfill dependency closure. This intentionally includes packages that may have been removed or replaced by the upstream browser build. It is not an exact bundle module manifest. The supplement records its collection sources and remaining limitations.
 
 - [`object-hash.json`](object-hash.json): exact package license, bundle hash, and Browserify module-map evidence, with the unresolved historical embedded-dependency provenance stated explicitly.

@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "component": {
     "name": "@puckeditor/core",
-    "version": "0.24.0",
+    "version": "0.24.2",
     "files": [
       {
-        "path": "dist/chunk-DQXMVPVM.mjs",
-        "sha256": "3bdcf298782fd29e36e95c137843237dd4881c28d7e32046a0023d63a28d4c7a"
+        "path": "dist/chunk-6GAUEKMC.mjs",
+        "sha256": "aa1cbdf1006a523afee301ddf150021decef30f05b1b7035d7bdd82aa535bb0e"
       },
       {
-        "path": "dist/chunk-FWBFOZBF.mjs",
-        "sha256": "a4f96ba90eab54e8ca8a8ade4d8f8da54d6113ca9d240fd05cf709eec68717b8"
+        "path": "dist/chunk-EZWWOJVC.mjs",
+        "sha256": "237a3fe2e3a776bcdfa478ee977105645d8abc98722cc0931d6a4bb96b84230d"
       },
       {
         "path": "dist/chunk-OT7NKYY4.mjs",

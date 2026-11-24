@@ -52,6 +52,8 @@ it.each(["Instrument Serif, serif", "Instrument Serif, Arial, serif"])(
     document.body.append(container);
     root = createRoot(container);
     await act(async () => root!.render(<EmailEditor value={value} onChange={() => undefined} />));
+    // Puck schedules iframe content after mount; flush it before inspecting fonts.
+    await act(async () => vi.runOnlyPendingTimersAsync());
     const canvas = container.querySelector("iframe")!.contentDocument!;
     const scope = canvas
       .querySelector("style[data-pm-canvas-fonts]")!

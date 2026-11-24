@@ -13,6 +13,10 @@ The package has not yet been published. This file records the changes included i
 
 See the [API reference](docs/API.md) for the public contract and [MJML compatibility](docs/MJML_COMPATIBILITY.md) for supported behavior and limitations. Hosts own persistence, uploads, and publishing; trusted HTML and embedded images require explicit opt-in.
 
+### Changed
+
+- Updated application dependencies and development tools to current stable releases, including Puck 0.24.2, Tiptap 3.35, Vite 8, Vitest 5, and TypeScript 7. Development tools require Node.js 22.12 or newer. The isolated upstream reference renderer retains its reproducible dependency pins.
+
 ### Fixed
 
 - Import, intrinsic preflight, include expansion, and custom-component expansion share the compiler ending-tag catalog. Content inside `mj-breakpoint` and `mj-carousel-image` can no longer trigger false intrinsic-layout resource errors.

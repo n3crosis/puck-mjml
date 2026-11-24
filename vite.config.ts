@@ -31,7 +31,6 @@ export default defineConfig(({ command, mode }) => ({
         ? {
             lib: {
               entry: { index: "src/index.ts", core: "src/core.ts" },
-              name: "PuckMjml",
               formats: ["es", "cjs"],
               cssFileName: "style",
               fileName: (format, entryName) => `${entryName}.${format === "es" ? "js" : "cjs"}`,
@@ -45,7 +44,6 @@ export default defineConfig(({ command, mode }) => ({
                 "@tiptap/extension-bold",
                 "@tiptap/extension-link",
               ],
-              output: { globals: { react: "React", "react-dom": "ReactDOM" } },
             },
             cssCodeSplit: false,
           }

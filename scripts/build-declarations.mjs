@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { parseSync } from "oxc-parser";
+import { parseSync, Visitor } from "oxc-parser";
 
 // TypeScript's bundler resolver emits extensionless declarations. Node's ESM
 // resolver needs extensions, and a CommonJS entry needs its own declaration graph.
@@ -14,30 +14,21 @@ for (const relative of readdirSync(dist, { recursive: true })) {
   const parsed = parseSync(file, source);
   if (parsed.errors.length) throw new Error(`Cannot parse declarations in ${file}`);
   const specifiers = [];
-  function visit(node) {
-    if (!node || typeof node !== "object") return;
-    const literal = [
-      "ImportDeclaration",
-      "ExportNamedDeclaration",
-      "ExportAllDeclaration",
-      "TSImportType",
-    ].includes(node.type)
-      ? node.source
-      : node.type === "TSExternalModuleReference"
-        ? node.expression
-        : undefined;
-    if (literal && typeof literal.value === "string" && /^\.{1,2}\//.test(literal.value)) {
-      const base = literal.value.replace(/\.js$/, "");
-      if (existsSync(resolve(dirname(file), `${base}.d.ts`))) {
-        specifiers.push({ start: literal.start + 1, end: literal.end - 1, base });
-      }
-    }
-    for (const value of Object.values(node)) {
-      if (Array.isArray(value)) value.forEach(visit);
-      else if (value && typeof value === "object") visit(value);
+  function recordSpecifier({ source, expression }) {
+    const literal = source ?? expression;
+    if (!literal || !/^\.{1,2}\//.test(literal.value)) return;
+    const base = literal.value.replace(/\.js$/, "");
+    if (existsSync(resolve(dirname(file), `${base}.d.ts`))) {
+      specifiers.push({ start: literal.start + 1, end: literal.end - 1, base });
     }
   }
-  visit(parsed.program);
+  new Visitor({
+    ImportDeclaration: recordSpecifier,
+    ExportNamedDeclaration: recordSpecifier,
+    ExportAllDeclaration: recordSpecifier,
+    TSImportType: recordSpecifier,
+    TSExternalModuleReference: recordSpecifier,
+  }).visit(parsed.program);
   specifiers.sort((a, b) => a.start - b.start);
   function declarations(extension) {
     let output = source;

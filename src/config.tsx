@@ -1410,18 +1410,16 @@ export function createEmailEditorConfig(...args: Parameters<typeof createEmailCo
       resolvePermissions: component?.resolvePermissions,
       fields: component?.fields,
       slots: Object.entries(component?.fields ?? {}).flatMap(([key, candidate]) => {
+        if (candidate.type !== "slot") return [];
         const field = candidate as Extract<Field, { type: "slot" }>;
-        return candidate.type === "slot"
-          ? [
-              {
-                name: key,
-                field,
-                allow: field.allow === undefined ? undefined : Object.freeze([...field.allow]),
-                disallow:
-                  field.disallow === undefined ? undefined : Object.freeze([...field.disallow]),
-              },
-            ]
-          : [];
+        return [
+          {
+            name: key,
+            field,
+            allow: field.allow === undefined ? undefined : Object.freeze([...field.allow]),
+            disallow: field.disallow === undefined ? undefined : Object.freeze([...field.disallow]),
+          },
+        ];
       }),
     });
   }

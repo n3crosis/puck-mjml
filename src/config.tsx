@@ -180,19 +180,8 @@ export function createEmailConfig(
     owa: "none" | "desktop";
     sections: Slot;
   };
-  type Section = {
-    backgroundColor: string;
-    padding: string;
-    border: string;
-    borderRadius: string;
-    cssClass: string;
-  };
-  type Typography = {
-    fontFamily: string;
-    fontWeight: number;
-    lineHeight: number;
-    letterSpacing: number;
-  };
+  type Section = Required<SectionStyleProps>;
+  type Typography = typeof typographyDefaults;
   type Components = {
     Wrapper: Section & { sections: Slot };
     Section: Section & { columns: Slot };

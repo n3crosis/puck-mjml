@@ -15,6 +15,8 @@ See the [API reference](docs/API.md) for the public contract and [MJML compatibi
 
 ### Fixed
 
+- Import, intrinsic preflight, include expansion, and custom-component expansion share the compiler ending-tag catalog. Content inside `mj-breakpoint` and `mj-carousel-image` can no longer trigger false intrinsic-layout resource errors.
+
 - Rich-text inventory checks run separately for each template and release their editor instances between cases, retaining full anchor and source-preservation coverage.
 - Functional test budgets allow 30 seconds for editor/compiler unit cases and 60 seconds for multi-step browser flows on shared runners. Assertions and browser assertion deadlines are unchanged.
 - Modal focus test cleanup restores spies even after a timeout, preventing one interrupted test from corrupting subsequent dialog checks.

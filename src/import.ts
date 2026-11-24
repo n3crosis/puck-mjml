@@ -1,3 +1,4 @@
+import { nativeEndingTags } from "./native-ending-tags";
 import * as cheerio from "cheerio";
 import { parseIntrinsicMarkup, preflightIntrinsicSource } from "./intrinsic-import";
 import { createNativeContext, type NativeContext } from "./native-cascade";
@@ -447,20 +448,6 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
     cursor = digitsStart;
   }
   let index = 0;
-  const endingTags = new Set([
-    "mj-text",
-    "mj-button",
-    "mj-table",
-    "mj-raw",
-    "mj-style",
-    "mj-title",
-    "mj-preview",
-    "mj-social-element",
-    "mj-navbar-link",
-    "mj-accordion-title",
-    "mj-accordion-text",
-    "mj-html-attribute",
-  ]);
   let protectedSource = "";
   let copied = 0;
   let active: { tag: string; contentStart: number } | undefined;
@@ -524,7 +511,7 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
     } else if (
       !active &&
       !closing &&
-      endingTags.has(tag) &&
+      nativeEndingTags.has(tag) &&
       !/\/\s*>$/.test(source.slice(start, cursor))
     ) {
       active = { tag, contentStart: cursor };

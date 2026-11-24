@@ -1,14 +1,7 @@
+import { nativeEndingTags } from "./native-ending-tags";
 import * as cheerio from "cheerio";
 import type { Element } from "domhandler";
-import catalog from "./native-catalog.json";
 
-// Match the compiler's parser: ending-tag content is opaque, so includes inside it stay literal.
-const endingTags = new Set(
-  Object.entries(catalog.components)
-    .filter(([, component]) => component.endingTag)
-    .map(([name]) => name),
-);
-endingTags.add("mj-html-attribute");
 const limit = 10 * 1024 * 1024;
 
 function pathKey(path: string, parent = ""): string {
@@ -71,7 +64,7 @@ export function resolveMjmlIncludes(
     const edits: { start: number; end: number; value: string }[] = [];
     const visit = (node: Element, depth = 0) => {
       if (depth > 128) throw new Error("MJML include nesting limit exceeded");
-      if (endingTags.has(node.name)) return;
+      if (nativeEndingTags.has(node.name)) return;
       if (node.name !== "mj-include") {
         $(node)
           .children()

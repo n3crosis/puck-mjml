@@ -1,3 +1,4 @@
+import { nativeEndingTags } from "./native-ending-tags";
 import * as cheerio from "cheerio";
 import postcss from "postcss";
 import { normalizeMjClass, readNativeAttributes } from "./native-attributes";
@@ -90,19 +91,6 @@ export function preflightIntrinsicSource(source: string): Map<string, boolean> {
     | { start: number; contentStart: number; candidate: boolean; bytes: number; tokenCount: number }
     | undefined;
   let opaque: string | undefined;
-  const endings = new Set([
-    "mj-text",
-    "mj-button",
-    "mj-raw",
-    "mj-style",
-    "mj-title",
-    "mj-preview",
-    "mj-social-element",
-    "mj-navbar-link",
-    "mj-accordion-title",
-    "mj-accordion-text",
-    "mj-html-attribute",
-  ]);
   let iterator = tokens(source);
   for (let step = iterator.next(); !step.done; step = iterator.next()) {
     const token = step.value;
@@ -123,7 +111,15 @@ export function preflightIntrinsicSource(source: string): Map<string, boolean> {
       if (token.tag === opaque && token.close) opaque = undefined;
       continue;
     }
-    if (!active && token.tag && endings.has(token.tag) && !token.close && !token.self) {
+    // mj-table is the one opaque component whose content this preflight owns.
+    if (
+      !active &&
+      token.tag &&
+      token.tag !== "mj-table" &&
+      nativeEndingTags.has(token.tag) &&
+      !token.close &&
+      !token.self
+    ) {
       if (token.tag === "mj-style") {
         const end = styleEnd(source, token.end);
         if (end === undefined) break;

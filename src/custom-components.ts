@@ -1,3 +1,4 @@
+import { nativeEndingTags } from "./native-ending-tags";
 import * as cheerio from "cheerio";
 import type { Element, AnyNode } from "domhandler";
 import catalog from "./native-catalog.json";
@@ -21,12 +22,6 @@ const standardTags = new Set([
   "mj-selector",
   "mj-html-attribute",
 ]);
-const endingTags = new Set(
-  Object.entries(catalog.components)
-    .filter(([, component]) => component.endingTag)
-    .map(([name]) => name),
-);
-endingTags.add("mj-html-attribute");
 
 /** Convert explicitly registered custom components before fromMjml.
  * Imported data cannot supply adapters. Normal import/export safety still applies;
@@ -55,7 +50,7 @@ export function expandMjmlComponents(
     const validate = (children: AnyNode[], defaults = false, depth = 0) => {
       if (depth > 128) throw new Error("Custom MJML nesting limit exceeded");
       for (const child of children) {
-        if (child.type !== "tag" || endingTags.has(child.name)) continue;
+        if (child.type !== "tag" || nativeEndingTags.has(child.name)) continue;
         if (defaults && Object.hasOwn(adapters, child.name))
           throw new Error(`Resolve custom MJML defaults before expansion: ${child.name}`);
         validate(child.children, defaults || child.name === "mj-attributes", depth + 1);
@@ -67,7 +62,7 @@ export function expandMjmlComponents(
       let result = "";
       let cursor = start;
       for (const child of children) {
-        if (child.type !== "tag" || endingTags.has(child.name)) continue;
+        if (child.type !== "tag" || nativeEndingTags.has(child.name)) continue;
         const node = child as Element;
         const first = node.children[0];
         const last = node.children.at(-1);

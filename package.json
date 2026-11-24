@@ -1,6 +1,6 @@
 {
   "name": "puck-mjml",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A Puck powered visual editor for MJML email",
   "homepage": "https://github.com/n3crosis/puck-mjml#readme",
   "bugs": {

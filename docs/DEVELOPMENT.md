@@ -52,9 +52,14 @@ To try the package in another local project, run `npm pack` here. Its `prepack` 
 Run these before publishing or changing compiler behavior:
 
 ```sh
+bun audit
 bun run check
 bun run build
+bun run test:package
+bun run test:package:peers
 bun run build:demo
+bunx playwright install chromium
+bun run test:browser
 ```
 
 Tests cover compilation, server rendering, and detached DOM interactions. Keep controlled-editor focus/caret continuity, undo/redo, read-only fields, table structure/resizing (including RTL), and overlay placement covered when changing those interactions. A stable Puck plugin list prevents controlled updates from remounting inline editors.

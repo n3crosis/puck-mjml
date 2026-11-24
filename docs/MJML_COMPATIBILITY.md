@@ -6,7 +6,7 @@ See the [editor guide](EDITOR_GUIDE.md) for usage and the [native attribute refe
 
 ## Support matrix
 
-Baseline: the checked-in [MJML 5.4.1 catalog](../src/native-catalog.json) contains 31 compiler components (23 body and 8 head) and 394 declared attributes. Root syntax and helper tags are listed below too; they are not extra registered components.
+Baseline: the checked-in [MJML 5.4.1 catalog](https://github.com/n3crosis/puck-mjml/blob/main/src/native-catalog.json) contains 31 compiler components (23 body and 8 head) and 394 declared attributes. Root syntax and helper tags are listed below too; they are not extra registered components.
 
 **Import** means conversion through `fromMjml`, with warnings for unsupported content. **Export** means `toMjml` serialization and compilation by the installed MJML compiler, not byte-for-byte source preservation. **Canvas** describes the editable preview, not Outlook or other email-client rendering. “Supported” remains subject to the attribute and trusted-source rules below.
 

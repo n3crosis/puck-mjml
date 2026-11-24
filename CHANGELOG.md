@@ -11,6 +11,11 @@ The package is unreleased (version `0.1.0` in `package.json`). This file records
 
 ### Changed
 
+- Package dependencies now follow Puck. The shared Tiptap packages (`@tiptap/core`, `@tiptap/extension-bold`, `@tiptap/extension-link`) use Puck's `^3.30.4` range instead of an exact `3.32.0` pin, so npm installs one copy shared with `@puckeditor/core`. `@tiptap/core` is now a runtime dependency because the published declarations import its types. `happy-dom` uses Puck's `^21.0.4` range, and the `overrides` entry that pinned it is gone.
+- Packages bundled into `dist` (CodeMirror, Lezer, `@noble/hashes`, Phosphor icons, `cheerio`, `mjml-browser`, `postcss`, `sanitize-html`) moved to `devDependencies`, so consumers no longer install about 65 MB of code they never load.
+- `package.json` now declares `engines.node` `>=20.0.0` (matching Puck) and `sideEffects: ["**/*.css"]`, and `CHANGELOG.md` is included in the package.
+- Added `bun run test:package:peers`, which installs the packed tarball from the registry with React 18 and with React 19, checks that Tiptap is shared with Puck, and runs the rich-text runtime check in ESM and CommonJS. CI runs it after `test:package`.
+- Packaged docs now link to source files on GitHub instead of relative paths that are not in the npm package.
 - `bun run typecheck` and `bun run lint` now cover the whole `tests/` directory, not only `tests/browser`. This fixed type errors that had gone unnoticed in `tests/template-overflow.test.ts`. ([1eedb92](https://github.com/n3crosis/puck-mjml/commit/1eedb92))
 - Removed an unused variable from `scripts/regenerate-native-catalog.ts`. ([1d6ed93](https://github.com/n3crosis/puck-mjml/commit/1d6ed93))
 - Removed `intro-inspect.ts`, an unused debug script at the repository root. ([716c66b](https://github.com/n3crosis/puck-mjml/commit/716c66b))
@@ -26,5 +31,3 @@ These were found during review and are **not** done. They are recorded here so t
 - **Type-check the build scripts.** `scripts/*.ts` is outside `tsconfig.json`; `scripts/regenerate-native-catalog.ts` has type errors when checked.
 - **Reduce the demo bundle.** `bun run build:demo` warns about large chunks. Loading the editor and the `mjml-browser` compiler on demand would shrink the first load.
 - **Split large modules.** `src/import.ts` and `src/config.tsx` are each well over 1,000 lines and could be split by concern.
-- **Package metadata.** Consider `engines` (Node 22, as used by CI) and a `sideEffects` field so bundlers can tree-shake `puck-mjml/core`. Verify `sideEffects` against the built output first, because the root entry imports CSS.
-- **CI confirmation.** Check that the GitHub Actions run passed for the commits above; the Playwright browser suite runs only in CI.

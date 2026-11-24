@@ -4,7 +4,7 @@ The top-level [third-party notices](../../THIRD_PARTY_NOTICES.md) cover template
 
 ## Generated distribution artifacts
 
-Run `bun install --frozen-lockfile`, `bun run build`, and `bun run build:demo`. The Vite plugin in [`scripts/third-party-notices.ts`](../../scripts/third-party-notices.ts) emits a separate inventory for each build:
+Run `bun install --frozen-lockfile`, `bun run build`, and `bun run build:demo`. The Vite plugin in [`scripts/third-party-notices.ts`](https://github.com/n3crosis/puck-mjml/blob/main/scripts/third-party-notices.ts) emits a separate inventory for each build:
 
 - `THIRD_PARTY_LICENSES.json`: package/version, declared license, module paths, full license texts and SHA-256 hashes, retained inline legal comments, host-supplied external modules, and supplement references.
 - `THIRD_PARTY_LICENSES.txt`: readable full notices, including the supplemental upstream dependency license texts.

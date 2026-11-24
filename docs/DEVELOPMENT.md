@@ -2,25 +2,26 @@
 
 ## Setup and commands
 
-Use Bun, with the version specified by `packageManager` in [package.json](../package.json). Install from the checked-in lockfile:
+Use Bun, with the version specified by `packageManager` in [package.json](https://github.com/n3crosis/puck-mjml/blob/main/package.json). Install from the checked-in lockfile:
 
 ```sh
 bun install --frozen-lockfile
 bun run dev
 ```
 
-| Command                | Purpose                                                                    |
-| ---------------------- | -------------------------------------------------------------------------- |
-| `bun run dev`          | Start the Vite demo.                                                       |
-| `bun run check`        | Check formatting, lint, types, and run the test suite.                     |
-| `bun run format`       | Format the project with oxfmt.                                             |
-| `bun run build`        | Build library JavaScript, CSS, and TypeScript declarations into `dist/`.   |
-| `bun run build:demo`   | Build the standalone demo into `demo-dist/`.                               |
-| `bun run catalog`      | Regenerate the native attribute catalog from the installed MJML compiler.  |
-| `bun run lint`         | Lint `src`, `demo`, `tests`, configs, and the package scripts with oxlint. |
-| `bun run typecheck`    | Type-check `src`, `demo`, and all of `tests` with `tsc --noEmit`.          |
-| `bun run test:package` | Build, pack, and smoke-test the published package entries.                 |
-| `bun run test:browser` | Run the Playwright browser suite.                                          |
+| Command                      | Purpose                                                                            |
+| ---------------------------- | ---------------------------------------------------------------------------------- |
+| `bun run dev`                | Start the Vite demo.                                                               |
+| `bun run check`              | Check formatting, lint, types, and run the test suite.                             |
+| `bun run format`             | Format the project with oxfmt.                                                     |
+| `bun run build`              | Build library JavaScript, CSS, and TypeScript declarations into `dist/`.           |
+| `bun run build:demo`         | Build the standalone demo into `demo-dist/`.                                       |
+| `bun run catalog`            | Regenerate the native attribute catalog from the installed MJML compiler.          |
+| `bun run lint`               | Lint `src`, `demo`, `tests`, configs, and the package scripts with oxlint.         |
+| `bun run typecheck`          | Type-check `src`, `demo`, and all of `tests` with `tsc --noEmit`.                  |
+| `bun run test:package`       | Build, pack, and smoke-test the published package entries.                         |
+| `bun run test:package:peers` | Fresh-install the packed tarball with React 18 and 19 and run the rich-text check. |
+| `bun run test:browser`       | Run the Playwright browser suite.                                                  |
 
 `node_modules/`, `dist/`, and `demo-dist/` are ignored by Git. Library output includes ESM (`dist/index.js`), CommonJS (`dist/index.cjs`), ESM/CommonJS declarations (`dist/index.d.ts` / `dist/index.d.cts`), conversion-only `dist/core.js` / `dist/core.cjs` / `dist/core.d.ts` / `dist/core.d.cts`, and `dist/style.css`. The package includes the built library, all canonical MJML templates and their provenance, documentation, license, and third-party notices.
 
@@ -60,7 +61,7 @@ Tests cover compilation, server rendering, and detached DOM interactions. Keep c
 
 Canonical-template unit checks live in `src/templates/inventory-review.test.tsx`: one inventory-driven case per source compiles the canonical MJML, editor export, and reimported export once each. The same outputs and one safe canvas render cover content, headings, image semantics, navigation, retained styles, and font aliases. Registry tests separately cover metadata and public factory wiring. Avoid parallel template suites or bespoke template probes when this shared review already covers the contract; shared behavior regressions should use small synthetic fixtures. Browser captures still review every template at both widths, and interaction and security tests remain separate.
 
-For API or bundling changes, run `bun run test:package`. This command builds and packs the library with `npm pack`, then checks the generated ESM and CommonJS APIs, the paired custom-editor exports, all 62 template factories and their source metadata, HTML compilation, and the `puck-mjml/core` entry under React Server Components resolution. It checks the packed exports, including the stylesheet import, in strict ESM and CommonJS TypeScript consumers with Node16, NodeNext, and Bundler resolution. Core declarations are checked without browser or editor types under the `react-server` condition. These packed checks reuse the locked dependencies; they are not a fresh installation or a peer-version compatibility matrix. Run `bun run test:browser` for Chromium editor interactions, CSS authoring, responsive layouts, and every template through the actual picker and compiled preview. All 62 templates produce desktop/mobile original React Email, compiled MJML, and real editor-canvas screenshots (372 total), HTML pairs, and `comparison.json` layout/style/resource metadata. Original HTML is generated into ignored `.cache/react-email-reference/` from pinned upstream source with the separately locked [reference renderer](../scripts/render-react-email-references/README.md), then hash-verified against the committed [provenance manifest](../tests/fixtures/react-email-reference/README.md). `bun run test` and `bun run test:browser` prepare references automatically; `bun run references:prepare` prepares them for direct Vitest/Playwright runs. A cold cache needs network access; subsequent verified-cache runs are offline. CI keeps these artifacts in six `email-comparison-*` family archives; non-template interactions remain in `browser-results`. The reference tool has isolated dependencies and a source cache, excluded from the main test runner. Install its browser once with `bunx playwright install chromium`; a local Chromium can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. These tests do not establish real email-client parity. Prior passing test counts are not a guarantee for the current checkout.
+For API or bundling changes, run `bun run test:package`. This command builds and packs the library with `npm pack`, then checks the generated ESM and CommonJS APIs, the paired custom-editor exports, all 62 template factories and their source metadata, HTML compilation, and the `puck-mjml/core` entry under React Server Components resolution. It checks the packed exports, including the stylesheet import, in strict ESM and CommonJS TypeScript consumers with Node16, NodeNext, and Bundler resolution. Core declarations are checked without browser or editor types under the `react-server` condition. These packed checks reuse the locked dependencies; they are not a fresh installation or a peer-version compatibility matrix. After `bun run build`, `bun run test:package:peers` covers that gap: it installs the tarball with npm into fresh React 18 and React 19 hosts, checks that `puck-mjml` shares Puck's Tiptap packages instead of nesting its own, and runs the rich-text runtime check in ESM and CommonJS. It needs network access. Run `bun run test:browser` for Chromium editor interactions, CSS authoring, responsive layouts, and every template through the actual picker and compiled preview. All 62 templates produce desktop/mobile original React Email, compiled MJML, and real editor-canvas screenshots (372 total), HTML pairs, and `comparison.json` layout/style/resource metadata. Original HTML is generated into ignored `.cache/react-email-reference/` from pinned upstream source with the separately locked [reference renderer](https://github.com/n3crosis/puck-mjml/blob/main/scripts/render-react-email-references/README.md), then hash-verified against the committed [provenance manifest](https://github.com/n3crosis/puck-mjml/blob/main/tests/fixtures/react-email-reference/README.md). `bun run test` and `bun run test:browser` prepare references automatically; `bun run references:prepare` prepares them for direct Vitest/Playwright runs. A cold cache needs network access; subsequent verified-cache runs are offline. CI keeps these artifacts in six `email-comparison-*` family archives; non-template interactions remain in `browser-results`. The reference tool has isolated dependencies and a source cache, excluded from the main test runner. Install its browser once with `bunx playwright install chromium`; a local Chromium can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. These tests do not establish real email-client parity. Prior passing test counts are not a guarantee for the current checkout.
 
 ### Template resource and geometry evidence
 

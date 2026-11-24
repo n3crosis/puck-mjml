@@ -97,5 +97,5 @@ it.each([
     expect(preview().value).toBe("An unsaved draft");
     expect(hasUnsavedChanges(current, baseline)).toBe(true);
   },
-  10_000,
+  30_000,
 );

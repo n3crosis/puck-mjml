@@ -11,7 +11,8 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
-  "include": ["src", "demo", "vite.config.ts", "playwright.config.ts", "tests"]
+  "include": ["src", "demo", "vite.config.ts", "playwright.config.ts", "tests", "scripts/*.ts"]
 }

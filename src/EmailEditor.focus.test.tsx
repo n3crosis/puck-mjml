@@ -36,6 +36,7 @@ afterEach(async () => {
     container = undefined;
     api = undefined;
     value = undefined;
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
   }
 }, 15_000);
@@ -157,8 +158,8 @@ async function insert(element: HTMLInputElement, text: string) {
 
 // The delayed-echo case intentionally waits through nine 375ms debounce windows.
 // Leave bounded headroom for the full editor/iframe under parallel CI load;
-// the default 5s timeout can interrupt React act and contaminate following cases.
-describe("controlled EmailEditor typing", { timeout: 20_000 }, () => {
+// short timeouts can interrupt React act and contaminate following cases.
+describe("controlled EmailEditor typing", { timeout: 30_000 }, () => {
   it("switches tablet sidebars without remounting the editor or recording history", async () => {
     const originalMatchMedia = window.matchMedia.bind(window);
     const matchMedia = vi.spyOn(window, "matchMedia").mockImplementation((query) => {

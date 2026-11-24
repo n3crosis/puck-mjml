@@ -113,27 +113,22 @@ function importedTexts(
   return [...result, ...Object.values(entry).flatMap(importedTexts)];
 }
 
-it("preserves every href-less anchor across the canonical inventory", () => {
-  let total = 0;
-  let expectedTotal = 0;
-  for (const entry of templateInventory) {
-    const { file } = entry;
-    const source = templateSource(entry);
-    expectedTotal += load(source, { xml: true })("a:not([href])").length;
-    const initial = fromMjml(source).document;
-    const before = toMjml(initial);
-    let count = 0;
-    for (const entry of importedTexts(initial)) {
-      const expected = anchorLabels(entry.importedRichText.source);
-      if (!expected.length) continue;
-      const editor = editorFor(entry.content);
-      expect(anchorLabels(editor.getHTML()), file).toEqual(expected);
-      count += expected.length;
-    }
-    expect(toMjml(initial), file).toBe(before);
-    total += count;
+it.each(templateInventory)("preserves every href-less anchor in $file", (entry) => {
+  const { file } = entry;
+  const source = templateSource(entry);
+  const expectedCount = load(source, { xml: true })("a:not([href])").length;
+  const initial = fromMjml(source).document;
+  const before = toMjml(initial);
+  let count = 0;
+  for (const entry of importedTexts(initial)) {
+    const expected = anchorLabels(entry.importedRichText.source);
+    if (!expected.length) continue;
+    const editor = editorFor(entry.content);
+    expect(anchorLabels(editor.getHTML()), file).toEqual(expected);
+    count += expected.length;
   }
-  expect(total).toBe(expectedTotal);
+  expect(toMjml(initial), file).toBe(before);
+  expect(count).toBe(expectedCount);
 });
 
 it("targets only the first label paragraph, preserving multiple independent values", () => {

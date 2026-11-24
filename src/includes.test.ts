@@ -89,3 +89,16 @@ it("inserts an included head before subsequent head nodes", () => {
     "<mjml><mj-head><mj-title>Before</mj-title><mj-title>After</mj-title></mj-head><mj-body/></mjml>",
   );
 });
+
+it("bounds element nesting in source and included files", () => {
+  const nested = "<mj-wrapper>".repeat(130) + "</mj-wrapper>".repeat(130);
+  const wrap = (content: string) => `<mjml><mj-body>${content}</mj-body></mjml>`;
+  expect(() => resolveMjmlIncludes(wrap(nested), {})).toThrow(
+    "MJML include nesting limit exceeded",
+  );
+  expect(() => resolveMjmlIncludes(wrap('<mj-include path="nested"/>'), { nested })).toThrow(
+    "MJML include nesting limit exceeded",
+  );
+  const opaque = wrap(`<mj-raw>${nested}</mj-raw>`);
+  expect(resolveMjmlIncludes(opaque, {})).toBe(opaque);
+});

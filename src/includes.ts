@@ -69,12 +69,13 @@ export function resolveMjmlIncludes(
     const css: string[] = [];
     const $ = parse(text);
     const edits: { start: number; end: number; value: string }[] = [];
-    const visit = (node: Element) => {
+    const visit = (node: Element, depth = 0) => {
+      if (depth > 128) throw new Error("MJML include nesting limit exceeded");
       if (endingTags.has(node.name)) return;
       if (node.name !== "mj-include") {
         $(node)
           .children()
-          .each((_, child) => visit(child));
+          .each((_, child) => visit(child, depth + 1));
         return;
       }
       if (++count > 1000) throw new Error("MJML include expansion limit exceeded");

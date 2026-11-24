@@ -9,6 +9,11 @@ export default defineConfig(({ command, mode }) => ({
     // The compiler and real-editor suites are memory-heavy. Bound concurrent
     // forks instead of letting high-core machines terminate test workers.
     maxWorkers: 2,
+    // Real editor mounts and compiler fixtures are functional checks, not
+    // latency benchmarks. Allow bounded headroom on shared CI runners so a
+    // timeout does not interrupt React act and contaminate subsequent cases.
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
     // Reference-rendering tools have their own isolated dependencies/cache.
     // Retain Vitest's recursive defaults so their package tests never run here.
     exclude: [

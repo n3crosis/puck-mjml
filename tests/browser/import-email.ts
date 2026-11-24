@@ -5,8 +5,11 @@ export async function openImportDialog(page: Page) {
   const dialog = page.getByRole("dialog", { name: "Import MJML", exact: true });
   if (!(await dialog.isVisible())) {
     const trigger = page.getByRole("button", { name: "Import", exact: true });
-    if (!(await trigger.isVisible()))
-      await page.getByRole("button", { name: "Toggle menu bar", exact: true }).click();
+    const menu = page.getByRole("button", { name: "Toggle menu bar", exact: true });
+    // A loading desktop editor has neither control yet. Wait for the header
+    // before deciding whether the responsive menu needs to be opened.
+    await trigger.or(menu).filter({ visible: true }).first().waitFor({ state: "visible" });
+    if (!(await trigger.isVisible())) await menu.click();
     await trigger.click();
   }
   await expect(dialog).toBeVisible();

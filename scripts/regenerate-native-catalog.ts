@@ -11,8 +11,12 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import oldCatalog from "../src/native-catalog.json";
+import type { NativeComponentSpec } from "../src/native-attributes";
 
-globalThis.window = globalThis as unknown as Window;
+const oldComponents: Record<string, Omit<NativeComponentSpec, "kind"> & { kind: string }> =
+  oldCatalog.components;
+
+globalThis.window = globalThis as unknown as Window & typeof globalThis;
 
 interface ComponentStatic {
   tag: string;
@@ -124,13 +128,13 @@ if (extracted.length !== Object.keys(oldCatalog.components).length)
     } catalog components. Review kind/allowedChildren manually.`,
   );
 for (const entry of extracted)
-  if (!oldCatalog.components[entry.tag])
+  if (!oldComponents[entry.tag])
     throw new Error(`Unknown component ${entry.tag}: update kind/allowedChildren manually.`);
 
 const components: Record<string, unknown> = {};
 const notes: string[] = [];
 for (const entry of extracted) {
-  const old = oldCatalog.components[entry.tag]!;
+  const old = oldComponents[entry.tag]!;
   // Head components without an allowedAttributes static accept no native attributes.
   let allowed = (entry.allowedAttributes ?? {}) as Record<string, string>;
   if (entry.tag === "mj-wrapper") {
@@ -206,7 +210,7 @@ console.log(
   )} total, ${bodyTags.reduce((total, [tag]) => total + attributeCount(tag), 0)} body.`,
 );
 for (const tag of Object.keys(components)) {
-  const oldSpec = oldCatalog.components[tag]!;
+  const oldSpec = oldComponents[tag]!;
   const newSpec = components[tag]! as {
     allowedAttributes: Record<string, string>;
     endingTag: boolean;

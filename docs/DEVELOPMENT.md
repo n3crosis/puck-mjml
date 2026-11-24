@@ -18,7 +18,7 @@ bun run dev
 | `bun run build:demo`         | Build the standalone demo into `demo-dist/`.                                       |
 | `bun run catalog`            | Regenerate the native attribute catalog from the installed MJML compiler.          |
 | `bun run lint`               | Lint `src`, `demo`, `tests`, configs, and the package scripts with oxlint.         |
-| `bun run typecheck`          | Type-check `src`, `demo`, and all of `tests` with `tsc --noEmit`.                  |
+| `bun run typecheck`          | Type-check source, demo, tests, configs, and TypeScript maintenance scripts.       |
 | `bun run test:package`       | Build, pack, and smoke-test the published package entries.                         |
 | `bun run test:package:peers` | Fresh-install the packed tarball with React 18 and 19 and run the rich-text check. |
 | `bun run test:browser`       | Run the Playwright browser suite.                                                  |
@@ -93,7 +93,7 @@ Unit tests in `tests/semantic-comparison.test.ts` cover repeated/reordered conte
 
 ## Dependency security
 
-Run `bun audit` after dependency changes. This repository pins Happy DOM 21.0.4, the published patched release for [GHSA-834v-8h66-3h79](https://github.com/advisories/GHSA-834v-8h66-3h79) and [GHSA-c8p4-j97h-3vg8](https://github.com/advisories/GHSA-c8p4-j97h-3vg8). The root override covers both the test dependency and Puck's transitive dependency in this development/demo installation.
+Run `bun audit` after dependency changes. The checked-in lockfile resolves Happy DOM 21.0.4, the published patched release for [GHSA-834v-8h66-3h79](https://github.com/advisories/GHSA-834v-8h66-3h79) and [GHSA-c8p4-j97h-3vg8](https://github.com/advisories/GHSA-c8p4-j97h-3vg8). The development dependency follows Puck's `^21.0.4` range; there is no package override.
 
 Puck 0.24.0 declares patched Happy DOM `^21.0.4` as a regular dependency; its Tiptap Node rich-text path imports it. Tiptap's browser path uses the browser DOM instead. Package-level overrides do not propagate to consuming applications: hosts must audit their own lockfile and resolve a patched Happy DOM version for their Puck installation.
 
@@ -119,7 +119,7 @@ The current catalog records `mjml-browser` 5.4.1: 31 components, including 23 bo
 
 When updating the compiler:
 
-1. Update the dependency and Bun lockfile. `cheerio` is a direct dependency because the MJML 5 browser bundle requires it externally.
+1. Update the dependency and Bun lockfile. `cheerio` is a direct development dependency bundled into the library because the MJML 5 browser bundle requires it externally.
 2. Run `bun run catalog`. The script extracts component statics and checks `mj-wrapper`'s composed attribute set by compiling candidates. Review component kinds, allowed children, and color keywords manually if the registered component set changes.
 3. Review the generated diff and update pinned expectations in `src/native-attributes.test.ts` and `src/native-coverage.test.ts`.
 4. Update [compatibility](MJML_COMPATIBILITY.md), the [attribute reference](NATIVE_ATTRIBUTES.md), and any affected [third-party notices](../THIRD_PARTY_NOTICES.md).

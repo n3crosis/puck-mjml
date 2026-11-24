@@ -165,7 +165,8 @@ const { document, warnings } = fromMjml(source);
 File names are relative POSIX paths; nested includes resolve relative to their
 containing file (`sourcePath` defaults to `index.mjml`). Missing files, duplicate
 normalized names, cycles, root escapes, URLs and unsupported include types throw.
-Expansion is bounded to 32 nested files, 1,000 include occurrences and 10 MiB of
+Expansion is bounded to 32 nested files, 128 element levels per file,
+1,000 include occurrences and 10 MiB of
 UTF-16 code units consumed or produced. No files or URLs are read automatically.
 MJML fragments are inserted in place; included document heads and CSS includes
 are added to the root head. `css-inline="inline"` is retained. HTML includes

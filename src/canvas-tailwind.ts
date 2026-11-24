@@ -17,13 +17,13 @@ export const bundledTailwindScript = `https://cdn.jsdelivr.net/npm/@tailwindcss/
  * Tailwind entry for the canvas. Preflight is deliberately excluded: it would
  * reset typography and box model defaults across the whole canvas document.
  */
-export const TAILWIND_CANVAS_CONFIG = `@layer theme, utilities;
+const TAILWIND_CANVAS_CONFIG = `@layer theme, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
 `;
 
 /** Accept the boolean toggle or the radio field's string values. */
-export function tailwindEnabled(value: unknown): boolean {
+function tailwindEnabled(value: unknown): boolean {
   return value === true || value === "true";
 }
 

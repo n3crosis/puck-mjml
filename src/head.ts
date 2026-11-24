@@ -42,7 +42,7 @@ export function resolveBreakpointWidth(
 }
 
 /** Serialize CSS syntax without entity references, which MJML does not decode in selectors. */
-export function selectorAttribute(selector: string): string {
+function selectorAttribute(selector: string): string {
   const cssEscape = (character: string) => `\\${character.codePointAt(0)!.toString(16)} `;
   let result = "";
   let quote = "";

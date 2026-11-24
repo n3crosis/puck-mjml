@@ -2,8 +2,8 @@
 import type { EmailDocument } from "./types";
 
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-export const MAX_IMAGE_DIMENSION = 8192;
-export const MAX_IMAGE_PIXELS = 16_777_216;
+const MAX_IMAGE_DIMENSION = 8192;
+const MAX_IMAGE_PIXELS = 16_777_216;
 export const IMAGE_UPLOAD_ACCEPT = "image/png,image/jpeg,image/gif,image/webp";
 export const LOCAL_IMAGE_WARNING =
   "Local images are embedded in this draft and its exports, not uploaded or hosted. Many email clients block embedded images. Replace them with hosted HTTPS image URLs before sending.";

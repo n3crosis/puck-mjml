@@ -190,7 +190,6 @@ it.each([false, true])(
     expect(container.querySelector(".Puck")).toBe(puck);
     expect(toMjml(initial)).toBe(initialSource);
   },
-  15_000,
 );
 
 it.each([false, true])(
@@ -233,7 +232,6 @@ it.each([false, true])(
     await expectDocument(changed);
     expect(container.querySelector(".Puck")).toBe(puck);
   },
-  15_000,
 );
 
 it("preserves omitted native root defaults after a controlled host replacement", async () => {
@@ -253,4 +251,4 @@ it("preserves omitted native root defaults after a controlled host replacement",
   await act(async () => replaceHost({ root: { props: { sections: [] } }, content: [] }));
   expect(container.querySelector(".Puck")).not.toBe(importedPuck);
   expect(api.appState.data.root.props!.fontFamily).toBe("Arial, sans-serif");
-}, 15_000);
+});

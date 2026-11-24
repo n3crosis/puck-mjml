@@ -390,7 +390,6 @@ describe("bounded block operations with actual Puck", () => {
         expect(container.querySelector(".pm-intrinsic-error")).toBeNull();
       }
     },
-    30_000,
   );
 
   it.each([false, true])(

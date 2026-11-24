@@ -13,7 +13,7 @@ import {
   IntrinsicResourceError,
 } from "./intrinsic-source";
 
-export const INTRINSIC_LIMITS = {
+const INTRINSIC_LIMITS = {
   sourceBytes: 64 * 1024 * 1024,
   nodes: 256,
   rowDepth: 8,
@@ -24,7 +24,7 @@ export const INTRINSIC_LIMITS = {
   encodedOriginBytes: 48 * 1024,
 } as const;
 
-export class IntrinsicLayoutLimitError extends IntrinsicResourceError {
+class IntrinsicLayoutLimitError extends IntrinsicResourceError {
   constructor(message: string) {
     super(message);
     this.name = "IntrinsicLayoutLimitError";
@@ -85,8 +85,8 @@ export const imageInnerStyles = [
   "max-height",
   "width",
 ];
-export const intrinsicImageAttributes = ["src", "alt", "title", "srcset", "sizes", "usemap"];
-export const intrinsicLinkAttributes = ["href", "target", "rel", "name"];
+const intrinsicImageAttributes = ["src", "alt", "title", "srcset", "sizes", "usemap"];
+const intrinsicLinkAttributes = ["href", "target", "rel", "name"];
 
 type Values = Record<string, string | undefined>;
 export type IntrinsicOptions = ExportOptions & {
@@ -97,15 +97,14 @@ export type IntrinsicOptions = ExportOptions & {
 };
 type IntrinsicRenderOptions = IntrinsicOptions & { measurement?: { assetBytes: number } };
 const validatedAssets = new WeakMap<object, { src: string; allowLocalImages: boolean }>();
-export const intrinsicByteLength = intrinsicSourceBytes;
-export const escapeIntrinsicAttribute = (value: string) =>
+const escapeIntrinsicAttribute = (value: string) =>
   value.replace(
     /[&<>"']/g,
     (character) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]!,
   );
 
-export function intrinsicClasses(value: unknown): string {
+function intrinsicClasses(value: unknown): string {
   if (value === undefined || value === "") return "";
   if (
     typeof value !== "string" ||
@@ -212,7 +211,7 @@ function binding(tag: string, name: string, value: string | undefined) {
   );
 }
 
-export function createIntrinsicOrigin(
+function createIntrinsicOrigin(
   tag: "mj-text" | "mj-image",
   props: Record<string, unknown>,
   local: Values,
@@ -232,7 +231,7 @@ export function createIntrinsicOrigin(
     ...(mjClass === undefined ? {} : { mjClass }),
     ...(inherit.length ? { inherit } : {}),
   });
-  if (intrinsicByteLength(result) > INTRINSIC_LIMITS.originBytes)
+  if (intrinsicSourceBytes(result) > INTRINSIC_LIMITS.originBytes)
     throw new IntrinsicLayoutLimitError("origin hint exceeds 8 KiB");
   return result;
 }
@@ -243,7 +242,7 @@ export function readIntrinsicOrigin(
   visible: Values,
 ): { mjClass?: string; inherit: string[]; missing?: string[] } {
   if (source === undefined) return { inherit: [] };
-  if (intrinsicByteLength(source) > INTRINSIC_LIMITS.originBytes)
+  if (intrinsicSourceBytes(source) > INTRINSIC_LIMITS.originBytes)
     throw new IntrinsicLayoutLimitError("origin hint exceeds 8 KiB");
   const value: unknown = JSON.parse(source);
   if (!value || typeof value !== "object" || Array.isArray(value))
@@ -373,7 +372,7 @@ export function resolveIntrinsicLeaf(block: EmailBlock, options: IntrinsicOption
   const supported = new Set(nativeAttributeNames(tag));
   for (const [name, value] of Object.entries(result.effective)) {
     if (!supported.has(name) || typeof value !== "string") continue;
-    if (name !== "src" && intrinsicByteLength(value) > INTRINSIC_LIMITS.scalarBytes)
+    if (name !== "src" && intrinsicSourceBytes(value) > INTRINSIC_LIMITS.scalarBytes)
       throw new IntrinsicLayoutLimitError("resolved native values must not exceed 64 KiB");
   }
   const source = typeof result.effective.src === "string" ? result.effective.src : undefined;
@@ -420,7 +419,7 @@ const attrs = (values: Values) =>
     .filter(([, value]) => value !== undefined)
     .map(([name, value]) => ` ${name}="${escapeIntrinsicAttribute(value!)}"`)
     .join("");
-export const intrinsicStyleText = (values: Values) =>
+const intrinsicStyleText = (values: Values) =>
   Object.entries(values)
     .filter(([, value]) => value !== undefined)
     .map(([name, value]) => `${name}:${value}`)
@@ -465,7 +464,7 @@ export function validateIntrinsicStructure(block: EmailBlock): void {
       const size =
         name === "src" && value.startsWith("data:image/")
           ? value.length
-          : intrinsicByteLength(value);
+          : intrinsicSourceBytes(value);
       bytes += size;
       if (name !== "src" && size > INTRINSIC_LIMITS.scalarBytes)
         throw new IntrinsicLayoutLimitError("text and ordinary values must not exceed 64 KiB");
@@ -500,7 +499,7 @@ function renderLeaf(block: EmailBlock, options: IntrinsicRenderOptions): string 
       block.props.importedRichText?.baseline,
     ])
       if (typeof value === "string") {
-        if (intrinsicByteLength(value) > INTRINSIC_LIMITS.scalarBytes)
+        if (intrinsicSourceBytes(value) > INTRINSIC_LIMITS.scalarBytes)
           throw new IntrinsicLayoutLimitError("text source and baseline must not exceed 64 KiB");
         assertIntrinsicSourceBounds(value);
       }
@@ -563,7 +562,7 @@ export function renderIntrinsicContent(block: EmailBlock, options: IntrinsicOpti
   validateIntrinsicStructure(block);
   const html = intrinsicHolder(renderRow(block, options));
   const source = wrapIntrinsicContent(html);
-  if (intrinsicByteLength(source) > INTRINSIC_LIMITS.sourceBytes)
+  if (intrinsicSourceBytes(source) > INTRINSIC_LIMITS.sourceBytes)
     throw new IntrinsicLayoutLimitError("row source must not exceed 64 MiB");
   assertIntrinsicSourceBounds(source);
   return html;
@@ -576,7 +575,7 @@ export function validateIntrinsicContent(block: EmailBlock, options: IntrinsicOp
   const measurement = { assetBytes: 0 };
   const html = intrinsicHolder(renderRow(block, { ...options, measurement }));
   const source = wrapIntrinsicContent(html);
-  if (intrinsicByteLength(source) + measurement.assetBytes > INTRINSIC_LIMITS.sourceBytes)
+  if (intrinsicSourceBytes(source) + measurement.assetBytes > INTRINSIC_LIMITS.sourceBytes)
     throw new IntrinsicLayoutLimitError("row source must not exceed 64 MiB");
   assertIntrinsicSourceBounds(source);
 }

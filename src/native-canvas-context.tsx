@@ -206,7 +206,7 @@ export const typographyKeys = [
   "text-decoration",
   "text-transform",
 ];
-export const boxKeys = [
+const boxKeys = [
   "padding",
   "padding-top",
   "padding-right",

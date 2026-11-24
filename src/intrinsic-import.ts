@@ -21,7 +21,6 @@ import {
   IntrinsicResourceError,
   type IntrinsicSourceNode as Node,
 } from "./intrinsic-source";
-export { IntrinsicResourceError } from "./intrinsic-source";
 function limit(condition: boolean, message: string): void {
   if (!condition) throw new IntrinsicResourceError(message);
 }

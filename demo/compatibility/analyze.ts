@@ -3,7 +3,7 @@ import postcss from "postcss";
 import snapshot from "./caniemail-data.json";
 
 export type Support = "unsupported" | "partial" | "unknown" | "supported";
-export type RecordedTest = { version: string; code: string };
+type RecordedTest = { version: string; code: string };
 export type Feature = {
   slug: string;
   title: string;
@@ -89,7 +89,7 @@ export function featureUrl(slug: string) {
   return `https://www.caniemail.com/features/${slug}/`;
 }
 
-export type Detection = { slug: string; evidence: string[]; occurrences: number };
+type Detection = { slug: string; evidence: string[]; occurrences: number };
 export type CompatibilityAnalysis = {
   detected: Detection[];
   cssParseErrors: number;

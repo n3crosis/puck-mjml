@@ -255,7 +255,7 @@ export function nativeAttributeField(
   };
 }
 
-export function nativeElementFields(tag: string, allowRawHtml = false): Record<string, Field> {
+function nativeElementFields(tag: string, allowRawHtml = false): Record<string, Field> {
   return {
     mjClass: classField(),
     mjmlAttributes: nativeAttributeField(tag, undefined, false, allowRawHtml),

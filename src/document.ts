@@ -1,5 +1,6 @@
 import type { EmailDocument } from "./types";
-import { createProductUpdateDocument } from "./example";
+import { loadMjmlTemplate } from "./templates/loader";
+import exampleSource from "../templates/02-Matte/product-update.mjml?raw";
 
 export function createEmptyDocument(): EmailDocument {
   return {
@@ -32,5 +33,5 @@ export function createEmptyDocument(): EmailDocument {
 }
 
 export function createExampleDocument(): EmailDocument {
-  return createProductUpdateDocument();
+  return loadMjmlTemplate(exampleSource, "02-Matte/product-update.mjml");
 }

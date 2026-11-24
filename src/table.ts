@@ -4,7 +4,7 @@ import { sanitizeEmailRichText } from "./richtext";
 import { normalizeColor as color } from "./native-attributes";
 import { importedRichText } from "./imported-content";
 
-export type TableCellScope = "" | "row" | "col" | "rowgroup" | "colgroup";
+type TableCellScope = "" | "row" | "col" | "rowgroup" | "colgroup";
 export type TableCell = {
   content: RichText;
   /** Native imports omit unspecified cell styles instead of injecting editor defaults. */

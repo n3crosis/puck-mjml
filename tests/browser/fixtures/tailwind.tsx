@@ -1,4 +1,3 @@
-import React from "react";
 import { createRoot } from "react-dom/client";
 import { EmailCanvas } from "../../../src/EmailCanvas";
 import { TailwindRuntimeContext } from "../../../src/canvas-tailwind";

@@ -24,8 +24,6 @@ import type {
   MjmlElementOptions,
 } from "./types";
 
-export { sanitizeEmailRichText } from "./richtext";
-
 const XML_ESCAPE: Record<string, string> = {
   "&": "&amp;",
   "<": "&lt;",

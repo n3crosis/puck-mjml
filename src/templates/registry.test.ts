@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import { emailTemplates } from "./registry";
 import { templateManifest } from "./manifest";
 import { createEmptyDocument, createExampleDocument } from "../document";
-import { createMatteProductUpdateDocument } from "./matte";
 import { canonicalManifest, templateInventory } from "../../tests/template-inventory";
 
 const canonicalFiles = readdirSync(new URL("../../templates/", import.meta.url), {
@@ -81,39 +80,9 @@ describe("template registry", () => {
     expect(blank.root.props!.sections).toEqual([]);
     expect(blank).not.toBe(emailTemplates[0].create());
     const example = createExampleDocument();
-    expect(example).toEqual(createMatteProductUpdateDocument());
+    expect(example).toEqual(
+      emailTemplates.find(({ id }) => id === "02-matte/product-update")!.create(),
+    );
     expect(example).not.toBe(createExampleDocument());
   });
-});
-
-// Public compatibility factories stay covered without a hand-maintained list of
-// template names or duplicate review logic. Their names follow create<Group><File>Document.
-const adapterModules = import.meta.glob<Record<string, unknown>>(
-  ["./*.ts", "!./*.test.ts", "!./test-support.ts"],
-  { eager: true },
-);
-const adapterFactories = Object.values(adapterModules).flatMap((module) =>
-  Object.entries(module).filter(
-    ([name, value]) => /^create.+Document$/.test(name) && typeof value === "function",
-  ),
-);
-it.each(adapterFactories)("%s delegates to its canonical registered source", (name, factory) => {
-  const key = name.replace(/^create|Document$/g, "").toLowerCase();
-  const entry = templateInventory.find(
-    ({ group, file }) =>
-      `${group.replace(/^\d+-/, "")}${file
-        .split("/")
-        .at(-1)!
-        .replace(/\.mjml$/, "")}`
-        .replace(/[^a-z0-9]/gi, "")
-        .toLowerCase() === key,
-  );
-  expect(entry, `Missing canonical source for exported factory ${name}`).toBeDefined();
-  const template = emailTemplates.find(({ id }) => id === entry!.id)!;
-  const create = factory as () => ReturnType<typeof template.create>;
-  const first = create(),
-    second = create();
-  expect(first).toEqual(template.create());
-  expect(first).toEqual(second);
-  expect(first).not.toBe(second);
 });

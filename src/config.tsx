@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { safeImageSource } from "./image-upload";
 import { ImageSourceField } from "./ImageSourceField";
 import { withFieldPermissions } from "./FieldPermissions";
-import type { Config, CustomField, Field, RichText, Slot } from "@puckeditor/core";
+import type { Config, CustomField, Field, RichText, Slot, SlotComponent } from "@puckeditor/core";
 import { renderEmailInlineMenu, renderEmailRichTextMenu } from "./RichTextToolbar";
 import { emailRichTextConfig } from "./EmailRichText";
 import { AttributeNameInput, htmlAttributeNameGroups } from "./AttributeNameInput";
@@ -103,6 +103,23 @@ function SectionFrame({
   );
 }
 
+function FixedSection({ columns, ...style }: SectionStyleProps & { columns: SlotComponent[] }) {
+  const content = columns.map((Column, index) => (
+    <ImplicitColumnWidth key={index} count={columns.length}>
+      <Column minEmptyHeight={80} />
+    </ImplicitColumnWidth>
+  ));
+  return (
+    <SectionFrame {...style}>
+      {columns.length === 1 ? (
+        content
+      ) : (
+        <div className={`pm-columns pm-columns-${columns.length}`}>{content}</div>
+      )}
+    </SectionFrame>
+  );
+}
+
 export function createEmailConfig(
   onUploadImage?: (file: File) => Promise<string>,
   allowRawHtml = false,
@@ -129,6 +146,12 @@ export function createEmailConfig(
   const contentSlotField = allowRawHtml
     ? { ...slotField, allow: [...slotField.allow, "Raw"] }
     : slotField;
+  const sectionFields = {
+    backgroundColor: colorField("Background color (hex)"),
+    padding: paddingField,
+    ...borderFields,
+  };
+  const sectionDefaults = { ...borderDefaults, backgroundColor: "#ffffff", padding: "0px" };
   type RootProps = Pick<
     EmailSettings,
     | "bodyAttributes"
@@ -570,9 +593,7 @@ export function createEmailConfig(
       Wrapper: {
         label: "Section wrapper",
         fields: {
-          backgroundColor: colorField("Background color (hex)"),
-          padding: paddingField,
-          ...borderFields,
+          ...sectionFields,
           sections: {
             type: "slot",
             label: "Sections",
@@ -612,9 +633,7 @@ export function createEmailConfig(
       Section: {
         label: "Flexible section",
         fields: {
-          backgroundColor: colorField("Background color (hex)"),
-          padding: paddingField,
-          ...borderFields,
+          ...sectionFields,
           columns: {
             type: "slot",
             label: "Columns",
@@ -622,26 +641,11 @@ export function createEmailConfig(
           },
         },
         defaultProps: {
-          ...borderDefaults,
-          backgroundColor: "#ffffff",
-          padding: "0px",
+          ...sectionDefaults,
           columns: [],
         },
-        render: ({
-          backgroundColor,
-          padding,
-          border,
-          borderRadius,
-          cssClass,
-          columns: Columns,
-        }) => (
-          <SectionFrame
-            backgroundColor={backgroundColor}
-            padding={padding}
-            border={border}
-            borderRadius={borderRadius}
-            cssClass={cssClass}
-          >
+        render: ({ columns: Columns, ...style }) => (
+          <SectionFrame {...style}>
             <div className="pm-flex-section">
               <Columns minEmptyHeight={100} style={{ justifyContent: "center" }} />
             </div>
@@ -774,116 +778,42 @@ export function createEmailConfig(
       Section1: {
         label: "1 column section",
         fields: {
-          backgroundColor: colorField("Background color (hex)"),
-          padding: paddingField,
-          ...borderFields,
+          ...sectionFields,
           column: { ...contentSlotField, label: "Column" },
         },
-        defaultProps: { ...borderDefaults, backgroundColor: "#ffffff", padding: "0px", column: [] },
-        render: ({ backgroundColor, padding, border, borderRadius, cssClass, column: Column }) => (
-          <SectionFrame
-            backgroundColor={backgroundColor}
-            padding={padding}
-            border={border}
-            borderRadius={borderRadius}
-            cssClass={cssClass}
-          >
-            <ImplicitColumnWidth count={1}>
-              <Column minEmptyHeight={80} />
-            </ImplicitColumnWidth>
-          </SectionFrame>
-        ),
+        defaultProps: { ...sectionDefaults, column: [] },
+        render: ({ column, ...style }) => <FixedSection {...style} columns={[column]} />,
       },
       Section2: {
         label: "2 column section",
         fields: {
-          backgroundColor: colorField("Background color (hex)"),
-          padding: paddingField,
-          ...borderFields,
+          ...sectionFields,
           left: { ...contentSlotField, label: "Left column" },
           right: { ...contentSlotField, label: "Right column" },
         },
         defaultProps: {
-          ...borderDefaults,
-          backgroundColor: "#ffffff",
-          padding: "0px",
+          ...sectionDefaults,
           left: [],
           right: [],
         },
-        render: ({
-          backgroundColor,
-          padding,
-          border,
-          borderRadius,
-          cssClass,
-          left: Left,
-          right: Right,
-        }) => (
-          <SectionFrame
-            backgroundColor={backgroundColor}
-            padding={padding}
-            border={border}
-            borderRadius={borderRadius}
-            cssClass={cssClass}
-          >
-            <div className="pm-columns pm-columns-2">
-              <ImplicitColumnWidth count={2}>
-                <Left minEmptyHeight={80} />
-              </ImplicitColumnWidth>
-              <ImplicitColumnWidth count={2}>
-                <Right minEmptyHeight={80} />
-              </ImplicitColumnWidth>
-            </div>
-          </SectionFrame>
-        ),
+        render: ({ left, right, ...style }) => <FixedSection {...style} columns={[left, right]} />,
       },
       Section3: {
         label: "3 column section",
         fields: {
-          backgroundColor: colorField("Background color (hex)"),
-          padding: paddingField,
-          ...borderFields,
+          ...sectionFields,
           left: { ...contentSlotField, label: "Left column" },
           middle: { ...contentSlotField, label: "Middle column" },
           right: { ...contentSlotField, label: "Right column" },
         },
         defaultProps: {
-          ...borderDefaults,
-          backgroundColor: "#ffffff",
-          padding: "0px",
+          ...sectionDefaults,
           left: [],
           middle: [],
           right: [],
         },
-        render: ({
-          backgroundColor,
-          padding,
-          border,
-          borderRadius,
-          cssClass,
-          left: Left,
-          middle: Middle,
-          right: Right,
-        }) => (
-          <SectionFrame
-            backgroundColor={backgroundColor}
-            padding={padding}
-            border={border}
-            borderRadius={borderRadius}
-            cssClass={cssClass}
-          >
-            <div className="pm-columns pm-columns-3">
-              <ImplicitColumnWidth count={3}>
-                <Left minEmptyHeight={80} />
-              </ImplicitColumnWidth>
-              <ImplicitColumnWidth count={3}>
-                <Middle minEmptyHeight={80} />
-              </ImplicitColumnWidth>
-              <ImplicitColumnWidth count={3}>
-                <Right minEmptyHeight={80} />
-              </ImplicitColumnWidth>
-            </div>
-          </SectionFrame>
+        render: ({ left, middle, right, ...style }) => (
+          <FixedSection {...style} columns={[left, middle, right]} />
         ),
       },
       Text: {

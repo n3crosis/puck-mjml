@@ -7,8 +7,8 @@ import { resolveImportedAttributes } from "./import-inheritance";
 import { nativeCatalog, normalizeMjClass, readNativeAttributes } from "./native-attributes";
 import type { EmailSettings, ExportOptions, MjmlAttribute, MjmlElementOptions } from "./types";
 
-export type NativeAttributeValues = Readonly<Record<string, string>>;
-export type NativeClass = Readonly<{
+type NativeAttributeValues = Readonly<Record<string, string>>;
+type NativeClass = Readonly<{
   attributes: NativeAttributeValues;
   components: Readonly<Record<string, NativeAttributeValues>>;
 }>;

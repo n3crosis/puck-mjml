@@ -165,8 +165,7 @@ export function columnGutter(
   const index = siblings.findIndex((entry) => entry.id === id);
   if (scope.gutter === undefined || index < 0 || !scope.width) return undefined;
   const count = siblings.length;
-  const nonRawCount = siblings.filter((entry) => !entry.raw).length || 1;
-  const width = a.width || `${100 / nonRawCount}%`;
+  const width = a.width || defaultLayoutWidth(scope);
   const unit = width.endsWith("%") ? "%" : "px";
   // MJML truncates pixel gutters, but retains fractional percentage gutters.
   const sourceGutter =

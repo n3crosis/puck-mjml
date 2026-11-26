@@ -66,7 +66,7 @@ An `EmailDocument` is Puck JSON. Top-level sections and wrappers live in `root.p
 
 ### `fromMjml(source: string, options?: ImportOptions): ImportedEmail`
 
-Parses MJML into `{ document, warnings }`. `warnings` lists content the model cannot represent. Throws when the source has no `<mjml>` root or no `<mj-body>`. `ImportOptions.allowLocalImages` keeps bounded raster data URLs in `mj-image src`; it is off by default.
+Parses MJML into `{ document, warnings }`. `warnings` lists content the model cannot represent. Throws when the source has no `<mjml>` root or no `<mj-body>`. Markup nested more than 512 elements deep, including HTML inside ending tags, also throws instead of exhausting the call stack. `ImportOptions.allowLocalImages` keeps bounded raster data URLs in `mj-image src`; it is off by default.
 
 ### `toMjml(document: EmailDocument, options?: ExportOptions): string`
 
@@ -106,7 +106,7 @@ Both functions return MJML source for `fromMjml`. Neither reads files or URLs, a
 
 ### `resolveMjmlIncludes(source, files, sourcePath = "index.mjml"): string`
 
-Expands `<mj-include>` from an explicit map of relative POSIX paths to file contents. MJML fragments are inserted in place; included heads and `type="css"` files go into the root `mj-head`; `type="html"` files become `mj-raw`, which still needs `allowRawHtml` to export. Missing files, duplicate paths, cycles, paths that escape the map, URLs, and unknown types throw.
+Expands `<mj-include>` from an explicit map of relative POSIX paths to file contents. MJML fragments are inserted in place; included heads and `type="css"` files go into the root `mj-head`; `type="html"` files become `mj-raw`, which still needs `allowRawHtml` to export. Missing files, duplicate paths, cycles, paths that escape the map, URLs, and unknown types throw. CSS and HTML files that contain any MJML closing tag, such as `</mj-head>` or `</mj-column>`, also throw, so a file cannot add MJML structure outside its `mj-style` or `mj-raw` wrapper.
 
 Includes inside comments or inside the content of any compiler ending tag (`mj-text`, `mj-button`, `mj-table`, `mj-raw`, `mj-carousel-image`, and the others marked `endingTag` in [the native catalog](https://github.com/n3crosis/puck-mjml/blob/main/src/native-catalog.json)) are left as written, as MJML's own parser does.
 

@@ -19,6 +19,9 @@ See the [API reference](docs/API.md) for the public contract and [MJML compatibi
 
 ### Fixed
 
+- Security: `type="css"` and `type="html"` includes now reject every MJML closing tag, not only their own wrapper's. A CSS file containing `</mj-head><mj-body>…` previously added ordinary, untrusted-looking MJML blocks to the document.
+- Security: `fromMjml` rejects markup nested more than 512 elements deep with a clear error. Deep input previously exhausted the call stack.
+- Security: rich-text import normalization walks the parsed tree directly. Selecting every element deduplicated the match set in quadratic time, so large flat text blocks took seconds to import.
 - Import, intrinsic preflight, include expansion, and custom-component expansion share the compiler ending-tag catalog. Content inside `mj-breakpoint` and `mj-carousel-image` can no longer trigger false intrinsic-layout resource errors.
 
 - Rich-text inventory checks run separately for each template and release their editor instances between cases, retaining full anchor and source-preservation coverage.

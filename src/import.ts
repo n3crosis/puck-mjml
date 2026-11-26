@@ -4,7 +4,7 @@ import { parseIntrinsicMarkup, preflightIntrinsicSource } from "./intrinsic-impo
 import { createNativeContext, type NativeContext } from "./native-cascade";
 import { resolveIntrinsicLeaf, intrinsicLeafPresentation } from "./intrinsic-layout";
 import { isLocalImageSource } from "./image-upload";
-import type { Element, Text } from "domhandler";
+import type { AnyNode, Element, Text } from "domhandler";
 import { normalizeMjClass, nativeCatalog, readNativeAttributes } from "./native-attributes";
 import { captureImportedAttributeBaselines } from "./import-inheritance";
 import {
@@ -427,6 +427,21 @@ function sourceAttribute(tag: string, name: string, value: string): string {
   return decodeImportedAttribute(value);
 }
 
+/** Deeper markup is rejected before recursive traversal can exhaust the call stack. */
+const maxNestingDepth = 512;
+
+function loadHtml(...args: Parameters<typeof cheerio.load>): cheerio.CheerioAPI {
+  const $ = cheerio.load(...args);
+  const pending: [AnyNode, number][] = $.root()[0].children.map((node) => [node, 1]);
+  for (let entry = pending.pop(); entry; entry = pending.pop()) {
+    const [node, depth] = entry;
+    if (depth > maxNestingDepth)
+      throw new Error(`MJML source nesting exceeds ${maxNestingDepth} levels.`);
+    if ("children" in node) for (const child of node.children) pending.push([child, depth + 1]);
+  }
+  return $;
+}
+
 function parseElements(source: string, importer: Importer): SourceElement[] {
   // MJML ending tags contain HTML, not XML: an unclosed <br> or <img>
   // must never consume the next MJML component. Keep their source opaque.
@@ -518,7 +533,7 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
     }
   }
   protectedSource += source.slice(copied);
-  const $ = cheerio.load(protectedSource, { xml: { decodeEntities: false } }, false);
+  const $ = loadHtml(protectedSource, { xml: { decodeEntities: false } }, false);
   const build = (node: Element): SourceElement => {
     const wrapped = $(node);
     const children = wrapped.children().toArray();
@@ -551,7 +566,7 @@ function parseElements(source: string, importer: Importer): SourceElement[] {
           ancestorClasses,
         };
       }
-      const html = cheerio.load(sourceContent.trim(), {}, false);
+      const html = loadHtml(sourceContent.trim(), {}, false);
       return {
         tag,
         attributes,
@@ -1123,17 +1138,20 @@ function preserveLabelHtml(
 
 /** Attribute order does not change HTML meaning or require trusted source. */
 function comparableHtml($: cheerio.CheerioAPI): string {
-  $("*").each((_, node) => {
-    if (!("attribs" in node)) return;
+  // Walk the tree directly: selecting "*" deduplicates the match set in quadratic time.
+  const pending = [...$.root()[0].children];
+  for (let node = pending.pop(); node; node = pending.pop()) {
+    if (!("attribs" in node)) continue;
     node.attribs = Object.fromEntries(
       Object.entries(node.attribs).sort(([a], [b]) => a.localeCompare(b)),
     );
-  });
+    pending.push(...node.children);
+  }
   return $.html().trim();
 }
 
 function preserveRichHtml(element: SourceElement, importer: Importer): Record<string, unknown> {
-  const normalize = (html: string) => comparableHtml(cheerio.load(html, {}, false));
+  const normalize = (html: string) => comparableHtml(loadHtml(html, {}, false));
   if (normalize(element.innerHtml) === normalize(sanitizeEmailRichText(element.innerHtml)))
     return {};
   importer.warn(
@@ -1449,7 +1467,7 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
     if (intrinsic) return intrinsic;
   }
   const props = importer.attributes("mj-table", element, TABLE_ATTRS);
-  const $ = cheerio.load(`<table>${element.innerHtml}</table>`, {}, false);
+  const $ = loadHtml(`<table>${element.innerHtml}</table>`, {}, false);
   let cellLoss = false;
   const cell = (node: Element, header: boolean): Record<string, unknown> => {
     const wrapped = $(node);
@@ -1566,7 +1584,7 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
     "border",
   ]);
   const normalizedTableHtml = (html: string) => {
-    const parsed = cheerio.load(`<table>${html}</table>`, {}, false);
+    const parsed = loadHtml(`<table>${html}</table>`, {}, false);
     parsed("[style]").each((_, node) => {
       const style = parsed(node).attr("style")!;
       parsed(node).attr(
@@ -1619,8 +1637,8 @@ function parseTable(element: SourceElement, importer: Importer): EmailBlock {
           return true;
         const content = $(node).html() ?? "";
         return (
-          comparableHtml(cheerio.load(content, {}, false)) !==
-          comparableHtml(cheerio.load(sanitizeEmailRichText(content), {}, false))
+          comparableHtml(loadHtml(content, {}, false)) !==
+          comparableHtml(loadHtml(sanitizeEmailRichText(content), {}, false))
         );
       });
   if (trusted)

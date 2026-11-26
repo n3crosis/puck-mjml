@@ -524,3 +524,15 @@ it("does not accumulate default rich-text CSS through repeated export/import", (
   expect(second).toBe(first);
   expect(toMjml(fromMjml(second).document)).toBe(first);
 });
+
+it("rejects markup nested deeper than the parser can traverse safely", () => {
+  const wrap = (body: string) =>
+    `<mjml><mj-body><mj-section><mj-column>${body}</mj-column></mj-section></mj-body></mjml>`;
+  expect(() => fromMjml(wrap(`<mj-text>${"<b>".repeat(10_000)}x</mj-text>`))).toThrow(
+    "nesting exceeds 512 levels",
+  );
+  expect(() => fromMjml(`<mjml><mj-body>${"<mj-wrapper>".repeat(5_000)}</mj-body></mjml>`)).toThrow(
+    "nesting exceeds 512 levels",
+  );
+  expect(() => fromMjml(wrap(`<mj-text>${"<b>".repeat(400)}x</mj-text>`))).not.toThrow();
+});

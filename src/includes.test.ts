@@ -49,6 +49,20 @@ it("rejects missing files, cycles, escapes, unsupported types and oversized expa
   expect(() =>
     resolveMjmlIncludes(include("a", 'type="html"'), { a: "</mj-raw><mj-text>escape" }),
   ).toThrow("boundary");
+  for (const [type, value] of [
+    ["html", "<p>x</p></mj-column></mj-section><mj-section><mj-column><mj-button>escape"],
+    ["html", "</MJ-BODY ><mj-body>escape"],
+    ["css", ".a{}</mj-head><mj-body><mj-section><mj-column><mj-text>escape"],
+    ["css", ".a{}</mj-style >"],
+  ])
+    expect(() => resolveMjmlIncludes(include("a", `type="${type}"`), { a: value })).toThrow(
+      "boundary",
+    );
+  expect(
+    resolveMjmlIncludes(include("a", 'type="html"'), {
+      a: "<p>a</p><mj-text-like></mj-text-like>",
+    }),
+  ).toContain("<mj-raw><p>a</p><mj-text-like></mj-text-like></mj-raw>");
   expect(() => resolveMjmlIncludes(include("a"), { a: "x".repeat(10 * 1024 * 1024) })).toThrow(
     "limit",
   );

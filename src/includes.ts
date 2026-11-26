@@ -1,4 +1,4 @@
-import { nativeEndingTags } from "./native-ending-tags";
+import { mjmlClosingTag, nativeEndingTags } from "./native-ending-tags";
 import * as cheerio from "cheerio";
 import type { Element } from "domhandler";
 
@@ -91,7 +91,8 @@ export function resolveMjmlIncludes(
         remaining -= value.length;
         if (remaining < 0) throw new Error("MJML include expansion limit exceeded");
         const tag = attributes.type === "html" ? "mj-raw" : "mj-style";
-        if (new RegExp(`<\\s*/\\s*${tag}\\b`, "i").test(value))
+        // Any MJML closing tag ends the wrapper early and lets the file add MJML structure.
+        if (mjmlClosingTag.test(value))
           throw new Error(`Unsafe ${tag} boundary in MJML include: ${key}`);
         replacement = `<${tag}${tag === "mj-style" && attributes["css-inline"] === "inline" ? ' inline="inline"' : ""}>${value}</${tag}>`;
         if (tag === "mj-style") {
